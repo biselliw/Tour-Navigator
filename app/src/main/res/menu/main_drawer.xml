@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:id="@+id/nav_group_main"
+        android:checkableBehavior="all">
+        <item
+            android:id="@+id/nav_main"
+            android:icon="@drawable/ic_menu_home"
+            android:title="@string/action_main" />
+        <item
+            android:id="@+id/nav_tutorial"
+            android:icon="@drawable/ic_menu_tutorial"
+            android:title="@string/action_tutorial" />
+        <item
+            android:id="@+id/nav_open_gpx"
+            android:icon="@drawable/ic_menu_open_gpx"
+            android:title="@string/action_open_gpx" />
+        <item
+            android:id="@+id/nav_file_info"
+            android:icon="@drawable/description"
+            android:title="@string/action_file_info" />
+        <item
+            android:id="@+id/nav_reverse_route"
+            android:icon="@drawable/undo"
+            android:title="@string/action_reverse_route" />
+        <item
+            android:id="@+id/nav_start_time"
+            android:icon="@drawable/schedule"
+            android:title="@string/action_start_time"/>
+    </group>
+
+    <group android:id="@+id/nav_group_export">
+        <item
+            android:id="@+id/nav_download_gpx"
+            android:icon="@drawable/ic_menu_download_gpx"
+            android:title="@string/action_download_gpx" />
+        <item
+            android:id="@+id/nav_download_html"
+            android:icon="@drawable/html"
+            android:title="@string/action_download_html" />
+    </group>
+
+    <group android:id="@+id/nav_group_supp">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/settings"
+            android:title="@string/action_settings" />
+        <item
+            android:id="@+id/nav_help"
+            android:icon="@drawable/ic_menu_help"
+            android:title="@string/action_help" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_menu_info"
+            android:title="@string/action_about" />
+    </group>
+
+</menu>

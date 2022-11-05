@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/main_buttons"
+    style="@style/AlertDialog.AppCompat"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:overScrollMode="always"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".activities.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/image_open_gpx"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="OpenFileGPX"
+            app:srcCompat="@drawable/ic_menu_open_gpx"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/image_tracking_pause"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="pauseTracking"
+            android:visibility="gone"
+            app:srcCompat="@drawable/accessibility_new" />
+
+        <ImageButton
+            android:id="@+id/image_tracking"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="continueTracking"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/follow_the_signs" />
+
+        <ImageButton
+            android:id="@+id/image_expand_more"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="expand_more"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/expand_more" />
+
+        <ImageButton
+            android:id="@+id/image_expand_less"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="expand_less"
+            android:visibility="gone"
+            app:srcCompat="@drawable/expand_less" />
+
+        <ImageButton
+            android:id="@+id/image_show_profile"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="show_profile"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/show_chart" />
+
+        <ImageButton
+            android:id="@+id/image_hide_profile"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="hide_profile"
+            android:visibility="gone"
+            app:srcCompat="@drawable/open_in_full" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="#000000" />
+
+        <ImageView
+            android:id="@+id/image_alarm_off"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/alarm_off" />
+
+        <ImageView
+            android:id="@+id/image_alarm_on"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/alarm_on" />
+
+        <ImageView
+            android:id="@+id/image_location_disabled"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="No Permission for GPS"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_disabled"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/image_location_home"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_home" />
+
+        <ImageView
+            android:id="@+id/image_location_wait"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/sync_problem" />
+
+        <ImageView
+            android:id="@+id/image_location_off"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_off" />
+
+        <ImageView
+            android:id="@+id/image_location_on"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_on" />
+
+        <ImageView
+            android:id="@+id/image_location_searching"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_searching" />
+
+        <ImageView
+            android:id="@+id/image_location_away"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_away" />
+    </LinearLayout>
+
+</LinearLayout>
+

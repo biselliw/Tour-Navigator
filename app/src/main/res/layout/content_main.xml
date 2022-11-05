@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/main_content"
+    style="@style/AlertDialog.AppCompat"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:overScrollMode="always"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".activities.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <TableLayout
+        android:id="@+id/table_layout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:minHeight="25dp">
+
+        <TableRow
+            android:id="@+id/table_row11"
+            android:layout_width="match_parent">
+
+            <TextView
+                android:id="@+id/h_track_arrive"
+                android:layout_width="90dp"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:text="@string/arrive"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/h_track_place"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:text="@string/next_place"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/h_track_distance"
+                android:layout_width="60dp"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:text="@string/distance"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/h_track_dist_to_dest"
+                android:layout_width="70dp"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:text="@string/DTD"
+                android:textAlignment="viewEnd"
+                android:textColor="@color/black" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/table_row12"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/track_arrive"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/track_place"
+                android:layout_height="match_parent"
+                android:fontFamily="serif"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/track_distance"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:text=""
+                android:textAlignment="viewEnd"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/track_dist_to_dest"
+                android:layout_height="20dp"
+                android:fontFamily="serif"
+                android:text="DTD"
+                android:textAlignment="viewEnd"
+                android:textColor="@color/black"
+                tools:ignore="HardcodedText" />
+        </TableRow>
+    </TableLayout>
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0" />
+
+    <TextView
+        android:id="@+id/main_text_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:text="@string/main_text_title"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:id="@+id/location_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="10"
+        android:orientation="vertical">
+
+        <TableLayout
+            android:id="@+id/table_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="25dp">
+
+            <TableRow
+                android:id="@+id/table_row1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:longClickable="true"
+                tools:ignore="TouchTargetSizeCheck">
+
+                <TextView
+                    android:id="@+id/record_time"
+                    android:layout_width="45dp"
+                    android:layout_height="20dp"
+                    android:fontFamily="serif"
+                    android:text="@string/time"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/record_delay"
+                    android:layout_width="45dp"
+                    android:layout_height="20dp"
+                    android:fontFamily="serif"
+                    android:text=""
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:id="@+id/record_distance"
+                    android:layout_width="45dp"
+                    android:layout_height="25dp"
+                    android:fontFamily="serif"
+                    android:text="km"
+                    android:textColor="@color/black"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/record_place"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:fontFamily="serif"
+                    android:text="@string/place"
+                    android:textColor="@color/black" />
+            </TableRow>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dip"
+                android:background="#ff0000" />
+        </TableLayout>
+
+        <ListView
+            android:id="@+id/records_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_weight="2"></ListView>
+
+        <TextView
+            android:id="@+id/comment_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fadeScrollbars="true"
+            android:fontFamily="serif"
+            android:isScrollContainer="true"
+            android:minHeight="45dp"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:verticalScrollbarPosition="right"
+            android:visibility="visible"
+            tools:visibility="visible"></TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/profile_plot"
+        android:layout_height="300dp"
+        android:layout_width="match_parent">
+
+        <com.androidplot.xy.XYPlot
+            android:id="@+id/plot"
+            style="@style/APDefacto.Light"
+            android:layout_width="fill_parent"
+            android:layout_height="300dp"
+            app:lineLabelRotationBottom="-45"
+            app:lineLabels="left|bottom"
+            app:rangeTitle="@string/altitude_m"
+            app:title="@string/profile" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/description_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="10"
+        android:orientation="vertical"
+        android:textColor="@color/black">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="10"
+            android:orientation="vertical"
+            android:textColor="@color/black">
+
+            <TextView
+                android:id="@+id/description_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:scrollbarSize="5dp"
+                android:scrollbars="vertical"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:verticalScrollbarPosition="right" />
+        </ScrollView>
+
+        <TextView
+            android:id="@+id/link_view"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:autoLink="web"
+            android:fontFamily="serif"
+            android:minHeight="45dp"
+            android:textSize="16sp"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dip"
+            android:background="#ff0000" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:minHeight="48dp"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/image_open_gpx"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="OpenFileGPX"
+            app:srcCompat="@drawable/ic_menu_open_gpx"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/image_tracking_pause"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="pauseTracking"
+            android:visibility="gone"
+            app:srcCompat="@drawable/accessibility_new" />
+
+        <ImageButton
+            android:id="@+id/image_tracking"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="continueTracking"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/follow_the_signs" />
+
+        <ImageButton
+            android:id="@+id/image_expand_more"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="expand_more"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/expand_more" />
+
+        <ImageButton
+            android:id="@+id/image_expand_less"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="expand_less"
+            android:visibility="gone"
+            app:srcCompat="@drawable/expand_less" />
+
+        <ImageButton
+            android:id="@+id/image_show_profile"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="show_profile"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/show_chart" />
+
+        <ImageButton
+            android:id="@+id/image_hide_profile"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="hide_profile"
+            android:visibility="gone"
+            app:srcCompat="@drawable/open_in_full" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:background="#000000" />
+
+        <ImageView
+            android:id="@+id/image_alarm_off"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/alarm_off" />
+
+        <ImageView
+            android:id="@+id/image_alarm_on"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/alarm_on" />
+
+        <ImageView
+            android:id="@+id/image_location_disabled"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="No Permission for GPS"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_disabled"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/image_location_home"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_home" />
+
+        <ImageView
+            android:id="@+id/image_location_wait"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/sync_problem" />
+
+        <ImageView
+            android:id="@+id/image_location_off"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_off" />
+
+        <ImageView
+            android:id="@+id/image_location_on"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_on" />
+
+        <ImageView
+            android:id="@+id/image_location_searching"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_searching" />
+
+        <ImageView
+            android:id="@+id/image_location_away"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:srcCompat="@drawable/location_away" />
+    </LinearLayout>
+
+</LinearLayout>
+
