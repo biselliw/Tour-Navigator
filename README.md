@@ -1,4 +1,5 @@
-﻿# Tour Navigator
+# Tour-Navigator
+Timetable of a hiking tour
 
 Tour Navigator is a Privacy Friendly App for Android which presents hikers a timetable of a planned GPX route containing wayponts.
 
@@ -14,9 +15,11 @@ This application has been developed to be used for hiking.
 
 ## Download and more Information
 
+
 You can freely download the Android app here: https://github.com/biselliw/HikingNavigatorApp/app/build/outputs/apk/debug/HikingNavigatorApp-debug-v1.0.apk
 
-Further development requires Android Studio.
+
+Further development requires Android Studio, we recommend to use at least version 3.1.1
  
 ### API Reference
 
@@ -41,6 +44,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+
 The app also uses:
 
 - sources from <a href="https://activityworkshop.net/software/gpsprune/">activityworkshop.net</a> licensed under <a href="http://www.gnu.org/licenses/">GNU General Public License v2.0</a>
@@ -49,7 +53,7 @@ The app also uses:
 - Icons from <a href="https://material.io/resources/icons/">Google Material Design Icons</a> licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License Version 2.0</a>
 
 
-
+The icons used in the nagivation drawer are licensed under the [CC BY 2.5](http://creativecommons.org/licenses/by/2.5/). In addition to them the app uses icons from [Google Design Material Icons](https://design.google.com/icons/index.html) licensed under Apache License Version 2.0. 
 
 
 
