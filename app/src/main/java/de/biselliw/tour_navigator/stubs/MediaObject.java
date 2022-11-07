@@ -1,23 +1,28 @@
-package tim.prune.data;
+package de.biselliw.tour_navigator.stubs;
 
 import java.io.File;
 
+import de.biselliw.tour_navigator.data.DataPoint;
+import tim.prune.data.Timestamp;
+
 /**
- * Class to represent a general media object for correlation.
- * Subclasses are currently Photo and AudioClip
+ * Stub class to represent a general media object for correlation.
+ * @implSpec all subclasses (currently Photo and AudioClip) are not handled within this app
+ *
+ * @author tim.prune
  */
 public abstract class MediaObject
 {
 	/** File where media is stored (if any) */
-	protected File _file = null;
+	protected File _file;
 	/** Name of file */
-	protected String _name = null;
+	protected String _name;
 	/** Cached data if downloaded */
-	protected byte[] _data = null;
+	protected byte[] _data;
 	/** URL if media came from net */
 	protected String _url = null;
 	/** Timestamp, if any */
-	protected Timestamp _timestamp = null;
+	protected Timestamp _timestamp;
 	/** Associated DataPoint if correlated */
 	protected DataPoint _dataPoint = null;
 	/** Status when loaded */
@@ -34,7 +39,7 @@ public abstract class MediaObject
 		TAGGED,
 		/** Media is connected to a point */
 		CONNECTED
-	};
+	}
 
 
 	/**
@@ -48,21 +53,6 @@ public abstract class MediaObject
 		_name = inFile.getName();
 		_data = null;
 		_timestamp = inStamp;
-	}
-
-	/**
-	 * Constructor for byte arrays
-	 * @param inData byte array containing data
-	 * @param inName name of object
-	 * @param inUrl source url of object or null
-	 */
-	public MediaObject(byte[] inData, String inName, String inUrl)
-	{
-		_file = null;
-		_data = inData;
-		_name = inName;
-		_url = inUrl;
-		_timestamp = null;
 	}
 
 	/**
@@ -85,33 +75,10 @@ public abstract class MediaObject
 	}
 
 	/**
-	 * @param inTimestamp Timestamp object
-	 */
-	public void setTimestamp(Timestamp inTimestamp) {
-		_timestamp = inTimestamp;
-	}
-
-	/**
-	 * @return byte data of media
-	 */
-	public byte[] getByteData() {
-		return _data;
-	}
-
-	/**
 	 * @return source Url (or null)
 	 */
 	public String getUrl() {
 		return _url;
-	}
-
-	/**
-	 * @return the full path to the media, either filename or url
-	 */
-	public String getFullPath()
-	{
-		if (_file != null) return _file.getAbsolutePath();
-		return getUrl();
 	}
 
 	/**
@@ -172,55 +139,10 @@ public abstract class MediaObject
 	}
 
 	/**
-	 * @param inStatus status of file when loaded
-	 */
-	public void setOriginalStatus(Status inStatus)
-	{
-		_originalStatus = inStatus;
-		_currentStatus = inStatus;
-	}
-
-	/**
-	 * @return status of file when it was loaded
-	 */
-	public Status getOriginalStatus()
-	{
-		return _originalStatus;
-	}
-
-	/**
-	 * @return current status
-	 */
-	public Status getCurrentStatus()
-	{
-		return _currentStatus;
-	}
-	/**
 	 * @param inStatus current status
 	 */
 	public void setCurrentStatus(Status inStatus)
 	{
 		_currentStatus = inStatus;
 	}
-
-	/**
-	 * @return true if this object is connected to a point
-	 */
-	public boolean isConnected()
-	{
-		return _currentStatus != Status.NOT_CONNECTED;
-	}
-
-	/**
-	 * @return true if status has changed since load
-	 */
-	public boolean isModified()
-	{
-		return _currentStatus != _originalStatus;
-	}
-
-	/**
-	 * Reset any cached data (eg thumbnail)
-	 */
-	public void resetCachedData() {}
 }

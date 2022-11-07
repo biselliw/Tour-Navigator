@@ -75,7 +75,7 @@ import java.util.Observer;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import tim.prune.data.DataPoint;
+import de.biselliw.tour_navigator.data.DataPoint;
 import tim.prune.data.Track;
 import tim.prune.data.TrackInfo;
 

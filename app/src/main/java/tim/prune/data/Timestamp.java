@@ -1,13 +1,13 @@
 package tim.prune.data; 
 
-/* @since WB */		
+/* @since WB */
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import de.biselliw.tour_navigator.stubs.TimezoneHelper;
+import de.biselliw.tour_navigator.helpers.TimezoneHelper;
 
 
 /**
@@ -27,7 +27,7 @@ public abstract class Timestamp
 
 	private static boolean _millisAddedToTimeFormat = false;
 
-	/* @since WB */		
+	/* @since WB */
 	protected static final TimeZone DEFAULT_TIME_ZONE = TimezoneHelper.getSelectedTimezone();
 		
 
@@ -184,7 +184,7 @@ public abstract class Timestamp
 		if (!isValid()) {
 			return "";
 		}
-		/* @since WB */		
+		/* @since WB */
 		if (inTimezone == null)  {
 			inTimezone = DEFAULT_TIME_ZONE;
 		}

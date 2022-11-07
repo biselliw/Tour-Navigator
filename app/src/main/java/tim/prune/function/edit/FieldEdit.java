@@ -1,6 +1,6 @@
 package tim.prune.function.edit;
 
-import tim.prune.data.Field;
+import de.biselliw.tour_navigator.data.Field;
 
 /**
  * Class to hold a single field edit including Field and new value

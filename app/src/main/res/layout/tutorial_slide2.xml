@@ -21,9 +21,9 @@
             android:textStyle="bold" />
 
         <ImageView
-            android:layout_width="@dimen/img_width_height"
-            android:layout_height="@dimen/img_width_height"
-            android:background="@mipmap/ic_splash"
+            android:layout_width="@dimen/img_width_tutorial"
+            android:layout_height="@dimen/img_height_tutorial"
+            android:background="@mipmap/tutorial2"
             />
 
         <TextView

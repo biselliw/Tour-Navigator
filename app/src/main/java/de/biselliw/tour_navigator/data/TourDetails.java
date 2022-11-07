@@ -6,7 +6,6 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import tim.prune.data.DataPoint;
 import tim.prune.data.SourceInfo;
 
 public class TourDetails {

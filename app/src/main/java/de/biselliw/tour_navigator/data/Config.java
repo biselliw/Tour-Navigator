@@ -1,17 +1,19 @@
-package de.biselliw.tour_navigator.stubs;
-
-// Basic class required for Android app
+package de.biselliw.tour_navigator.data;
 
 import java.util.Properties;
 
+import java.time.ZoneId;
+import java.util.TimeZone;
+
 import tim.prune.data.UnitSet;
 import tim.prune.data.UnitSetLibrary;
+
 /**
  * Abstract class to hold application-wide configuration
+ * @author BiselliW
  */
 public abstract class Config
 {
-
 	/** key/value pairs containing all config values */
 	private static Properties _configValues = null;
 	/** Current unit set */
@@ -25,8 +27,7 @@ public abstract class Config
 	{
 		_configValues = getDefaultProperties();
 	}
-	/**
-	/**
+
 	/**
 	 * @return Properties object containing default values
 	 */
@@ -88,4 +89,5 @@ public abstract class Config
 	public static UnitSet getUnitSet() {
 		return _unitSet;
 	}
+
 }

@@ -2,11 +2,15 @@ package de.biselliw.tour_navigator.data;
 
 
 import tim.prune.data.Altitude;
-import tim.prune.data.DataPoint;
 import tim.prune.data.Distance;
 import tim.prune.data.IntegerRange;
 import de.biselliw.tools.debug.Log;
 
+/**
+ * class to hold all details of a track
+ *
+ * @author BiselliW
+ */
 public class TrackDetails {
 
     /**
@@ -41,7 +45,7 @@ public class TrackDetails {
     private double vertSpeedDescent = DEF_VERT_SPEED_DESC; // descending part in [km/h]
     private int minHeightChange = DEF_MIN_HEIGHT_CHANGE; // min. required change of altitude
 
-    private BaseTrack _track = null;
+    private BaseTrack _track;
     private int numPoints;
 
     /**
@@ -82,8 +86,6 @@ public class TrackDetails {
 
     private DataPoint currPoint;
     private double[] distance_km; // absolute distance of each point from start
-    /* relative time of each point since start */
-    private long[] time_m;
 
     private int        // current altitude [m]
             movAltValue = 0,    // moving average value of altitude
@@ -130,8 +132,6 @@ public class TrackDetails {
 
         if (numPoints > 0) {
             distance_km = new double[numPoints];
-            // relative time of each point since start
-            time_m = new long[numPoints];
             _altitudeRange = new IntegerRange();
         }
         lastPoint = null;
@@ -149,37 +149,42 @@ public class TrackDetails {
         foundAlt = false;
     }
 
-    public boolean RecalculateTrackpoint(int ptIndex) {
+	/**
+	 * Recalculate all track-points for timing analysis
+	 *
+	 * @param ptIndex index of the current track-point
+	 * @return true if the current track-point is a route point
+	 */
+	public boolean RecalculateTrackpoint(int ptIndex) {
 		boolean result = false;
 
 		if (DEBUG) { Log.d(TAG, "RecalculateTrackpoint (" + ptIndex + ")"); }
-        currPoint = _track.getPoint(ptIndex);
+		currPoint = _track.getPoint(ptIndex);
 		if ((currPoint != null) && !currPoint.hasMedia())
 		{
 			if (calcFromSstart)
 			{
-			  SumDistance = 0;
-			  SumClimb = 0;
-			  SumDescent = 0;
-			  SumSeconds = 0;
-			  if (DEBUG) Log.d(TAG, "- calcFromSstart");
-			}			
-				
-	        if (segRecalc) {
-	            segClimbing = false;
-	            segDescending = false;
-	            segDistance_km = 0.0;
-	            segStartIndex = ptIndex;
-	            segRecalc = false;
-	            if (DEBUG) Log.d(TAG, "- segRecalc = false");
-	        }
+				SumDistance = 0;
+				SumClimb = 0;
+				SumDescent = 0;
+				SumSeconds = 0;
+				if (DEBUG) Log.d(TAG, "- calcFromSstart");
+			}
 
-			// ignore way points outside the track
+			if (segRecalc) {
+				segClimbing = false;
+				segDescending = false;
+				segDistance_km = 0.0;
+				segStartIndex = ptIndex;
+				segRecalc = false;
+				if (DEBUG) Log.d(TAG, "- segRecalc = false");
+			}
+
+			// ignore waypoints outside the track
 			if (!currPoint.isWayPoint())
 			{
 				boolean currPointhasAltitude = false;
-				if (currPoint.hasAltitude())
-				{
+				if (currPoint.hasAltitude()) {
 					altitude = currPoint.getAltitude();
 					if (altitude.isValid())
 					{
@@ -188,18 +193,14 @@ public class TrackDetails {
 						_altitudeRange.addValue(Altitude_m);
 						if (foundAlt)
 						{
-							if (MovingAverageDiv > 1) 
-							{					
+							if (MovingAverageDiv > 1)
+							{
 								if (++movAltValues < MovingAverageDiv)
-								{
 									movAltValue = (movAltValue * (movAltValues-1)/movAltValues)
 											+ Altitude_m/movAltValues;
-								}
 								else
-								{
 									movAltValue = (movAltValue * (MovingAverageDiv-1)/MovingAverageDiv)
 											+ Altitude_m/MovingAverageDiv;
-								}
 								Altitude_m = movAltValue;
 							}
 
@@ -210,7 +211,7 @@ public class TrackDetails {
 								{
 									segClimb_m  = altDiffValue;
 									segRecalc = true;
-					                if (DEBUG) Log.d(TAG, "- segDescending: force segRecalc");
+									if (DEBUG) Log.d(TAG, "- segDescending: force segRecalc");
 								}
 								else
 								{
@@ -226,7 +227,7 @@ public class TrackDetails {
 								{
 									segDescent_m  = altDiffValue;
 									segRecalc = true;
-					                if (DEBUG) Log.d(TAG, "- segClimbing: force segRecalc");
+									if (DEBUG) Log.d(TAG, "- segClimbing: force segRecalc");
 								}
 								else
 								{
@@ -237,21 +238,14 @@ public class TrackDetails {
 							}
 						}
 						else
-						{
-			                if (DEBUG) Log.d(TAG, "- no previous altitude given: can't calculate averages");					
-						}
+							if (DEBUG) Log.d(TAG, "- no previous altitude given: can't calculate averages");
 						if (lastAltValue <= 0)
-						{
 							lastAltValue = Altitude_m;
-						}
 						foundAlt = true;
 					}
 				}
 				if (!currPointhasAltitude)
-				{
-	                if (DEBUG) Log.d(TAG, "- currPoint has no altitude: ignore it");					
-				}
-					
+					if (DEBUG) Log.d(TAG, "- currPoint has no altitude: ignore it");
 
 				// Calculate distances, excluding way points
 				if (lastPoint != null)
@@ -266,24 +260,24 @@ public class TrackDetails {
 			else
 			{
 				// current point is waypoint
-                if (DEBUG) Log.d(TAG, "- currPoint.isWayPoint (" + currPoint.getWaypointName() + "): ignore it");
+				if (DEBUG) Log.d(TAG, "- currPoint.isWayPoint (" + currPoint.getWaypointName() + "): ignore it");
 				distance_km[ptIndex] += 0;
 			}
 
-	        distance_km[ptIndex] = Distance_km;
-	        currPoint.setRealtimeDataDist(Distance_km);
+			distance_km[ptIndex] = Distance_km;
+			currPoint.setRealtimeDataDist(Distance_km);
 
 			if (
-				currPoint.isRoutePoint() 
+					currPoint.isRoutePoint()
 // TODO
-				||	(ptIndex == (numPoints-1))
+							||	(ptIndex == (numPoints-1))
 			)
 			{
 				segRecalc = true;
-                if (DEBUG) Log.d(TAG, "- currPoint.isRoutePoint (" + currPoint.getRoutePointName() + "); LinkIndex=" + currPoint.getLinkIndex() + ": force segRecalc");
+				if (DEBUG) Log.d(TAG, "- currPoint.isRoutePoint (" + currPoint.getRoutePointName() + "); LinkIndex=" + currPoint.getLinkIndex() + ": force segRecalc");
 			}
 
-			if (segRecalc) 
+			if (segRecalc)
 			{
 				// update section data
 				SumDistance	+= segDistance_km;
@@ -294,70 +288,67 @@ public class TrackDetails {
 
 				if (DEBUG) Log.d(TAG, "- start segRecalc : SumDistance = " + SumDistance);
 
-				if (CalcTimes) 
+				if (CalcTimes)
 				{
-	                long segSeconds, horSeconds, vertSeconds;
+					long segSeconds, horSeconds, vertSeconds;
 
-	                // calculate section times
-	                horSeconds = (long) (segDistance_km / horSpeed * secondsHour);
+					// calculate section times
+					horSeconds = (long) (segDistance_km / horSpeed * secondsHour);
 
-	                if (segClimbing) {
-	                    vertSeconds = (long) (segClimb_m / vertSpeedClimb * vertSecondsHour);
-	                    segClimb_m = 0;
-	                } else if (segDescending) {
-	                    vertSeconds = -(long) (segDescent_m / vertSpeedDescent * vertSecondsHour);
-	                    segDescent_m = 0;
-	                } else {
-	                    vertSeconds = (long) (segClimb_m / vertSpeedClimb * vertSecondsHour)
-	                            - (long) (segDescent_m / vertSpeedDescent * vertSecondsHour);
-	                }
+					if (segClimbing) {
+						vertSeconds = (long) (segClimb_m / vertSpeedClimb * vertSecondsHour);
+						segClimb_m = 0;
+					} else if (segDescending) {
+						vertSeconds = -(long) (segDescent_m / vertSpeedDescent * vertSecondsHour);
+						segDescent_m = 0;
+					} else
+						vertSeconds = (long) (segClimb_m / vertSpeedClimb * vertSecondsHour)
+								- (long) (segDescent_m / vertSpeedDescent * vertSecondsHour);
 
-	                if (horSeconds > vertSeconds) {
-	                    segSeconds = (long) (horSeconds + vertSeconds / 2.0);
-	                } else {
-	                    segSeconds = (long) (horSeconds / 2.0 + vertSeconds);
-	                }
+					if (horSeconds > vertSeconds)
+						segSeconds = (long) (horSeconds + vertSeconds / 2.0);
+					else
+						segSeconds = (long) (horSeconds / 2.0 + vertSeconds);
 
-	                SumSeconds += segSeconds;
+					SumSeconds += segSeconds;
 
-	                /* relative time of each point since start */
-	                time_m[ptIndex] = SumSeconds;
+					/* relative time of each point since start */
 					if (DEBUG) Log.d(TAG, "- SumSeconds = " + SumSeconds);
 
-	                // calculate time stamps of all track/way points within the current segment
+					// calculate time stamps of all track/way points within the current segment
 					if (DEBUG) Log.d(TAG, "- calculate time stamps since segment start at point " + segStartIndex);
-	                for (int j = segStartIndex; j <= ptIndex; j++) 
-	                {
-	                    DataPoint _point = _track.getPoint(j);
-	                    if ((j > 0) && !_point.getSegmentStart()) {
-	                        if ((segSeconds > 0) && (segDistance_km > 0)) {
-	                            segSpeed = segDistance_km / segSeconds;
-	                            ptDistance = distance_km[j] - distance_km[j - 1];
-	                            if (ptDistance > 0.0) {
-	                                TotalCalcSeconds += ptDistance / segSpeed;
-	                            }
-	                        }
-	                    }
-	                    if (lastPauseMin > 0) {
-	                    	TotalCalcSeconds += lastPauseMin * 60;
-	                    	lastPauseMin = 0;
-	                    }
-	                    _point.setRealtimeDataTime(TotalCalcSeconds);
-	                }
+					for (int j = segStartIndex; j <= ptIndex; j++)
+					{
+						DataPoint _point = _track.getPoint(j);
+						if ((j > 0) && !_point.getSegmentStart()) {
+							if ((segSeconds > 0) && (segDistance_km > 0)) {
+								segSpeed = segDistance_km / segSeconds;
+								ptDistance = distance_km[j] - distance_km[j - 1];
+								if (ptDistance > 0.0) {
+									TotalCalcSeconds += ptDistance / segSpeed;
+								}
+							}
+						}
+						if (lastPauseMin > 0) {
+							TotalCalcSeconds += lastPauseMin * 60;
+							lastPauseMin = 0;
+						}
+						_point.setRealtimeDataTime(TotalCalcSeconds);
+					}
 					if (DEBUG) Log.d(TAG, "- TotalCalcSeconds = " + TotalCalcSeconds);
-	            }
-	        } 
-
-	        if (currPoint.isRoutePoint()) {
-	        	lastPauseMin = currPoint.getWaypointDuration();
-				if (lastPauseMin > 0) {
-                	if (DEBUG) Log.d(TAG, "- lastPauseMin = "+lastPauseMin);
 				}
-	            result = true;
-	        }
+			}
+
+			if (currPoint.isRoutePoint()) {
+				lastPauseMin = currPoint.getWaypointDuration();
+				if (lastPauseMin > 0) {
+					if (DEBUG) Log.d(TAG, "- lastPauseMin = "+lastPauseMin);
+				}
+				result = true;
+			}
 
 		}
-    
+
 		calcFromSstart = result;
 		if (DEBUG) Log.d(TAG, "- result = " + result);
 		return result;

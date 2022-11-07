@@ -1,5 +1,7 @@
 package tim.prune.data;
 
+import de.biselliw.tour_navigator.data.DataPoint;
+
 /**
  * Class to do basic calculations of range statistics such as distances, durations,
  * and altitude ranges, and to hold the results of the calculations.

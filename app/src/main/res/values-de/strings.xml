@@ -33,11 +33,13 @@
     <string name="activate_gps">Bitte GPS aktivieren</string>
     <string name="wait_for_gps_fix">Warten auf GPS fix</string>
     <string name="gps_fix_lost">Kein GPS fix</string>
+    <string name="wait_user_start">Die Tour kann starten!</string>
     <string name="goto_start_pos">Gehen Sie zum Start</string>
     <string name="on_track">Folgen Sie bitte weiter dem Weg</string>
     <string name="returnto_track">Gehen Sie zurück auf den Weg</string>
     <string name="wait_gps">Warten auf GPS Position</string>
     <string name="dest_reached">Sie sind am Ziel angekommen</string>
+    <string name="dest_failed">Sie haben Ihr Ziel verfehlt!</string>
 
     <!-- ###Menu Items###-->
     <string name="pause_time">Pausenzeit</string>
@@ -103,6 +105,10 @@
     <string name="viewhelp">Hilfe</string>
     <string name="main_floating_button">Test</string>
 
+    <!-- ### MAIN ###-->
+    <string name="distance">Distanz"</string>
+    <string name="DTD">zum Ziel"</string>
+
     <!-- ### TIMETABLE###-->
     <string name="timetable">Wegzeittabelle</string>
     <string name="nr">Nr</string>
@@ -120,20 +126,36 @@
     <string name="comment">Bemerkung</string>
     <string name="start">Start</string>
     <string name="destination">Ziel</string>
+    <string name="summary">Zusammenfassung</string>
+
+    <!-- Outdooractive waypoints -->
+    <string name="waypointDirRightComb">"rechts abbiegen"</string>
+    <string name="waypointDirLeftComb">"links abbiegen"</string>
+    <string name="waypointUpComb">"geradeaus"</string>
+    <string name="waypointFlagComb">"Trackpunkt"</string>
+
+    <string name="profile">"Höhenprofil"</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
-    <string name="slide1_heading">Willkommen!</string>
+    <string name="slide1_heading">Auf zum Wandern!</string>
     <string name="slide1_text">Diese App erstellt auf der Basis einer vorhandenen GPX-Datei einen
-        Zeitplan für den Ablauf einer Tour. Dazu muss die GPX-Datei bereits Wegpunkte und Höhenwerte
-        für die Trackpunkte enthalten.</string>
-    <string name="slide2_heading">Zeitplanung</string>
-    <string name="slide2_text">Für die individuelle Zeitplanung der Tour wird der Startzeitpunkt
+        Zeitplan für den Ablauf einer Tour.</string>
+
+    <string name="slide2_heading">Voraussetzungen</string>
+    <string name="slide2_text">Dazu muss die GPX-Datei bereits Wegpunkte und Höhenwerte
+        für die Trackpunkte enthalten. </string>
+
+    <string name="slide3_heading">Zeitplanung</string>
+    <string name="slide3_text">Für die individuelle Zeitplanung der Tour wird der Startzeitpunkt
         eingegeben. Zu jedem Wegpunkt kann eine Pausenzeit vorgegeben werden. Die Berechnung der
         Zwischenzeiten erfolgt über individuell einstellbare Parameter.</string>
 
-    <string name="slide3_heading">Echtzeitnavigation</string>
-    <string name="slide3_text">Bei aktivierter GPS-Verbindung prüft die App ob die vorgegebenen Zeiten eingehalten werden
-            und errechnet die voraussichtlichen Ankunftszeiten für alle Wegpunkte.</string>
+    <string name="slide4_heading">Echtzeitnavigation</string>
+    <string name="slide4_text">Bei aktivierter GPS-Verbindung prüft die App ob die vorgegebenen Zeiten eingehalten werden
+            und errechnet die voraussichtlichen Ankunftszeiten für alle Wegpunkte. Zudem kann ein
+        Höhenprofil eingebledet werden in dem die aktuelle Position und der Bereich zwischen zwei Wegpunkten
+        markiert sind.
+    </string>
 
     <string name="next">Weiter</string>
     <string name="skip">Überspringen</string>

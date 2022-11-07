@@ -2,6 +2,7 @@ package de.biselliw.tour_navigator.ui;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -307,9 +308,15 @@ public class ControlElements extends BaseActivity {
 
         TextView commentView = main.findViewById(R.id.comment_view);
         commentView.setText(additionalInfo.comment);
-
         TextView descriptionView = main.findViewById(R.id.description_view);
-        descriptionView.setText(additionalInfo.description);
+
+        String html = additionalInfo.description;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            descriptionView.setText(Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            descriptionView.setText(Html.fromHtml(html));
+        }
+
         descriptionView.scrollTo(0,0);
 
         TextView linkView = main.findViewById(R.id.link_view);

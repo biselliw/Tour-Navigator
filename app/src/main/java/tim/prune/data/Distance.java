@@ -1,6 +1,6 @@
 package tim.prune.data;
 
-import de.biselliw.tour_navigator.stubs.Config;
+import de.biselliw.tour_navigator.data.Config;
 
 /**
  * Class to provide distance constants and functions

@@ -2,6 +2,8 @@ package tim.prune.data;
 
 import java.util.ArrayList;
 
+import de.biselliw.tour_navigator.data.DataPoint;
+
 /**
  * Class to hold the information about the file(s)
  * from which the data was loaded from / saved to

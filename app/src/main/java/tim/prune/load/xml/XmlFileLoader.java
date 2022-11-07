@@ -142,8 +142,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 				sourceInfo = new SourceInfo(_file, sourceType);
 				sourceInfo.setFileTitle(_handler.getFileTitle());
 
-				/* @since WB */
-				// set meta data
+				/* @since WB: set meta data */
 				sourceInfo.setMetaData (_handler.metaName, _handler.metaDescription, _handler.metaAuthor, _handler.metaLink);
 				sourceInfo.setTrackDescription(_handler.trackDescription);
 

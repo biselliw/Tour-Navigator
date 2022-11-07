@@ -10,7 +10,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import tim.prune.data.DataPoint;
+import de.biselliw.tour_navigator.data.DataPoint;
 import tim.prune.data.SourceInfo;
 
 /**

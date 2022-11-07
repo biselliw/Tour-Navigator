@@ -16,8 +16,15 @@ import java.util.Calendar;
 import java.util.List;
 
 import de.biselliw.tour_navigator.R;
-import tim.prune.data.DataPoint;
+import de.biselliw.tour_navigator.data.DataPoint;
 
+import static de.biselliw.tour_navigator.helpers.TimezoneHelper.getSelectedTimezone;
+import static de.biselliw.tour_navigator.helpers.TimezoneHelper.getSelectedTimezoneStr;
+
+/**
+ * class to handle all records of the timetable
+ * @author BiselliW
+ */
 public class RecordAdapter extends BaseAdapter {
 
     /**
@@ -36,8 +43,7 @@ public class RecordAdapter extends BaseAdapter {
     private final Calendar calender;
     private int _selected = -1;
     /** start time of the tour */
-    private final Time _startTime = new Time();
-    private Time _time = new Time();
+    private final Time _startTime;
     private boolean _realtime = false;
     /**  current distance since start */
     private double _distance = 0.0;
@@ -53,10 +59,22 @@ public class RecordAdapter extends BaseAdapter {
         public TextView placeView;
     }
 
+    /**
+     * Constructor
+     * @param context context
+     * @param records list of all records
+     */
     public RecordAdapter(Context context, List<Record> records) {
         recordList = records;
         recordContext = context;
         calender = Calendar.getInstance();
+        // todo check timezone
+        calender.setTimeZone(getSelectedTimezone());
+
+        _startTime = new Time(getSelectedTimezoneStr());
+        _startTime.setToNow();
+        _startTime.hour =  0;
+        _startTime.minute =0;
     }
 
     public static class Record {
@@ -99,12 +117,16 @@ public class RecordAdapter extends BaseAdapter {
         return i;
     }
 
-    @Override
+
     /**
      * update the list view of places
      *
-     * @param i index of the place
+     * @param i         index of the place
+     * @param view      returned view
+     * @param viewGroup not used
+     * @return          view
      */
+    @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         if (DEBUG) Log.d(TAG, "getView (" + i +")");
         RecordViewHolder holder;
@@ -127,11 +149,10 @@ public class RecordAdapter extends BaseAdapter {
             DataPoint point = record.trackPoint;
 
             /* Mark selected row */
-            if (i == _selected) {
+            if (i == _selected)
                 view.setBackgroundColor(0xFFB3DBFB);
-            } else {
+            else
                 view.setBackgroundColor(0xFFFFFFFF);
-            }
 
             /* get the formatted arrival time */
             String time = getPlannedArriveTime(point);
@@ -153,11 +174,8 @@ public class RecordAdapter extends BaseAdapter {
 
             if (DEBUG) Log.d(TAG, "  WaypointName: " + point.getRoutePointName());
         }
-        else {
-            if (DEBUG) {
-                Log.d(TAG, "  FATAL: record not available");
-            }
-        }
+        else
+            if (DEBUG) Log.d(TAG, "  FATAL: record not available");
 
         return view;
     }
@@ -174,7 +192,6 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * Get the start time of the tour
      * @return start time of the tour
      */
     public Time getStartTime() {
@@ -252,14 +269,6 @@ public class RecordAdapter extends BaseAdapter {
         _realtime = inRealtime;
     }
 
-    public Time getTime() {
-        return _time;
-    }
-
-    public void setTime(Time time) {
-        _time = time;
-    }
-
     /**
      * get the formatted planned arrival time
      *
@@ -272,7 +281,8 @@ public class RecordAdapter extends BaseAdapter {
         return timeFormat.format(calender.getTime());
     }
 
-    /** Show the presumable arrival time depending on the delay
+    /**
+     * Show the presumable arrival time depending on the delay
      *
      * @param inShowDelay if true: show the planned time plus delay
      * @param inShowPlanned show planned time if presumable is not available
@@ -286,7 +296,7 @@ public class RecordAdapter extends BaseAdapter {
             _t += inPoint.getTime() * 1000;
             calender.setTimeInMillis(_t);
             if (inShowDelay) {
-                /* get the formatted planned arrival time */
+                // get the formatted planned arrival time
                 sTime = getPlannedArriveTime(inPoint);
 
                 calender.set(0, 0, 0, 0, 0);

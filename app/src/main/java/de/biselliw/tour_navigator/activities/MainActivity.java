@@ -62,7 +62,7 @@ import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.GpxExporter;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
-import tim.prune.data.DataPoint;
+import de.biselliw.tour_navigator.data.DataPoint;
 import tim.prune.load.xml.XmlFileLoader;
 
 public class MainActivity extends LocationActivity  implements

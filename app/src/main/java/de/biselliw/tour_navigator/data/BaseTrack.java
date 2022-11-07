@@ -1,28 +1,22 @@
 package de.biselliw.tour_navigator.data;
 
-/* @since WB */
-
 import static java.lang.Math.sqrt;
 
 import tim.prune.data.Coordinate;
-import tim.prune.data.DataPoint;
 import tim.prune.data.Distance;
 import tim.prune.data.DoubleRange;
-import tim.prune.data.Field;
 import tim.prune.data.FieldList;
 import tim.prune.data.PointCreateOptions;
 import tim.prune.UpdateMessageBroker;
 
 import de.biselliw.tools.debug.Log;
-
 import de.biselliw.tour_navigator.helpers.I18nManager;
-
 import de.biselliw.tour_navigator.helpers.MapUtils;
 
 /**
  * Class to hold all track information,
  * including track points and waypoints
- * @since WB
+ * @author tim.prune, BiselliW
  * 
  */
 public class BaseTrack {
@@ -85,7 +79,7 @@ public class BaseTrack {
 	 * @param inFieldArray array of Field objects describing fields
 	 * @param inPointArray 2d object array containing data
 	 * @param inOptions load options such as units
-	 * @since WB
+	 * @since BiselliW
 	 * - add "Ziel"
 	 */
 	public void load(Field[] inFieldArray, Object[][] inPointArray, PointCreateOptions inOptions)
@@ -196,7 +190,7 @@ public class BaseTrack {
 	/**
 	 * Interleave all waypoints by each nearest track point
 	 * @return true if successful, false if no change
-	 * @since WB
+	 * @since BiselliW
 	 */
 	public boolean interleaveWaypoints()
 	{
@@ -371,8 +365,8 @@ public class BaseTrack {
 				endPoint = i;
 			}
 		}
-	
- 		point = _dataPoints[endPoint];
+
+		point = _dataPoints[endPoint];
 		if (point.getWaypointName().isEmpty())
 		{
 			if (DEBUG) {
@@ -385,7 +379,7 @@ public class BaseTrack {
 				Log.d(TAG, "  leave TP[" + endPoint + "] (" + point.getWaypointName() + ") as end point");
 			}
 		}
-		
+
 		if (DEBUG) {
 			Log.d(TAG, "- find all nearest track points for all way points");
 			Log.d(TAG, "- ------------------------------------------------");
@@ -567,7 +561,7 @@ public class BaseTrack {
 	 * @param inJustTrackPoints true if waypoints should be ignored
 	 * @return index of nearest point or negative index if not found
 	 *
-	 * @since WB
+	 * @since BiselliW
 	 * - all coordinates are relative (0,1)
 	 * - nearestDist -> nearestSquDist
 	 */
@@ -628,7 +622,7 @@ public class BaseTrack {
 	 * @param inJustTrackPoints true if waypoints should be ignored
 	 * @return index of nearest track point or <= if no point is within the specified max distanceS
 	 *
-	 * @since WB
+	 * @since BiselliW
 	 * - all coordinates in [km]
 	 */
 	public int getNearestPointIndex(int inStart, double inX, double inY, double inMaxDist, double inMaxDistDest, boolean inJustTrackPoints) {
@@ -767,7 +761,7 @@ public class BaseTrack {
 	 * Return the nearest distance of a track point to the specified Latitude and Longitude coordinates.
 	 * Index of nearest track point must have been calculated using @see "getNearestPointIndex2()"
 	 * @return distance of nearest track point [km], negated if not within the specified max distance
-	 * @since WB
+	 * @since BiselliW
 	 * - all coordinates in [km]
 	 */
 	public double getNearestDistance() {
@@ -786,7 +780,7 @@ public class BaseTrack {
 	 * @param inJustTrackPoints true if waypoints should be ignored
 	 * @return index of nearest track point or <= if no point is within the specified max distanceS
 	 *
-	 * @since WB
+	 * @since BiselliW
 	 * - all coordinates in [km]
 	 */
 	public int getOutsidePointIndex(int inStart, int inEnd, double inX, double inY, double inMinDist, boolean inJustTrackPoints) {
@@ -844,7 +838,7 @@ public class BaseTrack {
 	 * @param inJustTrackPoints true if waypoints should be ignored
 	 * @return 				index of the next track point which is considered as outside of the track 
 	 *
-	 * @since WB
+	 * @since BiselliW
 	 * - all coordinates in [km]
 	 */
 	public int getOutsidePointIndex2(int inStart, int inEnd, double inLatitude, double inLongitude, double inMinDist, boolean inJustTrackPoints) {
@@ -907,7 +901,7 @@ public class BaseTrack {
 	 * @param inMaxDist maximum distance from selected coordinates [m]
 	 * @return index of nearest way point or DataPoint.INVALID_INDEX if not found
 	 *
-	 * @since WB
+	 * @since BiselliW
 	 * - all coordinates are relative (0,1)
 	 */
 
@@ -974,7 +968,7 @@ public class BaseTrack {
 	/**
 	 * @return waypoint comment or description, if any
 	 * @author Walter Biselli
-	 * @since WB
+	 * @since BiselliW
 	 */
 	public String getWaypointCommentOrDescription(int inPointNum)
 	{
@@ -986,7 +980,7 @@ public class BaseTrack {
 	/**
 	 * @return waypoint comment or description, if any
 	 * @author Walter Biselli
-	 * @since WB
+	 * @since BiselliW
 	 */
 	public String getWaypointCommentOrDescription(DataPoint inPoint)
 	{
@@ -1043,7 +1037,7 @@ public class BaseTrack {
 
 	/**
 	 * Clear all distances and times since start of the track
-	 * @since WB
+	 * @since BiselliW
 	 */
 	public void clearRealtimeData()
 	{

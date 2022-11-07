@@ -3,6 +3,8 @@ package tim.prune.data;
 
 import java.io.File;
 
+import de.biselliw.tour_navigator.data.DataPoint;
+
 /**
  * Class to hold the source of the point data, including the original file
  * and file type, and references to each of the point objects
@@ -104,7 +106,7 @@ public class SourceInfo
 
 	/**
 	 * @return track description
-	 * @since WB 
+	 * @since WB
 	 */
 	public String getTrackDescription()
 	{
@@ -133,7 +135,7 @@ public class SourceInfo
 
 	/**
 	 * @return author of the file
-	 * @since WB 
+	 * @since WB
 	 */
 	public String getAuthor() 
 	{

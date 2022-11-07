@@ -14,7 +14,7 @@ import java.io.OutputStreamWriter;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 
-import tim.prune.data.DataPoint;
+import de.biselliw.tour_navigator.data.DataPoint;
 import tim.prune.data.SourceInfo;
 
 public class HTML_File  {

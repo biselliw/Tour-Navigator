@@ -3,6 +3,8 @@ package tim.prune.data;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import de.biselliw.tour_navigator.data.Field;
+
 /**
  * Class to hold an ordered list of fields
  * to match the value list in a data point

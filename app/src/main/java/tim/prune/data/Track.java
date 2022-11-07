@@ -3,6 +3,8 @@ package tim.prune.data;
 
 import java.util.List;
 
+import de.biselliw.tour_navigator.data.DataPoint;
+import de.biselliw.tour_navigator.data.Field;
 import de.biselliw.tour_navigator.stubs.Photo;
 import tim.prune.UpdateMessageBroker;
 import tim.prune.function.edit.FieldEdit;

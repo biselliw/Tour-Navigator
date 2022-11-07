@@ -29,17 +29,19 @@
     <string name="main_text_title"> - </string>
 
     <!-- ###Activities at Status### -->
-    <string name="load_gpx_file">Bitte GPX Datei laden</string>
-    <string name="set_start_time">Bitte Startzeit setzen</string>
-    <string name="permit_location">Berechtigung für GPS-Position wurde verweigert</string>
-    <string name="activate_gps">Bitte GPS aktivieren</string>
-    <string name="wait_for_gps_fix">Warten auf GPS fix</string>
-    <string name="gps_fix_lost">Kein GPS fix</string>
-    <string name="goto_start_pos">Gehen Sie zum Start</string>
-    <string name="on_track">Folgen Sie bitte weiter dem Weg</string>
-    <string name="returnto_track">Gehen Sie zurück auf den Weg</string>
-    <string name="wait_gps">Warten auf GPS Position</string>
-    <string name="dest_reached">Sie sind am Ziel angekommen</string>
+    <string name="load_gpx_file">Please load a GPX file</string>
+    <string name="set_start_time">Please set the start time</string>
+    <string name="permit_location">Permission for GPS has been rejected before!</string>
+    <string name="activate_gps">Please activate GPS</string>
+    <string name="wait_for_gps_fix">Waiting for GPS fix</string>
+    <string name="gps_fix_lost">No GPS fix</string>
+    <string name="wait_user_start">Let\'s start</string>
+    <string name="goto_start_pos">Go To Start</string>
+    <string name="on_track">Follow the track</string>
+    <string name="returnto_track">Go back to the track</string>
+    <string name="wait_gps">Waiting for GPS location</string>
+    <string name="dest_reached">You reached the destination</string>
+    <string name="dest_failed">You failed the destination!</string>
 
     <!-- ###Menu Items###-->
     <string name="action_start_time">Start Time</string>
@@ -93,14 +95,17 @@
 
 
     <!-- ### TUTORIAL DIALOG ### -->
-    <string name="slide1_heading">Welcome!</string>
+    <string name="slide1_heading">Welcome on tour!</string>
     <string name="slide1_text">This App serves as a guideline to see the basic design of Privacy Friendly Apps. Here introduce your app in one or two sentences.</string>
 
-    <string name="slide2_heading">Key Elements</string>
-    <string name="slide2_text">Introduce key elements of your app. Do not introduce too many details.</string>
+    <string name="slide2_heading">Prerequisizes</string>
+    <string name="slide2_text">...</string>
 
-    <string name="slide3_heading">Github and Guide</string>
-    <string name="slide3_text">The sourcecode of this app is available at GitHub. For further explanations have a look at the Privacy Friendly App Guide.</string>
+    <string name="slide3_heading">Time management</string>
+    <string name="slide3_text">...</string>
+
+    <string name="slide4_heading">Realtime navigation</string>
+    <string name="slide4_text">...</string>
 
     <string name="okay">Okay</string>
     <string name="viewhelp">View Help</string>
@@ -109,8 +114,8 @@
     <string name="skip">Skip</string>
 
     <!-- ### MAIN ###-->
-    <string name="distance">Distanz"</string>
-    <string name="DTD">zum Ziel"</string>
+    <string name="distance">Distance"</string>
+    <string name="DTD">to Dest."</string>
 
     <!-- ### TIMETABLE ###-->
     <string name="timetable">Wegzeittabelle</string>
@@ -119,7 +124,7 @@
     <string name="arrive">Ankunft</string>
     <string name="place">Ort</string>
     <string name="next_place">Nächster Ort</string>
-    <string name="altitude_m">Höhe [m]</string>
+    <string name="altitude_m">Altitude [m]</string>
     <string name="dist_km">Diff [km]</string>
     <string name="climb_m">Auf [m]</string>
     <string name="descent_m">Ab [m]</string>
@@ -128,16 +133,16 @@
     <string name="pause_min">Pause [min]</string>
     <string name="comment">Bemerkung</string>
     <string name="start">Start</string>
-    <string name="destination">Ziel</string>
-    <string name="summary">Zusammenfassung</string>
+    <string name="destination">Destination</string>
+    <string name="summary">Summary</string>
 
     <!-- Outdooractive waypoints -->
-    <string name="waypointDirRightComb">"rechts abbiegen"</string>
-    <string name="waypointDirLeftComb">"links abbiegen"</string>
-    <string name="waypointUpComb">"geradeaus"</string>
-    <string name="waypointFlagComb">"Trackpunkt"</string>
+    <string name="waypointDirRightComb">"turn right"</string>
+    <string name="waypointDirLeftComb">"turn left"</string>
+    <string name="waypointUpComb">"straight forward"</string>
+    <string name="waypointFlagComb">"Trackpoint"</string>
 
-    <string name="profile">"Höhenprofil"</string>
+    <string name="profile">"Profile"</string>
 
 
 </resources>

@@ -1,5 +1,5 @@
 package tim.prune.data; 
-/*** since WB */ 		
+/*** since WB */
 
 import java.text.DateFormat;
 import java.text.ParsePosition;
@@ -393,7 +393,7 @@ public class TimestampUtc extends Timestamp
 	public Calendar getCalendar(TimeZone inZone)
 	{
 		Calendar cal = Calendar.getInstance();
-/*** since WB */ 		
+/*** since WB */
 		cal.setTimeZone(inZone);
 // TODO		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 		cal.setTimeInMillis(_milliseconds);

@@ -1,13 +1,11 @@
-package tim.prune.data;
-/** 
-* @since WB 21.3
-* - new fields: WAYPT_CMT, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK
-*/
+package de.biselliw.tour_navigator.data;
+
 import de.biselliw.tour_navigator.helpers.I18nManager;
 
 /**
  * Class to represent a field of a data point
- * @since WB
+ * @author tim.prune
+ * @implNote new fields: WAYPT_CMT, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK
 */
 public class Field
 {
@@ -29,12 +27,12 @@ public class Field
 	public static final Field VERTICAL_SPEED = new Field("fieldname.verticalspeed", true);
 	public static final Field MEDIA_FILENAME = new Field("fieldname.mediafilename", true);
 
-/** @since WB  added waypoint additionals */
+/** @since BiselliW  added waypoint additionals */
 	public static final Field WAYPT_SYM = new Field("fieldname.waypointsym", true);
 	public static final Field WAYPT_DUR = new Field("fieldname.waypointdur", true);
 	public static final Field WAYPT_FLAG = new Field("fieldname.waypointflag", true);
 	public static final Field WAYPT_LINK = new Field("fieldname.waypointlink", true);
-/* WB -> */
+/* BiselliW -> */
 
 	// TODO: Ability to load media (from text) and save (to text)
 
@@ -42,7 +40,7 @@ public class Field
 	private static final Field[] ALL_AVAILABLE_FIELDS = {
 		LATITUDE, LONGITUDE, ALTITUDE, TIMESTAMP, WAYPT_NAME, WAYPT_TYPE, DESCRIPTION, NEW_SEGMENT,
 		SPEED, VERTICAL_SPEED,
- /** @since WB added properties WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK */
+ /** @since BiselliW added properties WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK */
 		WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK,
 		new Field(I18nManager.getText("fieldname.custom"))
 	};

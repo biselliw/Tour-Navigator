@@ -1,6 +1,6 @@
 package tim.prune.save.xml;
 
-import tim.prune.data.DataPoint;
+import de.biselliw.tour_navigator.data.DataPoint;
 import tim.prune.data.FileInfo;
 import tim.prune.data.SourceInfo;
 

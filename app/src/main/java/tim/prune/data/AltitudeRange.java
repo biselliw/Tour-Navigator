@@ -1,6 +1,6 @@
 package tim.prune.data;
 
-import de.biselliw.tour_navigator.stubs.Config;
+import de.biselliw.tour_navigator.data.Config;
 
 /**
  * Represents a range of altitudes, taking units into account.

@@ -1,5 +1,5 @@
 package de.biselliw.tour_navigator.files;
-/* @since WB */
+/* @since BiselliW */
 
 import de.biselliw.tour_navigator.App;
 
@@ -10,9 +10,9 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 import tim.prune.data.Coordinate;
-import tim.prune.data.DataPoint;
-import tim.prune.data.Field;
-import tim.prune.data.MediaObject;
+import de.biselliw.tour_navigator.data.DataPoint;
+import de.biselliw.tour_navigator.data.Field;
+import de.biselliw.tour_navigator.stubs.MediaObject;
 import tim.prune.data.SourceInfo;
 import tim.prune.data.Timestamp;
 import tim.prune.data.TrackInfo;
@@ -133,7 +133,7 @@ public class GpxExporter
 				{
 					String pointSource = (inGpxCachers == null? null : getPointSource(inGpxCachers, point));
 					
-					// @since WB
+					// @since BiselliW
 					if (point.isRoutePoint())
 					{
 						exportWaypoint(point, inWriter, inSettings);
@@ -291,7 +291,7 @@ public class GpxExporter
 	private static String getPointSource(GpxCacherList inCachers, DataPoint inPoint)
 	{
 		if (inCachers == null || inPoint == null) {return null;}
-		/* @since WB */
+		/* @since BiselliW */
 		if (inPoint.getWaypointDuration() > 0) {return null;}
 		String source = inCachers.getSourceString(inPoint);
 		if (source == null || !inPoint.isModified()) {return source;}
@@ -299,7 +299,7 @@ public class GpxExporter
 		source = replaceGpxTags(source, "lat=\"", "\"", inPoint.getLatitude().output(Coordinate.FORMAT_DECIMAL_FORCE_POINT));
 		source = replaceGpxTags(source, "lon=\"", "\"", inPoint.getLongitude().output(Coordinate.FORMAT_DECIMAL_FORCE_POINT));
 		source = replaceGpxTags(source, "<ele>", "</ele>", inPoint.getAltitude().getStringValue(UnitSetLibrary.UNITS_METRES));
-/* @since WB: export local timestamp if the timestamp value was blank on loading */
+/* @since BiselliW: export local timestamp if the timestamp value was blank on loading */
 		source = replaceGpxTags(source, "<time>", "</time>", inPoint.getTimestamp().getText(Timestamp.Format.ISO8601, null),
 				inPoint.getTimestamp().getText(null));
 		if (inPoint.isWaypoint())
@@ -514,7 +514,7 @@ public class GpxExporter
 		}
 		// write waypoint type if any
 		/* mark waypoint to not load with GpsPrune but is required for e.g. Locus Map 
-		 * @since WB 
+		 * @since BiselliW
 		 * */
 		String type;
 		if (inPoint.isRoutePoint())
@@ -531,7 +531,7 @@ public class GpxExporter
 				inWriter.write("</type>\n");
 			}
 		}
-		/* @since WB */
+		/* @since BiselliW */
 		// write link, if any
 		final String link = XmlUtils.fixCdata(inPoint.getFieldValue(Field.WAYPT_LINK));
 		if (desc != null && !link.equals(""))
@@ -612,7 +612,7 @@ public class GpxExporter
 		}
 		
 		/*
-		 * @since WB
+		 * @since BiselliW
 		 */
 		// symbol if any
 		final String symbol = inPoint.getFieldValue(Field.WAYPT_SYM);

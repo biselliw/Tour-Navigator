@@ -1,10 +1,9 @@
 package de.biselliw.tour_navigator.helpers;
 
-// Basic class required for Android app
-// @since WB
-
 /**
- * Class to manage coordinate conversions and other stuff for maps
+ * Stub class to manage coordinate conversions and other stuff for maps
+ *
+ * @author tim.prune
  */
 public abstract class MapUtils
 {

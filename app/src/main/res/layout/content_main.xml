@@ -203,17 +203,18 @@
 
     <LinearLayout
         android:id="@+id/profile_plot"
-        android:layout_height="300dp"
+        android:layout_height="280dp"
         android:layout_width="match_parent">
 
         <com.androidplot.xy.XYPlot
             android:id="@+id/plot"
             style="@style/APDefacto.Light"
             android:layout_width="fill_parent"
-            android:layout_height="300dp"
+            android:layout_height="280dp"
             app:lineLabelRotationBottom="-45"
             app:lineLabels="left|bottom"
             app:rangeTitle="@string/altitude_m"
+            app:graphPaddingBottom="0dp"
             app:title="@string/profile" />
     </LinearLayout>
 

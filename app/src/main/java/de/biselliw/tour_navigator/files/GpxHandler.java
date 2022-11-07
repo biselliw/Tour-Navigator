@@ -1,5 +1,5 @@
 /**
-* @since WB
+* @since BiselliW
 * new order of point fields (old one):
 * - 0 ()  : WAYPT_NAME
 * - 1 (0) : LATITUDE
@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 import tim.prune.load.xml.GpxTag;
 import tim.prune.load.xml.XmlHandler;
 
-import tim.prune.data.Field;
+import de.biselliw.tour_navigator.data.Field;
 import tim.prune.load.TrackNameList;
 
 import de.biselliw.tools.debug.Log;
@@ -82,7 +82,7 @@ public class GpxHandler extends XmlHandler
 		if (DEBUG) Log.d(TAG, "startElement() tag = "+tag);
 
 		if (
-/* @since WB */
+/* @since BiselliW */
 			tag.equals("metadata") || 
 			tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
@@ -119,7 +119,7 @@ public class GpxHandler extends XmlHandler
 		}
 		else if (tag.equals("name"))
 		{
-/* @since WB */
+/* @since BiselliW */
 			if (_insideMetaData) {
 				if (!_MetaDataAuthorSet) {
 					_currentTag = _fileTitle; 
@@ -128,7 +128,7 @@ public class GpxHandler extends XmlHandler
 					_currentTag = _metadataAuthor;
 				}				
 			}
-/* @since WB */
+/* @since BiselliW */
 			else if (_insidePoint) {
 				_currentTag = _pointName;
 			}
@@ -163,7 +163,7 @@ public class GpxHandler extends XmlHandler
 		else if (tag.equals("trkseg")) {
 			_startSegment = true;
 		}
-		/* @since WB */
+		/* @since BiselliW */
 		else if (tag.equals("trk")) {
 			_insideTrack = true;
 			_trackNum++;
@@ -187,7 +187,7 @@ public class GpxHandler extends XmlHandler
 	{
 		String tag = qName.toLowerCase();
 		if (DEBUG) Log.d(TAG, "endElement() tag = "+tag);
-/* @since WB */
+/* @since BiselliW */
 		if (tag.equals("metadata"))
 		{
 			_insideMetaData = false;
@@ -210,7 +210,7 @@ public class GpxHandler extends XmlHandler
 		else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
 			/* don't load waypoints which are simple trackpoints
-			 * @since WB 
+			 * @since BiselliW
 			 * */
 			if (_insideWaypoint)
 				if ((_type != null) && _type.getValue().equals("TrackPt"))
@@ -256,7 +256,7 @@ public class GpxHandler extends XmlHandler
 
 	/**
 	 * process meta data
-	 * @since WB 
+	 * @since BiselliW
 	 */
 	private void processmetaData()
 	{
@@ -267,7 +267,7 @@ public class GpxHandler extends XmlHandler
 	
 	/**
 	 * Process a point, either a waypoint or track point
-     * @since WB
+     * @since BiselliW
 	 */
 	private void processPoint()
 	{
@@ -304,12 +304,12 @@ public class GpxHandler extends XmlHandler
 
 	/**
 	 * @see tim.prune.load.xml.XmlHandler#getFieldArray()
-         * @since WB
+         * @since BiselliW
 	 */
 	public Field[] getFieldArray()
 	{
 		final Field[] fields = {
-/* @since WB: new arrangements */
+/* @since BiselliW: new arrangements */
 			Field.WAYPT_NAME, 
 			Field.LATITUDE, Field.LONGITUDE, Field.ALTITUDE, 
 			Field.TIMESTAMP, 

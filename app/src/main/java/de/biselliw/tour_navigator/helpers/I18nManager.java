@@ -6,9 +6,10 @@ import android.content.res.Resources;
 import de.biselliw.tour_navigator.R;
 
 /**
- * Manager for all internationalization
- * Responsible for loading property files
- * and delivering language-specific texts
+ * Stub Manager for all internationalization
+ * Responsible for delivering language-specific texts
+ *
+ * @author BiselliW
  */
 public abstract class I18nManager
 {
@@ -36,8 +37,10 @@ public abstract class I18nManager
 				return _res.getString(R.string.destination);
 			else if (inKey.equals("pref_hiking_par_set_to_default"))
 				return _res.getString(R.string.pref_hiking_par_set_to_default);
-				// return the key itself
 			else
+				/* return the key itself
+				  - "fieldname.custom"
+				 */
 				return inKey;
 		}
 		else

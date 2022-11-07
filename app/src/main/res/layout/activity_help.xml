@@ -13,6 +13,7 @@
         android:id="@+id/generalExpandableListView"
         android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
         android:layout_height="match_parent"
-        android:layout_width="match_parent" />
+        android:layout_width="match_parent"
+        android:textSize="@dimen/slide_title"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

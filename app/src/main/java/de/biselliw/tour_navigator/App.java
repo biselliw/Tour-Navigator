@@ -5,10 +5,10 @@ import android.util.Log;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TrackDetails;
-import de.biselliw.tour_navigator.helpers.GPSsimulator;
+import de.biselliw.tour_navigator.helpers.GpsSimulator;
 import de.biselliw.tour_navigator.helpers.I18nManager;
-import tim.prune.data.DataPoint;
-import tim.prune.data.Field;
+import de.biselliw.tour_navigator.data.DataPoint;
+import de.biselliw.tour_navigator.data.Field;
 import tim.prune.data.PointCreateOptions;
 import tim.prune.data.SourceInfo;
 import tim.prune.data.Track;
@@ -17,8 +17,11 @@ import tim.prune.load.MediaLinkInfo;
 import tim.prune.load.TrackNameList;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
-import static de.biselliw.tour_navigator.helpers.GPSsimulator.gpsSim;
+import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
 
+/**
+ * @author Walter Biselli
+ */
 public class App {
     private static SourceInfo _sourceInfo = null;
     private static Track _track = null;
@@ -68,7 +71,7 @@ public class App {
      * @param inDataArray     array of data
      * @param inSourceInfo    information about the source of the data
      * @param inTrackNameList information about the track names
-     */
+     * /
     public void informDataLoaded(Field[] inFieldArray, Object[][] inDataArray,
                                  SourceInfo inSourceInfo, TrackNameList inTrackNameList) {
         if (DEBUG) {
@@ -87,7 +90,7 @@ public class App {
      * @param inOptions       creation options such as units
      * @param inSourceInfo    information about the source of the data
      * @param inTrackNameList information about the track names
-     */
+     * /
     public void informDataLoaded(Field[] inFieldArray, Object[][] inDataArray,
                                  PointCreateOptions inOptions, SourceInfo inSourceInfo, TrackNameList inTrackNameList) {
         if (DEBUG)
@@ -129,7 +132,7 @@ public class App {
     }
 
     /**
-     * Receive loaded data and optionally merge with current Track
+     * Receive loaded data and optionally replace with current Track
      *
      * @param inLoadedTrack loaded track
      * @param inSourceInfo  information about the source of the data
@@ -161,20 +164,18 @@ public class App {
         recalculate();
         if (!_track.hasWaypoints())
         {
-            if (gpsSim == null)
-            {
-                gpsSim = new GPSsimulator(_track);
-            }
+            if (gpsSimulation == null)
+                gpsSimulation = new GpsSimulator(_track);
         }
         else
         {
-            if (gpsSim != null)
-                gpsSim.Reset();
+            if (gpsSimulation != null)
+                gpsSimulation.Reset();
         }
         _main.handleState(this, TASK_COMPLETE);
 	}
 
-    /*
+    /**
      * Recalculate all track points
      */
     public void recalculate() {
@@ -316,7 +317,7 @@ public class App {
      * Return the nearest distance of a track point to the specified Latitude and Longitude coordinates.
      * Index of nearest track point must have been calculated using @see "getNearestPointIndex2()"
      * @return distance of nearest track point [km], negated if not within the specified max distance
-     * @since WB
+     * @since BiselliW
      * - all coordinates in [km]
      */
     public double getNearestDistance() {

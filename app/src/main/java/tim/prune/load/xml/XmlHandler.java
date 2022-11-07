@@ -1,9 +1,9 @@
 package tim.prune.load.xml;
-/** @since WB */ 
+/** @since WB */
 
 import org.xml.sax.helpers.DefaultHandler;
 
-import tim.prune.data.Field;
+import de.biselliw.tour_navigator.data.Field;
 import tim.prune.load.TrackNameList;
 
 /**
