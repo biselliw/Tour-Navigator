@@ -75,9 +75,9 @@ import java.util.Observer;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.data.DataPoint;
-import tim.prune.data.Track;
-import tim.prune.data.TrackInfo;
+import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
 public class ProfileAdapter {
 
@@ -87,7 +87,7 @@ public class ProfileAdapter {
     int numPoints = 0;
     double lastDistance = 0.0;
     int lastAltitude = 0;
-    Track _track = null;
+    BaseTrack _track = null;
 
     private XYPlot dynamicPlot;
     DynamicXYDatasource data;
@@ -168,10 +168,12 @@ public class ProfileAdapter {
         data.stopThread();
     }
 
+    /**
+     * @implNote Observable class was deprecated in API level 33.
+     */
     class DynamicXYDatasource implements Runnable {
 
         // encapsulates management of the observers watching this datasource for update events:
-        // todo Observable class was deprecated in API level 33.
         class ProfileObservable extends Observable {
             @Override
             public void notifyObservers() {

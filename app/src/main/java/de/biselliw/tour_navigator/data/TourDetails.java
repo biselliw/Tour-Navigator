@@ -1,21 +1,44 @@
 package de.biselliw.tour_navigator.data;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
+
 import android.content.res.Resources;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import tim.prune.data.SourceInfo;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 
 public class TourDetails {
 
+    public static TourDetails details = null;
     App app;
     RecordAdapter recordAdapter;
     private final Resources res;
 
     public TourDetails(BaseActivity activity, App app, RecordAdapter recordAdapter)
     {
+        details = this;
         this.res = activity.getResources();
         this.app = app;
         this.recordAdapter = recordAdapter;
@@ -36,9 +59,9 @@ public class TourDetails {
 
     /**
      * @param inPlace row index of the table
-     * @return true if description is available
+     * @return true description of the rout point or its linked one is available
      */
-    public boolean isDescriptionAvailable(int inPlace) {
+    public String getRoutePointDescription(int inPlace) {
         String description = "";
 
         if ((inPlace >= 0) && (inPlace < recordAdapter.getCount())) {
@@ -56,10 +79,32 @@ public class TourDetails {
                 }
             }
         }
-        return !description.equals("");
+        return description;
     }
 
-
+    /**
+     * Interprete the Waypoint symbol provided by outdooractive GPX files
+     * @param symbol outdooractive specific waypoint symbol
+     * @return interpreted string
+     */
+    public String interpreteWaypointSymbol(String symbol)
+    {
+        switch (symbol) {
+            case "waypointDirRightComb":
+                symbol = res.getString(R.string.waypointDirRightComb);
+                break;
+            case "waypointDirLeftComb":
+                symbol = res.getString(R.string.waypointDirLeftComb);
+                break;
+            case "waypointUpComb":
+                symbol = res.getString(R.string.waypointUpComb);
+                break;
+            case "waypointFlagComb":
+                symbol = res.getString(R.string.waypointFlagComb);
+                break;
+        }
+        return symbol;
+    }
 
     /**
      * show the comment and description linked to a place
@@ -105,20 +150,7 @@ public class TourDetails {
                 }
                 else if (!info.symbol.equals(""))
                 {
-                    switch (info.symbol) {
-                        case "waypointDirRightComb":
-                            info.symbol = res.getString(R.string.waypointDirRightComb);
-                            break;
-                        case "waypointDirLeftComb":
-                            info.symbol = res.getString(R.string.waypointDirLeftComb);
-                            break;
-                        case "waypointUpComb":
-                            info.symbol = res.getString(R.string.waypointUpComb);
-                            break;
-                        case "waypointFlagComb":
-                            info.symbol = res.getString(R.string.waypointFlagComb);
-                            break;
-                    }
+                    info.symbol = interpreteWaypointSymbol(info.symbol);
 
                     if (!info.comment.equals(""))
                         info.comment = info.symbol + ": " + info.comment;
@@ -131,8 +163,8 @@ public class TourDetails {
         }
         else
         {
-            info.comment     = app.TrackName;
-            info.title       = app.TrackName;
+            info.comment     = app.trackName;
+            info.title       = app.trackName;
             info.description = "";
             info.link        = "";
             SourceInfo sourceInfo = App.getSourceInfo();

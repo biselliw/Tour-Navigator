@@ -1,7 +1,24 @@
-/*
- This file handles the pause time of a single waypoint
- */
 package de.biselliw.tour_navigator.dialogs;
+
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
 
 import android.content.Context;
 import android.view.View;
@@ -13,6 +30,9 @@ import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 
 import de.biselliw.tour_navigator.App;
 
+/*
+ This file handles the pause time of a single waypoint
+ */
 public class PauseTimeDialog extends FullScreenDialog {
     public RecordAdapter _recordAdapter;
     public int selected;

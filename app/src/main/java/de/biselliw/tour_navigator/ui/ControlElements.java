@@ -1,5 +1,25 @@
 package de.biselliw.tour_navigator.ui;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
@@ -25,20 +45,20 @@ public class ControlElements extends BaseActivity {
 
     public static ControlElements control = null;
     public App app = null;
-    public static LocationActivity la = null;
     public MainActivity main = null;
     public ProfileAdapter pa = null;
 
+    private LocationActivity la = null;
     protected TourDetails details = null;
 
-    // todo Do not place Android context classes in static fields (static reference to `RecordAdapter` which has field `recordContext` pointing to `Context`); this is a memory leak
-    static RecordAdapter recordAdapter = null;
+    public RecordAdapter recordAdapter = null;
 
     protected static boolean expandView = false;
     private static boolean profileView = false;
     private static boolean fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
+    private static final int COLOR_RED     = 0xAAB71C1C;
 
     /**
      * if true: the GPS provider controls the tracking
@@ -57,6 +77,8 @@ public class ControlElements extends BaseActivity {
     int _expandViewVisibility = View.GONE;
     boolean _updateExpandViewStatus = false;
     TourDetails.AdditionalInfo additionalInfo = null;
+    String errorMessage = "";
+    boolean _updateErrorMessage = false;
     boolean _updateExpandView = false;
     boolean _updateProfile = false;
 
@@ -65,7 +87,9 @@ public class ControlElements extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* Install a timer to update control elements */
+        la = (LocationActivity)this;
+
+                /* Install a timer to update control elements */
         //runs without a timer by reposting this handler at the end of the runnable
         Runnable timerRunnable = new Runnable() {
 
@@ -88,6 +112,8 @@ public class ControlElements extends BaseActivity {
                     onShowGpsStatus();
                 if (_updateExpandViewStatus)
                     onShowExpandViewStatus();
+                if (_updateErrorMessage)
+                    onShowErrorMessage();
                 if (_updateExpandView)
                     onShowAdditionalInfo();
                 if (_updateProfile)
@@ -120,12 +146,11 @@ public class ControlElements extends BaseActivity {
             int id = item.getItemId();
             if (
                     (id == R.id.itm_pause_time) ||
+                    (id == R.id.itm_comment_waypoint) ||
                     (id == R.id.itm_delete_waypoint) ||
                     (id == R.id.itm_nav_waypoint) ||
                     (id == R.id.itm_nav_google))
                 item.setEnabled(!expandView && (_place >= 0));
-            else if (id == R.id.itm_copy_timetable)
-                item.setVisible(false);
             else
                 item.setVisible(false);
         }
@@ -155,9 +180,9 @@ public class ControlElements extends BaseActivity {
                     (id == R.id.nav_reverse_route) ||
                             (id == R.id.nav_start_time) ||
                             (id == R.id.nav_download_gpx) ||
-                            (id == R.id.nav_download_html)
-            )
-                item.setEnabled(!_initUserInterface);
+                            (id == R.id.nav_download_html) ||
+                            (id == R.id.nav_timetable) )
+                    item.setEnabled(!_initUserInterface);
             else
                 item.setVisible(true);
         }
@@ -297,6 +322,18 @@ public class ControlElements extends BaseActivity {
     }
 
     /**
+     * Show Error message
+     */
+    private void onShowErrorMessage() {
+        _updateExpandView = false;
+
+        TextView main_text_title = findViewById(R.id.main_text_title);
+        main_text_title.setBackgroundColor(COLOR_RED);
+        main_text_title.setText(errorMessage);
+        _updateErrorMessage = false;
+    }
+
+    /**
      * Show additional info
      */
     private void onShowAdditionalInfo() {
@@ -308,15 +345,14 @@ public class ControlElements extends BaseActivity {
 
         TextView commentView = main.findViewById(R.id.comment_view);
         commentView.setText(additionalInfo.comment);
-        TextView descriptionView = main.findViewById(R.id.description_view);
 
+        TextView descriptionView = main.findViewById(R.id.description_view);
         String html = additionalInfo.description;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             descriptionView.setText(Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY));
         } else {
             descriptionView.setText(Html.fromHtml(html));
         }
-
         descriptionView.scrollTo(0,0);
 
         TextView linkView = main.findViewById(R.id.link_view);
@@ -365,9 +401,12 @@ public class ControlElements extends BaseActivity {
     }
 
     private void setViewVisibility(int id, int visibility) {
-        ImageView view = main.findViewById(id);
-        if (view != null)
-            view.setVisibility(visibility);
+        if (main != null)
+        {
+            ImageView view = main.findViewById(id);
+            if (view != null)
+                view.setVisibility(visibility);
+        }
     }
 
     /**
@@ -382,13 +421,6 @@ public class ControlElements extends BaseActivity {
         setExpandViewStatus(true);
         setViewVisibility(R.id.image_expand_more, View.GONE);
         _initUserInterface = true;
-    }
-
-
-
-
-    public static void registerRecordAdapter(RecordAdapter adapter) {
-        recordAdapter = adapter;
     }
 
     /**
@@ -446,22 +478,27 @@ public class ControlElements extends BaseActivity {
      */
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
         boolean isExpandableView = fileInfoAvailable;
-        _place = inPlace;
-        if (inPlace >= 0)
-           isExpandableView = details.isDescriptionAvailable(inPlace);
-        if (isExpandableView)
-            if (inExpand)
-                _expandViewVisibility = View.INVISIBLE;
+        if (details != null)
+        {
+            _place = inPlace;
+            if (inPlace >= 0)
+                isExpandableView = !details.getRoutePointDescription(inPlace).equals("");
+            if (isExpandableView)
+                if (inExpand)
+                    _expandViewVisibility = View.INVISIBLE;
+                else
+                {
+                    _expandViewVisibility = View.VISIBLE;
+                    isExpandableView = false;
+                }
             else
-            {
-                _expandViewVisibility = View.VISIBLE;
-                isExpandableView = false;
-            }
-        else
-            _expandViewVisibility = View.GONE;
+                _expandViewVisibility = View.GONE;
 
-        _updateExpandViewStatus = true;
-        _updateProfile = true;
+            _updateExpandViewStatus = true;
+            _updateProfile = true;
+        }
+        else
+            isExpandableView = false;
 
         return isExpandableView;
     }
@@ -496,8 +533,11 @@ public class ControlElements extends BaseActivity {
      * Show additional info if available
      */
     public void showAddInfo(int inPlace) {
-        additionalInfo = details.getAdditionalInfo(inPlace);
-        _updateExpandView = true;
+        if (details != null)
+        {
+            additionalInfo = details.getAdditionalInfo(inPlace);
+            _updateExpandView = true;
+        }
     }
 
     /**
@@ -510,5 +550,10 @@ public class ControlElements extends BaseActivity {
         _updateProfile = true;
     }
 
+    public void showErrorMessage(String message)
+    {
+        errorMessage = message;
+        _updateErrorMessage = true;
 
+    }
 }

@@ -1,22 +1,24 @@
 package de.biselliw.tour_navigator.activities;
 
 /*
- * Copyright (C) 2022 Walter Biselli
- *
- * Licensed under the GNU General Public License along with this (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.gnu.org/licenses
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+    This file is part of Tour Navigator
 
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -26,11 +28,11 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.speech.tts.TextToSpeech;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
@@ -39,31 +41,40 @@ import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import de.biselliw.tour_navigator.App;
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
-import de.biselliw.tour_navigator.data.DataPoint;
 
 import static de.biselliw.tour_navigator.activities.SettingsActivity.sharedPref;
 import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
 
+/**
+ *
+ * @see <a href="https://developer.android.com/reference/android/location/LocationListener">
+ *     LocationListener on developer.android.com</a>
+ */
 public class LocationActivity extends ControlElements implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     /**
      * TAG for log messages.
      */
     static final String TAG = "LocationActivity";
-    private static final boolean DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    public static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     public enum gpsStatus {
         NO_PERMISSION,
@@ -99,7 +110,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private static final int COLOR_DESTINATION_REACHED = COLOR_TRACKING;
     private static final int COLOR_DESTINATION_FAILED  = COLOR_RED;
 
-    private static final int PERMISSION_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     final static double maxOffsetStart_km = 0.100;
@@ -109,18 +119,18 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     // required permissions for app
     boolean permissionLocationGranted = false;
-    boolean permissionExternalStorageGranted = false;
 
-    private MediaPlayer mp_OutOfTrack;
+    TextToSpeech tts;
 
     static boolean raiseAlarm = true;
     static int outOfTrackCount = 0;
     static int alarmCount = 0;
     private locStatus _navigationStatus = locStatus.NO_GPX_FILE_LOADED;
+    private locStatus _prevNavStatus = locStatus.DESTINATION_FAILED;
     private gpsStatus _gpsStatus = gpsStatus.NO_PERMISSION;
 
     public double TotalDistance = 0.0;
-    public RecordAdapter recordAdapter;
+//    public RecordAdapter recordAdapter;
     int lastPlace = -1;
 
     public ListView recordsView;
@@ -162,25 +172,15 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        MainActivity _main = (MainActivity) this;
-
         setContentView(R.layout.activity_main);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);// Force Portrait orientation
 
         recordAdapter = new RecordAdapter(this, new ArrayList<>());
-        registerRecordAdapter(recordAdapter);
         recordsView = findViewById(R.id.records_view);
         recordsView.setAdapter(recordAdapter);
 
-        mp_OutOfTrack = MediaPlayer.create(this, R.raw.out_of_track);
-
-        /*
-         * Create LocationListener to handle received GPS data
-         * @see https://developer.android.com/reference/android/location/LocationListener
-         * For more information about identifying user location, read the Obtaining User Location developer guide:
-         * @see https://developer.android.com/training/location/retrieve-current
-         */
+         // Create LocationListener to handle received GPS data
         locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 if (gpsSimulation == null)
@@ -215,8 +215,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
         };
 
-        /* Install a timer to inform about a GPS timeout */
-        //runs without a timer by reposting this handler at the end of the runnable
+        // Install a timer to inform about a GPS timeout
         Runnable timerRunnable = new Runnable() {
 
             @Override
@@ -318,37 +317,19 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
         };
 
+        // Create TextToSpeech
+        tts = new TextToSpeech(getApplicationContext(), status -> {
+            if(status != TextToSpeech.ERROR) {
+                tts.setLanguage(Locale.getDefault());
+            }
+        });
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
-        super.details = new TourDetails(this, super.app, recordAdapter);
-        // check required permissions for app
-        super.la = this;
         super.onPostCreate(savedInstanceState);
-        CheckPermissions();
-        setStatus(locStatus.NO_GPX_FILE_LOADED);
-        control.showGPS_Status(_gpsStatus);
-    }
+        super.details = new TourDetails(this, super.app, recordAdapter);
 
-    /**
-     * check required permissions for app
-     */
-    void CheckPermissions() {
-        // Check if the READ_EXTERNAL_STORAGE permission has not been granted
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_DENIED)
-            // ask for permission again
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
-        else
-            CheckPermissionLocation();
-    }
-
-    /**
-     * check required Location permissions for app
-     */
-    void CheckPermissionLocation() {
         // Check if the ACCESS_FINE_LOCATION permission has been granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED)
@@ -356,23 +337,21 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         else
             requestPermissions(
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+
+        setStatus(locStatus.NO_GPX_FILE_LOADED);
+        control.showGPS_Status(_gpsStatus);
     }
 
     /*
-     * Check required permissions
+     * Cllback function for Check required permissions
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean granted = ((grantResults.length == 1) && (grantResults[0] == PackageManager.PERMISSION_GRANTED));
-        switch (requestCode) {
-            case PERMISSION_REQUEST_READ_EXTERNAL_STORAGE:
-                permissionExternalStorageGranted = granted;
-                break;
-            case PERMISSION_REQUEST_ACCESS_FINE_LOCATION:
-                permissionLocationGranted = granted;
-                break;
+        if (requestCode == PERMISSION_REQUEST_ACCESS_FINE_LOCATION) {
+            permissionLocationGranted = granted;
         }
     }
 
@@ -383,10 +362,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     }
 
     @Override
-    /*
-     * todo Use the AndroidX Preference Library for consistent behavior across all devices.
-     * @see https://developer.android.com/reference/android/preference/PreferenceCategory.html
-     */
     public void onResume() {
         super.onResume();
         raiseAlarm = sharedPref.getBoolean("pref_hiking_par_alarm",true);
@@ -395,7 +370,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     @Override
     /*
-     *  Prevent closing the App here when user pressed the Back key
+     * Prevent closing the App here when user pressed the Back key
+     * @see https://developer.android.com/guide/components/activities/tasks-and-back-stack
      */
     public void onBackPressed()
     {
@@ -404,7 +380,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     @Override
     protected void onDestroy() {
-        mp_OutOfTrack.release();
         super.onDestroy();
     }
 
@@ -565,7 +540,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
         }
         else
-            setStatus(locStatus.NO_GPX_FILE_LOADED);
+            if (_navigationStatus != locStatus.NO_GPX_FILE_LOADED)
+                setStatus(locStatus.NO_GPX_FILE_LOADED);
     }
 
     /**
@@ -589,22 +565,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             long destTime = point.getTime();
             long delay;
             if (startTimeSet && ((inPosition == 0) || (destTime > 0))) {
-                // todo set ignorDst
-//                long gpsTime = inTime.toMillis(true);
-
                 // ignore the day in simulation
                 if (gpsSimulation != null)
                 {
-                    long gpsTime = inTime.minute + 60*(inTime.hour);
+                    long gpsTime = inTime.minute + 60L *(inTime.hour);
                     Time start = recordAdapter.getStartTime();
-                    long start_Time = start.minute + 60*(start.hour);
-                    long _delay = gpsTime - start_Time - destTime/60;
-                    delay = _delay;
-/*
-                    gpsTime = (gpsTime / 1000) % 24*60*60;
-                    long _startTime = (startTime / 1000) % 24*60*60;
-                    delay = gpsTime - _startTime;
- */
+                    long start_Time = start.minute + 60L *(start.hour);
+                    delay = gpsTime - start_Time - destTime/60;
                 }
                 else
                 {
@@ -664,10 +631,16 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
         switch (_navigationStatus) {
             case NO_GPX_FILE_LOADED:
-                activity = getString(R.string.load_gpx_file);
-                bgColor = COLOR_MESSAGE;
-                seekBar.setVisibility(View.INVISIBLE);
-                break;
+                if (_prevNavStatus != _navigationStatus)
+                {
+                    activity = getString(R.string.load_gpx_file);
+                    bgColor = COLOR_MESSAGE;
+                    seekBar.setVisibility(View.INVISIBLE);
+                    _prevNavStatus = _navigationStatus;
+                    break;
+                }
+                else
+                    return;
 
             case GPX_FILE_LOADED:
                 setStartGPSindex(0);
@@ -752,8 +725,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     outOfTrackCount++;
                     if ((outOfTrackCount > alarmInterval) && (alarmCount < maxAlarms)) {
                         // play alarm
-                        mp_OutOfTrack.seekTo(0);
-                        mp_OutOfTrack.start();
+                        tts.speak(getString(R.string.returnto_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
                         alarmCount++;
                         outOfTrackCount = 0;
                     }
@@ -771,6 +743,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
             case TRACKING:
                 activity = getString(R.string.on_track);
+                if (outOfTrackCount > alarmInterval)
+                    tts.speak(getString(R.string.on_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
                 outOfTrackCount = 0;
                 alarmCount = 0;
 
@@ -817,6 +791,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
     }
 
+
+
     /**
      *
      */
@@ -842,84 +818,82 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         if (DEBUG) Log.d(TAG,"setPlace");
         double progress = 0.0;
 
-//        if (inPlace != lastPlace)
+        if (showPlace(inPlace))
         {
-            if (showPlace(inPlace))
+            /* Set relative position in the seek bar */
+            RecordAdapter.Record record = recordAdapter.getItem(inPlace);
+            if (record == null) return false;
+            DataPoint point = record.getTrackPoint();
+            if (point == null) return false;
+            double distance = point.getDistance();
+            progress = distance * 100.0 / TotalDistance;
+
+            /* Scroll to the place in the list */
+            recordAdapter.setPlace(inPlace);
+
+            if (!expandView)
             {
-                /* Set relative position in the seek bar */
-                RecordAdapter.Record record = recordAdapter.getItem(inPlace);
-                if (record == null) return false;
-                DataPoint point = record.getTrackPoint();
-                if (point == null) return false;
-                double distance = point.getDistance();
-                progress = distance * 100.0 / TotalDistance;
+                if (!inUser)
+                    recordsView.smoothScrollToPosition(inPlace);
+                else
+                    control.updateTrackingStatus();
+            }
 
-                /* Scroll to the place in the list */
-                recordAdapter.setPlace(inPlace);
-
-                if (!expandView)
-                {
-                    if (!inUser)
-                        recordsView.smoothScrollToPosition(inPlace);
-                    else
-                        control.updateTrackingStatus();
+            if (inUser)
+            {
+                setStartGPSindex(super.app.getPointIndex(point));
+                if ((gpsSimulation != null) && (inPlace == 0)) {
+                    setStatus(locStatus.WAIT_GPS_PROVIDER);
+                    gpsSimulation.Reset();
                 }
 
-                if (inUser)
+                record = recordAdapter.getItem(inPlace+1);
+                double nextDistance = distance + 1.0;
+                if (record != null)
                 {
-                    setStartGPSindex(super.app.getPointIndex(point));
-                    if ((gpsSimulation != null) && (inPlace == 0)) {
-                        setStatus(locStatus.WAIT_GPS_PROVIDER);
-                        gpsSimulation.Reset();
-                    }
+                    point = record.getTrackPoint();
+                    if (point != null)
+                        nextDistance = point.getDistance();
+                }
 
-                    record = recordAdapter.getItem(inPlace+1);
-                    double nextDistance = distance + 1.0;
+                super.pa.setXRange(distance, nextDistance);
+            }
+            else
+            {
+                if (inPlace > 0)
+                {
+                    record = recordAdapter.getItem(inPlace-1);
+                    double prevDistance = distance - 1.0;
                     if (record != null)
                     {
                         point = record.getTrackPoint();
                         if (point != null)
-                            nextDistance = point.getDistance();
+                            prevDistance = point.getDistance();
                     }
 
-                    super.pa.setXRange(distance, nextDistance);
+                    super.pa.setXRange(prevDistance, distance);
                 }
                 else
-                {
-                    if (inPlace > 0)
-                    {
-                        record = recordAdapter.getItem(inPlace-1);
-                        double prevDistance = distance - 1.0;
-                        if (record != null)
-                        {
-                            point = record.getTrackPoint();
-                            if (point != null)
-                                prevDistance = point.getDistance();
-                        }
-
-                        super.pa.setXRange(prevDistance, distance);
-                    }
-                    else
-                        super.pa.clearXRange();
-                }
+                    super.pa.clearXRange();
             }
-            else
-            {
-                super.pa.setCursor (-1);
-                super.pa.clearXRange();
-                recordAdapter.setPlace(inPlace);
-            }
-
-            seekBar.setProgress((int) progress);
-
-            if (inPlace != lastPlace)
-            {
-                control.showExpandViewStatus(inPlace,expandView);
-                control.showAddInfo(inPlace);
-            }
-            la.scrollToListPosition(inPlace);
-
         }
+        else
+        {
+            super.pa.setCursor (-1);
+            super.pa.clearXRange();
+            recordAdapter.setPlace(inPlace);
+        }
+
+        seekBar.setProgress((int) progress);
+
+        if (inPlace != lastPlace)
+        {
+            control.showExpandViewStatus(inPlace,expandView);
+            control.showAddInfo(inPlace);
+        }
+        scrollToListPosition(inPlace);
+
+
         lastPlace = inPlace;
         return true;
     }
@@ -948,13 +922,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
         while (place < recordAdapter.getCount());
         return place;
-    }
-
-    int getViewWidth(int id)
-    {
-        TextView view = findViewById(id);
-        int width = view.getWidth();
-        return width;
     }
 
     /**

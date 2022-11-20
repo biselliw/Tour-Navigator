@@ -26,23 +26,32 @@
  */
 package de.biselliw.tour_navigator.activities.helper;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 
-import com.google.android.material.navigation.NavigationView;
-
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import de.biselliw.tour_navigator.R;
-// import de.biselliw.tour_navigator.databinding.ActivityMainBinding;
+import com.google.android.material.navigation.NavigationView;
 
+import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.helpers.Log;
 
 public class BaseActivity extends AppCompatActivity {
+
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "BaseActivity";
+    private static final boolean _DEBUG = true; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     public final int NAVDRAWER_LAUNCH_DELAY = 250;
     public final int MAIN_CONTENT_FADEOUT_DURATION = 150;
@@ -55,10 +64,6 @@ public class BaseActivity extends AppCompatActivity {
     protected NavigationView mNavigationView;
     protected Handler mHandler;
 
-//    protected ActivityMainBinding binding;
-
-    private boolean use_databinding = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,15 +74,43 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
+    /*
+     * Override the standard behavior when Back button is pressed
+     * @see https://developer.android.com/guide/components/activities/tasks-and-back-stack
+     */
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-            return;
-        }
+        if (mDrawerLayout != null)
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                return;
+            }
         super.onBackPressed();
     }
 
-    // protected abstract int getNavigationDrawerID();
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        View mainContent;
+        mToolbar = findViewById(R.id.toolbar);
+        if (getSupportActionBar() == null)
+            setSupportActionBar(mToolbar);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mainContent = findViewById(R.id.main_content);
+        mNavigationView = findViewById(R.id.nav_view);
+
+        if (mDrawerLayout != null) {
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                    this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+            mDrawerLayout.addDrawerListener(toggle);
+            toggle.syncState();
+        }
+
+        if (mainContent != null) {
+            mainContent.setAlpha(0);
+            mainContent.animate().alpha(1).setDuration(MAIN_CONTENT_FADEIN_DURATION);
+        }
+    }
 
     @Override
     public void onResume() {
@@ -90,46 +123,39 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-        View mainContent;
-/*
-        if (use_databinding)
-        {
-            binding = ActivityMainBinding.inflate(getLayoutInflater());
-            setContentView(binding.getRoot());
-
-            mToolbar = binding.layoutToolbar.toolbar;
-            if (getSupportActionBar() == null)
-                setSupportActionBar(mToolbar);
-
-            mDrawerLayout = binding.drawerLayout;
-            mainContent = binding.mainContent.mainContent;
-            mNavigationView = binding.navView;
-        }
-        else
- */
-        {
-            mToolbar = findViewById(R.id.toolbar);
-            if (getSupportActionBar() == null)
-                setSupportActionBar(mToolbar);
-            mDrawerLayout = findViewById(R.id.drawer_layout);
-            mainContent = findViewById(R.id.main_content);
-            mNavigationView = findViewById(R.id.nav_view);
-        }
-
-        if (mDrawerLayout != null) {
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            mDrawerLayout.addDrawerListener(toggle);
-            toggle.syncState();
-        }
-
-
-        if (mainContent != null) {
-            mainContent.setAlpha(0);
-            mainContent.animate().alpha(1).setDuration(MAIN_CONTENT_FADEIN_DURATION);
-        }
+    public void onUserInteraction() {
+        super.onUserInteraction();
     }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (DEBUG) {
+            String resultCodeStr = resultCode == RESULT_OK ? " [OK]" : " [NOK]";
+            String debugStr = "onActivityResult(requestCode=" + requestCode +
+                    ", resultCode=" + resultCode + resultCodeStr +
+                    ", data=";
+            if (data != null)
+                debugStr +=
+                        " [Action= " + data.getAction() +
+                                " ,Data=" + data.getData() +
+                                ")";
+            else
+                debugStr += "none";
+            debugStr += ")";
+
+            Log.d(TAG, debugStr);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
 }

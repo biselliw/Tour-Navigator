@@ -5,10 +5,10 @@ import android.os.Build;
 
 import java.util.TimeZone;
 
-import de.biselliw.tour_navigator.data.BaseTrack;
-import de.biselliw.tour_navigator.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
-import static de.biselliw.tour_navigator.helpers.TimezoneHelper.getSelectedTimezone;
+import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 
 /**
  * GPS simulator with replay functionality

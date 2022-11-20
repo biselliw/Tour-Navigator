@@ -1,10 +1,8 @@
 package de.biselliw.tour_navigator.activities;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -23,7 +21,7 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.AppCompatPreferenceActivity;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TrackDetails;
-import de.biselliw.tour_navigator.helpers.I18nManager;
+import de.biselliw.tour_navigator.tim_prune.I18nManager;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -39,6 +37,8 @@ import de.biselliw.tour_navigator.helpers.I18nManager;
 public class SettingsActivity extends AppCompatPreferenceActivity {
     static App _app = null;
     static SharedPreferences sharedPref = null;
+
+    private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     // hiking speed parameters
     final static int DEF_HOR_SPEED = (int)(1000 * TrackDetails.DEF_HOR_SPEED); // horizontal part in [km/h]
@@ -84,17 +84,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         int minHeightChange = DEF_MIN_HEIGHT_CHANGE;
 
         String stringValue;
-        int value;
         try {
             stringValue = sharedPref.getString("pref_hiking_par_horSpeed", "");
             if (!stringValue.equals(""))
-                horSpeed = Integer.valueOf(stringValue);
+                horSpeed = Integer.parseInt(stringValue);
             stringValue = sharedPref.getString("pref_hiking_par_vertSpeedClimb", "");
             if (!stringValue.equals(""))
-                vertSpeedClimb = Integer.valueOf(stringValue);
+                vertSpeedClimb = Integer.parseInt(stringValue);
             stringValue = sharedPref.getString("pref_hiking_par_vertSpeedDescent", "");
             if (!stringValue.equals(""))
-                vertSpeedDescent = Integer.valueOf(stringValue);
+                vertSpeedDescent = Integer.parseInt(stringValue);
         }
         catch (Exception e) { }
         _app.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0, vertSpeedDescent / 1000.0, minHeightChange);
@@ -147,7 +146,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * {@inheritDoc}
      */
     @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
  //       loadHeadersFromResource(R.xml.pref_headers, target);
     }
@@ -156,61 +154,59 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, value) -> {
+        String stringValue = value.toString();
 
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
+        if (preference instanceof ListPreference) {
+            // For list preferences, look up the correct display value in
+            // the preference's 'entries' list.
+            ListPreference listPreference = (ListPreference) preference;
+            int index = listPreference.findIndexOfValue(stringValue);
 
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
+            // Set the summary to reflect the new value.
+            preference.setSummary(
+                    index >= 0
+                            ? listPreference.getEntries()[index]
+                            : null);
 
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                int val = -1;
-                try {
-                    val = Integer.valueOf(stringValue);
-                }
-                catch (Exception e) {  }
-                String key = preference.getKey();
-                int minValue=0, defValue=0, maxValue=0;
-                EditTextPreference pref = (EditTextPreference)preference;
+        } else {
+            // For all other preferences, set the summary to the value's
+            // simple string representation.
+            int val = -1;
+            try {
+                val = Integer.valueOf(stringValue);
+            }
+            catch (Exception e) {  }
+            String key = preference.getKey();
+            int minValue=0, defValue=0, maxValue=0;
+            EditTextPreference pref = (EditTextPreference)preference;
 
-                if (key.equals("pref_hiking_par_horSpeed")) {
+            switch (key) {
+                case "pref_hiking_par_horSpeed":
                     minValue = 2000;
                     defValue = DEF_HOR_SPEED;
                     maxValue = 130000;
-                } else
-                if (key.equals("pref_hiking_par_vertSpeedClimb")) {
+                    break;
+                case "pref_hiking_par_vertSpeedClimb":
                     minValue = 100;
                     defValue = DEF_VERT_SPEED_CLIMB;
                     maxValue = 80000;
-                } else
-                if (key.equals("pref_hiking_par_vertSpeedDescent")) {
+                    break;
+                case "pref_hiking_par_vertSpeedDescent":
                     minValue = 200;
                     defValue = DEF_VERT_SPEED_DESC;
                     maxValue = 80000;
-                }
-                if ((val < minValue) || (val > maxValue)){
-                    stringValue = String.valueOf(defValue);
-                    pref.setText(stringValue);
-                    value = pref.getText();
-                    String set_to_default = I18nManager.getText("pref_hiking_par_set_to_default");
-                    stringValue = set_to_default + stringValue;
-                }
-                preference.setSummary(stringValue);
+                    break;
             }
-            return true;
+            if ((val < minValue) || (val > maxValue)){
+                stringValue = String.valueOf(defValue);
+                pref.setText(stringValue);
+                String set_to_default = I18nManager.getText("pref_hiking_par_set_to_default");
+                stringValue = set_to_default + stringValue;
+            }
+            preference.setSummary(stringValue);
         }
+        return true;
     };
 
     /**
@@ -249,7 +245,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * The commented method bindPrefenceSummaryToValue should be added for all preferences
      * with a summary that is depended from the current value of the preference
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -271,11 +266,25 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             int id = item.getItemId();
             if (id == android.R.id.home) {
                 getActivity().finish();
-               // TODO  startActivity(new Intent(getActivity(), SettingsActivity.class));
                 return true;
             }
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    public static void setSharedPreferences(SharedPreferences inSharedPref)
+    {
+        sharedPref = inSharedPref;
+    }
+
+    public static boolean isFirstTimeLaunch() {
+        return sharedPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+    }
+
+    public static void setFirstTimeLaunch(boolean isFirstTime) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
+        editor.commit();
     }
 
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <title>Help for Tour Navigator</title>
+</head>
+<body>
+
+<h3>What is Privacy Friendly App Tour Navigator?</h3>
+Privacy Friendly App Tour Navigator provides a timetable for a tour based on a provided GPX file.
+
+<h3>Was beinhaltet die GPX-Datei?</h3>
+<p>Zur Speicherung von Geodaten wird das normierte GPS Exchange Format (GPX) verwendet. Dateien mit diesem Datenformat haben die Erweiterung ".gpx".
+    Die GPX-Datei enthält den detaillierten Verlauf einer Route mit einer Liste von Trackpunkten. Diese enthalten neben den Koordinaten auch die Höhe und ggf. einen Namen.
+    Aus Tourenportalen wie z.B. www.outdooractive.com lassen sich die Tracks herunterladen und ggf. auch nachbearbeiten.</p>
+
+<p>Um die zeitliche Dauer der Tour berechnen zu können, müssen neben den Trackpunkten auch Höhenwerte enthalten sein.</p>
+
+<p>Für die Ermittlung von Zwischenzeiten an markanten Punkten entlang der Route muss die GPX-Datei diese entweder als benannte Trackpunkte enthalten.
+    Auch Wegpunkte in der Nähe des Tracks (POIs, Point of Interest) werden herangezogen.</p>
+
+<p><b>Achtung:</b> Die meisten GPX-Dateien, vor allem aus aufgezeoichneten Touren, enthalten keine benannten Track- oder Wegpunkte und können so nicht mit der App verwendet werden!</p>
+
+<h3>Wie funktioniert die Gehzeitberechnung?</h3>
+<p>Die einheitliche Berechnungsgrundlage dafür liefert die DIN 33466 (Wegweiser für Wanderwege). Sie geht davon aus, dass ein durchschnittlicher Wanderer eine
+    ebene Strecke von vier Kilometern in einer Stunde zurücklegt. In einer Stunde schafft er einen direkten Aufstieg von 300 Höhenmetern, in der gleichen Zeit
+    einen Abstieg von 500 Höhenmetern. Bei gemischten Teilstrecken mit horizontalen und vertikalen Anteilen werden zunächst alle Zeiten für sich berechnet.
+    Als Gehzeit für jeden Wegabschnitt werden anschließend der zeitlich längere Wert und die Hälfte des kürzeren Wertes addiert.</p>
+
+<p>Beispiel: eine Wegstrecke besteht aus einem ebenen Anteil von 1 km Länge und einem Aufstieg von 300 Hm. Für den horizontalen
+    Anteil ergibt sich eine Gehzeit von 15 min, für den vertikalen Teil 60 min.  Die Summe aus längerem Anteil (60 min) + Hälfte des kürzeren (15 min) ergibt
+    somit eine Gesamtzeit von 67,5 min.</p>
+
+<p>Um die berechneten Gehzeiten an die individuelle Leistung des Benutzers der App anzupassen, können die drei Parameter für die Formel in den Einstellungen der
+    App geändert und permanent gespeichert werden.</p>
+
+<p>Nach Eingabe der Startzeit berechnet die App anhand der vorliegenden Daten der GPX-Datei und der vom Benutzer definierten individuellen Parameter den Ablaufplan der Tour in Form einer Tabelle.</p>
+<p>Ein Höhenprofil zeigt zudem den vertikalen Verlauf der Tour.</p>
+
+<h3>Auch Pausen sind wichtig</h3>
+<p>Zu jedem Zwischenpunkt der Route kann eine Pausenzeit festgelegt werden.</p>
+
+<h3>Navigation zum Ausgangspunkt der Route</h3>
+<p>Um zum Ausgangspunkt der Tour zu gelangen ist meist die Anreise mit PKW oder dem öffentlichen Verkehr erforderlich. Auch dabei hilft die App dem Anwender indem sie zu jedem Zwischenpunkt dessen Koordinaten an
+    eine zweite App weiterleiten kann, die in der Lage ist, Geo-Koordinaten zu verarbeiten. Dies sind z.B.
+<ul>
+    <li>DB Navigator für die An/Rückreise mit der Bahn</li>
+    <li>Google Maps zur Navigation vom Heimatort zum Start und wieder zurück</li>
+</ul>
+</p>
+
+<h3>Echtzeit-Navigation</h3>
+<p>Vom Ausgangspunkt der Tour an berechnet die App die vermutliche Ankunftszeit an allen Zwischenpunkten und informiert den Benutzer ob er im von ihm selbst vorgegebenen Zeitplan liegt.</p>
+<p>Verlässt er die Route, gibt die App eine Warnung in Form einer Sprachnachricht aus.</p>
+
+<h3>Was macht die App nicht?</h3>
+<p>Die App Tour Navigator leitet ihren Nutzer nur entlang der vorgegebenen Route. Wird diese verlassen, berechnet sie keine alternative Route!</p>
+
+<h3>What makes the app privacy-friendly?</h3>
+
+<p>Privacy Friendly App Tour Navigator does not require any permission. It further does not include any tracking mechanisms or advertisement.
+
+    Zum Schutz der Privatsphäre sammelt die App keinerlei Daten über den Benutzer und gibt auch keine weiter.
+    Zur Erfüllung ihrer Aufgaben benötigt sie nur die mindestens erforderlichen Berechtigungen zum Zugriff auf die Ressourcen
+    des Gerätes. Die App schreibt keine nicht ersichtlichen Daten in den externen Speicher. Die Informationen aus der gelesenen GPX-Datei und die vom Benutzer eingegebenen
+    Zeiten gehen nach dem Beenden der App verloren. Zuvor können die geänderte GPX-Datei und die daraus erstellte Wegzeit-Tabelle gespeichert werden um sie durch andere Apps weiter zu bearbeiten.</p>
+
+<h3>Which permissions requires the app?</h3>
+<p>Privacy Friendly App Tour Navigator requires only this permission:
+<ul>
+    <li>access to precise GPS data: this is required to synchronize the current GPS location with the track to follow.</li>
+</ul>
+</p>
+
+</body>
+</html>

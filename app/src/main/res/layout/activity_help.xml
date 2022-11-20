@@ -6,14 +6,20 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.HelpActivity">
 
-
-    <ExpandableListView
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="0.5dp"
-        android:id="@+id/generalExpandableListView"
-        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
-        android:layout_height="match_parent"
+    <WebView
+        android:id="@+id/help"
         android:layout_width="match_parent"
-        android:textSize="@dimen/slide_title"/>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="1dp" />
+    <!--
+     <ExpandableListView
+         android:divider="@android:color/darker_gray"
+         android:dividerHeight="0.5dp"
+         android:id="@+id/generalExpandableListView"
+         android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+         android:layout_height="match_parent"
+         android:layout_width="match_parent"
+         android:textSize="@dimen/slide_title"/>
+ -->
+ </androidx.coordinatorlayout.widget.CoordinatorLayout>

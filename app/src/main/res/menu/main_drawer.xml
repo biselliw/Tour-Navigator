@@ -5,15 +5,11 @@
         android:checkableBehavior="all">
         <item
             android:id="@+id/nav_main"
-            android:icon="@drawable/ic_menu_home"
+            android:icon="@drawable/home"
             android:title="@string/action_main" />
         <item
-            android:id="@+id/nav_tutorial"
-            android:icon="@drawable/ic_menu_tutorial"
-            android:title="@string/action_tutorial" />
-        <item
             android:id="@+id/nav_open_gpx"
-            android:icon="@drawable/ic_menu_open_gpx"
+            android:icon="@drawable/file_open"
             android:title="@string/action_open_gpx" />
         <item
             android:id="@+id/nav_file_info"
@@ -31,8 +27,12 @@
 
     <group android:id="@+id/nav_group_export">
         <item
+            android:id="@+id/nav_timetable"
+            android:icon="@drawable/table_rows"
+            android:title="@string/action_timetable" />
+        <item
             android:id="@+id/nav_download_gpx"
-            android:icon="@drawable/ic_menu_download_gpx"
+            android:icon="@drawable/download"
             android:title="@string/action_download_gpx" />
         <item
             android:id="@+id/nav_download_html"
@@ -47,11 +47,11 @@
             android:title="@string/action_settings" />
         <item
             android:id="@+id/nav_help"
-            android:icon="@drawable/ic_menu_help"
+            android:icon="@drawable/help"
             android:title="@string/action_help" />
         <item
             android:id="@+id/nav_about"
-            android:icon="@drawable/ic_menu_info"
+            android:icon="@drawable/info"
             android:title="@string/action_about" />
     </group>
 

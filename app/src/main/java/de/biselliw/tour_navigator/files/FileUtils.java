@@ -14,7 +14,10 @@ package de.biselliw.tour_navigator.files;
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * Source:
  * https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java
+ * Latest commit e3fc76a on on Aug 4, 2020
  */
 
 import android.content.ContentUris;
@@ -32,6 +35,8 @@ import android.provider.OpenableColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+
+
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -45,24 +50,16 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
-/**
-     * @version 2009-07-03
-     * @author Peli
-     * @version 2013-12-11
-     * @author paulburke (ipaulpro)
-     * @see "https://github.com/iPaulPro/aFileChooser/blob/master/aFileChooser/src/com/ipaulpro/afilechooser/utils/FileUtils.java"
-     */
-    public class FileUtils {
+public class FileUtils {
     public static final String DOCUMENTS_DIR = "documents";
     // configured android:authorities in AndroidManifest (https://developer.android.com/reference/android/support/v4/content/FileProvider)
-    public static final String AUTHORITY =  "com.android.providers";
+    public static final String AUTHORITY =  "de.biselliw.fileprovider"; // com.android.providers
     public static final String HIDDEN_PREFIX = ".";
     /**
      * TAG for log messages.
      */
     static final String TAG = "FileUtils";
-    private static final boolean DEBUG = true; // Set to true to enable logging
-
+    private static final boolean DEBUG = false; // Set to true to enable logging
     /**
      * File and folder comparator. TODO Expose sorting option method
      */
@@ -71,31 +68,24 @@ import java.util.Comparator;
         return f1.getName().toLowerCase().compareTo(
                 f2.getName().toLowerCase());
     };
-
-         /**
-         * File (not directories) filter.
-         *
-         * @author paulburke
-         */
+    /**
+     * File (not directories) filter.
+     */
     public static FileFilter sFileFilter = file -> {
         final String fileName = file.getName();
         // Return files only (not directories) and skip hidden files
         return file.isFile() && !fileName.startsWith(HIDDEN_PREFIX);
     };
-
-        /**
-         * Folder (directories) filter.
-         *
-         * @author paulburke
-         */
+    /**
+     * Folder (directories) filter.
+     */
     public static FileFilter sDirFilter = file -> {
         final String fileName = file.getName();
         // Return directories only and skip hidden directories
         return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
     };
 
-
-   private FileUtils() {
+    private FileUtils() {
     } //private constructor to enforce Singleton pattern
 
     /**
@@ -278,7 +268,7 @@ import java.util.Comparator;
                 return cursor.getString(column_index);
             }
         }  catch (Exception e) {
-// TODO ?            Timber.e(e);
+    // TODO ? Timber.e(e);
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -300,10 +290,15 @@ import java.util.Comparator;
      * @see #getFile(Context, Uri)
      */
     public static String getPath(final Context context, final Uri uri) {
-        String absolutePath = getLocalPath((Context) context, uri);
+        String absolutePath = getLocalPath(context, uri);
+// todo        String absolutePath = getLocalPath((Context) context, uri);
         return absolutePath != null ? absolutePath : uri.toString();
     }
     
+	/**
+	* @impl  Android API 29 uses msf: prefix for downloaded files uri id
+    * @author BiselliW
+	*/
     private static String getLocalPath(final Context context, final Uri uri) {
 
         if (DEBUG)
@@ -369,7 +364,7 @@ import java.util.Comparator;
 
                 // path could not be retrieved using ContentResolver, therefore copy file to accessible cache using streams
                 String fileName = getFileName(context, uri);
-/*
+// todo
                 File cacheDir = getDocumentCacheDir(context);
 
                 File file = generateFileName(fileName, cacheDir);
@@ -380,8 +375,8 @@ import java.util.Comparator;
                 }
 
                 return destinationPath;
- */
-                return fileName;
+ 
+// todo                return fileName;
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
@@ -504,7 +499,7 @@ import java.util.Comparator;
      * @return The intent for viewing file
      */
     public static Intent getViewIntent(Context context, File file) {
-    //Uri uri = Uri.fromFile(file);
+        //Uri uri = Uri.fromFile(file);
         Uri uri = FileProvider.getUriForFile(context, AUTHORITY, file);
         Intent intent = new Intent(Intent.ACTION_VIEW);
         String url = file.toString();
@@ -604,7 +599,7 @@ import java.util.Comparator;
 
         try {
             if (!file.createNewFile()) {
-                return null;
+                  return null;
             }
         } catch (IOException e) {
             Log.w(TAG, e);
@@ -612,7 +607,6 @@ import java.util.Comparator;
         }
 
         logDir(directory);
-
         return file;
     }
 

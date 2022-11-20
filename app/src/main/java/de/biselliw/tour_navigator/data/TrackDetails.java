@@ -1,10 +1,32 @@
 package de.biselliw.tour_navigator.data;
 
+/*
+    This file is part of Tour Navigator
 
-import tim.prune.data.Altitude;
-import tim.prune.data.Distance;
-import tim.prune.data.IntegerRange;
-import de.biselliw.tools.debug.Log;
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
+
+import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.tim.prune.data.Altitude;
+import de.biselliw.tour_navigator.tim.prune.data.Distance;
+import de.biselliw.tour_navigator.tim.prune.data.IntegerRange;
+import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 /**
  * class to hold all details of a track
@@ -17,7 +39,8 @@ public class TrackDetails {
      * TAG for log messages.
      */
     static final String TAG = "TrackDetails";
-    private static final boolean DEBUG = false; // Set to true to enable logging
+	private static final boolean _DEBUG = false; // Set to true to enable logging
+	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     final static public double DEF_HOR_SPEED = 4.0;
     final static public double DEF_VERT_SPEED_CLIMB = 0.3;
@@ -33,7 +56,6 @@ public class TrackDetails {
     private int SumDescent;
     private long SumSeconds = 0L;
     
-	private long startOffstSecs = 0;
 	private long TotalCalcSeconds = 0L;
     public boolean CalcTimes = true;
     private int Climb;
@@ -45,7 +67,7 @@ public class TrackDetails {
     private double vertSpeedDescent = DEF_VERT_SPEED_DESC; // descending part in [km/h]
     private int minHeightChange = DEF_MIN_HEIGHT_CHANGE; // min. required change of altitude
 
-    private BaseTrack _track;
+    private final BaseTrack _track;
     private int numPoints;
 
     /**
@@ -80,7 +102,6 @@ public class TrackDetails {
     private int segClimb_m = 0, segDescent_m = 0;
 
     private boolean segRecalc = true, segClimbing = false, segDescending = false;
-    private boolean setStart = true;
     private DataPoint lastPoint = null;
     private int lastPauseMin = 0;
 
@@ -103,7 +124,6 @@ public class TrackDetails {
      * Recalculate all selection details
      */
     public void recalculate() {
-        // TODO
         numPoints = _track.getNumPoints();
         // calc all times by default
         CalcTimes = true;
@@ -112,8 +132,7 @@ public class TrackDetails {
         segDistance_km = 0.0;
         segClimb_m = 0;
         segDescent_m = 0;
-        startOffstSecs = 0;
-        
+
         calcFromSstart = true; 
         SumDistance = 0.0;
         SumClimb = 0;
@@ -269,8 +288,7 @@ public class TrackDetails {
 
 			if (
 					currPoint.isRoutePoint()
-// TODO
-							||	(ptIndex == (numPoints-1))
+					||	(ptIndex == (numPoints-1))
 			)
 			{
 				segRecalc = true;
@@ -330,7 +348,7 @@ public class TrackDetails {
 							}
 						}
 						if (lastPauseMin > 0) {
-							TotalCalcSeconds += lastPauseMin * 60;
+							TotalCalcSeconds += lastPauseMin * 60L;
 							lastPauseMin = 0;
 						}
 						_point.setRealtimeDataTime(TotalCalcSeconds);
@@ -375,10 +393,6 @@ public class TrackDetails {
         return SumSeconds;
     }
     
-    public long getstartOffstSecs () {
-        return startOffstSecs;
-    }
-
     public int getClimb () {
         return Climb;
     }

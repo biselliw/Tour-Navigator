@@ -1,9 +1,28 @@
 package de.biselliw.tour_navigator.activities.adapter;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
+
 import android.app.Activity;
 import android.content.Context;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,22 +35,16 @@ import java.util.Calendar;
 import java.util.List;
 
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
-import static de.biselliw.tour_navigator.helpers.TimezoneHelper.getSelectedTimezone;
-import static de.biselliw.tour_navigator.helpers.TimezoneHelper.getSelectedTimezoneStr;
+import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
+import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezoneStr;
 
 /**
  * class to handle all records of the timetable
- * @author BiselliW
  */
 public class RecordAdapter extends BaseAdapter {
-
-    /**
-     * TAG for log messages.
-     */
-    static final String TAG = "RecordAdapter";
-    private static final boolean DEBUG = false; // Set to true to enable logging
 
     private static final int COLOR_NOBE       = 0xAA000000;
     private static final int COLOR_DELAY_NONE = 0xAA0000ff;
@@ -68,7 +81,6 @@ public class RecordAdapter extends BaseAdapter {
         recordList = records;
         recordContext = context;
         calender = Calendar.getInstance();
-        // todo check timezone
         calender.setTimeZone(getSelectedTimezone());
 
         _startTime = new Time(getSelectedTimezoneStr());
@@ -117,7 +129,6 @@ public class RecordAdapter extends BaseAdapter {
         return i;
     }
 
-
     /**
      * update the list view of places
      *
@@ -128,10 +139,10 @@ public class RecordAdapter extends BaseAdapter {
      */
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        if (DEBUG) Log.d(TAG, "getView (" + i +")");
         RecordViewHolder holder;
         if (view == null) {
             LayoutInflater recordInflater = (LayoutInflater) recordContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            // todo Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout's root element)
             view = recordInflater.inflate(R.layout.record, null);
             holder = new RecordViewHolder();
             holder.timeView = view.findViewById(R.id.record_time);
@@ -171,11 +182,7 @@ public class RecordAdapter extends BaseAdapter {
 
             /* show waypoint name */
             holder.placeView.setText(point.getRoutePointName());
-
-            if (DEBUG) Log.d(TAG, "  WaypointName: " + point.getRoutePointName());
         }
-        else
-            if (DEBUG) Log.d(TAG, "  FATAL: record not available");
 
         return view;
     }
@@ -204,6 +211,15 @@ public class RecordAdapter extends BaseAdapter {
      */
     public void setStartTime(Time inTime) {
         _startTime.set(inTime);
+        Record record = getItem(0);
+        if (record != null) {
+            DataPoint point = record.trackPoint;
+            if (point != null) {
+                String time2445 = inTime.format2445();
+
+                point.setFieldValue(Field.TIMESTAMP,time2445,false);
+            }
+        }
     }
 
     /**
@@ -213,21 +229,6 @@ public class RecordAdapter extends BaseAdapter {
      */
     public int getPlace() {
         return _selected;
-    }
-
-    /**
-     * Get the selected item within the track
-     *
-     * @return Index of the track point within the track (starting at 0) / -1 if nothing is selected
-     */
-    public int getItemIndex() {
-        if (_selected >= 0)
-        {
-            Record record = getItem(_selected);
-            return record.trackPointIndex;
-        }
-        else
-            return -1;
     }
 
     /**
@@ -348,25 +349,6 @@ public class RecordAdapter extends BaseAdapter {
     public void add(Record record) {
         recordList.add(record);
     }
-
-    /*
-     * Remove the current waypoint from the list - not from the track
-     */
-    public void remove() {
-        if (_selected > 0) {
-            /* Clear pause time in advance */
-            Record record = getItem(_selected);
-            if (record != null)
-            {
-                DataPoint dataPoint = record.getTrackPoint();
-                dataPoint.setWaypointDuration(0);
-            }
-
-            recordList.remove(_selected);
-            notifyDataSetChanged();
-        }
-    }
-
 
 }
 

@@ -6,35 +6,37 @@ import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
-import de.biselliw.tour_navigator.helpers.I18nManager;
-import de.biselliw.tour_navigator.data.DataPoint;
-import de.biselliw.tour_navigator.data.Field;
-import tim.prune.data.PointCreateOptions;
-import tim.prune.data.SourceInfo;
-import tim.prune.data.Track;
-import tim.prune.data.TrackInfo;
-import tim.prune.load.MediaLinkInfo;
-import tim.prune.load.TrackNameList;
+import de.biselliw.tour_navigator.tim_prune.I18nManager;
+import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
+import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
+import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
+import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
+import de.biselliw.tour_navigator.tim.prune.load.TrackNameList;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
 import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
+import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
  * @author Walter Biselli
  */
 public class App {
     private static SourceInfo _sourceInfo = null;
-    private static Track _track = null;
+    private static BaseTrack _track = null;
     private final TrackInfo _trackInfo;
     private static TrackDetails _trackDetails = null;
-    private MainActivity _main;;
-    private RecordAdapter _recordAdapter;
+    private final MainActivity _main;
+    private final RecordAdapter _recordAdapter;
 
+    public static App app = null;
     /**
      * TAG for log messages.
      */
     static final String TAG = "App";
-    private static final boolean DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     // hiking speed parameters
     private double horSpeed = TrackDetails.DEF_HOR_SPEED; // horizontal part in [km/h]
@@ -44,13 +46,13 @@ public class App {
 
     private static long TotalPauseSeconds = 0L;
 
-    public String TrackName = "";
-    public String TrackDescription = "";
+    public String trackName = "";
 
     public App(MainActivity main)  {
+        app = this;
         _main = main;
         _recordAdapter = _main.recordAdapter;
-        _track = new Track();
+        _track = new BaseTrack();
         _trackInfo = new TrackInfo(_track);
 
         I18nManager.init(main);
@@ -64,23 +66,6 @@ public class App {
         return _trackInfo;
     }
 
-    /**
-     * Receive loaded data and determine whether to filter on tracks or not
-     *
-     * @param inFieldArray    array of fields
-     * @param inDataArray     array of data
-     * @param inSourceInfo    information about the source of the data
-     * @param inTrackNameList information about the track names
-     * /
-    public void informDataLoaded(Field[] inFieldArray, Object[][] inDataArray,
-                                 SourceInfo inSourceInfo, TrackNameList inTrackNameList) {
-        if (DEBUG) {
-            Log.d(TAG, "informDataLoaded 1");
-        }
-        // no link array given
-        informDataLoaded(inFieldArray, inDataArray, null, inSourceInfo,
-                inTrackNameList, null);
-    }
 
     /**
      * Receive loaded data and determine whether to filter on tracks or not
@@ -90,44 +75,31 @@ public class App {
      * @param inOptions       creation options such as units
      * @param inSourceInfo    information about the source of the data
      * @param inTrackNameList information about the track names
-     * /
-    public void informDataLoaded(Field[] inFieldArray, Object[][] inDataArray,
-                                 PointCreateOptions inOptions, SourceInfo inSourceInfo, TrackNameList inTrackNameList) {
-        if (DEBUG)
-            Log.d(TAG, "informDataLoaded 3");
-
-        // no link array given
-        informDataLoaded(inFieldArray, inDataArray, inOptions, inSourceInfo,
-                inTrackNameList, null);
-    }
-
-    /**
-     * Receive loaded data and determine whether to filter on tracks or not
-     *
-     * @param inFieldArray    array of fields
-     * @param inDataArray     array of data
-     * @param inOptions       creation options such as units
-     * @param inSourceInfo    information about the source of the data
-     * @param inTrackNameList information about the track names
-     * @param inLinkInfo      links to photo/audio clips
      */
     public void informDataLoaded(Field[] inFieldArray, Object[][] inDataArray, PointCreateOptions inOptions,
-                                 SourceInfo inSourceInfo, TrackNameList inTrackNameList, MediaLinkInfo inLinkInfo) {
+                                 SourceInfo inSourceInfo, TrackNameList inTrackNameList) {
         if (DEBUG) {
             Log.d(TAG, "informDataLoaded 3");
         }
         // Check whether loaded array can be properly parsed into a Track
-        Track loadedTrack = new Track();
+        BaseTrack loadedTrack = new BaseTrack();
         loadedTrack.load(inFieldArray, inDataArray, inOptions);
         if (loadedTrack.getNumPoints() <= 0) {
-            //		showErrorMessage("error.load.dialogtitle", "error.load.nopoints");
+            control.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
             return;
         }
+        else if (!loadedTrack.hasTrackpoints()) {
+            control.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
+            return;
+        }
+        else if (!loadedTrack.hasAltitudes()) {
+            control.showErrorMessage(_main.getString(R.string.gpx_error_no_altitudes));
+            return;
+        }
+        else // if (loadedTrack.hasWaypoints())
+            trackName = inTrackNameList.getTrackName(0);
 
-        TrackName        = inTrackNameList.getTrackName(0);
-//        TrackDescription = inTrackNameList.
-
-                // go directly to load
+        // go directly to load
         informDataLoaded(loadedTrack, inSourceInfo);
     }
 
@@ -137,43 +109,47 @@ public class App {
      * @param inLoadedTrack loaded track
      * @param inSourceInfo  information about the source of the data
      */
-    public void informDataLoaded(Track inLoadedTrack, SourceInfo inSourceInfo) {
-		// Decide whether to load or append
+    public void informDataLoaded(BaseTrack inLoadedTrack, SourceInfo inSourceInfo) {
+        // Decide whether to load or append
         _sourceInfo = inSourceInfo;
-		if (_track.getNumPoints() > 0)
-		{
+        if (_track.getNumPoints() > 0)
+        {
             // Don't append, replace data
-            _track.load((Track) inLoadedTrack);
+            _track.load((BaseTrack) inLoadedTrack);
             if (inSourceInfo != null)
             {
                 // set source information
                 inSourceInfo.populatePointObjects(_track, _track.getNumPoints());
                 _trackInfo.getFileInfo().replaceSource(inSourceInfo);
             }
-		}
-		else
-		{
-			// Currently no data held, so transfer received data
-			_track.load((Track) inLoadedTrack);
-			if (inSourceInfo != null)
-			{
-				inSourceInfo.populatePointObjects(_track, _track.getNumPoints());
-				_trackInfo.getFileInfo().addSource(inSourceInfo);
-			}
-		}
+        }
+        else
+        {
+            // Currently no data held, so transfer received data
+            _track.load((BaseTrack) inLoadedTrack);
+            if (inSourceInfo != null)
+            {
+                inSourceInfo.populatePointObjects(_track, _track.getNumPoints());
+                _trackInfo.getFileInfo().addSource(inSourceInfo);
+            }
+        }
         recalculate();
-        if (!_track.hasWaypoints())
+        _main.handleState(this, TASK_COMPLETE);
+
+        if (!_track.hasWaypoints() && !_track.hasNamedTrackpoints())
         {
             if (gpsSimulation == null)
+            {
+                control.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
                 gpsSimulation = new GpsSimulator(_track);
+            }
         }
         else
         {
             if (gpsSimulation != null)
                 gpsSimulation.Reset();
         }
-        _main.handleState(this, TASK_COMPLETE);
-	}
+    }
 
     /**
      * Recalculate all track points
@@ -229,8 +205,6 @@ public class App {
                 Log.d(TAG, "Sdescent: " + _trackDetails.getSumDescent ());
             }
             _main.TotalDistance = _trackDetails.Distance_km;
-// todo FATAL EXCEPTION: Thread-2: android.view.ViewRootImpl$CalledFromWrongThreadException: Only the original thread that created a view hierarchy can touch its views.
-//            _main.showDistances(0);
         }
     }
 
@@ -273,7 +247,7 @@ public class App {
         return _track.getPoint(ptIndex);
     }
 
-    public static Track getTrack()
+    public static BaseTrack getTrack()
     {
         return _track;
     }
@@ -281,15 +255,13 @@ public class App {
     /**
      * Reverse the route
      */
-    public boolean reverseRoute()
+    public void reverseRoute()
     {
-        boolean result = false;
         if (_track != null)
         {
-            result = _track.reverseRoute();
+            _track.reverseRoute();
             Update();
         }
-        return result;
     }
 
     /**
@@ -299,14 +271,6 @@ public class App {
      */
     public int getPointIndex(DataPoint inPoint) {
         return _track.getPointIndex(inPoint);
-    }
-
-    public double getLatitude(int ptIndex) {
-        return _track.getLatitude(ptIndex);
-    }
-
-    public double getLongitude(int ptIndex) {
-        return _track.getLongitude(ptIndex);
     }
 
     public int getNearestTrackpointIndex(int inStart, double inLatitude, double inLongitude, double inMaxDist, double inMaxDistDest) {
@@ -325,20 +289,26 @@ public class App {
     }
 
     public static int getClimb() {
+        if (_trackDetails == null) return 0;
         return _trackDetails.getClimb();
     }
 
     public static int getDescent() {
+        if (_trackDetails == null) return 0;
         return _trackDetails.getDescent ();
     }
 
     public static long getTotalCalcSeconds() {
+        if (_trackDetails == null) return 0L;
         return _trackDetails.getTotalCalcSeconds();
     }
 
     public static long getTotalPauseSeconds() { return TotalPauseSeconds; }
 
-    public double getTotalDistance() { return _trackDetails.Distance_km; }
+    public double getTotalDistance() {
+        if (_trackDetails == null) return 0.0;
+        return _trackDetails.Distance_km;
+    }
 
     public int getMinAltitude() {
         if (_trackDetails == null) return 0;

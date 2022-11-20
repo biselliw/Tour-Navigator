@@ -1,8 +1,15 @@
 <resources>
-    <string name="app_name">Touren Navigator</string>
-    <string name="app_name_long">Ablaufplan der Wanderung</string>
+    <!-- Common MANIFEST -->
+    <string name="app_name">Tour Navigator</string>
+    <string name="app_short_description">Ablaufplan einer Tour</string>
+
+    <string name="app_description">Tour Navigator ist eine quelloffene App, die sich auf Privatsphäre und Sicherheit konzentriert.</string>
+    <string name="app_description2">Es werden nur diejenigen Rechte benötigt, welche die App für die beschriebene Funktionalität erfordert.</string>
     <string name="app_author">Autor</string>
-    <string name="app_donate">berechnet mit Touren Navigator (©2022 Walter Biselli)</string>
+    <string name="app_donate">erzeugt von Tour Navigator (©2022 Walter Biselli)</string>
+
+    <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>
+    <string name="title_license">Quelloffene Lizenz</string>
 
     <!-- Common UI strings -->
     <string name="ok">OK</string>
@@ -12,9 +19,10 @@
     <string name="action_about">Über</string>
     <string name="action_open_gpx">GPX-File öffnen</string>
     <string name="action_file_info">Infos zur Tour</string>
+    <string name="action_timetable">Wegzeittabelle</string>
+    <string name="action_reverse_route">Route umkehren</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="action_reverse_route">Route umkehren</string>
     <string name="action_main">Hauptmenü</string>
     <string name="action_tutorial">Tutorial</string>
 
@@ -43,42 +51,13 @@
 
     <!-- ###Menu Items###-->
     <string name="pause_time">Pausenzeit</string>
+    <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="delete_waypoint">Wegpunkt entfernen</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
-    <string name="copy_timetable">Tabelle kopieren</string>
 
     <!--###HELP###-->
     <string name="help">Hilfe</string>
-
-    <string name="help_overview_heading">Was macht die App Touren Navigator?</string>
-    <string name="help_overview_answer">Die privatsphäre-freundliche App erstellt auf der Basis einer vorhandenen GPX-Datei einen
-        Zeitplan für den Ablauf einer Tour.
-        </string>
-    <string name="help_requirements_heading">Was beinhaltet die GPX-Datei?</string>
-    <string name="help_requirements_answer1">Die GPX-Datei enthält die detaillierte Route mit sog. Trackpunkten. Sie kann z.B. aus einem Tourenportal
-        wie outdooractive heruntergeladen und ggf. mit einem speziellen Programm nachbearbeitet werden.  </string>
-    <string name="help_requirements_answer2">Um die zeitliche Dauer der Tour berechnen zu können, müssen neben den Trackpunkten auch Höhenwerte enthalten sein.</string>
-    <string name="help_requirements_answer3">Für Zwischenzeiten an markanten Wegpunkten muss die GPX-Datei sog. Waypoints enthalten. </string>
-    <string name="help_time_calc_heading">Wie funktioniert die Gehzeitberechnung?</string>
-    <string name="help_time_calc_answer1">Die einheitliche Berechnungsgrundlage dafür liefert die DIN 33466 (Wegweiser für Wanderwege). Sie geht davon aus, dass ein mittlerer Wanderer eine
-        ebene Strecke von vier Kilometern in einer Stunde zurücklegt. In einer Stunde schafft er einen direkten Aufstieg von 300 Höhenmetern, in der gleichen Zeit
-        einen Abstieg von 500 Höhenmetern. Bei gemischten Teilstrecken mit horizontalen und vertikalen Anteilen werden zunächst alle Zeiten für sich berechnet.
-        Als Gehzeit für jeden Wegabschnitt werden anschließend der zeitlich längste Wert und die Hälfte des kürzesten Wertes addiert.</string>
-    <string name="help_time_calc_answer2">Beispiel: eine Wegstrecke besteht aus einem ebenen Anteil von 1 km Länge und einem Aufstieg von 300 Hm. Für den horizontalen
-        Anteil ergibt sich eine Gehzeit von 15 min, für den vertikalen Teil 60 min.  Die Summe aus längerem Anteil (60 min) + Hälfte des kürzeren (15 min) ergibt
-        somit eine Gesamtzeit von 67,5 min.</string>
-    <string name="help_time_calc_answer3">Um die berechneten Gehzeiten an die individuelle Leistung des Nutzers anzupassen, können die drei Parameter für die Formel in den Einstellungen der App geändert und permanent gespeichert werden.</string>
-    <string name="help_privacy">Was macht die App privatsphäre-freundlich?</string>
-    <string name="help_privacy_answer">Zum Schutz der Privatsphäre sammelt die App keinerlei Daten über den Benutzer und gibt auch keine weiter.
-        Zur Erfüllung ihrer Aufgaben benötigt sie nur die mindestens erforderlichen Berechtigungen zum Zugriff auf die Ressourcen
-        des Gerätes. Die App schreibt keine Daten in den externen Speicher. Die Informationen aus der gelesenen GPX-Datei und die vom Benutzer eingegebenen
-        Zeiten gehen nach dem Beenden der App verloren. Zuvor kann die Tabelle in die Zwischenablage kopiert werden um sie durch andere Apps weiter zu bearbeiten.</string>
-    <string name="help_permission_heading">Welche Berechtigungen braucht die App?</string>
-    <string name="help_permission_answer1">Der Touren Navigator benötigt folgende Berechtigungen:</string>
-    <string name="help_permission_answer2">- Zugriff auf die GPS-Position zum Abgleich der aktuellen Position mit dem Zeitplan</string>
-    <string name="help_permission_answer3">- Zugriff auf die externe Speicherkarte um auch GPX-Dateien zu laden, die nicht über das Internet in das Android
-        Downloadverzeichnis gespeichert werden.</string>
 
     <!--###ABOUT###-->
     <string name="about">Über</string>
@@ -86,55 +65,22 @@
     <string name="about_author">Autoren: </string>
     <string name="about_author_contributors">und Mitwirkende.</string>
     <string name="about_affiliation">In Zusammenarbeit mit</string>
-    <string name="privacy_friendly">Diese App gehört zur Gruppe der Privacy Friendly Apps. Quelltext lizenziert unter GPLv3.</string>
     <string name="more_info">Weitere Infos unter:</string>
+    <string name="title_repositoy">Quelle</string>
+    <string name="source_repositoy">Der Quellcode dieser App ist unter GitHub verfügbar: \nhttps://github.com/biselliw/tour_navigator/</string>
+    <string name="title_add_licenses">Genutzte Lizenzen</string>
+    <string name="used_licenses">Diese App nutzt lizensierte Inhalte folgender Entwickler:</string>
 
-    <!-- ###SETTINGS### -->
+    <!-- ###S ETTINGS ### -->
     <string name="title_activity_settings">Einstellungen</string>
     <string name="pref_header_general">Allgemein</string>
-    <string name="pref_header_hiking_parameters">Parameter für Gehzeitberechnung</string>
+    <string name="pref_header_hiking_parameters">Parameter zur Gehzeitberechnung</string>
     <string name="pref_hiking_par_horSpeed">Geschwindigkeit in der Ebene [m/h]</string>
     <string name="pref_hiking_par_vertSpeedClimb">Geschwindigkeit im Aufstieg [Hm/h]</string>
     <string name="pref_hiking_par_vertSpeedDescent">Geschwindigkeit im Abstieg [Hm/h]</string>
     <string name="pref_hiking_par_set_to_default">Parameter auf Standard gesetzt: </string>
-    <string name="pref_hiking_par_alarm">Alarm beim Verlassen des Weges</string>
-    <string name="pref_hiking_par_alarm_summary">Gibt eine akustische Alarmierung aus</string>
-
-    <!-- ### WELCOME DIALOG ### -->
-    <string name="okay">OK</string>
-    <string name="viewhelp">Hilfe</string>
-    <string name="main_floating_button">Test</string>
-
-    <!-- ### MAIN ###-->
-    <string name="distance">Distanz"</string>
-    <string name="DTD">zum Ziel"</string>
-
-    <!-- ### TIMETABLE###-->
-    <string name="timetable">Wegzeittabelle</string>
-    <string name="nr">Nr</string>
-    <string name="time">Zeit</string>
-    <string name="arrive">Ankunft</string>
-    <string name="place">Ort</string>
-    <string name="next_place">Nächster Ort</string>
-    <string name="altitude_m">Höhe [m]</string>
-    <string name="dist_km">Diff [km]</string>
-    <string name="climb_m">Auf [m]</string>
-    <string name="descent_m">Ab [m]</string>
-    <string name="duration">Zeitdauer</string>
-    <string name="pause">Pause</string>
-    <string name="pause_min">Pause [min]</string>
-    <string name="comment">Bemerkung</string>
-    <string name="start">Start</string>
-    <string name="destination">Ziel</string>
-    <string name="summary">Zusammenfassung</string>
-
-    <!-- Outdooractive waypoints -->
-    <string name="waypointDirRightComb">"rechts abbiegen"</string>
-    <string name="waypointDirLeftComb">"links abbiegen"</string>
-    <string name="waypointUpComb">"geradeaus"</string>
-    <string name="waypointFlagComb">"Trackpunkt"</string>
-
-    <string name="profile">"Höhenprofil"</string>
+    <string name="pref_hiking_par_alarm">Alarmierung beim Verlassen des Weges</string>
+    <string name="pref_hiking_par_alarm_summary">Gibt eine Sprachmeldung aus</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Auf zum Wandern!</string>
@@ -159,5 +105,48 @@
 
     <string name="next">Weiter</string>
     <string name="skip">Überspringen</string>
+    <string name="okay">OK</string>
+    <string name="viewhelp">Hilfe</string>
+
+    <!-- ### MAIN ###-->
+    <string name="distance">Distanz"</string>
+    <string name="DTD">zum Ziel"</string>
+
+    <!-- ### TOUR ###-->
+    <string name="tour_add_info">Weitere Informationen zur Tour</string>
+    <string name="tour_author">Autor der Tour</string>
+    <string name="tour_link">Link zur Tour</string>
+    <string name="tour_updated">Letzte Aktualisierung:</string>
+
+    <!-- ### TIMETABLE###-->
+    <string name="timetable">Wegzeittabelle</string>
+    <string name="nr">Nr</string>
+    <string name="time">Zeit</string>
+    <string name="arrive">Ankunft</string>
+    <string name="place">Ort</string>
+    <string name="next_place">Nächster Ort</string>
+    <string name="altitude_m">Höhe [m]</string>
+    <string name="dist_km">Diff [km]</string>
+    <string name="climb_m">Auf [m]</string>
+    <string name="descent_m">Ab [m]</string>
+    <string name="duration">Dauer</string>
+    <string name="pause">Pause</string>
+    <string name="pause_min">Pause<br>[min]</br></string>
+    <string name="comment">Bemerkung</string>
+    <string name="start">Start</string>
+    <string name="destination">Ziel</string>
+    <string name="summary">Zusammenfassung</string>
+
+    <string name="wpt_type">Typ</string>
+    <string name="wpt_desc">Beschreibung</string>
+    <string name="wpt_take_comment">Übernehmen</string>
+
+    <!-- Outdooractive waypoints -->
+    <string name="waypointDirRightComb">"rechts abbiegen"</string>
+    <string name="waypointDirLeftComb">"links abbiegen"</string>
+    <string name="waypointUpComb">"geradeaus"</string>
+    <string name="waypointFlagComb">"Trackpunkt"</string>
+
+    <string name="profile">"Höhenprofil"</string>
 
 </resources>

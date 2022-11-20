@@ -27,7 +27,7 @@
             android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:onClick="OpenFileGPX"
-            app:srcCompat="@drawable/ic_menu_open_gpx"
+            app:srcCompat="@drawable/file_open"
             tools:ignore="TouchTargetSizeCheck" />
 
         <ImageButton
@@ -111,7 +111,7 @@
             android:layout_width="48dp"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:srcCompat="@drawable/location_home" />
+            app:srcCompat="@drawable/satellite" />
 
         <ImageView
             android:id="@+id/image_location_wait"

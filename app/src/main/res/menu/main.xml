@@ -12,6 +12,11 @@
             android:title="@string/pause_time"
             app:showAsAction="never" />
         <item
+            android:id="@+id/itm_comment_waypoint"
+            android:orderInCategory="1"
+            android:title="@string/comment_waypoint"
+            app:showAsAction="never" />
+        <item
             android:id="@+id/itm_delete_waypoint"
             android:orderInCategory="1"
             android:title="@string/delete_waypoint"
@@ -25,11 +30,6 @@
             android:id="@+id/itm_nav_google"
             android:orderInCategory="1"
             android:title="@string/nav_google"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/itm_copy_timetable"
-            android:orderInCategory="1"
-            android:title="@string/copy_timetable"
             app:showAsAction="never" />
     </group>
 </menu>

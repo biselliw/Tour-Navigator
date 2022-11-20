@@ -15,9 +15,7 @@ This application has been developed to be used for hiking.
 
 ## Download and more Information
 
-
-You can freely download the Android app here: https://github.com/biselliw/HikingNavigatorApp/app/build/outputs/apk/debug/HikingNavigatorApp-debug-v1.0.apk
-
+You can freely download the Android app from [GitHub](https://github.com/biselliw/HikingNavigatorApp/app/build/outputs/apk/debug/HikingNavigatorApp-debug-v1.0.apk)
 
 Further development requires Android Studio, we recommend to use at least version 3.1.1
  
@@ -45,15 +43,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-The app also uses:
+The program uses:
 
-- sources from <a href="https://activityworkshop.net/software/gpsprune/">activityworkshop.net</a> licensed under <a href="http://www.gnu.org/licenses/">GNU General Public License v2.0</a>
-- sources from <a href="https://github.com/SecUSo/privacy-friendly-app-example">Karola Marky</a> licensed under <a href="http://www.gnu.org/licenses/">GNU General Public License v2.0</a>
-- sources from <a href="https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java">paulburke (ipaulpro)</a> licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License Version 2.0</a>
-- Icons from <a href="https://material.io/resources/icons/">Google Material Design Icons</a> licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License Version 2.0</a>
-
-
-The icons used in the nagivation drawer are licensed under the [CC BY 2.5](http://creativecommons.org/licenses/by/2.5/). In addition to them the app uses icons from [Google Design Material Icons](https://design.google.com/icons/index.html) licensed under Apache License Version 2.0. 
+- sources from [activityworkshop.net](https://activityworkshop.net/software/gpsprune) licensed under [GNU General Public License v2.0](http://www.gnu.org/licenses)
+- sources from [SECUSO Privacy friendly app example](https://github.com/SecUSo/privacy-friendly-app-example) licensed under [GNU General Public License v2.0](http://www.gnu.org/licenses)
+- sources from [coltoscosmin](https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- Icons from [Google Material Design Icons](https://fonts.google.com/icons) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 
 

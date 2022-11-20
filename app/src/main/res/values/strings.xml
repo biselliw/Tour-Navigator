@@ -1,21 +1,36 @@
 <resources>
+    <!-- Common MANIFEST -->
     <string name="app_name">Tour Navigator</string>
-    <string name="app_name_long">Timetable of hiking tour</string>
-    <string name="app_author">Author</string>
-    <string name="app_donate">calculated with mit Tour Navigator (©2022 Walter Biselli)</string>
+    <string name="app_short_description">Timetable of hiking tour</string>
+    <string name="authorities" translatable="false">de.biselliw.fileprovider</string>
 
+    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2022 by Walter Biselli</string>
+    <string name="app_description">Timetable of hiking tour</string>
+    <string name="app_description2">Timetable of hiking tour</string>
+    <string name="app_author">Author</string>
+    <string name="app_donate">created with mit Tour Navigator (©2022 Walter Biselli)</string>
+
+    <!-- Common LICENSE -->
+    <string name="title_eula">End-user license agreement</string>
+    <string name="app_eula" translatable="false">THIS SOFTWARE IS PROVIDED BY THE AUTHOR \'\'AS IS\'\' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    </string>
+    <string name="title_license">Open-source license</string>
+    <string name="title_gplv2" translatable="false">GNU General Public License - Version 2 (GPLv2)</string>
+    <string name="gnu_url" translatable="false">www.gnu.org/licenses</string>
 
     <!-- Common UI strings -->
     <string name="ok">OK</string>
 
-     <!-- ###DRAWER###-->
+    <!-- ###DRAWER###-->
     <string name="action_help">Help</string>
     <string name="action_about">About</string>
     <string name="action_open_gpx">Open GPX</string>
     <string name="action_file_info">Tour Info</string>
+    <string name="action_timetable">Time Table</string>
     <string name="action_download_gpx" translatable="false">Download GPX</string>
     <string name="action_download_html" translatable="false">Download HTML</string>
     <string name="action_reverse_route">Reverse route</string>
+    <string name="action_start_time">Start Time</string>
     <string name="action_settings">Settings</string>
     <string name="action_main">Main</string>
     <string name="action_tutorial">Tutorial</string>
@@ -44,32 +59,14 @@
     <string name="dest_failed">You failed the destination!</string>
 
     <!-- ###Menu Items###-->
-    <string name="action_start_time">Start Time</string>
     <string name="pause_time">Pause Time</string>
+    <string name="comment_waypoint">Comment Waypoint</string>
     <string name="delete_waypoint">Remove Waypoint</string>
-    <string name="copy_timetable">Copy timetable</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
     <string name="nav_google">Google-Navigate</string>
 
     <!--###HELP###-->
     <string name="help">Help</string>
-
-    <string name="help_overview_heading">What is Privacy Friendly App Tour Navigator?</string>
-    <string name="help_overview_answer">Privacy Friendly App Tour Navigator is an app that demonstrates the design of a Privacy Friendly App.</string>
-    <string name="help_requirements_heading">Kopfzeile</string>
-    <string name="help_requirements_answer1">Antwort</string>
-    <string name="help_requirements_answer2">Antwort</string>
-    <string name="help_requirements_answer3">Antwort</string>
-    <string name="help_time_calc_heading">Kopfzeile</string>
-    <string name="help_time_calc_answer1">Antwort</string>
-    <string name="help_time_calc_answer2">Antwort</string>
-    <string name="help_time_calc_answer3">Antwort</string>
-    <string name="help_privacy">What makes the app privacy-friendly?</string>
-    <string name="help_privacy_answer">Privacy Friendly App Tour Navigator does not require any permission. It further does not include any tracking mechanisms or advertisement.</string>
-    <string name="help_permission_heading">Which permissions requires the app?</string>
-    <string name="help_permission_answer1">Privacy Friendly App Example requires these permissions:</string>
-    <string name="help_permission_answer2">- access to GPS data</string>
-    <string name="help_permission_answer3">- access to external memory card</string>
 
     <!--###ABOUT###-->
     <string name="about">About</string>
@@ -78,9 +75,45 @@
     <string name="about_author_names" translatable="false">Walter Biselli</string>
     <string name="about_author_contributors">and contributors.</string>
     <string name="about_affiliation">In affiliation with</string>
-    <string name="privacy_friendly">This application belongs to the group of Privacy Friendly Apps developed by Technische Universität Darmstadt. Sourcecode licensed under GPLv3. Images copyright TU Darmstadt and Google Inc.</string>
     <string name="more_info">More information can be found on:</string>
-    <string name="github" translatable="false"><a href="https://github.com/biselliw/HikingNavigatorApp/">Github-Repo</a></string>
+    <string name="github" translatable="false"><a href="https://github.com/biselliw/tour_navigator/">Github-Repo</a></string>
+    <string name="title_repositoy">Repository</string>
+    <string name="source_repositoy">The source code of this app is available at GitHub: \nhttps://github.com/biselliw/tour_navigator/</string>
+    <string name="title_add_licenses">Used Licenses</string>
+    <string name="used_licenses">This app uses licensed content of these developers:</string>
+    <string name="attribution" translatable="false">
+        Forschungsgruppe SECUSO\n
+        (Security • Usability • Society)\n
+        Karlsruher Institut für Technologie (KIT):\n
+        Privacy Friendly Apps:\n
+        https://secuso.org/privacy-friendly-apps\n
+        https://github.com/secuso\n
+        Licensed under GNU General Public License v3.\n
+        \n
+        Activity Workshop:\n
+        GpsPrune, a map-based cross-platform java application for viewing, editing and converting coordinate data from GPS systems:\n
+        https://activityworkshop.net/software/gpsprune\n
+        https://github.com/activityworkshop/GpsPrune/\n
+        Licensed under GNU General Public License v2.0.\n
+        \n
+        Nick Fellows (halfhp)\n
+        androidplot: Charts and plots for Android\n
+        https://github.com/halfhp/androidplot\n
+        Licensed under Apache License Version 2.0\n
+        www.apache.org/licenses/LICENSE-2.0\n
+        \n
+        coltoscosmin\n
+        FileUtils:\n
+        https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java\n
+        Copyright © 2018 OpenIntents.org
+        Licensed under Apache License v2.0\n
+        www.apache.org/licenses/LICENSE-2.0\n
+        \n
+        Google Design Material Icons\n
+        https://fonts.google.com/icons\n
+        Licensed under Apache License Version 2.0\n
+        www.apache.org/licenses/LICENSE-2.0\n
+    </string>
 
     <!-- ###SETTINGS### -->
     <string name="title_activity_settings">Settings</string>
@@ -91,12 +124,11 @@
     <string name="pref_hiking_par_vertSpeedDescent">descending part in [m/h]</string>
     <string name="pref_hiking_par_set_to_default">Parameter set to default value</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>
-    <string name="pref_hiking_par_alarm_summary">Signal leaving the track with acoustical warning</string>
-
+    <string name="pref_hiking_par_alarm_summary">Signal leaving the track with vocational warning</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome on tour!</string>
-    <string name="slide1_text">This App serves as a guideline to see the basic design of Privacy Friendly Apps. Here introduce your app in one or two sentences.</string>
+    <string name="slide1_text">This App ...</string>
 
     <string name="slide2_heading">Prerequisizes</string>
     <string name="slide2_text">...</string>
@@ -109,7 +141,6 @@
 
     <string name="okay">Okay</string>
     <string name="viewhelp">View Help</string>
-    <string name="main_floating_button">Test</string>
     <string name="next">Next</string>
     <string name="skip">Skip</string>
 
@@ -117,24 +148,41 @@
     <string name="distance">Distance"</string>
     <string name="DTD">to Dest."</string>
 
+    <!-- ### GPX File ###-->
+    <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
+    <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
+    <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
+    <string name="gpx_error_no_altitudes">Die GPX-Datei enthält keine Höhenwerte</string>
+    <string name="gpx_info_simulation">Die GPX-Datei wird zur GPS-Simulation genutzt</string>
+
+    <!-- ### TOUR ###-->
+    <string name="tour_add_info">Further informationen to the tour</string>
+    <string name="tour_author">Author of the tour</string>
+    <string name="tour_link">Link to the tour</string>
+    <string name="tour_updated">Last updated</string>
+
     <!-- ### TIMETABLE ###-->
-    <string name="timetable">Wegzeittabelle</string>
+    <string name="timetable">Time table</string>
     <string name="nr">Nr</string>
-    <string name="time">Zeit</string>
-    <string name="arrive">Ankunft</string>
+    <string name="time">Time</string>
+    <string name="arrive">Arrival</string>
     <string name="place">Ort</string>
-    <string name="next_place">Nächster Ort</string>
-    <string name="altitude_m">Altitude [m]</string>
-    <string name="dist_km">Diff [km]</string>
-    <string name="climb_m">Auf [m]</string>
-    <string name="descent_m">Ab [m]</string>
-    <string name="duration">Zeitdauer</string>
+    <string name="next_place">Next Place</string>
+    <string name="altitude_m">Altitude<br>[m]</br></string>
+    <string name="dist_km">Diff<br>[km]</br></string>
+    <string name="climb_m">Up<br>[m]</br></string>
+    <string name="descent_m">Down<br>[m]</br></string>
+    <string name="duration">Duration</string>
     <string name="pause">Pause</string>
-    <string name="pause_min">Pause [min]</string>
-    <string name="comment">Bemerkung</string>
+    <string name="pause_min">Pause<br>[min]</br></string>
+    <string name="comment">Comment</string>
     <string name="start">Start</string>
     <string name="destination">Destination</string>
     <string name="summary">Summary</string>
+
+    <string name="wpt_type">Type</string>
+    <string name="wpt_desc">Description</string>
+    <string name="wpt_take_comment">Take It</string>
 
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"turn right"</string>
@@ -143,6 +191,5 @@
     <string name="waypointFlagComb">"Trackpoint"</string>
 
     <string name="profile">"Profile"</string>
-
 
 </resources>
