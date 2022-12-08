@@ -8,14 +8,14 @@ import de.biselliw.tour_navigator.tim.prune.data.FileInfo;
  */
 public class TrackInfo
 {
-	private final BaseTrack _track;
+	private final Track _track;
 	private FileInfo _fileInfo = null;
 
 	/**
 	 * Constructor
 	 * @param inTrack Track object
 	 */
-	public TrackInfo(BaseTrack inTrack)
+	public TrackInfo(Track inTrack)
 	{
 		_track = inTrack;
 		_fileInfo = new FileInfo();
@@ -24,7 +24,7 @@ public class TrackInfo
 	/**
 	 * @return the Track object
 	 */
-	public BaseTrack getTrack() {
+	public Track getTrack() {
 		return _track;
 	}
 

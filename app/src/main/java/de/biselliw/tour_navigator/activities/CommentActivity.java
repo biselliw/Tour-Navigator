@@ -62,7 +62,7 @@ public class CommentActivity extends BaseActivity {
                 view.setText(dataPoint.getRoutePointName());
 
                 edit = findViewById(R.id.etComment);
-                edit.setText(dataPoint.getWaypointComment());
+                edit.setText(dataPoint.getComment());
 
                 recordAdapter.notifyDataSetChanged();
             }

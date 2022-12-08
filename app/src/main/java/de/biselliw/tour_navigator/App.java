@@ -1,13 +1,32 @@
 package de.biselliw.tour_navigator;
+/*
+    This file is part of Tour Navigator
 
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2022 Walter Biselli (BiselliW)
+*/
 import android.util.Log;
 
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
+
 import de.biselliw.tour_navigator.tim_prune.I18nManager;
-import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
@@ -20,17 +39,9 @@ import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
- * @author Walter Biselli
+ * @author BiselliW
  */
 public class App {
-    private static SourceInfo _sourceInfo = null;
-    private static BaseTrack _track = null;
-    private final TrackInfo _trackInfo;
-    private static TrackDetails _trackDetails = null;
-    private final MainActivity _main;
-    private final RecordAdapter _recordAdapter;
-
-    public static App app = null;
     /**
      * TAG for log messages.
      */
@@ -38,13 +49,19 @@ public class App {
     private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    // hiking speed parameters
-    private double horSpeed = TrackDetails.DEF_HOR_SPEED; // horizontal part in [km/h]
-    private double vertSpeedClimb = TrackDetails.DEF_VERT_SPEED_CLIMB; // ascending part in [km/h]
-    private double vertSpeedDescent = TrackDetails.DEF_VERT_SPEED_DESC; // descending part in [km/h]
-    private int minHeightChange = 10;
+    private static SourceInfo _sourceInfo = null;
+    private static Track _track = null;
+    private final TrackInfo _trackInfo;
+    static TrackDetails _stats = null;
+    private final MainActivity _main;
+    private final RecordAdapter _recordAdapter;
 
-    private static long TotalPauseSeconds = 0L;
+    public static App app = null;
+    static long _totalPauseInMins = 0L;
+
+    // hiking speed parameters
+    private double horSpeed, vertSpeedClimb, vertSpeedDescent;
+    private int minHeightChange = 10;
 
     public String trackName = "";
 
@@ -52,7 +69,7 @@ public class App {
         app = this;
         _main = main;
         _recordAdapter = _main.recordAdapter;
-        _track = new BaseTrack();
+        _track = new Track();
         _trackInfo = new TrackInfo(_track);
 
         I18nManager.init(main);
@@ -82,13 +99,13 @@ public class App {
             Log.d(TAG, "informDataLoaded 3");
         }
         // Check whether loaded array can be properly parsed into a Track
-        BaseTrack loadedTrack = new BaseTrack();
+        Track loadedTrack = new Track();
         loadedTrack.load(inFieldArray, inDataArray, inOptions);
         if (loadedTrack.getNumPoints() <= 0) {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
             return;
         }
-        else if (!loadedTrack.hasTrackpoints()) {
+        else if (!loadedTrack.hasTrackPoints()) {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
             return;
         }
@@ -109,13 +126,13 @@ public class App {
      * @param inLoadedTrack loaded track
      * @param inSourceInfo  information about the source of the data
      */
-    public void informDataLoaded(BaseTrack inLoadedTrack, SourceInfo inSourceInfo) {
+    public void informDataLoaded(Track inLoadedTrack, SourceInfo inSourceInfo) {
         // Decide whether to load or append
         _sourceInfo = inSourceInfo;
         if (_track.getNumPoints() > 0)
         {
             // Don't append, replace data
-            _track.load((BaseTrack) inLoadedTrack);
+            _track.load(inLoadedTrack);
             if (inSourceInfo != null)
             {
                 // set source information
@@ -126,7 +143,7 @@ public class App {
         else
         {
             // Currently no data held, so transfer received data
-            _track.load((BaseTrack) inLoadedTrack);
+            _track.load(inLoadedTrack);
             if (inSourceInfo != null)
             {
                 inSourceInfo.populatePointObjects(_track, _track.getNumPoints());
@@ -155,72 +172,49 @@ public class App {
      * Recalculate all track points
      */
     public void recalculate() {
-        RecordAdapter.Record record;
         int numPoints = _track.getNumPoints();
-        _trackDetails = null;
-        TotalPauseSeconds = 0L;
-        long PauseSec;
+
+        RecordAdapter.Record record;
+        if (numPoints <= 0) return;
 
         if (DEBUG) {
             Log.d(TAG, "recalculate(): " + numPoints + " Trackpoints");
         }
-        if (numPoints > 0) {
-            _trackDetails = new TrackDetails(_track);
+        _stats = new TrackDetails();
 
-            _trackDetails.setHikingParameters(horSpeed, vertSpeedClimb, vertSpeedDescent, minHeightChange);
-            _track.interleaveWaypoints();
-            _trackDetails.recalculate();
+        _stats.setHikingParameters(horSpeed, vertSpeedClimb, vertSpeedDescent, minHeightChange);
+        _track.interleaveWaypoints();
+        if (_recordAdapter == null) return;
+        _recordAdapter.RemoveRecords();
 
-            if (DEBUG) {
-                Log.d(TAG, "Build timetable");
-            }
-            if (_recordAdapter != null)
+        for (int ptIndex = 0; ptIndex <= numPoints - 1; ptIndex++) {
+            DataPoint currPoint = _track.getPoint(ptIndex);
+
+            _stats.addPoint(currPoint);
+            currPoint.setDistance(_stats.getTotalDistance());
+            currPoint.setTime(_stats.getTotalSeconds());
+
+            if (currPoint.isRoutePoint())
             {
-                _recordAdapter.RemoveRecords();
+                record = new RecordAdapter.Record(
+                        currPoint,
+                        ptIndex,
+                        _stats.getTotalDistance(),
+                        _stats.getTotalClimb(),
+                        _stats.getTotalDescent(),
+                        _stats.getTotalSeconds());
+                _recordAdapter.add(record);
 
-                for (int ptIndex = 0; ptIndex <= numPoints - 1; ptIndex++) {
-                    boolean addRecord = _trackDetails.RecalculateTrackpoint(ptIndex);
-                    if (addRecord) {
-                        DataPoint currPoint = _track.getPoint(ptIndex);
-                        record = new RecordAdapter.Record(
-                                currPoint,
-                                ptIndex,
-                                _trackDetails.getSumDistance(),
-                                _trackDetails.getSumClimb(),
-                                _trackDetails.getSumDescent(),
-                                _trackDetails.getSumSeconds());
-                        _recordAdapter.add(record);
-
-                        if (_trackDetails.CalcTimes) {
-                            int PauseMin = currPoint.getWaypointDuration();
-                            PauseSec = PauseMin * 60L;
-                            TotalPauseSeconds += PauseSec;
-                        }
-                    }
-                }
+                int PauseMin = currPoint.getWaypointDuration();
+                _totalPauseInMins += PauseMin;
             }
             if (DEBUG) {
                 Log.d(TAG, "timetable built");
-                Log.d(TAG, "Sclimb: " + _trackDetails.getSumClimb ());
-                Log.d(TAG, "Sdescent: " + _trackDetails.getSumDescent ());
+                Log.d(TAG, "Sclimb: " + _stats.getTotalClimb());
+                Log.d(TAG, "Sdescent: " + _stats.getTotalDescent());
             }
-            _main.TotalDistance = _trackDetails.Distance_km;
+            _main.TotalDistance = _stats.getTotalDistance();
         }
-    }
-
-    public void Update() {
-        if (_trackDetails == null) return;
-
-        int numPoints = _track.getNumPoints();
-
-        if (DEBUG) {
-            Log.d(TAG, "Update: " + numPoints + " Trackpoints");
-        }
-        if (numPoints > 0) {
-            _trackDetails.setHikingParameters(horSpeed, vertSpeedClimb, vertSpeedDescent, minHeightChange);
-            recalculate();
-        }
-        _recordAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -239,6 +233,22 @@ public class App {
 
         Update();
     }
+
+    public void Update() {
+        if (_stats == null) return;
+
+        int numPoints = _track.getNumPoints();
+
+        if (DEBUG) {
+            Log.d(TAG, "Update: " + numPoints + " Trackpoints");
+        }
+        if (numPoints > 0) {
+            _stats.setHikingParameters(horSpeed, vertSpeedClimb, vertSpeedDescent, minHeightChange);
+            recalculate();
+        }
+        _recordAdapter.notifyDataSetChanged();
+    }
+
     public static SourceInfo getSourceInfo() {
         return _sourceInfo;
     }
@@ -247,7 +257,7 @@ public class App {
         return _track.getPoint(ptIndex);
     }
 
-    public static BaseTrack getTrack()
+    public static Track getTrack()
     {
         return _track;
     }
@@ -289,35 +299,35 @@ public class App {
     }
 
     public static int getClimb() {
-        if (_trackDetails == null) return 0;
-        return _trackDetails.getClimb();
+        if (_stats == null) return 0;
+        return _stats.getTotalClimb();
     }
 
     public static int getDescent() {
-        if (_trackDetails == null) return 0;
-        return _trackDetails.getDescent ();
+        if (_stats == null) return 0;
+        return _stats.getTotalDescent ();
     }
 
-    public static long getTotalCalcSeconds() {
-        if (_trackDetails == null) return 0L;
-        return _trackDetails.getTotalCalcSeconds();
+    public static long getTotalSeconds() {
+        if (_stats == null) return 0L;
+        return _stats.getTotalSeconds();
     }
 
-    public static long getTotalPauseSeconds() { return TotalPauseSeconds; }
+    public static long getTotalPauseInMins() { return _totalPauseInMins; }
 
     public double getTotalDistance() {
-        if (_trackDetails == null) return 0.0;
-        return _trackDetails.Distance_km;
+        if (_stats == null) return 0.0;
+        return _stats.getTotalDistance();
     }
 
     public int getMinAltitude() {
-        if (_trackDetails == null) return 0;
-        return _trackDetails.getMinAltitude();
+        if (_stats == null) return 0;
+        return _stats.getMinAltitude();
     }
 
     public int getMaxAltitude() {
-        if (_trackDetails == null) return 0;
-        return _trackDetails.getMaxAltitude();
+        if (_stats == null) return 0;
+        return _stats.getMaxAltitude();
     }
 }
 

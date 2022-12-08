@@ -30,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 
-import androidx.annotation.Nullable;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
@@ -235,10 +234,10 @@ public class HTML_File {
 
             // row "Description":
             tmp_buffer.append("</td><td class=\"cell\" class=\"cell\">");
-            description = dataPoint.getWaypointDescription();
+            description = dataPoint.getDescription();
             if (description.equals("")) {
                 if (linkedPoint != null) {
-                    description = linkedPoint.getWaypointDescription();
+                    description = linkedPoint.getDescription();
                 }
             }
             if (!description.equals("")) {
@@ -246,7 +245,7 @@ public class HTML_File {
                 descAvailable = true;
             }
             if (linkedPoint != null) {
-                String link = linkedPoint.getWaypointLink();
+                String link = linkedPoint.getWebLink();
                 if (!link.equals("")) {
                     tmp_buffer.append("<p><a href=\"")
                             .append(link).append("\" target=_blank>").append(link).append("</a></p>\n");
@@ -343,7 +342,7 @@ public class HTML_File {
                             break;
                         }
                         case COL_COMMENT:
-                            html_buffer.append(recPoint.getWaypointComment());
+                            html_buffer.append(recPoint.getComment());
                             break;
                         default:
                             break;
@@ -391,10 +390,10 @@ public class HTML_File {
                     html_buffer.append(App.getDescent());
                     break;
                 case COL_DURATION:
-                    html_buffer.append(formatIntToTime((int) App.getTotalCalcSeconds() / 60));
+                    html_buffer.append(formatIntToTime((int) App.getTotalSeconds() / 60));
                     break;
                 case COL_PAUSE:
-                    html_buffer.append(formatIntToTime((int) App.getTotalPauseSeconds() / 60));
+                    html_buffer.append(formatIntToTime((int) App.getTotalPauseInMins()));
                     break;
             }
             html_buffer.append("</b></td>");

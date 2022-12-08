@@ -68,12 +68,12 @@ public class TourDetails {
             RecordAdapter.Record record = recordAdapter.getItem(inPlace);
             DataPoint point = record.getTrackPoint();
             if (point != null) {
-                description = point.getWaypointDescription();
+                description = point.getDescription();
                 if (description.equals("")) {
                     if (point.getLinkIndex() >= 0) {
                         point = app.getPoint(point.getLinkIndex());
                         if (point != null) {
-                            description = point.getWaypointDescription();
+                            description = point.getDescription();
                         }
                     }
                 }
@@ -124,10 +124,10 @@ public class TourDetails {
                 if (point == null) return null;
 
                 info.title   = point.getRoutePointName();
-                info.comment = point.getWaypointComment();
+                info.comment = point.getComment();
                 info.type    = point.getWaypointType();
                 info.symbol  = point.getWaypointSymbol();
-                info.description = point.getWaypointDescription();
+                info.description = point.getDescription();
 
                 if (info.description.equals(""))
                 {
@@ -136,8 +136,8 @@ public class TourDetails {
                         point = app.getPoint(point.getLinkIndex());
                         if (point != null) {
                             info.type        = point.getWaypointType();
-                            info.description = point.getWaypointDescription();
-                            info.link        = point.getWaypointLink();
+                            info.description = point.getDescription();
+                            info.link        = point.getWebLink();
                         }
                     }
                 }

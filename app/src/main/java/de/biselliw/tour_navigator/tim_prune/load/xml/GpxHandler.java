@@ -6,7 +6,7 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
 
     Copyright (C) 2022 Walter Biselli (BiselliW)
 
-	File has been reworked from
+	File has been reworked from GpxHandler.java as part of GpsPrune version 22.2:
 	https://github.com/activityworkshop/GpsPrune/blob/master/src/tim/prune/load/xml/GpxHandler.java
 
     Copyright (C) Activity Workshop
@@ -23,41 +23,25 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
 
     You should have received a copy of the GNU General Public License along
     with this program; if not, get it from http://www.gnu.org/licenses/
+
+
+ * modified by Walter Biselli (BiselliW):
+ * v. 22.2.006 - 2022-11-30
+ *             - distinguish between loaded way points and trackpoints
+ *             - load extra tags from gpx file: _metadata (name, author), _comment, _duration
+ *             - reorder point fields
+
 */
-
-/**
-* @since BiselliW
-* new order of point fields (old one):
-* - 0 ()  : WAYPT_NAME
-* - 1 (0) : LATITUDE
-* - 2 (1) : LONGITUDE
-* - 3 (2) : ALTITUDE (_elevation)
-* - 4 ( ) : TIMESTAMP (_time)
-* - 5 ()  : WAYPT_CMT (_comment)
-* - 6 (7) : DESCRIPTION
-* - 7 ()  : WAYPT_DUR (Pause)
-* - 8 (6) : WAYPT_TYPE (_type)
-* - 9 ()  : WAYPT_SYM symbol name
-* -10 (5) : NEW_SEGMENT 1 if _startSegment && !_insideWaypoint
-* -11 ()  : WAYPT_FLAG !_isTrackPoint ? "1" : "0";
-* -12 ()  : WAYPT_LINK
-
-load extra tags from gpx file: _metadata (name, author), _comment, _duration
-*/
-
-
-import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import de.biselliw.tour_navigator.BuildConfig;
-import de.biselliw.tour_navigator.tim.prune.load.xml.GpxTag;
-
-import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.tim.prune.load.TrackNameList;
+import java.util.ArrayList;
 
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.tim.prune.load.TrackNameList;
+import de.biselliw.tour_navigator.tim.prune.load.xml.GpxTag;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
 
 /**
  * Class for handling specifics of parsing Gpx files
@@ -89,16 +73,22 @@ import de.biselliw.tour_navigator.helpers.Log;
 // todo replace package org.xml.sax by the SAX2 Attributes interface
 public class GpxHandler extends XmlHandler
 {
-// Extensions by BiselliW
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "GpxHandler";
+    private static final boolean DEBUG = false; // Set to true to enable logging
+
+    // Extensions by BiselliW
 	private boolean _insideMetaData = true;
-	private boolean _MetaDataAuthorSet = false;
+	private boolean _metaAuthorSet = false;
 	private boolean _insidePoint = false;
 	private boolean _insideWaypoint = false;
 	private boolean _startSegment = true;
 	private boolean _insideTrack = false;
 	private boolean _isTrackPoint = false;
 	private int _trackNum = -1;
-
+	private GpxTag _fileTitle = new GpxTag();
 	private GpxTag _pointName = new GpxTag(), _trackName = new GpxTag();
 	private String _latitude = null, _longitude = null;
 	private GpxTag _elevation = new GpxTag(), _time = new GpxTag();
@@ -108,21 +98,12 @@ public class GpxHandler extends XmlHandler
 	// Extensions by BiselliW
 	private GpxTag _metaName = new GpxTag();
 	private GpxTag _metaAuthor = new GpxTag(), _duration = new GpxTag();
-	private GpxTag _metaTime = new GpxTag();
-	private GpxTag _trackDescription = new GpxTag();
-
 
 	private GpxTag _currentTag = null;
 	private ArrayList<String[]> _pointList = new ArrayList<String[]>();
 	private ArrayList<String> _linkList = new ArrayList<String>();
 	private TrackNameList _trackNameList = new TrackNameList();
 
-	/**
-	 * TAG for log messages.
-	 */
-	static final String TAG = "GpxHandler";
-	private static final boolean _DEBUG = false; // Set to true to enable logging
-	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
 	/**
 	 * Receive the start of a tag
@@ -136,13 +117,12 @@ public class GpxHandler extends XmlHandler
 		if (DEBUG) Log.d(TAG, "startElement() tag = "+tag);
 
 		if (
-/* @since BiselliW */
 			tag.equals("metadata") || 
 			tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
 			if (tag.equals("metadata")) {
 				_insideMetaData = true;
-				_MetaDataAuthorSet = false;
+				_metaAuthorSet = false;
 			} 
 			else 
 			{
@@ -151,7 +131,6 @@ public class GpxHandler extends XmlHandler
 				_insideWaypoint = tag.equals("wpt");
 				_isTrackPoint = tag.equals("trkpt");
 			}
-			
 			final int numAttributes = attributes.getLength();
 			for (int i=0; i<numAttributes; i++)
 			{
@@ -174,20 +153,24 @@ public class GpxHandler extends XmlHandler
 		}
 		else if (tag.equals("name"))
 		{
-/* @since BiselliW */
-			if (_insideMetaData)
-			{
-				if (!_MetaDataAuthorSet)
+			if (_insideMetaData) {
+				if (!_metaAuthorSet) {
 					_currentTag = _metaName;
-				else
+				}
+				else {
 					_currentTag = _metaAuthor;
+				}				
 			}
-/* @since BiselliW */
-			else
-				if (_insidePoint)
-					_currentTag = _pointName;
-				else
-					_currentTag = _trackName;
+			else if (_insidePoint) {
+				_currentTag = _pointName;
+			}
+			else if (_trackNum < 0)
+			{
+				_currentTag = _fileTitle;
+			}
+			else {
+				_currentTag = _trackName;
+			}
 		}
 		else if (tag.equals("time")) {
 			_currentTag = _time;
@@ -215,7 +198,6 @@ public class GpxHandler extends XmlHandler
 		else if (tag.equals("trkseg")) {
 			_startSegment = true;
 		}
-		/* @since BiselliW */
 		else if (tag.equals("trk")) {
 			_insideTrack = true;
 			_trackNum++;
@@ -223,9 +205,8 @@ public class GpxHandler extends XmlHandler
 			_currentTag = null;
 		}
 		else if (tag.equals("author")) {
-			_MetaDataAuthorSet = true;
+			_metaAuthorSet = true;
 		}
-		
 		super.startElement(uri, localName, qName, attributes);
 	}
 
@@ -240,7 +221,6 @@ public class GpxHandler extends XmlHandler
 	{
 		String tag = qName.toLowerCase();
 		if (DEBUG) Log.d(TAG, "endElement() tag = "+tag);
-/* @since BiselliW */
 		if (tag.equals("metadata"))
 		{
 			_insideMetaData = false;
@@ -258,16 +238,16 @@ public class GpxHandler extends XmlHandler
 		}
 		else if (tag.equals("author"))
 		{
-			_MetaDataAuthorSet = false;
+			_metaAuthorSet = false;
 		}
 		else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
 			/* don't load waypoints which are simple trackpoints
-			 * @since BiselliW
 			 * */
 			if (_insideWaypoint)
-				if ((_type != null) && _type.getValue().equals("TrackPt"))
-					_insidePoint = false;
+				if ((_type != null) && (_type.getValue() != null))
+					if (_type.getValue().equals("TrackPt"))
+						_insidePoint = false;
 			if (_insidePoint)
 					processPoint();
 			_insideWaypoint = false;
@@ -302,27 +282,45 @@ public class GpxHandler extends XmlHandler
 	 */
 	private static String checkCharacters(String inVariable, String inValue)
 	{
-		if (inVariable == null) {return inValue;}
-		return inVariable + inValue;
+		String ret;
+		if (inVariable == null) 
+		{
+			ret = inValue;
+			if (DEBUG) Log.d(TAG,"checkCharacters (null," + inValue + ") -> " + ret); 
+		}
+		else
+		{
+			ret = inVariable + inValue;
+			if (DEBUG) Log.d(TAG,"checkCharacters (" + inVariable + "," + inValue + ") -> " + ret); 
+		}
+		
+		return ret;
 	}
 
 
 	/**
 	 * process meta data
 	 * @author BiselliW
+	 * @since 22.2.006
 	 */
 	private void processMetaData()
 	{
+		// get Name from parsed GPX tag <metadata><name> */
 		metaName        = _metaName.getValue();
+		// get Description from parsed GPX tag <metadata><description> */
 		metaDescription = _description.getValue(); 
+		// get Author from parsed GPX tag <metadata><author><name>
 		metaAuthor      = _metaAuthor.getValue();
+		// get Time from parsed GPX tag <metadata><time>
 		metaTime        = _time.getValue();
+		// get Link from parsed GPX tag <metadata><link>
 		metaLink        = _link.getValue();
 	}
 	
 	/**
 	 * Process a point, either a waypoint or track point
-	 * @implNote BiselliW: new GPX tags (WAYPT_CMT), new order of point fields in class Field
+	 * @implNote new GPX tags (WAYPT_CMT), new order of point fields in class Field
+	 * @since 22.2.006
 	 */
 	private void processPoint()
 	{
@@ -357,8 +355,8 @@ public class GpxHandler extends XmlHandler
 
 
 	/**
-	 * @see XmlHandler#getFieldArray()
-	 * @implNote BiselliW: new order of point fields in class Field
+	 * @implNote new arrangement of fields
+	 * @since 22.2.006
 	 */
 	public Field[] getFieldArray()
 	{
@@ -421,6 +419,9 @@ public class GpxHandler extends XmlHandler
 	 * @return file title
 	 */
 	public String getFileTitle() {
-		return _metaName.getValue();
+		String fileTitle = _fileTitle.getValue();
+		if ((fileTitle == null) || (fileTitle.equals("")))
+				fileTitle = _metaName.getValue(); 
+		return fileTitle;
 	}
 }

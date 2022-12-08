@@ -75,7 +75,7 @@ import java.util.Observer;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
@@ -87,7 +87,7 @@ public class ProfileAdapter {
     int numPoints = 0;
     double lastDistance = 0.0;
     int lastAltitude = 0;
-    BaseTrack _track = null;
+    Track _track = null;
 
     private XYPlot dynamicPlot;
     DynamicXYDatasource data;
