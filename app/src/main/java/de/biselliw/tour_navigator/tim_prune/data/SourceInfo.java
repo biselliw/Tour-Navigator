@@ -1,5 +1,6 @@
 package de.biselliw.tour_navigator.tim_prune.data;
 
+
 import java.io.File;
 
 import androidx.annotation.NonNull;
@@ -33,14 +34,15 @@ public class SourceInfo
 	/**
 	 * Extensions of SourceInfo
 	 * @implNote by BiselliW
-	 * */
-	String _metaName = "";
-	String _metaDescription = "";
-	String _metaTime = "";
-	String _link = "";
-	String _name = "";
-	String _author = "";
-	String _trackDescription = "";
+	 */
+	private String _metaName = "";
+	/** author parsed from tag <metadata><author><name> */
+	private String _author = "";
+	private String _metaDescription = "";
+	private String _metaTime = "";
+	private String _link = "";
+	private String _name = "";
+	private String _trackDescription = "";
 
 	/**
 	 * Constructor
@@ -99,6 +101,14 @@ public class SourceInfo
 	}
 
 	/**
+	 * @return title of file
+	 */
+	public String getFileTitle()
+	{
+		return (_fileTitle != null ? _fileTitle : "");
+	}
+
+	/**
 	 * @return number of points from this source
 	 */
 	public int getNumPoints()
@@ -126,7 +136,7 @@ public class SourceInfo
 	 * @param inTrack track object containing points
 	 * @param inNumPoints number of points loaded
 	 */
-	public void populatePointObjects(BaseTrack inTrack, int inNumPoints)
+	public void populatePointObjects(Track inTrack, int inNumPoints)
 	{
 		if (_numPoints == 0) {_numPoints = inNumPoints;}
 		if (inNumPoints > 0)
@@ -159,87 +169,14 @@ public class SourceInfo
 	}
 
 	/**
-	 * Extensions of SourceInfo
-	 * @implNote by BiselliW
-	 * */
-
-	/**
-	 * @return meta name
-	 */
-	@NonNull
-	public String getMetaName()
-	{
-		if (_name == null) return "";
-		return _name;
-	}
-
-	/**
-	 * @return meta time
-	 */
-	@NonNull
-	public String getMetaTime()
-	{
-		if (_metaTime == null) return "";
-		return _metaTime;
-	}
-
-	/**
-	 * @return meta link
-	 */
-	@NonNull
-	public String getMetaLink()
-	{
-		if (_link == null) return "";
-		return _link;
-	}
-
-	/**
-	 * @return track description
-	 * @since WB
-	 */
-	@NonNull
-	public String getTrackDescription()
-	{
-		if (_trackDescription == null) return "";
-		return _trackDescription;
-	}
-
-	/**
-	 * Set the description of the track
-	 * @param inDescription Description of the track
-	 * @since WB
-	 */
-	public void setTrackDescription(String inDescription)
-	{
-		_trackDescription = inDescription;
-	}
-
-	/**
-	 * @return meta description of the file
-	 * @since WB
-	 */
-	public String getMetaDescription()
-	{
-		return _metaDescription;
-	}
-
-	/**
-	 * @return author of the file
-	 * @since WB
-	 */
-	public String getAuthor()
-	{
-		return _author;
-	}
-
-	/**
 	 * set meta data
 	 * @param name        short description of the route
 	 * @param description long  description of the route
 	 * @param author      author's name
-	 * @param time        start time of the route (originally: creation time)
+	 * @param time        timestamp of last update 
 	 * @param link        web link
-	 * @since WB
+	 * @author BiselliW
+	 * @since 22.2.006
 	 */
 	public void setMetaData (String name, String description, String author, String time, String link)
 	{
@@ -251,10 +188,82 @@ public class SourceInfo
 	}
 
 	/**
-	 * @return title of file
+	/**
+	 * @return meta name
+	 * @author BiselliW
+	 * @since 22.2.006
 	 */
-	public String getFileTitle()
+	@NonNull
+	public String getMetaName()
 	{
-		return (_fileTitle != null ? _fileTitle : "");
+		if (_name == null) return "";
+		return _name;
+	}
+
+	/**
+	 * @return meta time
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	@NonNull
+	public String getMetaTime()
+	{
+		if (_metaTime == null) return "";
+		return _metaTime;
+	}
+
+	/**
+	 * @return meta link
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	@NonNull
+	public String getMetaLink()
+	{
+		if (_link == null) return "";
+		return _link;
+	}
+
+	/**
+	 * @return track description
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	@NonNull
+	public String getTrackDescription()
+	{
+		if (_trackDescription == null) return "";
+		return _trackDescription;
+	}
+
+	/**
+	 * Set the description of the track
+	 * @param inDescription Description of the track
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public void setTrackDescription(String inDescription)
+	{
+		_trackDescription = inDescription;
+	}
+
+	/**
+	 * @return meta description of the file
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public String getMetaDescription()
+	{
+		return _metaDescription;
+	}
+
+	/**
+	 * @return author of the file
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public String getAuthor()
+	{
+		return _author;
 	}
 }

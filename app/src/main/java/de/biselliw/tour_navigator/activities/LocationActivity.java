@@ -410,10 +410,12 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         setPlace(-1,false);
         recordAdapter.notifyDataSetChanged();
         startTimeSet = false;
-        setStatus(locStatus.GPX_FILE_LOADED);
+        if (gpsSimulation != null) {
+            setStatus(locStatus.GPX_FILE_LOADED);
 
-        // try to expand the view if description is available
-        control.setExpandViewStatus(true);
+            // try to expand the view if description is available
+            control.setExpandViewStatus(true);
+        }
     }
 
     /**

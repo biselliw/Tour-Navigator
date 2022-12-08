@@ -62,7 +62,7 @@ import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
-import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
@@ -406,7 +406,7 @@ public class MainActivity extends LocationActivity  implements
                 recordAdapter.recordList.remove(selected);
                 recordAdapter.notifyDataSetChanged();
 
-                BaseTrack track = App.getTrack();
+                Track track = App.getTrack();
                 if (track != null) {
                     if ((record.trackPointIndex >= 0) && (record.trackPointIndex < track.getNumPoints())) {
                         track.deletePoint(record.trackPointIndex);

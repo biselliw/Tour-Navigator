@@ -1,5 +1,7 @@
 package de.biselliw.tour_navigator.tim_prune.data;
 
+import java.util.TimeZone;
+
 import de.biselliw.tour_navigator.tim_prune.config.Config;
 import de.biselliw.tour_navigator.stubs.AudioClip;
 import de.biselliw.tour_navigator.stubs.MediaObject;
@@ -39,30 +41,33 @@ public class DataPoint
 	/** Attached audio clip */
 	private AudioClip _audio = null;
 	private String _waypointName = null;
-	private String _routePointName = null;
 	private boolean _startOfSegment = false;
 	private boolean _markedForDeletion = false;
 	private int _modifyCount = 0;
 
+	/** extensions:
+	 * @since 22.2.005
+	 */
 	public static final int INVALID_INDEX = -32000;
-
-/** @since BiselliW */
-	// hiking extension
+	private String _routePointName = null;
 	private boolean _isWaypoint;
 	/** Distance since start [km] */
 	private double _distance_km;
 	/** Time since start [s] */
 	private long _time_s;
-	/** pause time [min] at this waypoint */
-	private int _waypointDuration = 0;
-	private String _waypointType = null;
-	private String _waypointSym = null;
-	private String _waypointComment = null;
-	private String _waypointDescription = null;
-	private String _waypointLink = null;
+	/** pause time [min] at this trackpoint */
+	private int _duration = 0;
+	// todo _wptType
+	private String _wptType = null;
+	private String _symbol = null;
+	/** way point or trackpoint comment */ 
+	private String _comment = null;
+	/** way point or trackpoint description */
+	private String _description = null;
+	/** way point or trackpoint link */
+	private String _webLink = null;
 	/** index of the track point linked to the way point */
 	private  int _linkIndex = INVALID_INDEX;
-/* BiselliW -> */
 
 
 	/**
@@ -80,7 +85,7 @@ public class DataPoint
 		// Remove double quotes around values
 		removeQuotes(_fieldValues);
 		// parse fields into objects
-           		parseFields(null, inOptions);
+		parseFields(null, inOptions);
 	}
 
 
@@ -88,7 +93,8 @@ public class DataPoint
 	 * Parse the string values into objects eg Coordinates
 	 * @param inField field which has changed, or null for all
 	 * @param inOptions creation options such as units
-	 * @since BiselliW
+	 * @implNote: add values of fields WAYPT_TYPE, WAYPT_SYM, COMMENT, DESCRIPTION, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK
+	 * @since 22.2.005
 	 */
 	private void parseFields(Field inField, PointCreateOptions inOptions)
 	{
@@ -119,26 +125,25 @@ public class DataPoint
 			if (segmentStr != null) {segmentStr = segmentStr.trim();}
 			_startOfSegment = (segmentStr != null && (segmentStr.equals("1") || segmentStr.toUpperCase().equals("Y")));
 		}
-/* @since BiselliW */
 		if (inField == null || inField == Field.WAYPT_TYPE) {
-			_waypointType = getFieldValue(Field.WAYPT_TYPE);
+			_wptType = getFieldValue(Field.WAYPT_TYPE);
 		}
 		if (inField == null || inField == Field.WAYPT_SYM) {
-			_waypointSym = getFieldValue(Field.WAYPT_SYM);
+			_symbol = getFieldValue(Field.WAYPT_SYM);
 		}
  		if (inField == null || inField == Field.COMMENT) {
-			_waypointComment = getFieldValue(Field.COMMENT);
+			_comment = getFieldValue(Field.COMMENT);
 		}
 		if (inField == null || inField == Field.DESCRIPTION) {
-			_waypointDescription = getFieldValue(Field.DESCRIPTION);
+			_description = getFieldValue(Field.DESCRIPTION);
 		}
 		if (inField == null || inField == Field.WAYPT_DUR) {
 			try {
 				String dur = getFieldValue(Field.WAYPT_DUR);
-				_waypointDuration = new Integer(dur);
+				_duration = new Integer(dur);
 			}
 			catch (NumberFormatException e) {
-				_waypointDuration = 0;
+				_duration = 0;
 			}
 		}
 		if (inField == null || inField == Field.WAYPT_FLAG) {
@@ -146,9 +151,8 @@ public class DataPoint
 			_isWaypoint = (value != null) && value.equals("1");
 		}
 		if (inField == null || inField == Field.WAYPT_LINK) {
-			_waypointLink = getFieldValue(Field.WAYPT_LINK);
+			_webLink = getFieldValue(Field.WAYPT_LINK);
 		}
-/* BiselliW -> */
 	}
 
 
@@ -312,11 +316,7 @@ public class DataPoint
 	{
 		return _timestamp;
 	}
-
-	/**
-	 * @return waypoint name, if any
-	 * @implNote check for null
-	*/
+	/** @return waypoint name, if any */
 	public String getWaypointName()
 	{
 		if (_waypointName == null) return "";
@@ -345,23 +345,14 @@ public class DataPoint
 
 	/**
 	 * @return true if point is a waypoint 
-	 * @implNote check for null
+	 * @author BiselliW
+	 * @since 22.2.006
 	 */
 	public boolean isWayPoint()
 	{
 		return (_waypointName != null) && !_waypointName.equals("") && _isWaypoint;
 	}
 
-
-	/**
-	 * @return waypoint hyperlink
-	 * @implNote check for null
-	*/
-	public String getWaypointLink()
-	{
-		if (_waypointLink == null) return "";
-		return _waypointLink;
-	}
 
 	/**
 	 * @return true if point has been modified since loading
@@ -552,122 +543,44 @@ public class DataPoint
 	{
 		return "[Lat=" + getLatitude().toString() + ", Lon=" + getLongitude().toString() + "]";
 	}
-
-	/**
-	 * Set the waypoint name
-	 * @implNote only internal use for tour navigator
-	 * @param inWaypointName waypoint name
-	 * @author BiselliW
-	*/
-	public void setWaypointName(String inWaypointName)
-	{
-		_waypointName = inWaypointName;
-// todo setFieldValue(Field.WAYPT_NAME, inWaypointName, false);
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @return waypoint comment, if any
-	 * @author BiselliW
-	*/
-	public String getWaypointComment()
-	{
-		if (_waypointComment == null) return "";
-		return _waypointComment;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @param comment waypoint comment
-	 * @author BiselliW
-	 */
-	public void setWaypointComment(String comment)
-	{
-		_waypointComment = comment;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @return waypoint description, if any
-	 * @author BiselliW
-	*/
-	public String getWaypointDescription()
-	{
-		if (_waypointDescription == null) return "";
-		return _waypointDescription;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @return waypoint symbol, if any
-	 * @author BiselliW
-	*/
-	public String getWaypointSymbol()
-	{
-		if (_waypointSym == null) return "";
-		return _waypointSym;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @return waypoint type, if any
-	 * @author BiselliW
-	 */
-	public String getWaypointType()
-	{
-		if (_waypointType == null) return "";
-		return _waypointType;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @return waypoint comment or description, if any
-	 * @author BiselliW
-	*/
-	public String getWaypointCommentOrDescription()
-	{
-		String str = getWaypointComment();
-		if (str.equals("")) str = getWaypointDescription();
-		return str;
-	}
-
-	/**
-	 * Set waypoint duration [min]
-	 * @implNote only internal use for tour navigator
-	 * @param waypointDuration waypoint duration [min]
-	 * @author BiselliW
-	*/
-	public void setWaypointDuration(int waypointDuration)
-	{
-		_waypointDuration = waypointDuration;
-	}
-
-	public int getWaypointDuration()
-	{
-		return _waypointDuration;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 * @return true if point is a track point
-	 * @author BiselliW
-	 */
-	public boolean _isTrackpoint() { return !_isWaypoint; }
-
-	/**
-	 *
-	 * @return true if the trackpoint is named
-	 */
-	public boolean isNamedTrackpoint()
-	{
-		return !_isWaypoint && ((_waypointName != null) && !_waypointName.equals(""));
-	}
 	
+	/** 
+	 * @return way point or trackpoint comment, if any 
+	 * @author BiselliW
+	 * @since 22.2.005
+	*/
+	public String getComment()
+	{
+		if (_comment == null) return "";
+		return _comment;
+	}
+
+	/** 
+	 * @return way point or trackpoint description, if any 
+	 * @author BiselliW
+	 * @since 22.2.005
+	*/
+	public String getDescription()
+	{
+		if (_description == null) return "";
+		return _description;
+	}
+
+	/**
+	 * @return way point or trackpoint weblink, if any
+	 * @author BiselliW
+	 * @since 22.2.005
+	*/
+	public String getWebLink()
+	{
+		if (_webLink == null) return "";
+		return _webLink;
+	}
+
 	/**
 	 * unmark a point as Route Point
-	 * @implNote only internal use for Tour Navigator
-	 *
 	 * @author BiselliW
+	 * @since 22.2.006
 	 */
 	public void clearWayPointLink()
 	{
@@ -679,59 +592,55 @@ public class DataPoint
 	}
 
 	/**
-	 * mark a point as Route Point
-	 * @implNote only internal use for tour navigator
-	 *
-	 * @param  inName name to be assigned to the route point
-	 * @param  inLinkIndex index of the linked way point within the track
-	 * @author BiselliW
-	 */
-	public void makeRoutePoint(String inName, int inLinkIndex)
-	{
-		_isWaypoint = false;
-		_routePointName = inName;
-		_linkIndex = inLinkIndex;
-	}
-
-	/**
-	 * @implNote only internal use for tour navigator
-	 *
-	 * @return index of a point to which the current point is linked
-	 * @since BiselliW
-	 */
-	public int getLinkIndex ()
-	{
-		return _linkIndex;
-	}
-
-	/**
 	 * set the link index of a point
-	 * @implNote only internal use for tour navigator
-	 *
 	 * @param inIndex index of a waypoint to which the current point shall be linked
 	 * @author BiselliW
+	 * @since 22.2.006
 	 */
-	public void setLinkIndex (int inIndex) { _linkIndex = inIndex; }
+	public void setLinkIndex (int inIndex)
+	{
+		_linkIndex = inIndex;
+	}
+
+	/**
+	 * @return true if point is a track point
+	 * @author Walter Biselli
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public boolean isTrackPoint()
+	{
+		return !_isWaypoint;
+	}
+
+	/**
+	 * @return true if the trackpoint has a name
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public boolean isNamedTrackpoint()
+	{
+		return !_isWaypoint && ((_waypointName != null) && !_waypointName.equals(""));
+	}
 
 	/**
 	 * checks if a point is a Route Point:
 	 * - a track point with name
 	 * - a track point linked to a waypoint
-	 * @implNote only internal use for tour navigator
-	 *
 	 * @return true if the point is a Route Point
 	 * @author BiselliW
+	 * @since 22.2.006
 	 */
 	public boolean isRoutePoint()
 	{
 		return !getRoutePointName().equals("");
 	}
 	
-	/**
-	 * @implNote only internal use for tour navigator
-	 *
-	 * @return Route Point name
+	/** 
+	 * @return Route Point name, either the internal name or the name of the track point (no way point!)  
 	 * @author BiselliW
+	 * @see #makeRoutePoint(String, int)
+	 * @since 22.2.006
 	*/
 	public String getRoutePointName()
 	{
@@ -745,60 +654,138 @@ public class DataPoint
 	}
 
 	/**
-	 * Clear distance and time since start of the track
+	 * mark a point as Route Point
+	 * @param  inName name to be assigned to the route point
+	 * @param  inLinkIndex index of the linked way point within the track
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public void makeRoutePoint(String inName, int inLinkIndex)
+	{
+		_isWaypoint = false;
+		_routePointName = inName;
+		_linkIndex = inLinkIndex;
+	}
+
+	/**
+	 * Set the waypoint name
+	 * @param inWaypointName waypoint name
+	 * @author BiselliW
+	 * @since 22.2.006
+	*/
+	public void setWaypointName(String inWaypointName)
+	{
+		setFieldValue(Field.WAYPT_NAME, inWaypointName, false);
+	}
+
+	/**
 	 * @implNote only internal use for tour navigator
+	 * @return waypoint symbol, if any
+	 * @author BiselliW
+	*/
+	public String getWaypointSymbol()
+	{
+		if (_symbol == null) return "";
+		return _symbol;
+	}
+
+	/**
+	 * @implNote only internal use for tour navigator
+	 * @return waypoint type, if any
 	 * @author BiselliW
 	 */
-	public void clearRealtimeData()
+	public String getWaypointType()
 	{
-		if (_distance_km > 0) {
-			_distance_km = 0;
-		}
-		_time_s = 0;
+		if (_wptType == null) return "";
+		return _wptType;
+	}
+
+	/**
+	 * @return index of a point to which the current point is linked
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public int getLinkIndex ()
+	{
+		return _linkIndex;
+	}
+
+	/** 
+	 * @return waypoint duration (pause) [min]
+	 * @author BiselliW
+	 * @since 22.2.006
+	*/
+	public int getWaypointDuration()
+	{
+		return _duration;
+	}
+
+	/**
+	 * Set waypoint duration
+	 * @param inDuration pause) [min]
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public void setWaypointDuration(int inDuration)
+	{
+		_duration = inDuration;
+	}
+
+	/**
+	 * set timestamp 
+	 * @param inTimestamp Time stamp
+	 * @param inTimezone  Time zone 
+	 * @author BiselliW
+	 * @since 22.2.006
+	*/
+	public void setTimestamp(Timestamp inTimestamp, TimeZone inTimezone)
+	{
+		setFieldValue(Field.TIMESTAMP, inTimestamp.getText(inTimezone), false);
+		_timestamp = inTimestamp;
 	}
 
 	/**
 	 * Set distance since start
-	 * @implNote only internal use for tour navigator
-	 *
 	 * @param distance_km distance since start [km]
 	 * @author BiselliW
+	 * @since 22.2.006
 	 */
-	public void setRealtimeDataDist(double distance_km)	{ _distance_km = distance_km; }
+	public void setDistance(double distance_km)
+	{
+		_distance_km = distance_km;
+	}
+	
+	/**
+	 * @return distance since start [km] 
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public double getDistance() { return _distance_km; }
 
 	/**
-	 * Set Time since start [s]
-	 *
+	 * Set Time since start
 	 * @param time_s Time since start [s]
-	 * @implNote only internal use for tour navigator
 	 * @author BiselliW
+	 * @since 22.2.006
 	 */
-	public void setRealtimeDataTime(long time_s) { _time_s = time_s; }
-
+	public void setTime(long time_s)
+	{
+		_time_s = time_s;
+	}
+	
 	/**
-	 * @implNote only internal use for tour navigator
-	 * @author BiselliW
-	 *
 	 * @return Time since start [s]
-	 */
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */ 
 	public long getTime() { return _time_s; }
 
 	/**
-	 * @implNote only internal use for tour navigator
-	 * @author BiselliW
-	 *
-	 * @return distance since start [km]
-	 */
-	public double getDistance() { return _distance_km;	}
-
-	/**
 	 * Calculate the number of radians between two points (for distance calculation)
-	 * @implNote only internal use for tour navigator
-	 *
 	 * @param inLatitude Latitude in degrees
 	 * @param inLongitude Longitude in degrees
 	 * @return angular distance between points in radians
-	 * @author BiselliW
+	 * @since 22.2.006
 	 */
 	public double calculateRadiansBetween(double inLatitude, double inLongitude)
 	{
@@ -817,5 +804,38 @@ public class DataPoint
 		// phew
 		return answer;
 	}
+
+// ###############################################
+
+	/**
+	 * Clear distance and time since start of the track
+	 * @implNote only internal use for tour navigator
+	 * @author BiselliW
+	 */
+	public void _clearRealtimeData()
+	{
+		if (_distance_km > 0) {
+			_distance_km = 0;
+		}
+		_time_s = 0;
+	}
+
+	/**
+	 * Set distance since start
+	 * @implNote only internal use for tour navigator
+	 *
+	 * @param distance_km distance since start [km]
+	 * @author BiselliW
+	 */
+	public void _setRealtimeDataDist(double distance_km)	{ _distance_km = distance_km; }
+
+	/**
+	 * Set Time since start [s]
+	 *
+	 * @param time_s Time since start [s]
+	 * @implNote only internal use for tour navigator
+	 * @author BiselliW
+	 */
+	public void _setRealtimeDataTime(long time_s) { _time_s = time_s; }
 
 }

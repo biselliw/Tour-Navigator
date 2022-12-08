@@ -5,7 +5,7 @@ import android.os.Build;
 
 import java.util.TimeZone;
 
-import de.biselliw.tour_navigator.tim_prune.data.BaseTrack;
+import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
@@ -22,7 +22,7 @@ import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSele
  * From that on all GPS location data (time stamp, latitude, longitude) will be simulated by this
  * class
  *
- * @author Walter Biselli
+ * @author BiselliW
  */
 public class GpsSimulator {
     DataPoint[] gpsData;
@@ -41,7 +41,7 @@ public class GpsSimulator {
      *
      * @param track track data for the initial recorded track
      */
-    public GpsSimulator(BaseTrack track)
+    public GpsSimulator(Track track)
     {
         location = new Location("");
         timeZone = getSelectedTimezone();
