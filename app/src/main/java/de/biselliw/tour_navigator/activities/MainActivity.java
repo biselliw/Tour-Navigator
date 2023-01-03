@@ -684,7 +684,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void hide_profile(View view) {
-        control.activateProfile(false);
+        control.activateProfile(View.INVISIBLE);
     }
 
     /**
@@ -693,7 +693,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void show_profile(View view) {
-        control.activateProfile(true);
+        control.activateProfile(View.VISIBLE);
     }
 
 

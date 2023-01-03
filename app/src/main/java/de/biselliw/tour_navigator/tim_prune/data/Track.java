@@ -260,6 +260,7 @@ public class Track {
 		_waypoints = new DataPoint[_numPoints];
 		_pointIndices = new int[_numPoints];
 		DataPoint point = null;
+		if (!_scaled) {scalePoints();}
 		// find nearest track points for all way points
 		int i = 0;
 		for (i=0; i<_numPoints; i++)
