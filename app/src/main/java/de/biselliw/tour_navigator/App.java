@@ -16,7 +16,7 @@ package de.biselliw.tour_navigator;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2023 Walter Biselli (BiselliW)
 */
 import android.util.Log;
 

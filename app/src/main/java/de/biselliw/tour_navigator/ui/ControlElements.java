@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.ui;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2023 Walter Biselli (BiselliW)
 */
 
 import android.os.Bundle;
@@ -54,7 +54,7 @@ public class ControlElements extends BaseActivity {
     public RecordAdapter recordAdapter = null;
 
     protected static boolean expandView = false;
-    private static boolean profileView = false;
+//    private static boolean profileView = false;
     private static boolean fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
@@ -80,6 +80,7 @@ public class ControlElements extends BaseActivity {
     String errorMessage = "";
     boolean _updateErrorMessage = false;
     boolean _updateExpandView = false;
+    int _profileViewVisibility = View.GONE;
     boolean _updateProfile = false;
 
 
@@ -377,6 +378,27 @@ public class ControlElements extends BaseActivity {
     private void onShowProfile() {
         _updateProfile = false;
         LinearLayout plot = main.findViewById(R.id.profile_plot);
+        plot.setVisibility(_profileViewVisibility == View.VISIBLE ? View.VISIBLE : View.GONE);
+        switch (_profileViewVisibility) {
+            case View.INVISIBLE:
+                setViewVisibility(R.id.image_show_profile, View.VISIBLE);
+                setViewVisibility(R.id.image_hide_profile, View.INVISIBLE);
+                break;
+            case View.VISIBLE:
+                setViewVisibility(R.id.image_show_profile, View.GONE);
+                setViewVisibility(R.id.image_hide_profile, View.VISIBLE);
+                break;
+            default:
+                setViewVisibility(R.id.image_show_profile, View.INVISIBLE);
+                setViewVisibility(R.id.image_hide_profile, View.GONE);
+        }
+
+        if (_profileViewVisibility == View.VISIBLE)
+        {
+            la.updateStatus();
+            la.scrollToListPosition();
+        }
+/*
         plot.setVisibility((profileView && !expandView) ? View.VISIBLE : View.GONE);
 
         if (expandView) {
@@ -392,6 +414,8 @@ public class ControlElements extends BaseActivity {
             la.updateStatus();
             la.scrollToListPosition();
         }
+
+ */
     }
 
     private int getViewWidth(int id)
@@ -417,7 +441,7 @@ public class ControlElements extends BaseActivity {
 
         setTrackingStatus(false);
 
-        activateProfile(false);
+        activateProfile(View.GONE);
         setExpandViewStatus(true);
         setViewVisibility(R.id.image_expand_more, View.GONE);
         _initUserInterface = true;
@@ -428,6 +452,7 @@ public class ControlElements extends BaseActivity {
      */
     public void setupUserInterface() {
         fileInfoAvailable = details.isFileInfoAvailable();
+        activateProfile(View.VISIBLE);
         _setupUserInterface = true;
     }
 
@@ -543,10 +568,10 @@ public class ControlElements extends BaseActivity {
     /**
      * Show/hide the profile
      *
-     * @param visible true to show the profile
+     * @param state view state
      */
-    public void activateProfile(boolean visible) {
-        profileView = visible;
+    public void activateProfile(int state) {
+        _profileViewVisibility = state;
         _updateProfile = true;
     }
 
