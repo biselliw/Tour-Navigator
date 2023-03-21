@@ -2,9 +2,11 @@ package de.biselliw.tour_navigator.helpers;
 
 import android.location.Location;
 import android.os.Build;
+import android.util.Log;
 
 import java.util.TimeZone;
 
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
@@ -25,6 +27,13 @@ import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSele
  * @author BiselliW
  */
 public class GpsSimulator {
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "GpsSimulator";
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    public static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
     DataPoint[] gpsData;
     int numPoints;
     int gpsIndex;
@@ -70,6 +79,9 @@ public class GpsSimulator {
     {
         if (gpsIndex < numPoints)
         {
+            if (DEBUG) {
+                Log.d(TAG, "getLocation(" + gpsIndex + ")");
+            }
             DataPoint dataPoint = gpsData[gpsIndex++];
             location.setLongitude(dataPoint.getLongitude().getDouble());
             location.setLatitude(dataPoint.getLatitude().getDouble());

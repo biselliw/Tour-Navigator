@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.data;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2023 Walter Biselli (BiselliW)
 */
 
 import de.biselliw.tour_navigator.BuildConfig;
@@ -25,6 +25,7 @@ import de.biselliw.tour_navigator.tim.prune.data.Altitude;
 import de.biselliw.tour_navigator.tim.prune.data.Distance;
 
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Track;
 
 /**
  * class to hold all details of a track
@@ -43,11 +44,14 @@ public class TrackDetails {
     public final static double DEF_HOR_SPEED 			= 5.0;
 	public final static double DEF_VERT_SPEED_CLIMB 	= 0.35;
 	public final static double DEF_VERT_SPEED_DESC 		= 0.5;
-	public final static int 	DEF_MIN_HEIGHT_CHANGE 	= 3;
+	public final static int    DEF_MIN_HEIGHT_CHANGE 	= 3;
 
     final static double _secondsHour 			= 3600.0;
     final static double _vertSecondsHour 		= 3.6;
 
+	private static Track _track = null;
+
+	private int     _ptIndex;
     private DataPoint _prevPoint = null;
     private int _altitude_m = 0, _minAltitude_m = 0, _maxAltitude_m = 0;
     private int _prevAltitude_m = -1;
@@ -60,7 +64,8 @@ public class TrackDetails {
     /** if true: data must be recalculated in current segment of the track */
     private boolean _segRecalc = false;
     private double  _segDistance_km = 0.0;
-    private long    _segStartSeconds = 0L;
+	private int     _segStart = 0;
+    private long    _segStart_s = 0L;
     private int     _segStartClimb_m = 0;
     private int     _segStartDescent_m = 0;
        
@@ -101,10 +106,69 @@ public class TrackDetails {
 	/**
 	 * Recalculate all selection details
 	 */
-    public TrackDetails() {
-    }
+    public TrackDetails(Track inTrack ) {
+		_track = inTrack;
+	}
 
-	public boolean addPoint(DataPoint currPoint)
+	public boolean addPoint(int ptIndex)
+	{
+		boolean result = false;
+
+		_ptIndex = ptIndex;
+		DataPoint currPoint = _track.getPoint(ptIndex);
+		result = addPoint(currPoint);
+
+		return result;
+	}
+
+	private void resetSegment()
+	{
+		// update overall data at the end of the segment from section data
+		_segDistance_km = 0.0;
+		_segStart = _ptIndex;
+		_segStart_s = _totalSeconds;
+		_segStartClimb_m = _totalClimb_m;
+		_segStartDescent_m = _totalDescent_m;
+		_segRecalc = false;
+	}
+
+	/**
+	 * Calculate distances and times of all points within the segment after analysis of the segment
+	 * @param inSegSeconds calculated total time within the segment
+	 */
+	private void calcSegmentTimes (long inSegSeconds) {
+		double segStartDistance_km = 0.0;
+		int totalPause_min = 0;
+		for (int ptIndex = _segStart; ptIndex <= _ptIndex; ptIndex++) {
+			DataPoint currPoint = _track.getPoint(ptIndex);
+
+			if (_segDistance_km > 0.0)
+			{
+				if (ptIndex == _segStart)
+					segStartDistance_km = currPoint.getDistance();
+				else
+				{
+					double segRelDistance = (currPoint.getDistance() - segStartDistance_km) / _segDistance_km;
+					double segCurrTime = segRelDistance * (double)inSegSeconds + 31;
+					long Time_s = _segStart_s + (int)segCurrTime + totalPause_min *60;
+					long prevTime_s = currPoint.getTime();
+					if (Time_s > prevTime_s)
+						currPoint.setTime(Time_s);
+					totalPause_min += currPoint.getWaypointDuration();
+				}
+			}
+		}
+
+		// update current overall data from section data
+		_totalSeconds  = _segStart_s + inSegSeconds + totalPause_min*60;
+	}
+
+	/**
+	 * add location data of a point to calculate its time and distance since start
+	 * @param currPoint
+	 * @return
+	 */
+	private boolean addPoint(DataPoint currPoint)
 	{
 		boolean result = false;
 		boolean overallUp = false, overallDn = false;
@@ -178,8 +242,13 @@ public class TrackDetails {
 			double radians = DataPoint.calculateRadiansBetween(_prevPoint, currPoint);
 			double dist = Distance.convertRadiansToDistance(radians);
 			_totalDistance_km += dist;
+			currPoint.setDistance(_totalDistance_km);
 			_segDistance_km += dist;
 		}
+		else
+			currPoint.setDistance(0.0);
+		currPoint.setTime(0L);
+
 		// remember previous  point
 		_prevPoint = currPoint;;
 
@@ -236,19 +305,12 @@ public class TrackDetails {
 					segSeconds = (long) (horSeconds / 2.0 + vertSeconds);
 				}
 
-				// update current overall data from section data
-				_totalSeconds  = _segStartSeconds + segSeconds;
-
+				calcSegmentTimes (segSeconds);
 				result = true;
 			}
 
 			if (_segRecalc) {
-				// update overall data at the end of the segment from section data
-				_segDistance_km = 0.0;
-				_segStartSeconds = _totalSeconds;
-				_segStartClimb_m = _totalClimb_m;
-				_segStartDescent_m = _totalDescent_m;
-				_segRecalc = false;
+				resetSegment();
 			}
 
 			if ((_altitude_m < _minAltitude_m) || (_minAltitude_m <= 0))

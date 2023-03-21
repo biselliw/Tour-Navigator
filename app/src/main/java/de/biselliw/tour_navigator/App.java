@@ -57,7 +57,7 @@ public class App {
     private final RecordAdapter _recordAdapter;
 
     public static App app = null;
-    static long _totalPauseInMins = 0L;
+    static long _totalPause_min = 0L;
 
     // hiking speed parameters
     private double horSpeed, vertSpeedClimb, vertSpeedDescent;
@@ -172,6 +172,12 @@ public class App {
      * Recalculate all track points
      */
     public void recalculate() {
+        double Sdistance = 0.0;
+        int Sclimb = 0;
+        int Sdescent = 0;
+        long Sseconds = 0L;
+        int PauseMin = 0;
+
         int numPoints = _track.getNumPoints();
 
         RecordAdapter.Record record;
@@ -180,33 +186,41 @@ public class App {
         if (DEBUG) {
             Log.d(TAG, "recalculate(): " + numPoints + " Trackpoints");
         }
-        _stats = new TrackDetails();
+        _stats = new TrackDetails(_track);
 
         _stats.setHikingParameters(horSpeed, vertSpeedClimb, vertSpeedDescent, minHeightChange);
         _track.interleaveWaypoints();
         if (_recordAdapter == null) return;
         _recordAdapter.RemoveRecords();
+        _totalPause_min = 0L;
 
         for (int ptIndex = 0; ptIndex <= numPoints - 1; ptIndex++) {
             DataPoint currPoint = _track.getPoint(ptIndex);
 
-            _stats.addPoint(currPoint);
-            currPoint.setDistance(_stats.getTotalDistance());
-            currPoint.setTime(_stats.getTotalSeconds());
-
+            _stats.addPoint(ptIndex);
             if (currPoint.isRoutePoint())
             {
+
                 record = new RecordAdapter.Record(
                         currPoint,
                         ptIndex,
-                        _stats.getTotalDistance(),
-                        _stats.getTotalClimb(),
-                        _stats.getTotalDescent(),
-                        _stats.getTotalSeconds());
+
+                        _stats.getTotalDistance() - Sdistance,
+                        _stats.getTotalClimb() - Sclimb,
+                        _stats.getTotalDescent() - Sdescent,
+                        currPoint.getTime() - Sseconds - PauseMin * 60L
+                );
+
+                Sdistance = _stats.getTotalDistance();
+                Sclimb = _stats.getTotalClimb();
+                Sdescent = _stats.getTotalDescent();
+                Sseconds = currPoint.getTime();
+
+                PauseMin = currPoint.getWaypointDuration();
+                _totalPause_min += PauseMin;
+
                 _recordAdapter.add(record);
 
-                int PauseMin = currPoint.getWaypointDuration();
-                _totalPauseInMins += PauseMin;
             }
             if (DEBUG) {
                 Log.d(TAG, "timetable built");
@@ -313,7 +327,7 @@ public class App {
         return _stats.getTotalSeconds();
     }
 
-    public static long getTotalPauseInMins() { return _totalPauseInMins; }
+    public static long getTotalPauseInMins() { return _totalPause_min; }
 
     public double getTotalDistance() {
         if (_stats == null) return 0.0;

@@ -54,7 +54,6 @@ public class ControlElements extends BaseActivity {
     public RecordAdapter recordAdapter = null;
 
     protected static boolean expandView = false;
-//    private static boolean profileView = false;
     private static boolean fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
@@ -398,24 +397,6 @@ public class ControlElements extends BaseActivity {
             la.updateStatus();
             la.scrollToListPosition();
         }
-/*
-        plot.setVisibility((profileView && !expandView) ? View.VISIBLE : View.GONE);
-
-        if (expandView) {
-            setViewVisibility(R.id.image_show_profile, View.INVISIBLE);
-            setViewVisibility(R.id.image_hide_profile, View.GONE);
-        } else {
-            setViewVisibility(R.id.image_show_profile, profileView ? View.GONE : View.VISIBLE);
-            setViewVisibility(R.id.image_hide_profile, profileView ? View.VISIBLE : View.GONE);
-        }
-
-        if (!expandView)
-        {
-            la.updateStatus();
-            la.scrollToListPosition();
-        }
-
- */
     }
 
     private int getViewWidth(int id)

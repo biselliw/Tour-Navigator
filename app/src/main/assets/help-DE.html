@@ -14,6 +14,7 @@
 <h3><a href="#Was_macht_die_App_nicht">Was macht die App nicht?</a></h3>
 <h3><a href="#Was_macht_die_App_privatsphäre-freundlich">Was macht die App privatsphäre-freundlich?</a></h3>
 <h3><a href="#Welche_Berechtigungen_braucht_die_App">Welche Berechtigungen braucht die App?</a></h3>
+<h3><a href="#Download_GPX_Files">Warum hat eine GPX-Datei nach dem Download die Erweiterung .gpx(1)?</a></h3>
 
 <h3><a name="Was_macht_die_App_Tour_Navigator">Was macht die App Tour Navigator?</a></h3>
 Die privatsphäre-freundliche App erstellt auf der Basis einer vorhandenen GPX-Datei einen Zeitplan für den Ablauf einer Tour.
@@ -23,7 +24,7 @@ Die privatsphäre-freundliche App erstellt auf der Basis einer vorhandenen GPX-D
     Die GPX-Datei enthält den detaillierten Verlauf einer Route mit einer Liste von Trackpunkten. Diese enthalten neben den Koordinaten auch die Höhe und ggf. einen Namen.<br>
     Aus Tourenportalen wie z.B. www.outdooractive.com lassen sich die Tracks herunterladen und ggf. auch nachbearbeiten.</p>
 
-<p>Um die zeitliche Dauer der Tour berechnen zu können, müssen die Trackpunkten auch Höhenwerte enthalten.</p>
+<p>Um die zeitliche Dauer der Tour berechnen zu können, müssen die Trackpunkte auch Höhenwerte enthalten.</p>
 
 <p>Für die Ermittlung von Zwischenzeiten an markanten Punkten entlang der Route muss die GPX-Datei zumindest benannte Trackpunkte enthalten oder
     Wegpunkte in der Nähe des Tracks (POIs, Point of Interest).</p>
@@ -77,6 +78,8 @@ Dabei übergibt die App Tour Navigator die Kontrolle an die zweite App bis diese
     des Gerätes. Die App schreibt nur Daten in den externen Speicher wenn du einen Download startest.
     Die Informationen aus der gelesenen GPX-Datei und deine eingegebenen Informationen gehen nach dem Beenden der App verloren.
     Zuvor kannst du die geänderte GPX-Datei und die daraus erstellte Wegzeit-Tabelle speichern um sie später wieder zu verwenden oder zu bearbeiten.</p>
+<p>Wenn du im Menüpunkt "Zum Wegpunkt navigieren" die Kontrolle an eine andere app übergibst, musst du dir selbst im Klaren sein ob diese deine Privatsphäre
+    weiterhin schützt oder ggf. Daten über dich sammelt. Dafür bist du selbst verantwortlich!</p>
 
 <h3><a name="Welche_Berechtigungen_braucht_die_App">Welche Berechtigungen braucht die App?</a></h3>
 <p>Die App Tour Navigator benötigt ausschließlich folgende Berechtigung:
@@ -85,5 +88,8 @@ Dabei übergibt die App Tour Navigator die Kontrolle an die zweite App bis diese
 </ul>
 </p>
 
+<h3><a name="Download_GPX_Files">Warum hat eine GPX-Datei nach dem Download die Erweiterung .gpx(1)?</a></h3>
+Android kennt den MIME_Type .gpx nicht. Daher wird eine bereits bestehende Datei "beispiel.gpx" als "beispiel.gpx(1)" gespeichert anstatt als "beispiel(1).gpx".
+Bis der Fehler beseitigt ist, musst du die Datei von Hand umbenennen bevor sie in einer app verwendet werden kann. Am besten löschst du vor dem Download eine bestehende Datei.
 </body>
 </html>

@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.files;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2023 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -390,7 +390,8 @@ public class HTML_File {
                     html_buffer.append(App.getDescent());
                     break;
                 case COL_DURATION:
-                    html_buffer.append(formatIntToTime((int) App.getTotalSeconds() / 60));
+                    html_buffer.append(formatIntToTime((int) (App.getTotalSeconds() / 60L
+                    - App.getTotalPauseInMins())));
                     break;
                 case COL_PAUSE:
                     html_buffer.append(formatIntToTime((int) App.getTotalPauseInMins()));
