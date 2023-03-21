@@ -4,11 +4,11 @@
     <string name="app_short_description">Timetable of hiking tour</string>
     <string name="authorities" translatable="false">de.biselliw.fileprovider</string>
 
-    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2022 by Walter Biselli</string>
+    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2023 by Walter Biselli</string>
     <string name="app_description">Timetable of hiking tour</string>
     <string name="app_description2">Timetable of hiking tour</string>
     <string name="app_author">Author</string>
-    <string name="app_donate">created with mit Tour Navigator (©2022 Walter Biselli)</string>
+    <string name="app_donate">created with mit Tour Navigator (©2023 Walter Biselli)</string>
 
     <!-- Common LICENSE -->
     <string name="title_eula">End-user license agreement</string>
@@ -124,7 +124,7 @@
     <string name="pref_hiking_par_vertSpeedDescent">descending part in [m/h]</string>
     <string name="pref_hiking_par_set_to_default">Parameter set to default value</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>
-    <string name="pref_hiking_par_alarm_summary">Signal leaving the track with vocational warning</string>
+    <string name="pref_hiking_par_alarm_summary">Only available with app in foreground: signal leaving the track with vocational warning</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome on tour!</string>

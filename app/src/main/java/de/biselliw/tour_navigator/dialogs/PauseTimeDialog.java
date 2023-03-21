@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.dialogs;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2023 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -65,6 +65,8 @@ public class PauseTimeDialog extends FullScreenDialog {
                     /* load current start time from time picker */
                     TimePicker timePicker = (TimePicker) findViewById(R.id.timePickerPause);
                     int hour = timePicker.getCurrentHour();
+                    // prohibit negative times
+                    if (hour > 12) hour = 0;
                     int minute =timePicker.getCurrentMinute();
                     int pause_min = hour*60 + minute;
                    record.getTrackPoint().setWaypointDuration(pause_min);

@@ -113,7 +113,7 @@ public class Track {
 					_pointName = _pointName.substring(0, 6);
 					try {
 						double lat = Double.parseDouble(_pointName);
-						if (lat >= 0)
+						if ((lat >= 0) && point.getWaypointSymbol().equals(""))
 							// remove same name as in previous track point
 							point.setWaypointName("");
 					}
@@ -122,7 +122,6 @@ public class Track {
 					}
 					finally {;}
 				}
-
 				_dataPoints[pointIndex] = point;
 				pointIndex++;
 			}
@@ -260,7 +259,8 @@ public class Track {
 		_waypoints = new DataPoint[_numPoints];
 		_pointIndices = new int[_numPoints];
 		DataPoint point = null;
-		if (!_scaled) {scalePoints();}
+		if (!_scaled) scalePoints();
+
 		// find nearest track points for all way points
 		int i = 0;
 		for (i=0; i<_numPoints; i++)
@@ -274,7 +274,7 @@ public class Track {
 				// find nearest track point
 				_waypoints[_numWaypoints] = point;
 				_waypoints[_numWaypoints].clearWayPointLink();
-				_pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 0.000005, true);
+				_pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 15.0E-7, true);
 				_numWaypoints++;
 			}
 		}
@@ -366,21 +366,24 @@ public class Track {
 	/**
 	 * Find the nearest point to the specified x and y coordinates
 	 * or -1 if no point is within the specified max distance
-	 * @param inX x coordinate
-	 * @param inY y coordinate
-	 * @param inMaxDist maximum distance from selected coordinates
+	 * @param inX x coordinate: scaled value from 0 to 1
+	 * @param inY y coordinate: scaled value from 0 to 1
+	 * @param inMaxDist maximum distance from selected coordinates: scaled value from 0 to 1
 	 * @param inJustTrackPoints true if waypoints should be ignored
 	 * @return index of nearest point or -1 if not found
 	 */
 	public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inJustTrackPoints)
 	{
 		int nearestPoint = -1;
-		double nearestDist = -1.0;
-		double mDist, yDist;
+//		double nearestDist = -1.0;
+		double mDist, xDist, yDist;
+		double nearestSqDist = -1.0, maxSqDist = inMaxDist*inMaxDist;
 		for (int i=0; i < getNumPoints(); i++)
 		{
 			if (!inJustTrackPoints || !_dataPoints[i].isWaypoint())
 			{
+/*
+				double mDist, yDist;
 				yDist = Math.abs(_yValues[i] - inY);
 				if (yDist < nearestDist || nearestDist < 0.0)
 				{
@@ -392,12 +395,33 @@ public class Track {
 						nearestDist = mDist;
 					}
 				}
+ */
+				double mSqDist, xSqDist, ySqDist;
+				xDist = Math.abs(_xValues[i] - inX);
+				yDist = Math.abs(_yValues[i] - inY);
+				if( (xDist < inMaxDist) && (yDist < inMaxDist) ) {
+					xSqDist = xDist * xDist;
+					ySqDist = yDist * yDist;
+					mSqDist = xSqDist + ySqDist;
+					if ((mSqDist < nearestSqDist) || (nearestSqDist < 0.0))
+					{
+						nearestPoint = i;
+						nearestSqDist = mSqDist;
+					}
+				}
+				else if ((xDist > inMaxDist) && (yDist > inMaxDist) && (nearestSqDist > 0.0))
+				{
+					break;
+				}
 			}
 		}
 		// Check whether it's within required distance
-		if (nearestDist > inMaxDist && inMaxDist > 0.0) {
+		if ((nearestSqDist > maxSqDist) && (inMaxDist > 0.0)) {
 			return -1;
 		}
+		if (nearestPoint < 0)
+			return -1;
+
 		return nearestPoint;
 	}
 

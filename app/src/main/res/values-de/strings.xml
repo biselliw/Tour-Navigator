@@ -6,7 +6,7 @@
     <string name="app_description">Tour Navigator ist eine quelloffene App, die sich auf Privatsphäre und Sicherheit konzentriert.</string>
     <string name="app_description2">Es werden nur diejenigen Rechte benötigt, welche die App für die beschriebene Funktionalität erfordert.</string>
     <string name="app_author">Autor</string>
-    <string name="app_donate">erzeugt von Tour Navigator (©2022 Walter Biselli)</string>
+    <string name="app_donate">erzeugt von Tour Navigator (©2023 Walter Biselli)</string>
 
     <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>
     <string name="title_license">Quelloffene Lizenz</string>
@@ -80,7 +80,7 @@
     <string name="pref_hiking_par_vertSpeedDescent">Geschwindigkeit im Abstieg [Hm/h]</string>
     <string name="pref_hiking_par_set_to_default">Parameter auf Standard gesetzt: </string>
     <string name="pref_hiking_par_alarm">Alarmierung beim Verlassen des Weges</string>
-    <string name="pref_hiking_par_alarm_summary">Gibt eine Sprachmeldung aus</string>
+    <string name="pref_hiking_par_alarm_summary">Nur verfügbar wenn die app im Vordergrund ist: gibt eine Sprachmeldung aus</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Auf zum Wandern!</string>

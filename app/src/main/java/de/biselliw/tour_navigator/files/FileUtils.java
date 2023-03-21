@@ -53,7 +53,7 @@ import java.util.Comparator;
 public class FileUtils {
     public static final String DOCUMENTS_DIR = "documents";
     // configured android:authorities in AndroidManifest (https://developer.android.com/reference/android/support/v4/content/FileProvider)
-    public static final String AUTHORITY =  "de.biselliw.fileprovider"; // com.android.providers
+    public static final String AUTHORITY =  "androidx.core.content.FileProvider";
     public static final String HIDDEN_PREFIX = ".";
     /**
      * TAG for log messages.
@@ -560,6 +560,22 @@ public class FileUtils {
         logDir(dir);
 
         return dir;
+    }
+
+    /**
+     * Delete the cache
+     * @author biselliw
+     */
+    public static void deleteDocumentCacheDir(@NonNull Context context)
+    {
+        File dir = new File(context.getCacheDir(), DOCUMENTS_DIR);
+        if (dir.exists())
+        {
+            File[] files = dir.listFiles();
+            for (File file : files) {
+                file.delete();
+            }
+        }
     }
 
     private static void logDir(File dir) {

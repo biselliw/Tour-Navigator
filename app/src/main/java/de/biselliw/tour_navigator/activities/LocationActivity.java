@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2023 Walter Biselli (BiselliW)
 */
 
 import android.Manifest;
@@ -114,6 +114,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     final static double maxOffsetStart_km = 0.100;
     final static double maxOffsetTrack_km = 0.030;
+    final static int outOfTrackCountAlarm = 10;
     final static int alarmInterval = 100;
     final static int maxAlarms = 10;
 
@@ -122,15 +123,16 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     TextToSpeech tts;
 
+    static int remainPause_min = 0;
     static boolean raiseAlarm = true;
     static int outOfTrackCount = 0;
     static int alarmCount = 0;
+    static int alarmTtsCount = 0;
     private locStatus _navigationStatus = locStatus.NO_GPX_FILE_LOADED;
     private locStatus _prevNavStatus = locStatus.DESTINATION_FAILED;
     private gpsStatus _gpsStatus = gpsStatus.NO_PERMISSION;
 
     public double TotalDistance = 0.0;
-//    public RecordAdapter recordAdapter;
     int lastPlace = -1;
 
     public ListView recordsView;
@@ -150,6 +152,9 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private long startTime = 0;
     /** true if the start time of the tour has been set by the user */
     boolean startTimeSet = false;
+
+    private double _distanceAtPause = 0.0;
+    private long _Pause_ms = 0L;
 
     Handler timerHandler = new Handler();
     Runnable timerRunnable;
@@ -215,7 +220,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
         };
 
-        // Install a timer to inform about a GPS timeout
+        // Install a timer to inform about a GPS timeout or pause
         Runnable timerRunnable = new Runnable() {
 
             @Override
@@ -234,14 +239,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                         }
                         else
                         {
-                            setGPS_Status(gpsStatus.PROVIDER_DISABLED);
-                            _navigationStatus = locStatus.DESTINATION_FAILED;
+                            if (_navigationStatus != locStatus.DESTINATION_REACHED)
+                                _navigationStatus = locStatus.DESTINATION_FAILED;
                             updateStatus();
                         }
                     }
                     else if ((_gpsStatus != gpsStatus.GPS_FIX) && (_gpsStatus != gpsStatus.PROVIDER_DISABLED))
                         setGPS_Status(gpsStatus.GPS_FIX);
-
                 }
 
                 int steps = gpsSimulation != null ? 1 : 10;
@@ -261,7 +265,23 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                             setGPS_Status(gpsStatus.GPS_TIMEOUT);
                         break;
                 }
-                timerHandler.postDelayed(this, 100*steps);
+                long interval_ms = 100*steps;
+
+                // handle remaining pause time
+                if (remainPause_min == 0)
+                    _Pause_ms = 0L;
+                else
+                {
+                    // implement 1 Minute Timer
+                    _Pause_ms += interval_ms;
+                    if (_Pause_ms > 60000) {
+                        _Pause_ms -= 60000;
+                        remainPause_min -= 1;
+                        if (remainPause_min < 0)
+                            remainPause_min = 0;
+                    }
+                }
+                timerHandler.postDelayed(this,  interval_ms);
             }
         };
 
@@ -522,6 +542,10 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     int nearestGPSindex = super.app.getNearestTrackpointIndex(startGPSindex, inLatitude, inLongitude, maxOffset_km, maxDist_km);
                     /* Return the nearest distance of this track point to the received GPS location */
                     nearestDistance = super.app.getNearestDistance();
+
+                    if (DEBUG) {
+                        Log.d(TAG, "HandleGPSdata() - nearestGPSindex = " + nearestGPSindex);
+                    }
                     // no GPS location found ?
                     if (nearestGPSindex == DataPoint.INVALID_INDEX)
                         updateStatus();
@@ -552,7 +576,11 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * @param inPosition index of the nearest track point
      * @param inTime     local time from the GPS receiver
      */
+    private int _debug_Position_stop = 0;
+    private double _debug_distance_stop = 0.0;
+
     private void handlePosition(int inPosition, Time inTime) {
+
         setStartGPSindex(inPosition);
 
         DataPoint point = super.app.getPoint(inPosition);
@@ -564,28 +592,104 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             recordAdapter.setDistance(distance);
 
             /* Calculate the time shift between GPS and expected arrival time of the current point */
-            long destTime = point.getTime();
-            long delay;
-            if (startTimeSet && ((inPosition == 0) || (destTime > 0))) {
-                // ignore the day in simulation
-                if (gpsSimulation != null)
-                {
-                    long gpsTime = inTime.minute + 60L *(inTime.hour);
+            long destTime_s = point.getTime();
+            int place = recordAdapter.getPlace();
+            boolean setNextPlace = true;
+
+            if ((_DEBUG) && (_debug_Position_stop > 0.0) && (inPosition >= _debug_Position_stop) ) {
+                inPosition = inPosition;
+            }
+
+            if ((_DEBUG) && (_debug_distance_stop > 0.0) && (distance >= _debug_distance_stop) ) {
+                _debug_distance_stop = _debug_distance_stop;
+            }
+
+            if (startTimeSet && ((inPosition == 0) || (destTime_s > 0))) {
+
+                // calculate delay
+                long delay_s;
+                if (gpsSimulation != null) {
+                    // ignore the day in simulation
+                    long gpsTime_s = inTime.second + 60 * (inTime.minute + 60L * inTime.hour);
                     Time start = recordAdapter.getStartTime();
-                    long start_Time = start.minute + 60L *(start.hour);
-                    delay = gpsTime - start_Time - destTime/60;
+                    long start_Time_s = (start.minute + 60L * start.hour) * 60L;
+                    delay_s = gpsTime_s - (start_Time_s + destTime_s);
+                    if (DEBUG) {
+                        Log.d(TAG, "handlePosition() - gpsTime_s  = " + gpsTime_s);
+                        Log.d(TAG, "                 - destTime_s = " + destTime_s);
+                        Log.d(TAG, "                 - distance   = " + distance);
+                        Log.d(TAG, "                 - delay_min  = " + delay_s / 60);
+                    }
+                } else {
+                    long gpsTime_ms = inTime.toMillis(true);
+                    delay_s = (gpsTime_ms - startTime) / 1000;
+                    delay_s = (delay_s - destTime_s);
+                }
+
+                if (remainPause_min <= 0)
+                {
+                    recordAdapter.setDelay((int) (delay_s / 60));
+
+                    // handle pause
+                    int pause_min = point.getWaypointDuration();
+                    // don't leave the place in case of pause
+                    if (pause_min > 0) {
+                        _distanceAtPause = distance;
+
+                        // are we within our timetable?
+                        remainPause_min = pause_min - (int)delay_s / 60;
+
+                        if (remainPause_min > 0)
+                        {
+                            // calc time stamp of end of pause
+ //                           _endTimePause = inTime.toMillis(true) + (long)remainPause_min * 60000L;
+                            setNextPlace = false;
+                        }
+                    }
+
                 }
                 else
                 {
-                    long gpsTime = inTime.toMillis(true);
-                    delay = (gpsTime - startTime) / 1000;
-                    delay = (delay - destTime) / 60;
+                    /* calc remaining time of pause
+                    long remainPause_ms = _endTimePause - inTime.toMillis(true);
+                    if (remainPause_ms > 0)
+                        remainPause_min = (int)(remainPause_ms / 60000L);
+                    else
+                        setNextPlace = true;
+                    */
+
+                    // don't leave the place in case of pause
+                    // are we nearby?
+                    if (distance < _distanceAtPause + maxOffsetStart_km)
+                        setNextPlace = false;
                 }
-                recordAdapter.setDelay((int) (delay));
+
+
+                /* handle pause
+                DataPoint recPoint = recordAdapter.getItem(place).getTrackPoint();
+                if (recPoint != null) {
+                    int pause_min = recPoint.getWaypointDuration();
+                    // don't leave the place in case of pause
+                    if (pause_min > 0) {
+                        double dist = recPoint.getDistance();
+                        // are we nearby?
+                        if ((distance > dist) && (distance < dist + maxOffsetStart_km)) {
+                            remainPause_min = 1;
+                            setNextPlace = false;
+                            // are we within our timetable (delay_s already includes pause time)?
+                            if (delay_s < 0) {
+                                remainPause_min = -(int)delay_s / 60;
+                            }
+                        }
+                    }
+                }
+
+                 */
             }
 
             /* Set next place to arrive after current distance */
-            int place = setNextPlace(distance);
+            if (setNextPlace)
+                place = setNextPlace(distance);
             if (place < recordAdapter.getCount()) {
                 recordAdapter.notifyDataSetChanged();
                 // destination reached?
@@ -725,11 +829,15 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
                 if (raiseAlarm) {
                     outOfTrackCount++;
-                    if ((outOfTrackCount > alarmInterval) && (alarmCount < maxAlarms)) {
-                        // play alarm
-                        tts.speak(getString(R.string.returnto_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
-                        alarmCount++;
-                        outOfTrackCount = 0;
+                    if ((outOfTrackCount > outOfTrackCountAlarm) && (alarmCount < maxAlarms)) {
+                        // play alarm?
+                        if (alarmTtsCount == 0)
+                        {
+                            tts.speak(getString(R.string.returnto_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
+                            alarmCount++;
+                        }
+                        if (alarmTtsCount++ > alarmInterval)
+                            alarmTtsCount = 0;
                     }
                 }
                 break;
@@ -744,11 +852,15 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 break;
 
             case TRACKING:
-                activity = getString(R.string.on_track);
-                if (outOfTrackCount > alarmInterval)
+                if (remainPause_min > 0)
+                    activity = "PAUSE: Weiter in " + remainPause_min + " min.";
+                else
+                    activity = getString(R.string.on_track);
+                if (outOfTrackCount > outOfTrackCountAlarm)
                     tts.speak(getString(R.string.on_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
                 outOfTrackCount = 0;
                 alarmCount = 0;
+                alarmTtsCount = 0;
 
                 if (_gpsStatus == gpsStatus.GPS_FIX) {
                     bgColor = delayed ? COLOR_NO_GPX : COLOR_TRACKING;
@@ -895,7 +1007,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
         scrollToListPosition(inPlace);
 
-
         lastPlace = inPlace;
         return true;
     }
@@ -910,13 +1021,18 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      */
     private int setNextPlace(double inDistance) {
         int place = 0;
+        remainPause_min = 0;
+        _distanceAtPause = 0.0;
         do {
             DataPoint recPoint = recordAdapter.getItem(place).getTrackPoint();
             if (recPoint != null) {
+                int pause = recPoint.getWaypointDuration();
                 double dist = recPoint.getDistance();
-                if (dist < inDistance) {
+                if (inDistance > dist)
                     place++;
-                } else {
+                else
+                {
+                    // remainPause_min = 0;
                     setPlace(place, false);
                     break;
                 }

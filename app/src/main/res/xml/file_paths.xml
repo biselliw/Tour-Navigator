@@ -8,4 +8,5 @@
     <external-files-path name="my_download" path="Download/" />
     <external-files-path name="my_documents" path="Documents/" />
     <external-cache-path name="name" path="path/" />
+    <external-path name="gpx_files" path="Download/"/>
 </paths>
