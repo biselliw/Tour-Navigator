@@ -279,7 +279,7 @@ public class Track {
 			}
 		}
 		// Exit if data not mixed
-		if (_numWaypoints == 0 || _numWaypoints == _numPoints)
+		if ( /* _numWaypoints == 0 || */ _numWaypoints == _numPoints)
 			return false;
 
 		// Loop round points copying to correct order
