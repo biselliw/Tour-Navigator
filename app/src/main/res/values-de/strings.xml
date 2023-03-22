@@ -21,6 +21,7 @@
     <string name="action_file_info">Infos zur Tour</string>
     <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_reverse_route">Route umkehren</string>
+    <string name="action_set_new_start">Starte von hier</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_settings">Einstellungen</string>
     <string name="action_main">Hauptmenü</string>

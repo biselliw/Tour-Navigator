@@ -64,6 +64,7 @@ import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
+import de.biselliw.tour_navigator.tim_prune.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
@@ -201,6 +202,10 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_delete_waypoint)
             /* Delete the current waypoint */
             deleteRoutePoint();
+        else if (id == R.id.itm_set_new_start) {
+            setNewStart();
+            super.app.Update();
+        }
         else if (id == R.id.itm_nav_waypoint)
             /* Navigate to the waypoint */
             navigateToRoutePoint();
@@ -431,6 +436,22 @@ public class MainActivity extends LocationActivity  implements
         } else
             return "";
     }
+
+    /**
+     * set new start point
+     */
+    void setNewStart()
+    {
+        if (recordAdapter.getCount() > 0) {
+            /* Get destination coordinates */
+            RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
+            if (record != null) {
+
+                App.getTrack().setNewStart(record.trackPointIndex);
+            }
+        }
+    }
+
 
     /**
      *  Navigate to the route point with another app

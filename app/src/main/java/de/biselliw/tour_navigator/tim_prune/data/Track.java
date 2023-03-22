@@ -241,6 +241,41 @@ public class Track {
 		return true;
 	}
 
+	/**
+	 * set a new starting point of the route
+	 * @param inStart start index
+	 * @return true if successful, false otherwise
+	 */
+	public boolean setNewStart(int inStart)
+	{
+		if (inStart < 0 || inStart >= _numPoints)
+		{
+			return false;
+		}
+		DataPoint[] newPointArray = new DataPoint[_numPoints];
+
+		// calculate how many point swaps are required
+		int numPointsToSwap = _numPoints, indFrom = inStart, offset = inStart;
+		// Copy points from the new start
+		System.arraycopy(_dataPoints, inStart, newPointArray, 0, _numPoints - inStart);
+		// Copy points from the previous start
+		System.arraycopy(_dataPoints, 0, newPointArray, _numPoints - inStart, inStart);
+		// Copy points from new to current array
+		System.arraycopy(newPointArray, 0, _dataPoints, 0, _numPoints);
+		/*
+		// adjust segment starts
+		shiftSegmentStarts(inStart, inEnd);
+		// Find first track point and following track point, and set segment starts to true
+		DataPoint firstTrackPoint = getNextTrackPoint(inStart);
+		if (firstTrackPoint != null) {firstTrackPoint.setSegmentStart(true);}
+		DataPoint nextTrackPoint = getNextTrackPoint(inEnd+1);
+		if (nextTrackPoint != null) {nextTrackPoint.setSegmentStart(true);}
+		 */
+		// needs to be scaled again
+		_scaled = false;
+		UpdateMessageBroker.informSubscribers();
+		return true;
+	}
 
 	static DataPoint[] _waypoints;
 	static int _numWaypoints;
