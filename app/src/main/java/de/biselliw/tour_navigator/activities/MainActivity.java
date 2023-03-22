@@ -771,6 +771,7 @@ public class MainActivity extends LocationActivity  implements
      * @see <a href="https://developer.android.com/reference/androidx/core/content/FileProvider">FileProvider</a>
      */
     public boolean downloadFileHTML() {
+        String AUTHORITY =  "androidx.core.content.FileProvider";
         File dirDownload =  // getApplicationContext().getExternalFilesDir(DIRECTORY_DOWNLOADS);
                         getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS);
         try {
@@ -778,7 +779,7 @@ public class MainActivity extends LocationActivity  implements
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 
             File file = new File(dirDownload, "TourNavigator.html");
-            Uri uri = FileProvider.getUriForFile(getApplicationContext(), getString(R.string.authorities), file);
+            Uri uri = FileProvider.getUriForFile(getApplicationContext(), AUTHORITY, file);
             if (file.exists())
                 file.delete();
 

@@ -2,7 +2,6 @@
     <!-- Common MANIFEST -->
     <string name="app_name">Tour Navigator</string>
     <string name="app_short_description">Timetable of hiking tour</string>
-    <string name="authorities" translatable="false">de.biselliw.fileprovider</string>
 
     <string name="app_copyright" translatable="false">Copyright &#x24B8; 2023 by Walter Biselli</string>
     <string name="app_description">Timetable of hiking tour</string>
