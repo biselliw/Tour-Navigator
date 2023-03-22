@@ -22,6 +22,11 @@
             android:title="@string/delete_waypoint"
             app:showAsAction="never" />
         <item
+            android:id="@+id/itm_set_new_start"
+            android:orderInCategory="1"
+            android:title="@string/action_set_new_start"
+            app:showAsAction="never" />
+        <item
             android:id="@+id/itm_nav_waypoint"
             android:orderInCategory="1"
             android:title="@string/nav_waypoint"
