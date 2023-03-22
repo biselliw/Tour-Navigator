@@ -59,9 +59,29 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="file"
+                    android:mimeType="application/gpx+xml"/>
+                <data android:scheme="content"
+                    android:mimeType="application/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
-                    android:mimeType="application/gpx+xml"
-                    android:scheme="content" />
+                    android:host="*"
+                    android:pathPattern=".*\\.gpx"
+                    android:scheme="http" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.gpx"
+                    android:scheme="https" />
+                <data
+                    android:host="*"
+                    android:pathPattern=".*\\.gpx"
+                    android:scheme="ftp" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
