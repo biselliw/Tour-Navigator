@@ -315,9 +315,10 @@ public class MainActivity extends LocationActivity  implements
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_CREATE_DOCUMENT);
         // will trigger exception if no  appropriate category passed
-        intent.addCategory(Intent.CATEGORY_DEFAULT) // CATEGORY_OPENABLE)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("application/gpx+xml")
                 // todo Field requires API level 26 (current min is 23): `android.provider.DocumentsContract#EXTRA_INITIAL_URI`
+                .putExtra(Intent.EXTRA_LOCAL_ONLY, true)
                 .putExtra(Intent.EXTRA_TITLE, gpxFileName);
         CreateDocumentGPXActivityResultLauncher.launch(intent);
     }
@@ -620,7 +621,7 @@ public class MainActivity extends LocationActivity  implements
 
    /*
      *  Save GPX file
-     */
+    */
     void SaveFileGPX(final Intent data) {
         try {
             if (data != null)
@@ -630,6 +631,23 @@ public class MainActivity extends LocationActivity  implements
                 OutputStream _xmlStream = cr.openOutputStream(uri, "w");
                 OutputStreamWriter writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
                 GpxExporter.downloadData(writer);
+
+                // exchange wrong file extension provided by Android: *.gpx (x) > * (x).gpx
+                try {
+                    String path = uri.getPath();
+                    int dot = path.lastIndexOf("/");
+                    if (dot > 0) {
+                        String filename = path.substring(dot+1);
+                        dot = filename.lastIndexOf(".");
+                        if (dot > 0) {
+                            String ext = filename.substring(dot);
+                            filename = filename.substring(0,dot);
+                            DocumentsContract.renameDocument(cr, uri, filename+".gpx");
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
 
         } catch (FileNotFoundException e) {
@@ -640,6 +658,7 @@ public class MainActivity extends LocationActivity  implements
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         if (DEBUG) Log.d(TAG, "Download was successfully");
     }
 
