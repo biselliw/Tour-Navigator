@@ -41,6 +41,11 @@ import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getExpandView;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.setExpandView;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
+
 public class ControlElements extends BaseActivity {
 
     public static ControlElements control = null;
@@ -82,6 +87,7 @@ public class ControlElements extends BaseActivity {
     int _profileViewVisibility = View.GONE;
     boolean _updateProfile = false;
 
+    public boolean updateGpxFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -425,7 +431,7 @@ public class ControlElements extends BaseActivity {
         setTrackingStatus(false);
 
         activateProfile(View.GONE);
-        setExpandViewStatus(true);
+        setExpandViewStatus(getExpandView() );
         setViewVisibility(R.id.image_expand_more, View.GONE);
         _initUserInterface = true;
     }
@@ -435,7 +441,8 @@ public class ControlElements extends BaseActivity {
      */
     public void setupUserInterface() {
         fileInfoAvailable = details.isFileInfoAvailable();
-        activateProfile(View.VISIBLE);
+//        activateProfile(View.VISIBLE);
+        activateProfile(getProfileViewVisibility());
         _setupUserInterface = true;
     }
 
@@ -520,6 +527,7 @@ public class ControlElements extends BaseActivity {
         int place = recordAdapter.getPlace();
         // update the expansion mode
         expandView = showExpandViewStatus(place, inExpand);
+        setExpandView(inExpand);
         showAddInfo(place);
     }
 
@@ -555,6 +563,8 @@ public class ControlElements extends BaseActivity {
      */
     public void activateProfile(int state) {
         _profileViewVisibility = state;
+        if (state != View.GONE)
+            setProfileViewVisibility(state);
         _updateProfile = true;
     }
 

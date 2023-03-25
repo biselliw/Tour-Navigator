@@ -143,6 +143,31 @@ public class MainActivity extends LocationActivity  implements
             Intent mainIntent = new Intent(this, TutorialActivity.class);
             startActivity(mainIntent);
         }
+
+        // Load a GPX file from cache
+        if (SettingsActivity.isGpxFileLoaded())
+            SettingsActivity.setGpxFileLoaded(OpenCachedFileGPX());
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    /*
+     * This method is called when the app is no longer in the foreground and is partially visible.
+     * This can happen when the user switches to another app or when the screen is turned off.
+     * onPause() is a good place to save any unsaved data or state changes before the app is paused.
+     */
+    public void onPause() {
+        // Save the GPX file in the cache?
+        if (control.updateGpxFile) {
+            SettingsActivity.setGpxFileLoaded(SaveFileGPX());
+            control.updateGpxFile = false;
+        }
+        super.onPause();
     }
 
     @Override
@@ -164,6 +189,10 @@ public class MainActivity extends LocationActivity  implements
         super.onBackPressed();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     /*
      * Initialize the contents of the Activity's standard options menu
@@ -660,6 +689,53 @@ public class MainActivity extends LocationActivity  implements
         }
 
         if (DEBUG) Log.d(TAG, "Download was successfully");
+    }
+
+    /*
+     * Load a GPX file from cache
+     */
+    boolean OpenCachedFileGPX() {
+        android.content.Context context = getApplicationContext();
+        File cacheDir = FileUtils.getDocumentCacheDir(context);
+
+        try {
+            // Create a new file in the internal directory
+            File file = new File(cacheDir, "TourNavigator.gpx");
+            if (DEBUG) Log.d(TAG, "Load GPX file from cache");
+            XmlFileLoader xmlFileLoader = new XmlFileLoader(super.app);
+            xmlFileLoader.openFile(file);
+            if (DEBUG) Log.d(TAG, "GPX file loaded?");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /*
+     * Save the GPX file in the cache
+     */
+    boolean SaveFileGPX() {
+        android.content.Context context = getApplicationContext();
+        File cacheDir = FileUtils.getDocumentCacheDir(context);
+
+        try {
+            // Create a new file in the internal directory
+            File file = new File(cacheDir, "TourNavigator.gpx");
+            if (file.exists())
+                file.delete();
+            // Open a FileOutputStream to write to the file
+            FileOutputStream xmlStream = new FileOutputStream(file);
+            OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
+            GpxExporter.downloadData(writer);
+
+            if (DEBUG) Log.d(TAG, "Download was successfull");
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (DEBUG) Log.d(TAG, "Download failed");
+        return false;
     }
 
     /*

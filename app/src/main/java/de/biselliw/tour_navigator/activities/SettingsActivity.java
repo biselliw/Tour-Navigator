@@ -39,6 +39,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     static SharedPreferences sharedPref = null;
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
+    private static final String IS_GPX_FILE_LOADED   = "isGpxFileLoaded";
 
     // hiking speed parameters
     final static int DEF_HOR_SPEED = (int)(1000 * TrackDetails.DEF_HOR_SPEED); // horizontal part in [km/h]
@@ -282,9 +283,62 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static void setFirstTimeLaunch(boolean isFirstTime) {
+        setBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
+    }
+
+    public static boolean isGpxFileLoaded() {
+        return sharedPref.getBoolean(IS_GPX_FILE_LOADED, false);
+    }
+
+    public static void setGpxFileLoaded(boolean value) {
+        setBoolean(IS_GPX_FILE_LOADED, value);
+    }
+
+    public static long getStartTime() {
+        return sharedPref.getLong("StartTime", 0L);
+    }
+
+    public static void setStartTime(long value) {
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
+        editor.putLong("StartTime", value);
         editor.commit();
     }
 
+    public static int getPlace() {
+        return sharedPref.getInt("Place", -1);
+    }
+
+    public static void setPlace(int value) {
+        setInt("Place", value);
+    }
+
+    public static int getProfileViewVisibility() {
+        int value = sharedPref.getInt("ProfileViewVisibility", View.VISIBLE);
+        if (value == View.GONE) value = View.VISIBLE;
+        return value;
+    }
+
+    public static void setProfileViewVisibility(int value) {
+        setInt("ProfileViewVisibility", value);
+    }
+
+    public static boolean getExpandView() {
+        return sharedPref.getBoolean("SetExpandViewStatus", false);
+    }
+
+    public static void setExpandView(boolean value) {
+        setBoolean("SetExpandViewStatus", value);
+        }
+
+    private static void setBoolean(String key, boolean value) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
+    }
+
+    private static void setInt(String key, int value) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
 }

@@ -72,6 +72,7 @@ public class CommentActivity extends BaseActivity {
         btnTake.setOnClickListener(view -> {
             dataPoint.setFieldValue(Field.COMMENT, edit.getText().toString(), false); // setWaypointComment(edit.getText().toString());
             control.showAddInfo(selected);
+            control.updateGpxFile = true;
             finish();
         });
 

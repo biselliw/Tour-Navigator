@@ -45,6 +45,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getExpandView;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.sharedPref;
 import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
 
@@ -376,8 +378,14 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     }
 
     @Override
+    /*
+     * This method is called when the app is no longer in the foreground and is partially visible.
+     * This can happen when the user switches to another app or when the screen is turned off.
+     * onPause() is a good place to save any unsaved data or state changes before the app is paused.
+     */
     public void onPause() {
         super.onPause();
+        SettingsActivity.setPlace(recordAdapter.getPlace());
         timerHandler.removeCallbacks(timerRunnable);
     }
 
@@ -427,14 +435,17 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Notify the application of a loaded GPX file
      */
     public void notifyGpsFileLoaded() {
-        setPlace(-1,false);
+        long startTime = SettingsActivity.getStartTime();
+        if (startTime > 0) recordAdapter.setStartTime(startTime);
+        startTimeSet = (startTime > 0);
+
+        setPlace(SettingsActivity.getPlace(),false);
         recordAdapter.notifyDataSetChanged();
-        startTimeSet = false;
         if (gpsSimulation == null) {
             setStatus(locStatus.GPX_FILE_LOADED);
 
             // try to expand the view if description is available
-            control.setExpandViewStatus(true);
+            control.setExpandViewStatus(getExpandView() );
         }
     }
 
