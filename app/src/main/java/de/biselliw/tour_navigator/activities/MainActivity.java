@@ -83,6 +83,7 @@ public class MainActivity extends LocationActivity  implements
     public static HTML_File htmlFile;
     private String gpxFileName = "";
     GpxExporter gpxExporter;
+    private boolean gpxFileCached = false;
 
     /**
      * TAG for log messages.
@@ -144,11 +145,39 @@ public class MainActivity extends LocationActivity  implements
             startActivity(mainIntent);
         }
 
+        if (savedInstanceState != null) {
+            gpxFileCached = savedInstanceState.getBoolean("gpxFileCached");
+        }
         // Load a GPX file from cache
-        if (SettingsActivity.isGpxFileLoaded())
-            SettingsActivity.setGpxFileLoaded(OpenCachedFileGPX());
+ //       if (SettingsActivity.isGpxFileLoaded())
+//        SettingsActivity.setGpxFileLoaded(OpenCachedFileGPX());
+        if (gpxFileCached)
+            OpenCachedFileGPX();
 
     }
+
+    /**
+     * The system can drop the activity from memory by simply killing its process, making it destroyed.
+     * When it is displayed again to the user, it must be completely restarted and restored to its previous state
+     * see <a href="https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle)">
+       Activity Lifecycle</a> on developer.android.com
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("gpxFileCached",gpxFileCached);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+    }
+
 
     @Override
     public void onStop() {
@@ -164,7 +193,8 @@ public class MainActivity extends LocationActivity  implements
     public void onPause() {
         // Save the GPX file in the cache?
         if (control.updateGpxFile) {
-            SettingsActivity.setGpxFileLoaded(SaveFileGPX());
+//            SettingsActivity.setGpxFileLoaded(SaveFileGPX());
+            gpxFileCached = SaveFileGPX();
             control.updateGpxFile = false;
         }
         super.onPause();

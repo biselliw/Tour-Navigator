@@ -135,6 +135,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private gpsStatus _gpsStatus = gpsStatus.NO_PERMISSION;
 
     public double TotalDistance = 0.0;
+    int initialPlace = -1;
     int lastPlace = -1;
 
     public ListView recordsView;
@@ -152,8 +153,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     /** start time of the tour in UTC milliseconds since the epoch.*/
     private long startTime = 0;
-    /** true if the start time of the tour has been set by the user */
-    boolean startTimeSet = false;
 
     private double _distanceAtPause = 0.0;
     private long _Pause_ms = 0L;
@@ -362,6 +361,23 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
         setStatus(locStatus.NO_GPX_FILE_LOADED);
         control.showGPS_Status(_gpsStatus);
+
+        if (savedInstanceState != null) {
+            initialPlace = savedInstanceState.getInt("initialPlace");
+        }
+    }
+
+    /**
+     * The system can drop the activity from memory by simply killing its process, making it destroyed.
+     * When it is displayed again to the user, it must be completely restarted and restored to its previous state
+     * see <a href="https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle)">
+     Activity Lifecycle</a> on developer.android.com
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // remember current place
+        outState.putInt("initialPlace",recordAdapter.getPlace());
     }
 
     /*
@@ -385,7 +401,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      */
     public void onPause() {
         super.onPause();
-        SettingsActivity.setPlace(recordAdapter.getPlace());
+//        SettingsActivity.setPlace(recordAdapter.getPlace());
         timerHandler.removeCallbacks(timerRunnable);
     }
 
@@ -437,15 +453,15 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     public void notifyGpsFileLoaded() {
         long startTime = SettingsActivity.getStartTime();
         if (startTime > 0) recordAdapter.setStartTime(startTime);
-        startTimeSet = (startTime > 0);
 
-        setPlace(SettingsActivity.getPlace(),false);
+        setPlace(initialPlace,false);
+        initialPlace = -1;
         recordAdapter.notifyDataSetChanged();
         if (gpsSimulation == null) {
             setStatus(locStatus.GPX_FILE_LOADED);
 
             // try to expand the view if description is available
-            control.setExpandViewStatus(getExpandView() );
+            control.setExpandViewStatus(SettingsActivity.getExpandView() );
         }
     }
 
@@ -454,7 +470,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      */
     public void notifyStartTimeChanged() {
         startTime = recordAdapter.getStartTime().toMillis(true);
-        startTimeSet = true;
         updateStatus();
     }
 
@@ -615,7 +630,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 _debug_distance_stop = _debug_distance_stop;
             }
 
-            if (startTimeSet && ((inPosition == 0) || (destTime_s > 0))) {
+            if ((startTime > 0) && ((inPosition == 0) || (destTime_s > 0))) {
 
                 // calculate delay
                 long delay_s;
@@ -764,7 +779,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 seekBar.setVisibility(View.VISIBLE);
                 // don't show real time data in places list view
                 recordAdapter.setRealtime(false);
-                if (!startTimeSet) {
+                if (startTime == 0) {
                     activity = getString(R.string.set_start_time);
                     bgColor = COLOR_MESSAGE;
                     break;
@@ -1077,7 +1092,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 place = point.getRoutePointName();
 
                 /* Show time of arrival at next place */
-                if (startTimeSet) {
+                if (startTime > 0) {
                     // show the presumable arrival time depending on the delay
                     recordAdapter.showPresumableArriveTime(true, true, timeView, point);
                 }

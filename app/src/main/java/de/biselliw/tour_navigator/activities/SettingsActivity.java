@@ -286,11 +286,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
     }
 
-    public static boolean isGpxFileLoaded() {
+    public static boolean _isGpxFileLoaded() {
         return sharedPref.getBoolean(IS_GPX_FILE_LOADED, false);
     }
 
-    public static void setGpxFileLoaded(boolean value) {
+    public static void _setGpxFileLoaded(boolean value) {
         setBoolean(IS_GPX_FILE_LOADED, value);
     }
 
@@ -304,11 +304,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         editor.commit();
     }
 
-    public static int getPlace() {
+    public static int _getPlace() {
         return sharedPref.getInt("Place", -1);
     }
 
-    public static void setPlace(int value) {
+    public static void _setPlace(int value) {
         setInt("Place", value);
     }
 
