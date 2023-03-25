@@ -35,6 +35,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
@@ -209,8 +210,17 @@ public class RecordAdapter extends BaseAdapter {
      * Set the start time of the tour
      * @param inTime start time of the tour
      */
+    public void setStartTime(long inTime) {
+        _startTime.set(inTime);
+    }
+
+    /**
+     * Set the start time of the tour
+     * @param inTime start time of the tour
+     */
     public void setStartTime(Time inTime) {
         _startTime.set(inTime);
+        SettingsActivity.setStartTime(inTime.toMillis(true));
         Record record = getItem(0);
         if (record != null) {
             DataPoint point = record.trackPoint;

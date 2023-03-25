@@ -90,7 +90,7 @@
                 android:id="@+id/track_dist_to_dest"
                 android:layout_height="20dp"
                 android:fontFamily="serif"
-                android:text="DTD"
+                android:text=""
                 android:textAlignment="viewEnd"
                 android:textColor="@color/black"
                 tools:ignore="HardcodedText" />

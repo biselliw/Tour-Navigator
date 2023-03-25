@@ -33,6 +33,7 @@ import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 import de.biselliw.tour_navigator.tim.prune.load.TrackNameList;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
 import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
@@ -229,6 +230,8 @@ public class App {
             }
             _main.TotalDistance = _stats.getTotalDistance();
         }
+
+        control.updateGpxFile = true;
     }
 
     /**
