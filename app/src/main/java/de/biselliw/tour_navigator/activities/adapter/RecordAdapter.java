@@ -118,7 +118,7 @@ public class RecordAdapter extends BaseAdapter {
 
     @Override
     public Record getItem(int i) {
-        if (i < getCount()) {
+        if ((i >= 0) && (i < getCount())) {
             return recordList.get(i);
         } else {
             return null;
@@ -159,30 +159,36 @@ public class RecordAdapter extends BaseAdapter {
         if (record != null)
         {
             DataPoint point = record.trackPoint;
+            if (point != null)
+            {
+                /* Mark selected row */
+                if (view != null)
+                {
+                    if (i == _selected)
+                        view.setBackgroundColor(0xFFB3DBFB);
+                    else
+                        view.setBackgroundColor(0xFFFFFFFF);
+                }
 
-            /* Mark selected row */
-            if (i == _selected)
-                view.setBackgroundColor(0xFFB3DBFB);
-            else
-                view.setBackgroundColor(0xFFFFFFFF);
+                /* get the formatted arrival time */
+                String time = getPlannedArriveTime(point);
+                if (point.getWaypointDuration() > 0) {
+                    /* add end of pause time */
+                    calender.add(Calendar.MINUTE, point.getWaypointDuration());
+                    time = time + " " + timeFormat.format(calender.getTime());
+                }
+                holder.timeView.setText(time);
 
-            /* get the formatted arrival time */
-            String time = getPlannedArriveTime(point);
-            if (point.getWaypointDuration() > 0) {
-                /* add end of pause time */
-                calender.add(Calendar.MINUTE, point.getWaypointDuration());
-                time = time + " " + timeFormat.format(calender.getTime());
+                /* show the presumable arrival time depending on the delay */
+                showPresumableArriveTime(false, false, holder.delayView, point);
+
+                /* show distance since start */
+                holder.distanceView.setText(decFormat.format(point.getDistance()));
+
+                /* show waypoint name */
+                holder.placeView.setText(point.getRoutePointName());
             }
-            holder.timeView.setText(time);
 
-            /* show the presumable arrival time depending on the delay */
-            showPresumableArriveTime(false, false, holder.delayView, point);
-
-            /* show distance since start */
-            holder.distanceView.setText(decFormat.format(point.getDistance()));
-
-            /* show waypoint name */
-            holder.placeView.setText(point.getRoutePointName());
         }
 
         return view;

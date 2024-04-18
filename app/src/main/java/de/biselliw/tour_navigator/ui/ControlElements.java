@@ -153,11 +153,12 @@ public class ControlElements extends BaseActivity {
             if (
                     (id == R.id.itm_pause_time) ||
                     (id == R.id.itm_comment_waypoint) ||
-                    (id == R.id.itm_delete_waypoint) ||
+                    (id == R.id.itm_nav_waypoint) ||
+                    (id == R.id.itm_nav_google) ||
                     (id == R.id.itm_split) ||
                     (id == R.id.itm_set_new_start) ||
-                    (id == R.id.itm_nav_waypoint) ||
-                    (id == R.id.itm_nav_google))
+                    (id == R.id.itm_delete_waypoint) ||
+                    (id == R.id.itm_delete_trackpoints) )
                 item.setEnabled(!expandView && (_place >= 0));
             else
                 item.setVisible(false);

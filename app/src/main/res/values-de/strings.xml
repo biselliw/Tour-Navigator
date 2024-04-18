@@ -15,16 +15,17 @@
     <string name="ok">OK</string>
 
     <!-- ###DRAWER###-->
-    <string name="action_help">Hilfe</string>
-    <string name="action_about">Über</string>
+    <string name="action_main">Hauptmenü</string>
     <string name="action_open_gpx">GPX-File öffnen</string>
     <string name="action_file_info">Infos zur Tour</string>
-    <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_reverse_route">Route umkehren</string>
-    <string name="action_set_new_start">Starte von hier</string>
     <string name="action_start_time">Startzeit setzen</string>
+    <string name="action_timetable">Wegzeittabelle</string>
+    <string name="action_download_gpx">Speichern als GPX</string>
+    <string name="action_download_html">Speichern als HTML</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="action_main">Hauptmenü</string>
+    <string name="action_help">Hilfe</string>
+    <string name="action_about">Über</string>
     <string name="action_tutorial">Tutorial</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -53,9 +54,11 @@
     <!-- ###Menu Items###-->
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
-    <string name="delete_waypoint">Wegpunkt entfernen</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
+    <string name="action_set_new_start">Starte von hier</string>
+    <string name="delete_waypoint">Wegpunkt entfernen</string>
+    <string name="delete_trackpoints">Alle Punkte danach entfernen</string>
 
     <!--###HELP###-->
     <string name="help">Hilfe</string>

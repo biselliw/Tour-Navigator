@@ -32,7 +32,7 @@
             android:title="@string/action_timetable" />
         <item
             android:id="@+id/nav_download_gpx"
-            android:icon="@drawable/download"
+            android:icon="@drawable/file_save"
             android:title="@string/action_download_gpx" />
         <item
             android:id="@+id/nav_download_html"

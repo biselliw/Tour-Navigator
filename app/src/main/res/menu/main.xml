@@ -47,5 +47,10 @@
             android:orderInCategory="3"
             android:title="@string/delete_waypoint"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/itm_delete_trackpoints"
+            android:orderInCategory="3"
+            android:title="@string/delete_trackpoints"
+            app:showAsAction="never" />
     </group>
 </menu>

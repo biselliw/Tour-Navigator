@@ -145,12 +145,14 @@ public class MainActivity extends LocationActivity  implements
             startActivity(mainIntent);
         }
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null)
+        {
             gpxFileCached = savedInstanceState.getBoolean("gpxFileCached");
         }
-        // Load a GPX file from cache
- //       if (SettingsActivity.isGpxFileLoaded())
-//        SettingsActivity.setGpxFileLoaded(OpenCachedFileGPX());
+        else
+            // Load a GPX file from cache
+            gpxFileCached = SettingsActivity._isGpxFileLoaded();
+
         if (gpxFileCached)
             OpenCachedFileGPX();
 
@@ -193,8 +195,8 @@ public class MainActivity extends LocationActivity  implements
     public void onPause() {
         // Save the GPX file in the cache?
         if (control.updateGpxFile) {
-//            SettingsActivity.setGpxFileLoaded(SaveFileGPX());
             gpxFileCached = SaveFileGPX();
+            SettingsActivity._setGpxFileLoaded(gpxFileCached);
             control.updateGpxFile = false;
         }
         super.onPause();
@@ -261,6 +263,9 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_delete_waypoint)
             /* Delete the current waypoint */
             deleteRoutePoint();
+        else if (id == R.id.itm_delete_trackpoints)
+            /* Delete all following trackpoints */
+            deleteTrackPoints();
         else if (id == R.id.itm_set_new_start) {
             setNewStart();
             super.app.Update();
@@ -472,6 +477,24 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
+     * Delete all following trackpoints
+     */
+    public void deleteTrackPoints() {
+        int selected = recordAdapter.getPlace();
+        if (selected >= 0) {
+            RecordAdapter.Record record = recordAdapter.getItem(selected);
+            if (record != null) {
+                Track track = App.getTrack();
+                if (track != null) {
+                    track.deleteRange(record.trackPointIndex+1,track.getNumPoints()-1);
+                    _app.Update();
+                    super.pa.initPlot();
+                }
+            }
+        }
+    }
+
+    /**
      * Format geo coordinates for internal use
      * @return formatted Latitude
      * @param point the date point object
@@ -506,7 +529,6 @@ public class MainActivity extends LocationActivity  implements
             /* Get destination coordinates */
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
-
                 App.getTrack().setNewStart(record.trackPointIndex);
             }
         }
