@@ -367,7 +367,10 @@ public class Track {
 				_longRange.addValue(point.getLongitude().getDouble());
 				_latRange.addValue(point.getLatitude().getDouble());
 				if (point.isWaypoint())
-					_hasWaypoint = true;
+				{
+					if (p>0 && p < getNumPoints()-1)
+						_hasWaypoint = true;
+				}
 				else
 				{
 					_hasTrackpoint = true;

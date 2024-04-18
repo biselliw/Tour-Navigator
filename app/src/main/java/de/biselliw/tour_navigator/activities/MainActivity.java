@@ -443,6 +443,9 @@ public class MainActivity extends LocationActivity  implements
         }
     }
 
+    /**
+     * Edit the comment of the current waypoint
+     */
     public void commentRoutePoint()
     {
         Intent intent = new Intent(this, CommentActivity.class);

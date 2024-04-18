@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.data;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2024 Walter Biselli (BiselliW)
 */
 
 import android.content.res.Resources;
@@ -59,7 +59,7 @@ public class TourDetails {
 
     /**
      * @param inPlace row index of the table
-     * @return true description of the rout point or its linked one is available
+     * @return true description of the route point or its linked one if available
      */
     public String getRoutePointDescription(int inPlace) {
         String description = "";
@@ -115,8 +115,10 @@ public class TourDetails {
     public AdditionalInfo getAdditionalInfo(int inPlace) {
         AdditionalInfo info = new AdditionalInfo();
 
+        /* place given? */
         if (inPlace >= 0)
         {
+            /* provide place info */
             if (inPlace < recordAdapter.getCount()) {
                 RecordAdapter.Record record = recordAdapter.getItem(inPlace);
                 if (record == null) return null;
@@ -163,6 +165,7 @@ public class TourDetails {
         }
         else
         {
+            /* provide info from GPX file */
             info.comment     = app.trackName;
             info.title       = app.trackName;
             info.description = "";
