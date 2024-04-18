@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2024 Walter Biselli (BiselliW)
 */
 
 import android.Manifest;
@@ -135,6 +135,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private locStatus _prevNavStatus = locStatus.DESTINATION_FAILED;
     private gpsStatus _gpsStatus = gpsStatus.NO_PERMISSION;
 
+    private double dist_from_start = 0.0;
     public double TotalDistance = 0.0;
     int initialPlace = -1;
     int lastPlace = -1;
@@ -617,10 +618,10 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         DataPoint point = super.app.getPoint(inPosition);
         if (point != null) {
             /* Show current distance since start and the remaining distance to destination */
-            double distance = point.getDistance();
-            double dist_to_destin = TotalDistance - distance;
-            showDistances(distance);
-            recordAdapter.setDistance(distance);
+            dist_from_start = point.getDistance();
+            double dist_to_destin = TotalDistance - dist_from_start;
+            showDistances(dist_from_start);
+            recordAdapter.setDistance(dist_from_start);
 
             /* Calculate the time shift between GPS and expected arrival time of the current point */
             long destTime_s = point.getTime();
@@ -631,7 +632,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 inPosition = inPosition;
             }
 
-            if ((_DEBUG) && (_debug_distance_stop > 0.0) && (distance >= _debug_distance_stop) ) {
+            if ((_DEBUG) && (_debug_distance_stop > 0.0) && (dist_from_start >= _debug_distance_stop) ) {
                 _debug_distance_stop = _debug_distance_stop;
             }
 
@@ -648,7 +649,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     if (DEBUG) {
                         Log.d(TAG, "handlePosition() - gpsTime_s  = " + gpsTime_s);
                         Log.d(TAG, "                 - destTime_s = " + destTime_s);
-                        Log.d(TAG, "                 - distance   = " + distance);
+                        Log.d(TAG, "                 - distance   = " + dist_from_start);
                         Log.d(TAG, "                 - delay_min  = " + delay_s / 60);
                     }
                 } else {
@@ -665,7 +666,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     int pause_min = point.getWaypointDuration();
                     // don't leave the place in case of pause
                     if (pause_min > 0) {
-                        _distanceAtPause = distance;
+                        _distanceAtPause = dist_from_start;
 
                         // are we within our timetable?
                         remainPause_min = pause_min - (int)delay_s / 60;
@@ -691,7 +692,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
                     // don't leave the place in case of pause
                     // are we nearby?
-                    if (distance < _distanceAtPause + maxOffsetStart_km)
+                    if (dist_from_start < _distanceAtPause + maxOffsetStart_km)
                         setNextPlace = false;
                 }
 
@@ -720,7 +721,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
             /* Set next place to arrive after current distance */
             if (setNextPlace)
-                place = setNextPlace(distance);
+                place = setNextPlace(dist_from_start);
             if (place < recordAdapter.getCount()) {
                 recordAdapter.notifyDataSetChanged();
                 // destination reached?
@@ -952,6 +953,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 Log.d(TAG,"setStartGPSindex("+inIndex+")");
         }
         startGPSindex = inIndex;
+        /* update profile */
         super.pa.setCursor (startGPSindex);
     }
 
@@ -965,6 +967,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private boolean setPlace(int inPlace, boolean inUser) {
         if (DEBUG) Log.d(TAG,"setPlace");
         double progress = 0.0;
+        double distanceToPlace = 0.0;
+
         if (inPlace < 0) inPlace = 0;
 
         if (showPlace(inPlace))
@@ -976,6 +980,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             if (point == null) return false;
             double distance = point.getDistance();
             progress = distance * 100.0 / TotalDistance;
+            distanceToPlace = distance - dist_from_start;
 
             /* Scroll to the place in the list */
             recordAdapter.setPlace(inPlace);
@@ -1034,6 +1039,9 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
 
         seekBar.setProgress((int) progress);
+
+        // Set the distance to the next place
+        control.setDistanceToPlace(distanceToPlace);
 
         if (inPlace != lastPlace)
         {

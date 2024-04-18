@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.ui;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2024 Walter Biselli (BiselliW)
 */
 
 import android.os.Bundle;
@@ -30,6 +30,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+
+import java.text.DecimalFormat;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.App;
@@ -62,7 +64,7 @@ public class ControlElements extends BaseActivity {
     private static boolean fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
-    private static final int COLOR_RED     = 0xAAB71C1C;
+    private static final int COLOR_RED = 0xAAB71C1C;
 
     /**
      * if true: the GPS provider controls the tracking
@@ -84,6 +86,8 @@ public class ControlElements extends BaseActivity {
     String errorMessage = "";
     boolean _updateErrorMessage = false;
     boolean _updateExpandView = false;
+    boolean _updateAdditionalInfo = false;
+    String _comment = "";
     int _profileViewVisibility = View.GONE;
     boolean _updateProfile = false;
 
@@ -93,16 +97,15 @@ public class ControlElements extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        la = (LocationActivity)this;
+        la = (LocationActivity) this;
 
-                /* Install a timer to update control elements */
+        /* Install a timer to update control elements */
         //runs without a timer by reposting this handler at the end of the runnable
         Runnable timerRunnable = new Runnable() {
 
             @Override
             public void run() {
-                if (_initUserInterface)
-                {
+                if (_initUserInterface) {
                     // Disable a group of navigation items
                     onPrepareNavigationMenu(mNavigationView.getMenu());
                     _initUserInterface = false;
@@ -120,6 +123,8 @@ public class ControlElements extends BaseActivity {
                     onShowExpandViewStatus();
                 if (_updateErrorMessage)
                     onShowErrorMessage();
+                if (_updateAdditionalInfo)
+                    onShowAdditionalInfo2();
                 if (_updateExpandView)
                     onShowAdditionalInfo();
                 if (_updateProfile)
@@ -144,21 +149,19 @@ public class ControlElements extends BaseActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu (Menu menu)
-    {
-        for (int i=0; i<menu.size(); i++)
-        {
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
             if (
                     (id == R.id.itm_pause_time) ||
-                    (id == R.id.itm_comment_waypoint) ||
-                    (id == R.id.itm_nav_waypoint) ||
-                    (id == R.id.itm_nav_google) ||
-                    (id == R.id.itm_split) ||
-                    (id == R.id.itm_set_new_start) ||
-                    (id == R.id.itm_delete_waypoint) ||
-                    (id == R.id.itm_delete_trackpoints) )
+                            (id == R.id.itm_comment_waypoint) ||
+                            (id == R.id.itm_nav_waypoint) ||
+                            (id == R.id.itm_nav_google) ||
+                            (id == R.id.itm_split) ||
+                            (id == R.id.itm_set_new_start) ||
+                            (id == R.id.itm_delete_waypoint) ||
+                            (id == R.id.itm_delete_trackpoints))
                 item.setEnabled(!expandView && (_place >= 0));
             else
                 item.setVisible(false);
@@ -173,14 +176,12 @@ public class ControlElements extends BaseActivity {
      * @param menu NavigationView menu
      */
 
-    void onPrepareMenu(@NonNull Menu menu)
-    {
+    void onPrepareMenu(@NonNull Menu menu) {
 
     }
-    public boolean onPrepareNavigationMenu (Menu menu)
-    {
-        for (int i=0; i<menu.size(); i++)
-        {
+
+    public boolean onPrepareNavigationMenu(Menu menu) {
+        for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
             if (id == R.id.nav_file_info)
@@ -190,8 +191,8 @@ public class ControlElements extends BaseActivity {
                             (id == R.id.nav_start_time) ||
                             (id == R.id.nav_download_gpx) ||
                             (id == R.id.nav_download_html) ||
-                            (id == R.id.nav_timetable) )
-                    item.setEnabled(!_initUserInterface);
+                            (id == R.id.nav_timetable))
+                item.setEnabled(!_initUserInterface);
             else
                 item.setVisible(true);
         }
@@ -202,8 +203,7 @@ public class ControlElements extends BaseActivity {
     /**
      * Set the optimum width to show the place
      */
-    private void onRescalePlaceView ()
-    {
+    private void onRescalePlaceView() {
         TextView placeView = findViewById(R.id.track_place);
         TableLayout table_layout1 = findViewById(R.id.table_layout1);
         int layoutWidth = table_layout1.getWidth();
@@ -214,8 +214,7 @@ public class ControlElements extends BaseActivity {
         int sum = h_track_arrive + h_track_distance + h_track_dist_to_dest;
 
         int colWidth = layoutWidth - sum;
-        if (colWidth > 0)
-        {
+        if (colWidth > 0) {
             placeView.setWidth(colWidth);
             _rescalePlaceView = false;
         }
@@ -348,36 +347,51 @@ public class ControlElements extends BaseActivity {
     private void onShowAdditionalInfo() {
         _updateExpandView = false;
 
-        TextView main_text_title = findViewById(R.id.main_text_title);
-        main_text_title.setBackgroundColor(COLOR_MESSAGE);
-        main_text_title.setText(additionalInfo.title);
+        if (additionalInfo != null) {
+            TextView main_text_title = findViewById(R.id.main_text_title);
+            main_text_title.setBackgroundColor(COLOR_MESSAGE);
+            main_text_title.setText(additionalInfo.title);
 
-        TextView commentView = main.findViewById(R.id.comment_view);
-        commentView.setText(additionalInfo.comment);
+//                TextView commentView = main.findViewById(R.id.comment_view);
+//        commentView.setText(additionalInfo.comment);
 
-        TextView descriptionView = main.findViewById(R.id.description_view);
-        String html = additionalInfo.description;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            descriptionView.setText(Html.fromHtml(html,Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            descriptionView.setText(Html.fromHtml(html));
+            TextView descriptionView = main.findViewById(R.id.description_view);
+            String html = additionalInfo.description;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                descriptionView.setText(Html.fromHtml(html));
+            }
+            descriptionView.scrollTo(0, 0);
+
+            TextView linkView = main.findViewById(R.id.link_view);
+            linkView.setText(additionalInfo.link);
         }
-        descriptionView.scrollTo(0,0);
 
-        TextView linkView = main.findViewById(R.id.link_view);
-        linkView.setText(additionalInfo.link);
-
-        LinearLayout location_content    = main.findViewById(R.id.location_content);
+        LinearLayout location_content = main.findViewById(R.id.location_content);
         LinearLayout description_content = main.findViewById(R.id.description_content);
 
         location_content.setVisibility(expandView ? View.GONE : View.VISIBLE);
         description_content.setVisibility(expandView ? View.VISIBLE : View.GONE);
 
-        if (!expandView)
-        {
+        if (!expandView) {
             la.updateStatus();
             la.scrollToListPosition();
         }
+    }
+
+    /**
+     * Show additional info
+     */
+    private void onShowAdditionalInfo2() {
+        _updateAdditionalInfo = false;
+
+        String comment = _comment;
+        if (additionalInfo != null) {
+            comment = comment + additionalInfo.comment;
+        }
+        TextView commentView = main.findViewById(R.id.comment_view);
+        commentView.setText(comment);
     }
 
     /**
@@ -401,22 +415,19 @@ public class ControlElements extends BaseActivity {
                 setViewVisibility(R.id.image_hide_profile, View.GONE);
         }
 
-        if (_profileViewVisibility == View.VISIBLE)
-        {
+        if (_profileViewVisibility == View.VISIBLE) {
             la.updateStatus();
             la.scrollToListPosition();
         }
     }
 
-    private int getViewWidth(int id)
-    {
+    private int getViewWidth(int id) {
         TextView view = findViewById(id);
         return view.getWidth();
     }
 
     private void setViewVisibility(int id, int visibility) {
-        if (main != null)
-        {
+        if (main != null) {
             ImageView view = main.findViewById(id);
             if (view != null)
                 view.setVisibility(visibility);
@@ -432,7 +443,7 @@ public class ControlElements extends BaseActivity {
         setTrackingStatus(false);
 
         activateProfile(View.GONE);
-        setExpandViewStatus(getExpandView() );
+        setExpandViewStatus(getExpandView());
         setViewVisibility(R.id.image_expand_more, View.GONE);
         _initUserInterface = true;
     }
@@ -442,6 +453,9 @@ public class ControlElements extends BaseActivity {
      */
     public void setupUserInterface() {
         fileInfoAvailable = details.isFileInfoAvailable();
+        _comment = "";
+        showAddInfo(-1);
+
 //        activateProfile(View.VISIBLE);
         activateProfile(getProfileViewVisibility());
         _setupUserInterface = true;
@@ -494,16 +508,14 @@ public class ControlElements extends BaseActivity {
      */
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
         boolean isExpandableView = fileInfoAvailable;
-        if (details != null)
-        {
+        if (details != null) {
             _place = inPlace;
             if (inPlace >= 0)
                 isExpandableView = !details.getRoutePointDescription(inPlace).equals("");
             if (isExpandableView)
                 if (inExpand)
                     _expandViewVisibility = View.INVISIBLE;
-                else
-                {
+                else {
                     _expandViewVisibility = View.VISIBLE;
                     isExpandableView = false;
                 }
@@ -512,8 +524,7 @@ public class ControlElements extends BaseActivity {
 
             _updateExpandViewStatus = true;
             _updateProfile = true;
-        }
-        else
+        } else
             isExpandableView = false;
 
         return isExpandableView;
@@ -532,8 +543,7 @@ public class ControlElements extends BaseActivity {
         showAddInfo(place);
     }
 
-    public boolean getExpandViewStatus()
-    {
+    public boolean getExpandViewStatus() {
         return expandView;
     }
 
@@ -550,11 +560,20 @@ public class ControlElements extends BaseActivity {
      * Show additional info if available
      */
     public void showAddInfo(int inPlace) {
-        if (details != null)
-        {
+        if (details != null) {
             additionalInfo = details.getAdditionalInfo(inPlace);
             _updateExpandView = true;
-        }
+            _updateAdditionalInfo = true;
+        } else
+            additionalInfo = null;
+    }
+
+    /**
+     * Set the distance to the next place
+     */
+    public void setDistanceToPlace(double distanceToPlace) {
+        _comment = new DecimalFormat("in #0.0 km: ").format(distanceToPlace);
+        _updateAdditionalInfo = true;
     }
 
     /**

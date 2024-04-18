@@ -232,21 +232,26 @@ public class ProfileAdapter {
                 throw new IllegalArgumentException();
             }
 
+            int altitude = 0;
+            if (_track != null) {
+                DataPoint currPoint = _track.getPoint(index);
+                if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
+                    altitude = currPoint.getAltitude().getValue();
+                    if (altitude > 0)
+                        lastAltitude = altitude;
+                }
+            }
+
             if (series == 0) {
                 // draw line
-                if (_track != null) {
-                    DataPoint currPoint = _track.getPoint(index);
-                    if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
-                        int altitude = currPoint.getAltitude().getValue();
-                        if (altitude > 0)
-                            lastAltitude = altitude;
-                    }
-                }
                 return lastAltitude;
             } else {
                 // draw cursor
-                if (index == _plotX)
+                if (index == _plotX) {
+                    // show current altitude
+                    dynamicPlot.setTitle(String.valueOf(altitude) + " m");
                     return _app.getMaxAltitude();
+                }
                 else return 0;
             }
         }
@@ -337,7 +342,6 @@ public class ProfileAdapter {
                         dynamicPlot.setRangeStepValue(rangeStepValue);
                         dynamicPlot.setRangeBoundaries(minAltitude, _app.getMaxAltitude(), BoundaryMode.FIXED);
                         dynamicPlot.redraw();
-
                     }
                 }
             }

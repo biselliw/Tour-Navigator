@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2024 Walter Biselli (BiselliW)
 */
 
 import android.os.Bundle;
@@ -31,9 +31,11 @@ import androidx.appcompat.app.ActionBar;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
+import static de.biselliw.tour_navigator.data.TourDetails.details;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 public class CommentActivity extends BaseActivity {
@@ -63,6 +65,8 @@ public class CommentActivity extends BaseActivity {
 
                 edit = findViewById(R.id.etComment);
                 edit.setText(dataPoint.getComment());
+ //               TourDetails.AdditionalInfo info = details.getAdditionalInfo(selected);
+//                edit.setText(info.description);
 
                 recordAdapter.notifyDataSetChanged();
             }
