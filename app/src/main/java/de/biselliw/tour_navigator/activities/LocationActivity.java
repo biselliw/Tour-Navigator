@@ -127,6 +127,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     static int remainPause_min = 0;
     static boolean raiseAlarm = true;
+    static boolean autoStart = true;
     static int outOfTrackCount = 0;
     static int alarmCount = 0;
     static int alarmTtsCount = 0;
@@ -364,6 +365,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
         if (savedInstanceState != null) {
             initialPlace = savedInstanceState.getInt("initialPlace");
+            if (autoStart)
+                initialPlace = initialPlace - 1;
         }
     }
 
@@ -409,6 +412,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     public void onResume() {
         super.onResume();
         raiseAlarm = sharedPref.getBoolean("pref_hiking_par_alarm",true);
+        autoStart = sharedPref.getBoolean("pref_hiking_par_autoStart",true);
         showAlarmPreference ();
     }
 
@@ -451,11 +455,12 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Notify the application of a loaded GPX file
      */
     public void notifyGpsFileLoaded() {
-        long startTime = SettingsActivity.getStartTime();
+        startTime = SettingsActivity.getStartTime();
         if (startTime > 0) recordAdapter.setStartTime(startTime);
 
         setPlace(initialPlace,false);
-        initialPlace = -1;
+        if (!autoStart)
+            initialPlace = -1;
         recordAdapter.notifyDataSetChanged();
         if (gpsSimulation == null) {
             setStatus(locStatus.GPX_FILE_LOADED);
@@ -827,10 +832,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 else
                 {
                     // show first place
-                    setPlace(0, false);
+                    int startPlace = 0;
+                    if (autoStart && (initialPlace > 0))
+                        startPlace = initialPlace;
+                    setPlace(startPlace, false);
                     /* start tracking from first track point */
-                    if (recordAdapter.getCount() > 0)
-                        setStartGPSindex(super.app.getPointIndex(recordAdapter.getItem(0).getTrackPoint()));
+                    if (recordAdapter.getCount() > startPlace)
+                        setStartGPSindex(super.app.getPointIndex(recordAdapter.getItem(startPlace).getTrackPoint()));
                     _navigationStatus = locStatus.GOTO_START_POS;
                 }
             case GOTO_START_POS:
@@ -957,6 +965,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private boolean setPlace(int inPlace, boolean inUser) {
         if (DEBUG) Log.d(TAG,"setPlace");
         double progress = 0.0;
+        if (inPlace < 0) inPlace = 0;
 
         if (showPlace(inPlace))
         {

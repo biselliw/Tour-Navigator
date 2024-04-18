@@ -33,6 +33,13 @@
             android:summary="@string/pref_hiking_par_alarm_summary"
             android:defaultValue="true"/>
 
-        </PreferenceCategory>
+        <SwitchPreference
+            android:id="@+id/pref_hiking_par_autostart"
+            android:key="pref_hiking_par_autostart"
+            android:title="@string/pref_hiking_par_autoStart"
+            android:summary="@string/pref_hiking_par_autoStart_summary"
+            android:defaultValue="true"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
