@@ -59,12 +59,12 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.PauseTimeDialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
-import de.biselliw.tour_navigator.tim_prune.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
@@ -74,6 +74,7 @@ import static android.os.Environment.DIRECTORY_DOCUMENTS;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 import static de.biselliw.tour_navigator.activities.SettingsActivity._app;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
 import static de.biselliw.tour_navigator.files.FileUtils.DOCUMENTS_DIR;
 
 public class MainActivity extends LocationActivity  implements
@@ -151,7 +152,7 @@ public class MainActivity extends LocationActivity  implements
         }
         else
             // Load a GPX file from cache
-            gpxFileCached = SettingsActivity._isGpxFileLoaded();
+            gpxFileCached = SettingsActivity.isGpxFileLoaded();
 
         if (gpxFileCached)
             OpenCachedFileGPX();
@@ -196,7 +197,7 @@ public class MainActivity extends LocationActivity  implements
         // Save the GPX file in the cache?
         if (control.updateGpxFile) {
             gpxFileCached = SaveFileGPX();
-            SettingsActivity._setGpxFileLoaded(gpxFileCached);
+            SettingsActivity.setGpxFileLoaded(gpxFileCached);
             control.updateGpxFile = false;
         }
         super.onPause();
@@ -566,6 +567,20 @@ public class MainActivity extends LocationActivity  implements
      */
     void navigateWithGoogle() {
         if (recordAdapter.getCount() > 0) {
+            RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
+            if (record != null) {
+                if (getConsentGoogleMaps() )
+                    runGoogleMaps();
+                else {
+                    AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(MainActivity.this, this);
+                    acceptDialog.show();
+                }
+            }
+        }
+    }
+
+   public void runGoogleMaps() {
+        if (recordAdapter.getCount() > 0) {
             /* Get destination coordinates */
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
@@ -587,6 +602,7 @@ public class MainActivity extends LocationActivity  implements
             }
         }
     }
+
 
     /**
      * set active navigation item

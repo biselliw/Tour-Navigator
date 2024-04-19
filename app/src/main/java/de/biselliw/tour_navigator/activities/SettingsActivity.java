@@ -286,11 +286,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
     }
 
-    public static boolean _isGpxFileLoaded() {
+    public static boolean isGpxFileLoaded() {
         return sharedPref.getBoolean(IS_GPX_FILE_LOADED, false);
     }
 
-    public static void _setGpxFileLoaded(boolean value) {
+    public static void setGpxFileLoaded(boolean value) {
         setBoolean(IS_GPX_FILE_LOADED, value);
     }
 
@@ -304,6 +304,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         editor.commit();
     }
 
+    /**
+     * Preferences for use of Google Maps
+     */
+    public static boolean getConsentGoogleMaps() {
+        return sharedPref.getBoolean("pref_consent_google_maps", false);
+    }
+
+    public static void consentGoogleMaps(boolean value) {
+        setBoolean("pref_consent_google_maps", value);
+    }
+
+    /**
+     * Shared Preferences to restore application after shut down
+     */
+/*
     public static int _getPlace() {
         return sharedPref.getInt("Place", -1);
     }
@@ -311,7 +326,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static void _setPlace(int value) {
         setInt("Place", value);
     }
-
+*/
     public static int getProfileViewVisibility() {
         int value = sharedPref.getInt("ProfileViewVisibility", View.VISIBLE);
         if (value == View.GONE) value = View.VISIBLE;

@@ -24,8 +24,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="">
-
+        android:title="@string/pref_header_alarm_parameters">
         <SwitchPreference
             android:id="@+id/pref_hiking_par_alarm"
             android:key="pref_hiking_par_alarm"
@@ -39,7 +38,14 @@
             android:title="@string/pref_hiking_par_autoStart"
             android:summary="@string/pref_hiking_par_autoStart_summary"
             android:defaultValue="true"/>
-
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="@string/pref_header_consent_parameters">
+        <SwitchPreference
+            android:id="@+id/pref_consent_google_maps"
+            android:key="pref_consent_google_maps"
+            android:title="Google Maps"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
 </PreferenceScreen>

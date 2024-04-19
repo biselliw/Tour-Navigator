@@ -83,8 +83,17 @@
     <string name="pref_hiking_par_vertSpeedClimb">Geschwindigkeit im Aufstieg [Hm/h]</string>
     <string name="pref_hiking_par_vertSpeedDescent">Geschwindigkeit im Abstieg [Hm/h]</string>
     <string name="pref_hiking_par_set_to_default">Parameter auf Standard gesetzt: </string>
+    <string name="pref_header_alarm_parameters">Alarmierungen</string>
     <string name="pref_hiking_par_alarm">Alarmierung beim Verlassen des Weges</string>
     <string name="pref_hiking_par_alarm_summary">Nur verfügbar wenn die app im Vordergrund ist: gibt eine Sprachmeldung aus</string>
+    <string name="pref_header_consent_parameters">Zustimmungen</string>
+    <string name="consent">Zustimmen</string>
+    <string name="decline">Ablehnen</string>
+    <string name="consent_GoogleMaps">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
+        Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
+        Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
+        Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://privacy.google.com/businesses/gdprcontrollerterms/ und https://privacy.google.com/businesses/gdprcontrollerterms/sccs/.\n
+        Mehr Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Google: https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy?hl=de.\nDas Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework“ (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll.\nJedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/s/participant-search/participant-detail?contact=true&amp;id=a2zt000000001L5AAI&amp;status=Active </string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Auf zum Wandern!</string>

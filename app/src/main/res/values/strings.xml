@@ -124,10 +124,15 @@
     <string name="pref_hiking_par_vertSpeedClimb">ascending part in [m/h]</string>
     <string name="pref_hiking_par_vertSpeedDescent">descending part in [m/h]</string>
     <string name="pref_hiking_par_set_to_default">Parameter set to default value</string>
+    <string name="pref_header_alarm_parameters">Alarms</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>
     <string name="pref_hiking_par_alarm_summary">Only available with app in foreground: signal leaving the track with vocational warning</string>
     <string name="pref_hiking_par_autoStart">Restart auto</string>
     <string name="pref_hiking_par_autoStart_summary">Restart tracking at previous point</string>
+    <string name="pref_header_consent_parameters">Consents</string>
+    <string name="consent">Consent</string>
+    <string name="decline">Decline</string>
+    <string name="consent_GoogleMaps">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome on tour!</string>
