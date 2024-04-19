@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="de.biselliw.tour_navigator"
-    android:installLocation="auto">
+    android:installLocation="auto" >
 
     <supports-screens
         android:anyDensity="true"
@@ -37,13 +37,13 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.TourNavigator"
-        tools:targetApi="31">
+        tools:targetApi="31" >
 
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true" >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
@@ -53,16 +53,19 @@
             android:name=".activities.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
             android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="file"
-                    android:mimeType="application/gpx+xml"/>
-                <data android:scheme="content"
-                    android:mimeType="application/*"/>
+                <data
+                    android:mimeType="application/gpx+xml"
+                    android:scheme="file" />
+                <data
+                    android:mimeType="application/*"
+                    android:scheme="content" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -85,16 +88,17 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activities.TimeTableActivity"
             android:label="@string/action_timetable"
-            android:parentActivityName=".activities.MainActivity"></activity>
+            android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.TutorialActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MainActivity" />
