@@ -131,7 +131,7 @@ public class TourDetails {
                 info.symbol  = point.getWaypointSymbol();
                 info.description = point.getDescription();
 
-                if (info.description.equals(""))
+                if (info.description.isEmpty())
                 {
                     if (point.getLinkIndex() >= 0)
                     {
