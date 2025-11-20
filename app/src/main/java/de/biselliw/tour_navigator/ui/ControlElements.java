@@ -510,8 +510,15 @@ public class ControlElements extends BaseActivity {
         boolean isExpandableView = fileInfoAvailable;
         if (details != null) {
             _place = inPlace;
-            if (inPlace >= 0)
-                isExpandableView = !details.getRoutePointDescription(inPlace).equals("");
+            if (inPlace >= 0) {
+                if (!isExpandableView) {
+                    isExpandableView = !details.getRoutePointDescription(inPlace).isEmpty();
+                    if (!isExpandableView) {
+                        TourDetails.AdditionalInfo info = details.getAdditionalInfo(inPlace);
+                        isExpandableView = (info.link != null) && !info.link.isEmpty();
+                    }
+                }
+            }
             if (isExpandableView)
                 if (inExpand)
                     _expandViewVisibility = View.INVISIBLE;
