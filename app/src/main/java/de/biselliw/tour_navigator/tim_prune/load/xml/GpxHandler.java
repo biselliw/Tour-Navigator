@@ -105,9 +105,12 @@ public class GpxHandler extends XmlHandler
 	private TrackNameList _trackNameList = new TrackNameList();
 
     private boolean _isOutdooractive = false;
-    private String _OutdooractiveSrcPrefix = "outdooractive.21430.";
+
     private GpxTag _source = new GpxTag();
+    private String _OutdooractiveSrcPrefix = "outdooractive.21430.";
     private String _OutdooractiveLink = "https://www.schwarzwaldverein-tourenportal.de/poi/";
+    private String _toubizPrefix = "toubiz-tta-poi.21430.";
+    private String _toubizLink = "https://www.schwarzwald-tourismus.info/attraktionen/";
     private boolean _isFirstTrackPoint = true;
 
 
@@ -256,15 +259,22 @@ public class GpxHandler extends XmlHandler
 		}
 		else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
-            /* Create Outdooractive link to a POI if no web link is provided */
+            /* Create alternative link to a POI if no web link is provided */
             if (tag.equals("wpt") && (_link != null) && (_link.getValue() == null) && (_source != null))
             {
                 String source = _source.getValue();
                 if (source != null) {
+                    /* Create Outdooractive link to a POI if no web link is provided */
                     if (source.startsWith(_OutdooractiveSrcPrefix)) {
                         source = source.substring(_OutdooractiveSrcPrefix.length());
                         /* link is only allowed to web site - no app! */
                         _link.setValue(_OutdooractiveLink.concat(source));
+                    }
+                    /* Create Toubiz link to a POI if no web link is provided */
+                    else if (source.startsWith(_toubizPrefix)) {
+                        source = source.substring(_toubizPrefix.length());
+                        /* link is only allowed to web site - no app! */
+                        _link.setValue(_toubizLink.concat(source));
                     }
                 }
             }
