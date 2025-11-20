@@ -152,15 +152,21 @@ public class TourDetails {
                 }
                 else if (!info.symbol.equals(""))
                 {
+                    /* Handle outdooractive GPX infos */
                     info.symbol = interpreteWaypointSymbol(info.symbol);
 
                     if (!info.comment.equals(""))
                         info.comment = info.symbol + ": " + info.comment;
+                    /*
                     else if (!info.description.equals(""))
                         info.comment = info.symbol + ": " + info.description;
+                        
+                     */
                     else
                         info.comment = info.symbol;
                 }
+                else
+                    info.comment = "";
             }
         }
         else

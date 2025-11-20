@@ -249,6 +249,7 @@ public class HTML_File {
                 if (!link.equals("")) {
                     tmp_buffer.append("<p><a href=\"")
                             .append(link).append("\" target=_blank>").append(link).append("</a></p>\n");
+                    descAvailable = true;
                 }
             }
 

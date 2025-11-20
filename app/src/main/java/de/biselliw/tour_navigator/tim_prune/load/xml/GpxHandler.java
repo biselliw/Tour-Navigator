@@ -104,6 +104,13 @@ public class GpxHandler extends XmlHandler
 	private ArrayList<String> _linkList = new ArrayList<String>();
 	private TrackNameList _trackNameList = new TrackNameList();
 
+    private boolean _isOutdooractive = false;
+    private String _OutdooractiveSrcPrefix = "outdooractive.21430.";
+    private GpxTag _source = new GpxTag();
+    private String _OutdooractiveLink = "https://www.schwarzwaldverein-tourenportal.de/poi/";
+    private boolean _isFirstTrackPoint = true;
+
+
 
 	/**
 	 * Receive the start of a tag
@@ -142,6 +149,7 @@ public class GpxHandler extends XmlHandler
 			_pointName.setValue(null);
 			_time.setValue(null);
 			_type.setValue(null);
+            _source.setValue(null);
 			_link.setValue(null);
 			_description.setValue(null);
 			_symbol.setValue(null);
@@ -187,7 +195,13 @@ public class GpxHandler extends XmlHandler
 		}
 		else if (tag.equals("sym")) {
 			_currentTag = _symbol;
-		}		
+		}
+        else if (tag.equals("oa:Extension")) {
+            _isOutdooractive = true;
+        }
+        else if (tag.equals("src")) {
+            _currentTag = _source;
+        }
 		else if (tag.equals("link")) {
 			_link.setValue(attributes.getValue("href"));
 			_currentTag = null;
@@ -242,13 +256,33 @@ public class GpxHandler extends XmlHandler
 		}
 		else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
-			/* don't load waypoints which are simple trackpoints
-			 * */
+            /* Create Outdooractive link to a POI if no web link is provided */
+            if (tag.equals("wpt") && (_link != null) && (_link.getValue() == null) && (_source != null))
+            {
+                String source = _source.getValue();
+                if (source != null) {
+                    if (source.startsWith(_OutdooractiveSrcPrefix)) {
+                        source = source.substring(_OutdooractiveSrcPrefix.length());
+                        /* link is only allowed to web site - no app! */
+                        _link.setValue(_OutdooractiveLink.concat(source));
+                    }
+                }
+            }
+
+            /* don't load waypoints which are simple trackpoints */
+            /* no longer used by Outdooractive ?
 			if (_insideWaypoint)
 				if ((_type != null) && (_type.getValue() != null))
 					if (_type.getValue().equals("TrackPt"))
 						_insidePoint = false;
-			if (_insidePoint)
+             */
+            /* don't load Outdooractive trackpoints which are only for routing */
+            if (_isTrackPoint) {
+                if ((_symbol != null) && (_symbol.getValue() == null))
+                    _pointName.setValue(null);
+                _isFirstTrackPoint = false;
+            }
+            if (_insidePoint)
 					processPoint();
 			_insideWaypoint = false;
 			_insidePoint = false;
