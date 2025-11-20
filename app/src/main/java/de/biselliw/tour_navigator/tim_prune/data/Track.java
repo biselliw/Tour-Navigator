@@ -30,8 +30,11 @@ public class Track {
 	 * TAG for log messages.
 	 */
 	static final String TAG = "Track";
-	private static final boolean _DEBUG = false; // Set to true to enable logging
+	private static final boolean _DEBUG = true; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
+	/* maximum distance of a waypoint to the track */
+	private final static double MAX_DISTANCE_WP_TRACK = 0.3;
 
 	// Data points
 	private DataPoint[] _dataPoints;
@@ -295,6 +298,7 @@ public class Track {
 		_pointIndices = new int[_numPoints];
 		DataPoint point = null;
 		if (!_scaled) scalePoints();
+		if (DEBUG) Log.d(TAG, "interleaveWaypoints()");
 
 		// find nearest track points for all way points
 		int i = 0;
@@ -872,7 +876,8 @@ public class Track {
 								{
 									foundWP = true;
 									linkedTP = copyIndex-1;
-									point.makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
+//									point.makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
+									dataCopy[linkedTP].makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
 								}
 								_waypoints[j].setLinkIndex(linkedTP);
 								// else link the following track point to this way point
@@ -948,7 +953,7 @@ public class Track {
 				while ((linkedTP >= 0) && (linkedTP < _numPoints))
 				{
 					// find the next track point which is considered as outside of the track 
-					linkedTP = getOutsidePointIndex(linkedTP+1, _numPoints-1, lat, lon, 0.2, true);
+					linkedTP = getOutsidePointIndex(linkedTP+1, _numPoints-1, lat, lon, MAX_DISTANCE_WP_TRACK, true);
 
 					// find the next track point after this one which is considered as inside the track again
 					if (linkedTP >= 0)
