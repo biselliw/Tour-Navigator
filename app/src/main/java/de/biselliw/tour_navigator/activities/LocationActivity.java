@@ -923,18 +923,20 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
 
         if (!control.getExpandViewStatus()) {
-            TextView view = findViewById(R.id.main_text_title);
-            view.setBackgroundColor(bgColor);
+            if (!isErrorMessage()) {
+                TextView view = findViewById(R.id.main_text_title);
+                view.setBackgroundColor(bgColor);
 
-            // show current system time
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss ");
-            Calendar calender = Calendar.getInstance();
-            calender.setTimeInMillis(CurrentTime.toMillis(true));
-            time = sdf.format(calender.getTime());
+                // show current system time
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss ");
+                Calendar calender = Calendar.getInstance();
+                calender.setTimeInMillis(CurrentTime.toMillis(true));
+                time = sdf.format(calender.getTime());
 
-            if (_gpsStatus == gpsStatus.GPS_FIX)
-                activity = time + activity;
-            view.setText(activity);
+                if (_gpsStatus == gpsStatus.GPS_FIX)
+                    activity = time + activity;
+                view.setText(activity);
+            }
 
             recordAdapter.notifyDataSetChanged();
         }
