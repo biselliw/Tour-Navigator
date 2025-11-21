@@ -47,5 +47,10 @@
             android:key="pref_consent_google_maps"
             android:title="Google Maps"
             android:defaultValue="false"/>
+        <SwitchPreference
+            android:id="@+id/pref_debug"
+            android:key="pref_debug"
+            android:title="Debug"
+            android:defaultValue="false"/>
     </PreferenceCategory>
 </PreferenceScreen>

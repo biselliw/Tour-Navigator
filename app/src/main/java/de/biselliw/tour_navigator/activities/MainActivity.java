@@ -32,7 +32,6 @@ import android.os.Environment;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -64,6 +63,8 @@ import de.biselliw.tour_navigator.dialogs.PauseTimeDialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
+import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -107,6 +108,8 @@ public class MainActivity extends LocationActivity  implements
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsActivity.setSharedPreferences(sharedPref);
         firstStart = SettingsActivity.isFirstTimeLaunch();
+
+        Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
         if(firstStart) {
 
@@ -169,6 +172,8 @@ public class MainActivity extends LocationActivity  implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("gpxFileCached",gpxFileCached);
+        Log.d(TAG,"onSaveInstanceState()");
+        Log.Close();
     }
 
     @Override
