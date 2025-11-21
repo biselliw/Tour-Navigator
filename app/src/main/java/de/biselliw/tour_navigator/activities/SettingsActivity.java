@@ -20,6 +20,7 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.AppCompatPreferenceActivity;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.tim_prune.I18nManager;
 
@@ -67,6 +68,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onDestroy();
     }
 
+
     /**
      * get preferences for hiking times calculation
      *
@@ -95,6 +97,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             stringValue = sharedPref.getString("pref_hiking_par_vertSpeedDescent", "");
             if (!stringValue.equals(""))
                 vertSpeedDescent = Integer.parseInt(stringValue);
+
+            Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "TourNavigator_");
         }
         catch (Exception e) { }
         _app.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0, vertSpeedDescent / 1000.0, minHeightChange);
@@ -313,6 +317,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static void consentGoogleMaps(boolean value) {
         setBoolean("pref_consent_google_maps", value);
+    }
+
+    /**
+     * Preferences for writing Debug infos to Download dir
+     */
+    public static boolean getConsentDebug() {
+        return sharedPref.getBoolean("pref_consent_debug", false);
     }
 
     /**
