@@ -41,6 +41,7 @@ import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getExpandView;
@@ -92,6 +93,11 @@ public class ControlElements extends BaseActivity {
     boolean _updateProfile = false;
 
     public boolean updateGpxFile = false;
+
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,6 +344,7 @@ public class ControlElements extends BaseActivity {
         TextView main_text_title = findViewById(R.id.main_text_title);
         main_text_title.setBackgroundColor(COLOR_RED);
         main_text_title.setText(errorMessage);
+        Log.e(TAG,errorMessage);
         _updateErrorMessage = false;
     }
 
@@ -347,7 +354,7 @@ public class ControlElements extends BaseActivity {
     private void onShowAdditionalInfo() {
         _updateExpandView = false;
 
-        if (additionalInfo != null) {
+        if ((additionalInfo != null) && !isErrorMessage()){
             TextView main_text_title = findViewById(R.id.main_text_title);
             main_text_title.setBackgroundColor(COLOR_MESSAGE);
             main_text_title.setText(additionalInfo.title);
@@ -404,7 +411,7 @@ public class ControlElements extends BaseActivity {
         switch (_profileViewVisibility) {
             case View.INVISIBLE:
                 setViewVisibility(R.id.image_show_profile, View.VISIBLE);
-                setViewVisibility(R.id.image_hide_profile, View.INVISIBLE);
+                setViewVisibility(R.id.image_hide_profile, View.GONE);
                 break;
             case View.VISIBLE:
                 setViewVisibility(R.id.image_show_profile, View.GONE);
@@ -592,6 +599,7 @@ public class ControlElements extends BaseActivity {
         _profileViewVisibility = state;
         if (state != View.GONE)
             setProfileViewVisibility(state);
+
         _updateProfile = true;
     }
 
@@ -599,6 +607,15 @@ public class ControlElements extends BaseActivity {
     {
         errorMessage = message;
         _updateErrorMessage = true;
+    }
 
+    public boolean isErrorMessage() {
+        return !errorMessage.isEmpty();
+    }
+
+    public void clearErrorMessage()
+    {
+        errorMessage = "";
+        _updateErrorMessage = false;
     }
 }

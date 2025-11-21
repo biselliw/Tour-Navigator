@@ -290,6 +290,8 @@ public class MainActivity extends LocationActivity  implements
             finish();
         } else
             return super.onOptionsItemSelected(item);
+        clearErrorMessage();
+
         return true;
     }
 
@@ -690,6 +692,7 @@ public class MainActivity extends LocationActivity  implements
     void OpenFileGPX(final Intent data) {
         // delete any previously used cache
         FileUtils.deleteDocumentCacheDir(this);
+        clearErrorMessage();
 
         Uri uriFile = data.getData(); //The uri with the location of the file
         // Get the File path from the Uri for Storage Access Framework Documents
@@ -832,6 +835,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void pauseTracking(View view) {
+        clearErrorMessage();
         control.setTrackingStatus(false);
     }
 
@@ -841,6 +845,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void continueTracking(View view) {
+        clearErrorMessage();
         control.setTrackingStatus(true);
     }
 
@@ -850,6 +855,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void expand_less(View view) {
+        clearErrorMessage();
         control.setExpandViewStatus(false);
     }
 
@@ -859,6 +865,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void expand_more(View view) {
+        clearErrorMessage();
         control.setExpandViewStatus(true);
     }
 
@@ -868,6 +875,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void hide_profile(View view) {
+        clearErrorMessage();
         control.activateProfile(View.INVISIBLE);
     }
 
@@ -877,6 +885,7 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void show_profile(View view) {
+        clearErrorMessage();
         control.activateProfile(View.VISIBLE);
     }
 

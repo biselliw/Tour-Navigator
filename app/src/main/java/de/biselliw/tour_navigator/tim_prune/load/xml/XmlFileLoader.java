@@ -181,45 +181,40 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		catch (Exception e) {} // don't care too much if it didn't work, there's a backup
 
 		// If that didn't work, try the built-in classes (which work for xml1.0 but handling for 1.1 contains bugs)
-		if (!success)
-		{
-			try
-			{
-				if (DEBUG) {
-					Log.d(TAG,"Parse with SAXParser");
-				}
-				// Construct a SAXParser and use this as a default handler
-				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-				saxParser.parse(inStream, this);
-				success = true;
-				if (DEBUG) {
-					Log.d(TAG,"Parsing with SAXParser successfull");
-				}
-			}
-			catch (Exception e)
-			{
-				if (DEBUG) {
-					if (_parsedXmlStream) {
-						Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
-						success = true;
-					}
-					else {
-						Log.d(TAG, "SAXParser Exception: " + e);
-						// BiselliW: accept "org.apache.harmony.xml.ExpatParser$ParseException: "
-						// At line 632, column 6: junk after document element"
-						if (e.getMessage().contains("junk after document element"))
-							success = true;
-							// WB: accept "At line 3481, column 12: not well-formed (invalid token)"
-						else if (e.getMessage().contains("not well-formed (invalid token)"))
-							success = true;
-						else
-							Log.d(TAG, "SAXParser Exception terminates XML file loading");
-					}
-				}
-				// Show error message
-				control.showErrorMessage(e.getMessage());
-			}
-		}
+		if (!success) {
+            try {
+                if (DEBUG) {
+                    Log.d(TAG, "Parse with SAXParser");
+                }
+                // Construct a SAXParser and use this as a default handler
+                SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+                saxParser.parse(inStream, this);
+                success = true;
+                if (DEBUG) {
+                    Log.d(TAG, "Parsing with SAXParser successfull");
+                }
+            } catch (Exception e) {
+                if (DEBUG) {
+                    if (_parsedXmlStream) {
+                        Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
+                        success = true;
+                    } else {
+                        Log.d(TAG, "SAXParser Exception: " + e);
+                        // BiselliW: accept "org.apache.harmony.xml.ExpatParser$ParseException: "
+                        // At line 632, column 6: junk after document element"
+                        if (e.getMessage().contains("junk after document element"))
+                            success = true;
+                            // WB: accept "At line 3481, column 12: not well-formed (invalid token)"
+                        else if (e.getMessage().contains("not well-formed (invalid token)"))
+                            success = true;
+                        else
+                            Log.d(TAG, "SAXParser Exception terminates XML file loading");
+                    }
+                }
+                // Show error message
+                control.showErrorMessage(e.getMessage());
+            }
+        }
 		return success;
 	}
 
