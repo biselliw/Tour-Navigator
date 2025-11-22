@@ -232,7 +232,7 @@ public class MainActivity extends LocationActivity  implements
         super.onDestroy();
     }
 
-    /*
+    /**
      * Initialize the contents of the Activity's standard options menu
      * @param menu options menu
      * @return Pass the result along other messages from the UI
@@ -250,7 +250,7 @@ public class MainActivity extends LocationActivity  implements
     }
 
 
-    /*
+    /**
      * Handles menu options messages
      * @param item menu item clicked by user
      * @return true if message was handled, otherwise pass along other messages from the UI
@@ -307,7 +307,7 @@ public class MainActivity extends LocationActivity  implements
         }
     }
 
-    /*
+    /**
      * Handles Navigation menu options messages
      * @param item menu item clicked by user
      * @return true if message was handled, otherwise pass along other messages from the UI
@@ -532,7 +532,7 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
-     * set new start point
+     * set new start point of the tour on user demand
      */
     void setNewStart()
     {
@@ -569,14 +569,12 @@ public class MainActivity extends LocationActivity  implements
     /**
      * Navigate to the route point with Google Maps
      *
-     * @link https://developers.google.com/maps/documentation/urls/get-started#directions-action
-     * @link https://bitcoden.com/answers/launching-google-maps-directions-via-an-intent-on-android
      */
     void navigateWithGoogle() {
         if (recordAdapter.getCount() > 0) {
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
-                if (getConsentGoogleMaps() )
+                if (getConsentGoogleMaps())
                     runGoogleMaps();
                 else {
                     AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(MainActivity.this, this);
@@ -586,6 +584,12 @@ public class MainActivity extends LocationActivity  implements
         }
     }
 
+    /**
+     * Navigate to the route point with Google Maps
+     *
+     * @link <a href="https://developers.google.com/maps/documentation/urls/get-started#directions-action">developers.google.com</a>
+     * @link <a href="https://bitcoden.com/answers/launching-google-maps-directions-via-an-intent-on-android">bitcoden.com</a>
+     */
    public void runGoogleMaps() {
         if (recordAdapter.getCount() > 0) {
             /* Get destination coordinates */
@@ -624,7 +628,7 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
-     * Manager for main navigation items with own actvities
+     * Manager for main navigation items with own activities
      * @param id identifier for the menu item.
      */
     private void goToNavigationItem(int id) throws IOException {
@@ -638,31 +642,29 @@ public class MainActivity extends LocationActivity  implements
         } else if (id == R.id.nav_reverse_route)
             App.getTrack().reverseRoute();
         else if (id == R.id.nav_download_gpx)
-//            downloadFileGPX();
             registerActivityResultLauncherCreateDocumentGPX();
         else if (id == R.id.nav_download_html)
             registerActivityResultLauncherCreateDocumentHTML();
-            // -------------------------------------------------
         else if (id == R.id.nav_about) {
-            //open about page
+            // open about page
             intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_settings) {
-            //open settings
+            // open settings page
             intent = new Intent(this, SettingsActivity.class);
             intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
             intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_help) {
-            //open about page
+            // open help page
             intent = new Intent(this, HelpActivity.class);
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_timetable) {
             htmlFile.formatTimetableToHTML(false);
-            //open Time Table page
+            // open Time Table page
             intent = new Intent(this, TimeTableActivity.class);
             startActivity(intent);
             overridePendingTransition(0, 0);
@@ -727,9 +729,10 @@ public class MainActivity extends LocationActivity  implements
             control.showErrorMessage(getString(R.string.error_invalid_gpx_file));
     }
 
-   /*
-     *  Save GPX file
-    */
+    /**
+     * Save GPX file
+     * @param data Intent data
+     */
     void SaveFileGPX(final Intent data) {
         try {
             if (data != null)
@@ -770,7 +773,7 @@ public class MainActivity extends LocationActivity  implements
         if (DEBUG) Log.d(TAG, "Download was successfully");
     }
 
-    /*
+    /**
      * Load a GPX file from cache
      */
     boolean OpenCachedFileGPX() {
@@ -786,7 +789,7 @@ public class MainActivity extends LocationActivity  implements
             if (DEBUG) Log.d(TAG, "GPX file loaded?");
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG,"OpenCachedFileGPX()", e);
         }
         return false;
     }
@@ -811,6 +814,7 @@ public class MainActivity extends LocationActivity  implements
             if (DEBUG) Log.d(TAG, "Download was successfull");
             return true;
         } catch (IOException e) {
+            Log.e(TAG,"OpenCachedFileGPX()", e);
             e.printStackTrace();
         }
         if (DEBUG) Log.d(TAG, "Download failed");
