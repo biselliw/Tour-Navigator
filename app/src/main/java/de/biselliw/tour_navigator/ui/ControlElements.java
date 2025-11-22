@@ -557,6 +557,9 @@ public class ControlElements extends BaseActivity {
         showAddInfo(place);
     }
 
+    /**
+     * @return true if extended description view is active
+     */
     public boolean getExpandViewStatus() {
         return expandView;
     }
@@ -584,9 +587,13 @@ public class ControlElements extends BaseActivity {
 
     /**
      * Set the distance to the next place
+     * @param distanceToPlace distance in km
      */
     public void setDistanceToPlace(double distanceToPlace) {
-        _comment = new DecimalFormat("in #0.0 km: ").format(distanceToPlace);
+        if (distanceToPlace >= 1.0)
+            _comment = new DecimalFormat("in #0.0 km: ").format(distanceToPlace);
+        else
+            _comment = new DecimalFormat("in #0 m: ").format(distanceToPlace*1000.0);
         _updateAdditionalInfo = true;
     }
 

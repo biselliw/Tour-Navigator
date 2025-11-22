@@ -1,10 +1,19 @@
 package de.biselliw.tour_navigator.helpers;
 
-import de.biselliw.tour_navigator.helpers.Log
-        ;
+import java.util.Arrays;
+
+import androidx.annotation.NonNull;
+import de.biselliw.tour_navigator.helpers.Log;
+
+
 public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
 
-    private Thread.UncaughtExceptionHandler defaultHandler;
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "GlobalExceptionHandler";
+
+    private final Thread.UncaughtExceptionHandler defaultHandler;
 
     public GlobalExceptionHandler() {
         // Keep a reference to the system’s default handler
@@ -12,11 +21,10 @@ public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
     }
 
     @Override
-    public void uncaughtException(Thread thread, Throwable throwable) {
+    public void uncaughtException(@NonNull Thread thread, @NonNull Throwable throwable) {
         // Log or save the crash data here
-        Log.e("GlobalExceptionHandler", "Uncaught exception", throwable);
-
-        // TODO: Write to file, send to server, etc.
+        Log.e(TAG, "Uncaught exception", throwable);
+        Log.Close();
 
         // Pass the exception on to the default handler so the app can terminate normally
         if (defaultHandler != null) {
