@@ -12,12 +12,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import androidx.annotation.NonNull;
-import de.biselliw.tour_navigator.BuildConfig;
 
+import de.biselliw.tour_navigator.BuildConfig;
 import static de.biselliw.tour_navigator.files.FileUtils.getDownloadsDir;
+import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /// class for sending log output.
-/// @link https://developer.android.com/reference/android/util/Log
+/// @link <a href="https://developer.android.com/reference/android/util/Log">https://developer.android.com</a>
 public final class Log {
     private static boolean _writing_enabled = false;
     private static String _prefix = "";
@@ -117,6 +118,13 @@ public final class Log {
         _writer = null;
     }
 
+    /**
+     * Send a DEBUG log message and log the exception.
+     * @param tag   String: Used to identify the source of a log message. It usually identifies
+     *                  the class or activity where the log call occurs. This value may be null.
+     * @param msg   String: The message you would like logged.
+     * @return      A positive value if the message was loggable
+     */
     public static int d(java.lang.String tag, java.lang.String msg) {
         Write("D " + tag + " - " + msg);
         if (BuildConfig.DEBUG)
@@ -124,14 +132,31 @@ public final class Log {
         else  return 0;
     }
 
+    /**
+     * Send an ERROR log message and log the exception.
+     * @param tag   String: Used to identify the source of a log message. It usually identifies
+     *                  the class or activity where the log call occurs. This value may be null.
+     * @param msg   String: The message you would like logged.
+     * @return      A positive value if the message was loggable
+     */
     public static int e(java.lang.String tag, java.lang.String msg) {
+        control.showErrorMessage(tag + ": " + msg);
         Write("E " + tag + " - " + msg);
         if (BuildConfig.DEBUG)
             return android.util.Log.e(tag, msg);
         else  return 0;
     }
 
+    /**
+     * Send an ERROR log message and log the exception.
+     * @param tag   String: Used to identify the source of a log message. It usually identifies
+     *                  the class or activity where the log call occurs. This value may be null.
+     * @param msg   String: The message you would like logged.
+     * @param tr    Throwable: An exception to log.
+     * @return      A positive value if the message was loggable
+     */
     public static int e(java.lang.String tag, java.lang.String msg, @NonNull Throwable tr) {
+        control.showErrorMessage(tag + ": " + msg);
         Write("E " + tag + " - " + msg + ": "
                 + tr.toString()
                 + " called by "
@@ -140,5 +165,21 @@ public final class Log {
             return android.util.Log.e(tag, msg, tr);
         else  return 0;
     }
- }
+
+    /**
+     * Send a WARN log message and log the exception.
+     * @param tag   String: Used to identify the source of a log message. It usually identifies
+     *                  the class or activity where the log call occurs. This value may be null.
+     * @param msg   String: The message you would like logged.
+     * @return      A positive value if the message was loggable
+     */
+    public static int w(java.lang.String tag, java.lang.String msg) {
+        Write("W " + tag + " - " + msg);
+        if (BuildConfig.DEBUG)
+            return android.util.Log.w(tag, msg);
+        else  return 0;
+    }
+
+
+}
 

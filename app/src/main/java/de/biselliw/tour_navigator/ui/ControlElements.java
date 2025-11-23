@@ -97,7 +97,7 @@ public class ControlElements extends BaseActivity {
     /**
      * TAG for log messages.
      */
-    static final String TAG = "MainActivity";
+    static final String TAG = "ControlElements";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -610,6 +610,10 @@ public class ControlElements extends BaseActivity {
         _updateProfile = true;
     }
 
+    /**
+     * Show an error message until user confirms
+     * @param message error message
+     */
     public void showErrorMessage(String message)
     {
         errorMessage = message;
