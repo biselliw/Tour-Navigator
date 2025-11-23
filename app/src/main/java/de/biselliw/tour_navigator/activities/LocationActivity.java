@@ -34,7 +34,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.speech.tts.TextToSpeech;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -57,6 +56,7 @@ import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
@@ -365,6 +365,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         control.showGPS_Status(_gpsStatus);
 
         if (savedInstanceState != null) {
+            showErrorMessage("Restart");
             initialPlace = savedInstanceState.getInt("initialPlace");
             if (autoStart)
                 initialPlace = initialPlace - 1;
@@ -382,6 +383,32 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         super.onSaveInstanceState(outState);
         // remember current place
         outState.putInt("initialPlace",recordAdapter.getPlace());
+    }
+
+    /**
+     * Called when the operating system has determined that it is a good time for a process to trim
+     * unneeded memory from its process.
+     * @param level int: The context of the trim
+     * @link <a href="https://developer.android.com/reference/android/content/ComponentCallbacks2#onTrimMemory(int)">
+          developer.android.com</a>
+     */
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+
+        String msg = "onTrimMemory level = ";
+        if (level == TRIM_MEMORY_UI_HIDDEN)
+            /* the process had been showing a user interface, and is no longer doing so. Large allocations
+               with the UI should be released at this point to allow memory to be better managed. */
+            msg = msg + "TRIM_MEMORY_UI_HIDDEN";
+        else if (level == TRIM_MEMORY_BACKGROUND)
+            /* the process has gone on to the LRU list. This is a good opportunity to clean up resources
+               that can efficiently and quickly be re-built if the user returns to the app. */
+            msg = msg + "TRIM_MEMORY_BACKGROUND";
+        else
+            /* all other values are depreciated in API level 35 */
+            msg = msg + String.valueOf(level);
+        Log.w("MEMORY", "onTrimMemory level = " + msg);
     }
 
     /*

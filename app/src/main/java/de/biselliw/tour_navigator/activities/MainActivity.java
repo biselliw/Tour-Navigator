@@ -20,7 +20,6 @@ package de.biselliw.tour_navigator.activities;
     Copyright 2023 Walter Biselli (BiselliW)
 */
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -35,7 +34,6 @@ import android.provider.DocumentsContract;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -51,7 +49,7 @@ import java.text.DecimalFormat;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.content.FileProvider;
+import androidx.annotation.NonNull;
 import androidx.core.view.GravityCompat;
 
 import de.biselliw.tour_navigator.App;
@@ -71,12 +69,9 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
-import static android.os.Environment.DIRECTORY_DOCUMENTS;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static android.os.Environment.getExternalStoragePublicDirectory;
 import static de.biselliw.tour_navigator.activities.SettingsActivity._app;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
-import static de.biselliw.tour_navigator.files.FileUtils.DOCUMENTS_DIR;
 
 public class MainActivity extends LocationActivity  implements
         NavigationView.OnNavigationItemSelectedListener {
@@ -99,7 +94,7 @@ public class MainActivity extends LocationActivity  implements
     SharedPreferences sharedPref = null;
     boolean firstStart = false;
 
-    @SuppressLint("ResourceType")
+    @SuppressLint({"ResourceType", "MissingSuperCall"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,19 +106,12 @@ public class MainActivity extends LocationActivity  implements
 
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
-        if(firstStart) {
+        super.app = new App(this);
+        super.pa = new ProfileAdapter(this, super.app);
 
-        }
-//        else
-        {
-            super.app = new App(this);
-            super.pa = new ProfileAdapter(this, super.app);
+        SettingsActivity.getPreferences(sharedPref, super.app);
 
-            SettingsActivity.getPreferences(sharedPref, super.app);
-
-            gpxExporter = new GpxExporter(super.app);
-        }
-
+        gpxExporter = new GpxExporter(super.app);
     }
 
     @Override
@@ -134,6 +122,10 @@ public class MainActivity extends LocationActivity  implements
         selectNavigationItem(R.id.nav_main);
 
         htmlFile = new HTML_File(this, recordAdapter);
+
+        String instanceState = "";
+        if (savedInstanceState != null) instanceState = savedInstanceState.toString();
+        Log.d (TAG, "onPostCreate (" + instanceState +")");
 
         // Handle a received intent from another app
         Intent intent = getIntent();
@@ -157,9 +149,9 @@ public class MainActivity extends LocationActivity  implements
             // Load a GPX file from cache
             gpxFileCached = SettingsActivity.isGpxFileLoaded();
 
-        if (gpxFileCached)
+        if (gpxFileCached) {
             OpenCachedFileGPX();
-
+        }
     }
 
     /**
@@ -172,7 +164,7 @@ public class MainActivity extends LocationActivity  implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("gpxFileCached",gpxFileCached);
-        Log.d(TAG,"onSaveInstanceState()");
+        Log.d(TAG,"onSaveInstanceState("+outState.toString()+")");
         Log.Close();
     }
 
@@ -214,6 +206,10 @@ public class MainActivity extends LocationActivity  implements
         super.onResume();
     }
 
+
+    @Override
+    public void onLowMemory() {}
+
     @Override
     /*
      * Prevent closing the App here when user pressed the Back key
@@ -244,7 +240,7 @@ public class MainActivity extends LocationActivity  implements
     }
 
     @Override
-    public boolean onContextItemSelected (MenuItem item)
+    public boolean onContextItemSelected (@NonNull MenuItem item)
     {
         return false;
     }
@@ -339,7 +335,7 @@ public class MainActivity extends LocationActivity  implements
             try {
                 goToNavigationItem(id);
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }, NAVDRAWER_LAUNCH_DELAY);
 
@@ -700,10 +696,10 @@ public class MainActivity extends LocationActivity  implements
         // Get the File path from the Uri for Storage Access Framework Documents
         String uriFilePath = FileUtils.getPath(this, uriFile);
         String ext = FileUtils.getExtension(uriFilePath);
-        final String mext = MimeTypeMap.getSingleton().getExtensionFromMimeType("application/gpx+xml");
         if (DEBUG) {
             Log.d(TAG, "GPX file URI: " + uriFile);
             Log.d(TAG, "GPX file name: " + uriFilePath);
+            assert uriFile != null;
             Log.d(TAG, "isExternalStorageDocument: " + FileUtils.isExternalStorageDocument(uriFile));
         }
         if (ext.startsWith(".gpx")) {
@@ -714,15 +710,16 @@ public class MainActivity extends LocationActivity  implements
             try {
                 InputStream _xmlStream = null;
                 try {
+                    assert uriFile != null;
                     _xmlStream = this.getContentResolver().openInputStream(uriFile);
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
                 if (DEBUG) Log.d(TAG, "Open GPX stream");
                 _xmlFileLoader.openStream(_xmlStream);
                 if (DEBUG) Log.d(TAG, "GPX file loaded?");
             } catch (Exception e) {
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
         else
@@ -739,6 +736,7 @@ public class MainActivity extends LocationActivity  implements
             {
                 Uri uri = data.getData(); //The uri with the location of the file
                 ContentResolver cr = this.getContentResolver();
+                assert uri != null;
                 OutputStream _xmlStream = cr.openOutputStream(uri, "w");
                 OutputStreamWriter writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
                 GpxExporter.downloadData(writer);
@@ -746,18 +744,19 @@ public class MainActivity extends LocationActivity  implements
                 // exchange wrong file extension provided by Android: *.gpx (x) > * (x).gpx
                 try {
                     String path = uri.getPath();
+                    assert path != null;
                     int dot = path.lastIndexOf("/");
                     if (dot > 0) {
                         String filename = path.substring(dot+1);
                         dot = filename.lastIndexOf(".");
                         if (dot > 0) {
-                            String ext = filename.substring(dot);
+//                            String ext = filename.substring(dot);
                             filename = filename.substring(0,dot);
                             DocumentsContract.renameDocument(cr, uri, filename+".gpx");
                         }
                     }
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
             }
 
@@ -765,9 +764,9 @@ public class MainActivity extends LocationActivity  implements
             if (DEBUG) {
                 Log.d(TAG, "Download failed");
             }
-            e.printStackTrace();
+//            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
         }
 
         if (DEBUG) Log.d(TAG, "Download was successfully");
@@ -781,6 +780,7 @@ public class MainActivity extends LocationActivity  implements
         File cacheDir = FileUtils.getDocumentCacheDir(context);
 
         try {
+            Log.d (TAG, "OpenCachedFileGPX()");
             // Create a new file in the internal directory
             File file = new File(cacheDir, "TourNavigator.gpx");
             if (DEBUG) Log.d(TAG, "Load GPX file from cache");
@@ -802,6 +802,8 @@ public class MainActivity extends LocationActivity  implements
         File cacheDir = FileUtils.getDocumentCacheDir(context);
 
         try {
+            Log.d (TAG, "SaveFileGPX()");
+
             // Create a new file in the internal directory
             File file = new File(cacheDir, "TourNavigator.gpx");
             if (file.exists())
@@ -810,14 +812,10 @@ public class MainActivity extends LocationActivity  implements
             FileOutputStream xmlStream = new FileOutputStream(file);
             OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
             GpxExporter.downloadData(writer);
-
-            if (DEBUG) Log.d(TAG, "Download was successfull");
             return true;
         } catch (IOException e) {
-            Log.e(TAG,"OpenCachedFileGPX()", e);
-            e.printStackTrace();
+            Log.e(TAG,"SaveFileGPX()", e);
         }
-        if (DEBUG) Log.d(TAG, "Download failed");
         return false;
     }
 
@@ -827,9 +825,10 @@ public class MainActivity extends LocationActivity  implements
     void SaveFileHTML(final Intent data) {
         Uri uriFile = data.getData(); //The uri with the location of the file
         try {
+            assert uriFile != null;
             htmlFile.SaveFileHTML(this.getContentResolver().openOutputStream(uriFile, "w"));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG,"SaveFileHTML()", e);
         }
     }
 
@@ -864,7 +863,7 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
-     * Show etended tour description
+     * Show extended tour description
      * @implNote call back from XML
      * @param view View provided from XML
      */
@@ -892,121 +891,5 @@ public class MainActivity extends LocationActivity  implements
         clearErrorMessage();
         control.activateProfile(View.VISIBLE);
     }
-
-
-    /**
-     * Download GPX file
-     * @see <a href="https://developer.android.com/reference/androidx/core/content/FileProvider">FileProvider</a>
-     */
-    public boolean downloadFileGPX3() {
-        android.content.Context context = getApplicationContext();
-        String fileContents = "Demo ...";
-        try {
-            // Create a new file object
-//            File file = FileUtils.createTempImageFile(context,"demo.gpx");
-            // Create an image file name
-            File storageDir = new File(context.getCacheDir(), DOCUMENTS_DIR);
-            File file =  File.createTempFile("demo.gpx", ".gpx", storageDir);
-
-            FileOutputStream fos = new FileOutputStream(file);
-            // Open the file for writing in internal storage
-//            FileOutputStream fos = context.openFileOutput("demo.gpx", Context.MODE_PRIVATE);
-
-            // Write data to the file
-            fos.write(fileContents.getBytes());
-
-            // Close the file
-            fos.close();
-
-//            Uri uri = FileProvider.getUriForFile(context, "de.biselliw.fileprovider", file);
-            Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
-            File dirDownload =  getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
-
-
-            if (DEBUG) Log.d(TAG, "Download was successfull");
-            return true;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (DEBUG) Log.d(TAG, "Download failed");
-        return false;
-    }
-
-    public boolean downloadFileGPX() {
-        android.content.Context context = getApplicationContext();
-        File dirDownload = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
-
- //       File dirDownload =  getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS);
-        try {
-            // Create a new file in the shared download directory
-        File file = new File(dirDownload, "TourNavigator.gpx");
-//        Uri uri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".provider", file);
-//        Uri uri = FileProvider.getUriForFile(getApplicationContext(), getString(R.string.authorities), file);
-        if (file.exists())
-            file.delete();
-/*
-        grantUriPermission("*", uri,  Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.setDataAndType(uri, context.getResources().getString(R.string.gpx_mime_type));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-        ContentResolver cr = this.getContentResolver();
-        OutputStream _xmlStream = cr.openOutputStream(uri, "w");
-*/
-        // Open a FileOutputStream to write to the file
-        FileOutputStream _xmlStream = new FileOutputStream(file);
-        OutputStreamWriter writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
-        GpxExporter.downloadData(writer);
-
-        if (DEBUG) Log.d(TAG, "Download was successfull");
-        return true;
-    } catch (IOException e) {
-        e.printStackTrace();
-        }
-        if (DEBUG) Log.d(TAG, "Download failed");
-        return false;
-        }
-
-    /**
-     * Download HTML file
-     * @see <a href="https://developer.android.com/reference/androidx/core/content/FileProvider">FileProvider</a>
-     */
-    public boolean downloadFileHTML() {
-        String AUTHORITY =  "androidx.core.content.FileProvider";
-        File dirDownload =  // getApplicationContext().getExternalFilesDir(DIRECTORY_DOWNLOADS);
-                        getExternalStoragePublicDirectory(DIRECTORY_DOCUMENTS);
-        try {
-            requestPermissions(
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-
-            File file = new File(dirDownload, "TourNavigator.html");
-            Uri uri = FileProvider.getUriForFile(getApplicationContext(), AUTHORITY, file);
-            if (file.exists())
-                file.delete();
-
-            grantUriPermission("*", uri,  Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            intent.setDataAndType(uri, "text/html");
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-            ContentResolver cr = this.getContentResolver();
-            OutputStream _xmlStream = cr.openOutputStream(uri, "w");
-            htmlFile.SaveFileHTML(_xmlStream);
-
-            if (DEBUG) Log.d(TAG, "Download was successfull");
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (DEBUG) Log.d(TAG, "Download failed");
-        return false;
-    }
-
 
 }
