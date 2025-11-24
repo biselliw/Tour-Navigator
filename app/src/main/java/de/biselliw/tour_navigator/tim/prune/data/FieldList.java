@@ -2,12 +2,14 @@ package de.biselliw.tour_navigator.tim.prune.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 
 /**
  * Class to hold an ordered list of fields
  * to match the value list in a data point
+ * @since 26.1
  */
 public class FieldList
 {
@@ -26,7 +28,7 @@ public class FieldList
 	 * Constructor giving multiple Field objects
 	 * @param inFields Field objects
 	 */
-	public FieldList(Field ... inFields)
+	public FieldList(Field... inFields)
 	{
 		this();
 		Collections.addAll(_fields, inFields);
@@ -39,6 +41,7 @@ public class FieldList
 	 */
 	public int getFieldIndex(Field inField)
 	{
+		if (inField == null) return -1;
 		int index = 0;
 		for (Field field : _fields)
 		{
@@ -112,7 +115,7 @@ public class FieldList
 	 * @param inField Field to add
 	 * @return new index of added Field
 	 */
-	public int extendList(Field inField)
+	public int addField(Field inField)
 	{
 		// See if field is already in list
 		int currIndex = getFieldIndex(inField);
@@ -124,6 +127,16 @@ public class FieldList
 		return getNumFields() - 1;
 	}
 
+	/**
+	 * Extend the field list to include the specified fields
+	 * @param inFields Field objects to add
+	 */
+	public void addFields(Field ... inFields)
+	{
+		for (Field field : inFields) {
+			addField(field);
+		}
+	}
 
 	/**
 	 * Convert to String for debug
@@ -138,4 +151,21 @@ public class FieldList
 		result.append(')');
 		return result.toString();
 	}
+
+	/**
+     * @return list of fields specific to the given file type
+     * @todo use getFields
+     * /
+	public List<Field> getFields(FileType inFileType)
+	{
+		ArrayList<Field> fields = new ArrayList<Field>();
+		for (Field field : _fields)
+		{
+			if (field.isSpecificToFileType(inFileType)) {
+				fields.add(field);
+			}
+		}
+		return fields;
+	}
+    */
 }

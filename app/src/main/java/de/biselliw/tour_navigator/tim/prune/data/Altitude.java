@@ -2,11 +2,12 @@ package de.biselliw.tour_navigator.tim.prune.data;
 
 /**
  * Class to hold an altitude and provide conversion functions
+ * @since 26.1
  */
 public class Altitude
 {
 	private boolean _valid = false;
-	private int _value = 0;
+	private double _value = 0.0;
 	private Unit _unit = null;
 	private String _stringValue = null;
 
@@ -18,28 +19,17 @@ public class Altitude
 	 * @param inString string to parse
 	 * @param inUnit of altitude, either metres or feet
 	 */
-	public Altitude(String inString, Unit inUnit)
-	{
-		_unit = inUnit;
-		if (inString != null && !inString.equals(""))
-		{
-			try
-			{
-				_stringValue = inString;
-				_value = (int) Double.parseDouble(inString.trim());
-				_valid = true;
-			}
-			catch (NumberFormatException nfe) {}
-		}
+	public Altitude(String inString, Unit inUnit) {
+		set(inString, inUnit);
 	}
 
 
 	/**
-	 * Constructor with int value
-	 * @param inValue int value of altitude
+	 * Constructor with double value
+	 * @param inValue double value of altitude
 	 * @param inUnit unit of altitude, either metres or feet
 	 */
-	public Altitude(int inValue, Unit inUnit)
+	public Altitude(double inValue, Unit inUnit)
 	{
 		_value = inValue;
 		_unit = inUnit;
@@ -48,59 +38,69 @@ public class Altitude
 	}
 
 	/**
-	 * @return an exact copy of this Altitude object
+	 * Constructor with another Altitude value
 	 */
-	public Altitude clone()
+	public Altitude(Altitude inOther)
 	{
-		return new Altitude(_stringValue, _unit);
+		_value = inOther._value;
+		_unit = inOther._unit;
+		_valid = inOther._valid;
+		_stringValue = inOther._stringValue;
 	}
 
 	/**
 	 * Reset the altitude parameters to the same as the given object
-	 * @param inClone clone object to copy
+	 * @param inValue value to set as string
+	 * @param inUnit units
 	 */
-	public void reset(Altitude inClone)
+	public void set(String inValue, Unit inUnit)
 	{
-		_stringValue = inClone._stringValue;
-		_value = inClone._value;
-		_unit = inClone._unit;
-		_valid = inClone._valid;
+		_stringValue = inValue;
+		_unit = inUnit;
+		final String trimmedValue = (inValue == null ? "" : inValue.trim());
+		final Double result = NumberUtils.parseDoubleUsingLocale(trimmedValue);
+		_value = (result != null ? result : 0.0);
+		_valid = (result != null);
 	}
 
 	/**
 	 * @return true if the value could be parsed
 	 */
-	public boolean isValid()
-	{
+	public boolean isValid() {
 		return _valid;
 	}
 
-
 	/**
-	 * @return raw value as int
+	 * @return raw value as double
 	 */
-	public int getValue()
-	{
+	public double getValue() {
 		return _value;
 	}
 
 	/**
 	 * @param inAltUnit altitude units to use
-	 * @return rounded value in specified units
+	 * @return value in specified units (unrounded)
 	 */
-	public int getValue(Unit inAltUnit)
+	public double getValue(Unit inAltUnit)
 	{
 		if (inAltUnit == null) {
 			return getValue();
 		}
-		return (int) (getMetricValue() * inAltUnit.getMultFactorFromStd());
+		return getMetricValue() * inAltUnit.getMultFactorFromStd();
+	}
+
+	/**
+	 * @param inAltUnit altitude units to use
+	 * @return value in specified units (rounded to the nearest int)
+	 */
+	public int getIntValue(Unit inAltUnit) {
+		return (int) Math.round(getValue(inAltUnit));
 	}
 
 	/**
 	 * @return unit of number
 	 */
-	public Unit getUnit()
-	{
+	public Unit getUnit() {
 		return _unit;
 	}
 
@@ -122,15 +122,30 @@ public class Altitude
 	 */
 	public String getStringValue(Unit inUnit)
 	{
-		if (!_valid) {return "";}
+		if (!_valid) {
+			return "";
+		}
 		// Return string value if the same format or "no format" was requested
 		if ((inUnit == _unit || inUnit == null)
-		 && _stringValue != null && !_stringValue.equals("")) {
+			&& _stringValue != null && !_stringValue.equals(""))
+		{
 			return _stringValue;
 		}
 		return "" + getValue(inUnit);
 	}
 
+	/**
+	 * Get a locally-formatted string version of the value
+	 * @param inUnit specified unit
+	 * @return string value using the local formatting
+	 */
+	public String getLocalStringValue(Unit inUnit)
+	{
+		if (!_valid) {
+			return "";
+		}
+		return NumberUtils.formatNumberLocalToMatch(getValue(inUnit), _stringValue);
+	}
 
 	/**
 	 * Interpolate a new Altitude object between the given ones
@@ -156,39 +171,15 @@ public class Altitude
 	public static Altitude interpolate(Altitude inStart, Altitude inEnd, double inFrac)
 	{
 		// Check if altitudes are valid
-		if (inStart == null || inEnd == null || !inStart.isValid() || !inEnd.isValid())
+		if (inStart == null || inEnd == null || !inStart.isValid() || !inEnd.isValid()) {
 			return Altitude.NONE;
+		}
 		// Use altitude format of first point
 		Unit altUnit = inStart.getUnit();
-		int startValue = inStart.getValue();
-		int endValue = inEnd.getValue(altUnit);
+		double startValue = inStart.getValue();
+		double endValue = inEnd.getValue(altUnit);
 		// interpolate between start and end
-		int newValue = startValue + (int) ((endValue - startValue) * inFrac);
+		double newValue = startValue + (endValue - startValue) * inFrac;
 		return new Altitude(newValue, altUnit);
-	}
-
-	/**
-	 * Add the given offset to the current altitude
-	 * @param inOffset offset as double
-	 * @param inUnit unit of offset, feet or metres
-	 * @param inDecimals number of decimal places
-	 */
-	public void addOffset(double inOffset, Unit inUnit, int inDecimals)
-	{
-		// Use the maximum number of decimal places from current value and offset
-		int numDecimals = NumberUtils.getDecimalPlaces(_stringValue);
-		if (numDecimals < inDecimals) {numDecimals = inDecimals;}
-		// Convert offset to correct units
-		double offset = inOffset;
-		if (inUnit != _unit && inUnit != null)
-		{
-			offset = inOffset / inUnit.getMultFactorFromStd() * _unit.getMultFactorFromStd();
-		}
-		// FIXME: The following will fail if _stringValue is null - not sure how it can get in that state!
-		if (_stringValue == null) System.err.println("*** Altitude.addOffset - how did the string value get to be null?");
-		// Add the offset
-		double newValue = Double.parseDouble(_stringValue.trim()) + offset;
-		_value = (int) newValue;
-		_stringValue = NumberUtils.formatNumberUk(newValue, numDecimals);
 	}
 }

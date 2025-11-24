@@ -3,12 +3,13 @@ package de.biselliw.tour_navigator.tim.prune.data;
 /**
  * Class to represent a single distance or speed unit
  * such as kilometres, mph, feet etc
+ * @since 26.1
  */
 public class Unit
 {
-	private String _nameKey = null;
-	private double _multFactorFromStd = 1.0;
-	private boolean _isStandard = false;
+	private final String _nameKey;
+	private final double _multFactorFromStd;
+	private final boolean _isStandard;
 
 	/**
 	 * Unit constructor

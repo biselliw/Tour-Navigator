@@ -68,6 +68,7 @@ import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
  *
  * @see <a href="https://developer.android.com/reference/android/location/LocationListener">
  *     LocationListener on developer.android.com</a>
+ * @since 26.1
  */
 public class LocationActivity extends ControlElements implements ActivityCompat.OnRequestPermissionsResultCallback {
 

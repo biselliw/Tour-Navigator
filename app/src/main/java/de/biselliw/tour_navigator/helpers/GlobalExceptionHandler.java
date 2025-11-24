@@ -5,7 +5,9 @@ import java.util.Arrays;
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.helpers.Log;
 
-
+/**
+ * @since 26.1
+*/
 public class GlobalExceptionHandler implements Thread.UncaughtExceptionHandler {
 
     /**

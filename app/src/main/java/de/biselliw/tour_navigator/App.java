@@ -12,11 +12,10 @@ package de.biselliw.tour_navigator;
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     See the GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    You should have received a copy of the GNU General Public LicenseIf not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2025 Walter Biselli (BiselliW)
 */
 import android.util.Log;
 
@@ -33,7 +32,6 @@ import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 import de.biselliw.tour_navigator.tim.prune.load.TrackNameList;
-import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
 import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
@@ -41,6 +39,7 @@ import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
  * @author BiselliW
+ * @since 26.1
  */
 public class App {
     /**
@@ -115,7 +114,7 @@ public class App {
             return;
         }
         else // if (loadedTrack.hasWaypoints())
-            trackName = inTrackNameList.getTrackName(0);
+            trackName = inTrackNameList == null ? "" : inTrackNameList.getTrackName(0);
 
         // go directly to load
         informDataLoaded(loadedTrack, inSourceInfo);
@@ -173,10 +172,10 @@ public class App {
      * Recalculate all track points
      */
     public void recalculate() {
-        double Sdistance = 0.0;
-        int Sclimb = 0;
-        int Sdescent = 0;
-        long Sseconds = 0L;
+        double sum_distance = 0.0;
+        double sum_climb = 0;
+        double sum_descent = 0;
+        long sum_seconds = 0L;
         int PauseMin = 0;
 
         int numPoints = _track.getNumPoints();
@@ -206,16 +205,16 @@ public class App {
                         currPoint,
                         ptIndex,
 
-                        _stats.getTotalDistance() - Sdistance,
-                        _stats.getTotalClimb() - Sclimb,
-                        _stats.getTotalDescent() - Sdescent,
-                        currPoint.getTime() - Sseconds - PauseMin * 60L
+                        _stats.getTotalDistance() - sum_distance,
+                        _stats.getTotalClimb() - sum_climb,
+                        _stats.getTotalDescent() - sum_descent,
+                        currPoint.getTime() - sum_seconds - PauseMin * 60L
                 );
 
-                Sdistance = _stats.getTotalDistance();
-                Sclimb = _stats.getTotalClimb();
-                Sdescent = _stats.getTotalDescent();
-                Sseconds = currPoint.getTime();
+                sum_distance = _stats.getTotalDistance();
+                sum_climb = _stats.getTotalClimb();
+                sum_descent = _stats.getTotalDescent();
+                sum_seconds = currPoint.getTime();
 
                 PauseMin = currPoint.getWaypointDuration();
                 _totalPause_min += PauseMin;
@@ -315,12 +314,12 @@ public class App {
         return _track.getNearestDistance();
     }
 
-    public static int getClimb() {
+    public static double getClimb() {
         if (_stats == null) return 0;
         return _stats.getTotalClimb();
     }
 
-    public static int getDescent() {
+    public static double getDescent() {
         if (_stats == null) return 0;
         return _stats.getTotalDescent ();
     }
@@ -337,12 +336,12 @@ public class App {
         return _stats.getTotalDistance();
     }
 
-    public int getMinAltitude() {
+    public double getMinAltitude() {
         if (_stats == null) return 0;
         return _stats.getMinAltitude();
     }
 
-    public int getMaxAltitude() {
+    public double getMaxAltitude() {
         if (_stats == null) return 0;
         return _stats.getMaxAltitude();
     }

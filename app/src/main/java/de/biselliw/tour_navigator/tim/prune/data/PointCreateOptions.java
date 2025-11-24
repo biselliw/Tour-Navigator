@@ -3,6 +3,7 @@ package de.biselliw.tour_navigator.tim.prune.data;
 /**
  * Class to hold the options when creating (or loading) a new point,
  * such as units for altitudes, speeds and vertical speeds
+ * @since 26.1
  */
 public class PointCreateOptions
 {

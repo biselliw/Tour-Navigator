@@ -13,11 +13,10 @@ package de.biselliw.tour_navigator.files;
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     See the GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    You should have received a copy of the GNU General Public License. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2025 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -119,7 +118,7 @@ public class HTML_File {
         sourceInfo = App.getSourceInfo();
         if (sourceInfo != null) {
             description = sourceInfo.getMetaName();
-            if (description.equals("")) {
+            if (description.isEmpty()) {
                 description = sourceInfo.getFileTitle();
             }
         }
@@ -130,7 +129,7 @@ public class HTML_File {
                 .append("<meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-Type\" />\n")
                 .append("<title>")
                 .append(res.getString(R.string.timetable));
-        if (!description.equals(""))
+        if (!description.isEmpty())
             html_buffer.append(": ").append(description);
         html_buffer.append("</title>")
                 .append("<style type=\"text/css\">\n")
@@ -148,7 +147,7 @@ public class HTML_File {
 
         html_buffer.append("<caption>");
         html_buffer.append(res.getString(R.string.timetable));
-        if (!description.equals(""))
+        if (!description.isEmpty())
             html_buffer.append(": ").append(description);
         html_buffer.append("</caption>");
 
@@ -221,13 +220,13 @@ public class HTML_File {
 
             // row "Type":
             String wptSymType = dataPoint.getWaypointSymbol();
-            if (wptSymType.equals("")) {
+            if (wptSymType.isEmpty()) {
                 if (linkedPoint != null)
                     wptSymType = linkedPoint.getWaypointType();
             }
             else
-                wptSymType = TourDetails.details.interpreteWaypointSymbol(wptSymType);
-            if (!wptSymType.equals("")) {
+                wptSymType = TourDetails.details.interpretWaypointSymbol(wptSymType);
+            if (!wptSymType.isEmpty()) {
                 tmp_buffer.append(wptSymType);
                 descAvailable = true;
             }
@@ -235,18 +234,18 @@ public class HTML_File {
             // row "Description":
             tmp_buffer.append("</td><td class=\"cell\" class=\"cell\">");
             description = dataPoint.getDescription();
-            if (description.equals("")) {
+            if (description.isEmpty()) {
                 if (linkedPoint != null) {
                     description = linkedPoint.getDescription();
                 }
             }
-            if (!description.equals("")) {
+            if (!description.isEmpty()) {
                 tmp_buffer.append(description);
                 descAvailable = true;
             }
             if (linkedPoint != null) {
                 String link = linkedPoint.getWebLink();
-                if (!link.equals("")) {
+                if (!link.isEmpty()) {
                     tmp_buffer.append("<p><a href=\"")
                             .append(link).append("\" target=_blank>").append(link).append("</a></p>\n");
                     descAvailable = true;
@@ -439,19 +438,19 @@ public class HTML_File {
 
         if (sourceInfo != null) {
             String author = sourceInfo.getAuthor();
-            if (!author.equals("")) {
+            if (!author.isEmpty()) {
                 html_buffer.append("<tr><td class=\"cell\" width=\"20%\" >").append(res.getString(R.string.tour_author)).append(":</td><td class=\"cell\" class=\"cell\">")
                         .append(author).append("</td></tr>\n");
             }
 
             String link = sourceInfo.getMetaLink();
-            if (!link.equals("")) {
+            if (!link.isEmpty()) {
                 html_buffer.append("<tr><td class=\"cell\" class=\"cell\">").append(res.getString(R.string.tour_link)).append(":</td><td class=\"cell\" class=\"cell\"><a href=\"")
                         .append(link).append("\" target=_blank>").append(link).append("</a></td></tr>\n");
             }
 
             String time = sourceInfo.getMetaTime();
-            if (!time.equals("")) {
+            if (!time.isEmpty()) {
                 html_buffer.append("<tr><td class=\"cell\" class=\"cell\">").append(res.getString(R.string.tour_updated)).append(":</td><td class=\"cell\" class=\"cell\">")
                         .append(time).append("</td></tr>\n");
             }
@@ -459,7 +458,7 @@ public class HTML_File {
             html_buffer.append("</table>\n");
 
             String desc = sourceInfo.getTrackDescription();
-            if (!desc.equals("")) {
+            if (!desc.isEmpty()) {
                 html_buffer.append("<p>").append(desc).append("</p>\n")
                         .append("<p> </p>\n");
             }

@@ -3,6 +3,7 @@ package de.biselliw.tour_navigator.tim.prune.data;
 /**
  * Represents a range of doubles, holding the maximum and
  * minimum values.  Values can be positive or negative
+ * @since 26.1 (no change)
  */
 public class DoubleRange
 {
@@ -61,17 +62,15 @@ public class DoubleRange
 	/**
 	 * @return true if data values were found
 	 */
-	public boolean hasData()
-	{
-		return (!_empty);
+	public boolean hasData() {
+		return !_empty;
 	}
 
 
 	/**
 	 * @return minimum value, or 0.0 if none found
 	 */
-	public double getMinimum()
-	{
+	public double getMinimum() {
 		return _min;
 	}
 
@@ -79,25 +78,26 @@ public class DoubleRange
 	/**
 	 * @return maximum value, or 0.0 if none found
 	 */
-	public double getMaximum()
-	{
+	public double getMaximum() {
 		return _max;
 	}
 
 	/**
 	 * @return range, as maximum - minimum
 	 */
-	public double getRange()
-	{
+	public double getRange() {
 		return _max - _min;
 	}
 
 	/**
 	 * @return mid value, halfway between min and max
 	 */
-	public double getMidValue()
-	{
+	public double getMidValue() {
 		return (_max + _min) / 2.0;
+	}
+
+	public boolean includes(double inValue) {
+		return hasData() && inValue >= _min && inValue <= _max;
 	}
 
 	/**
@@ -106,7 +106,9 @@ public class DoubleRange
 	 */
 	public DoubleRange copy()
 	{
-		if (_empty) return new DoubleRange();
+		if (_empty) {
+			return new DoubleRange();
+		}
 		return new DoubleRange(_min, _max);
 	}
 }

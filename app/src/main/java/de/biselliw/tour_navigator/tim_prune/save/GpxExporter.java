@@ -48,6 +48,7 @@ import static de.biselliw.tour_navigator.tim_prune.I18nManager.APP_NAME;
  * into a specified Gpx file
  *
  * @implNote BiselliW: added extra GPX tags (name, sym, cmt, desc, extension:pause), reduced functionality (dialogs, GpxCachers)
+ * @since 26.1
  */
 public class GpxExporter {
 	private static App _app;
@@ -284,9 +285,9 @@ public class GpxExporter {
 		throws IOException
 	{
 		inWriter.write("\n\t<wpt lat=\"");
-		inWriter.write(inPoint.getLatitude().output(Coordinate.FORMAT_DECIMAL_FORCE_POINT));
+		inWriter.write(inPoint.getLatitude().output(Coordinate.Format.DECIMAL_FORCE_POINT,4));
 		inWriter.write("\" lon=\"");
-		inWriter.write(inPoint.getLongitude().output(Coordinate.FORMAT_DECIMAL_FORCE_POINT));
+		inWriter.write(inPoint.getLongitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
 		inWriter.write("\">\n");
 		// altitude if available
 		if (inPoint.hasAltitude())
@@ -357,9 +358,9 @@ public class GpxExporter {
 		throws IOException
 	{
 		inWriter.write("      <trkpt lat=\"");
-		inWriter.write(inPoint.getLatitude().output(Coordinate.FORMAT_DECIMAL_FORCE_POINT));
+		inWriter.write(inPoint.getLatitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
 		inWriter.write("\" lon=\"");
-		inWriter.write(inPoint.getLongitude().output(Coordinate.FORMAT_DECIMAL_FORCE_POINT));
+		inWriter.write(inPoint.getLongitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
 		inWriter.write("\">\n");
 		// altitude
 		if (inPoint.hasAltitude())

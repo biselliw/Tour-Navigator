@@ -1,6 +1,8 @@
 package de.biselliw.tour_navigator.tim.prune.data;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
@@ -8,65 +10,41 @@ import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 /**
  * Class to hold the information about the file(s)
  * from which the data was loaded from / saved to
+ * @since 26.1
  */
 public class FileInfo
 {
 	/** List of sources */
-	private ArrayList<SourceInfo> _sources = new ArrayList<SourceInfo>();
+	private final ArrayList<SourceInfo> _sources = new ArrayList<>();
+	/** Most recent source (to save looping) */
+	private SourceInfo _previousSource = null;
 
 
 	/**
-	 * Empty constructor
-	 */
-	public FileInfo()
-	{}
-
-	/**
-	 * Private constructor for creating clone
-	 * @param inList list of sources
-	 */
-	private FileInfo(ArrayList<SourceInfo> inList)
-	{
-		_sources = inList;
-	}
-
-	/**
-	 * Add a data source to the list
+	 * Add a data source to the list, if it's not already present
 	 * @param inInfo info object to add
 	 */
 	public void addSource(SourceInfo inInfo)
 	{
-		_sources.add(inInfo);
-	}
-
-	/**
-	 * Replace the list of data sources with the given source
-	 * @param inInfo new source
-	 */
-	public void replaceSource(SourceInfo inInfo)
-	{
-		_sources.clear();
-		addSource(inInfo);
-	}
-
-	/**
-	 * remove the last source added
-	 */
-	public void removeSource()
-	{
-		if (!_sources.isEmpty()) {
-			_sources.remove(_sources.size()-1);
+		if (inInfo != null && inInfo != _previousSource)
+		{
+			_previousSource = inInfo;
+			for (SourceInfo info : _sources)
+			{
+				if (info == inInfo) {
+					return;
+				}
+			}
+			_sources.add(inInfo);
 		}
 	}
 
 	/**
 	 * @return the number of files loaded
 	 */
-	public int getNumFiles()
-	{
+	public int getNumFiles() {
 		return _sources.size();
 	}
-
 
 	/**
 	 * @return The source name, if a single file
@@ -83,72 +61,82 @@ public class FileInfo
 	 * @param inIndex index number, starting from zero
 	 * @return source info object
 	 */
-	public SourceInfo getSource(int inIndex)
-	{
+	public SourceInfo getSource(int inIndex) {
 		return _sources.get(inIndex);
 	}
 
-	/**
-	 * Get the SourceInfo object (if any) for the given point
-	 * @param inPoint point object
-	 * @return SourceInfo object if there is one, otherwise null
-	 */
-	public SourceInfo getSourceForPoint(DataPoint inPoint)
+	/** @return a list of all the unique titles in the order they appear */
+	public List<String> getAllTitles() {
+		return getAllValues(i -> i.getFileTitle());
+	}
+
+	/** @return a list of all the unique descriptions in the order they appear */
+	public List<String> getAllDescriptions() {
+		return getAllValues(i -> i.getFileDescription());
+	}
+
+	/** Functional interface for getting either title or description out of the SourceInfo */
+	private interface ValueTaker {
+		String takeValue(SourceInfo inInfo);
+	}
+
+	/** @return a list of all the unique values from the SourceInfo in the order they appear */
+	public List<String> getAllValues(ValueTaker inTaker)
+	{
+		ArrayList<String> values = new ArrayList<>();
+		HashSet<String> valueSet = new HashSet<>();
+		for (SourceInfo source : _sources)
+		{
+			final String value = inTaker.takeValue(source);
+			if (value != null && !value.isEmpty() && !valueSet.contains(value))
+			{
+				values.add(value);
+				valueSet.add(value);
+			}
+		}
+		return values;
+	}
+
+	/** @return true if any of the loaded sources use an extension of the given type */
+	public boolean hasExtensions(FileType inType)
 	{
 		for (SourceInfo source : _sources)
 		{
-			if (source.getIndex(inPoint) >= 0) {
-				return source;
+			if (source.getFileType() != inType) {
+				continue;
+			}
+			final String extensions = source.getExtensions();
+			if (extensions != null && !extensions.isEmpty()) {
+				return true;
 			}
 		}
-		return null;
+		return false;
 	}
 
-	/**
-	 * @return the info about the last file loaded, if any
-	 */
-	public SourceInfo getLastFileInfo()
+	/** @return a list of the version strings loaded from the given type */
+	public List<String> getVersions(FileType inType)
 	{
-		if (getNumFiles() == 0)
+		ArrayList<String> versions = new ArrayList<>();
+		for (SourceInfo source : _sources)
 		{
-			return null;
-		}
-		return getSource(getNumFiles()-1);
-	}
-
-	/**
-	 * @return the most recent file title loaded, if any
-	 */
-	public String getLastFileTitle()
-	{
-		final int numFiles = getNumFiles();
-		if (numFiles == 0)
-		{
-			return null;
-		}
-		for (int i=(numFiles-1); i>=0; i--)
-		{
-			SourceInfo info = getSource(i);
-			if (info != null)
-			{
-				String title = info.getFileTitle();
-				if (title != null && !title.equals(""))
-				{
-					return title;
-				}
+			if (source.getFileType() != inType) {
+				continue;
+			}
+			final String version = source.getFileVersion();
+			if (version != null && !version.isEmpty()) {
+				versions.add(version);
 			}
 		}
-		return null;
+		return versions;
 	}
-
-	/**
-	 * Clone contents of file info
-	 */
-	@SuppressWarnings("unchecked")
-	public FileInfo clone()
-	{
-		// copy source list
-		ArrayList<SourceInfo> copy = (ArrayList<SourceInfo>) _sources.clone();
-		return new FileInfo(copy);
-	}
+	
+	    /**
+     * Replace the list of data sources with the given source
+     * @param inInfo new source
+     */
+    public void replaceSource(SourceInfo inInfo)
+    {
+        _sources.clear();
+        addSource(inInfo);
+    }
 }

@@ -13,11 +13,10 @@ package de.biselliw.tour_navigator.activities;
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
     See the GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    You should have received a copy of the GNU General Public LicenseIf not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2025 Walter Biselli (BiselliW)
 */
 
 import android.annotation.SuppressLint;
@@ -64,6 +63,7 @@ import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
+import de.biselliw.tour_navigator.tim.prune.load.FileToBeLoaded;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
@@ -73,6 +73,9 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static de.biselliw.tour_navigator.activities.SettingsActivity._app;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
 
+/**
+ * @since 26.1
+ */
 public class MainActivity extends LocationActivity  implements
         NavigationView.OnNavigationItemSelectedListener {
 
@@ -86,7 +89,7 @@ public class MainActivity extends LocationActivity  implements
      * TAG for log messages.
      */
     static final String TAG = "MainActivity";
-    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     int REQUEST_OPEN_GPX = 222;
@@ -716,7 +719,10 @@ public class MainActivity extends LocationActivity  implements
 //                    e.printStackTrace();
                 }
                 if (DEBUG) Log.d(TAG, "Open GPX stream");
+                File file = FileUtils.getFile(this,uriFile);
+                FileToBeLoaded gpx_file = new FileToBeLoaded(file,null);
                 _xmlFileLoader.openStream(_xmlStream);
+//                _xmlFileLoader.openStream(_xmlStream);
                 if (DEBUG) Log.d(TAG, "GPX file loaded?");
             } catch (Exception e) {
 //                e.printStackTrace();
@@ -782,11 +788,14 @@ public class MainActivity extends LocationActivity  implements
         try {
             Log.d (TAG, "OpenCachedFileGPX()");
             // Create a new file in the internal directory
-            File file = new File(cacheDir, "TourNavigator.gpx");
+/*
+            FileToBeLoaded file = new FileToBeLoaded(cacheDir, "TourNavigator.gpx");
             if (DEBUG) Log.d(TAG, "Load GPX file from cache");
             XmlFileLoader xmlFileLoader = new XmlFileLoader(super.app);
-            xmlFileLoader.openFile(file);
+            xmlFileLoader.openFile(file,true);
             if (DEBUG) Log.d(TAG, "GPX file loaded?");
+
+ */
             return true;
         } catch (Exception e) {
             Log.e(TAG,"OpenCachedFileGPX()", e);

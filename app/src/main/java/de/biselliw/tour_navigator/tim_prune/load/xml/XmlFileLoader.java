@@ -4,17 +4,6 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
 // tim.prune.load.xml.XmlFileLoader
 // @since WB
 
-import android.net.Uri;
-import android.util.Log;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderFactory;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,27 +12,32 @@ import java.io.InputStream;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
+
+import android.util.Log;
+
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
-import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
+import de.biselliw.tour_navigator.tim.prune.load.FileToBeLoaded;
 
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
  * Class for handling loading of Xml files, and passing the
  * loaded data back to the App object
+ * @since 26.1
  */
 public class XmlFileLoader extends DefaultHandler implements Runnable
 {
-	public SourceInfo sourceInfo = null;
-
-	private File _file = null;
 	private FileInputStream _XML_filestream = null;
 	private InputStream _XML_stream = null;
 
 	private final App _app;
+	private FileToBeLoaded _fileLock = null;
+	private boolean _autoAppend = false;
 	private XmlHandler _handler = null;
 	private boolean _parsedXmlStream = false;
 	private String _unknownType = null;
@@ -52,7 +46,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 
 	/** TAG for log messages. */
 	static final String TAG = "XmlFileLoader";
-	private static final boolean _DEBUG = false; // Set to true to enable logging
+	private static final boolean _DEBUG = true; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
 	/**
@@ -76,33 +70,33 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 
 	/**
 	 * Open the selected file
-	 * @param inFile File to open
+	 * @param inFileLock File to open
+	 * @param inAutoAppend true to auto-append
 	 */
-	public void openFile(File inFile) throws FileNotFoundException {
-		_file = inFile;
-		_XML_filestream = new FileInputStream(inFile);
-		_XML_stream = _XML_filestream;
+	public void openFile(FileToBeLoaded inFileLock, boolean inAutoAppend)
+	{
+		_fileLock = inFileLock;
+		_fileLock.takeOwnership();	// we keep ownership for separate thread
+		_autoAppend = inAutoAppend;
 		reset();
 		// start new thread in case xml parsing is time-consuming
 		new Thread(this).start();
 	}
 
-	/**
-	 * Open the selected stream
-	 * @param inStream   stream to open
-	 */
-	public void openStream(InputStream inStream)  {
-		_file = null;
-		_XML_filestream = null;
-		_XML_stream = inStream;
-		reset();
-		if (DEBUG) {
-			Log.d(TAG, "Start new thread in case xml parsing is time-consuming");
-		}
-		_thread = new Thread(this);
-		_thread.start();
-	}
-
+    /**
+     * Open the selected stream
+     * @param inStream   stream to open
+     */
+    public void openStream(InputStream inStream)  {
+        _fileLock = new FileToBeLoaded(null,null);
+        _XML_filestream = null;
+        _XML_stream = inStream;
+        reset();
+        if (DEBUG) {
+            Log.d(TAG, "Start new thread in case xml parsing is time-consuming");
+        }
+        new Thread(this).start();
+    }
 
 	/**
 	 * Run method, to parse the file
@@ -110,29 +104,27 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	 */
 	public void run()
 	{
-		// Moves the current Thread into the background
-		android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-
+		FileInputStream inStream = null;
 		boolean success = false;
 		try
 		{
-			if (DEBUG) {
-				Log.d(TAG,"parse XML Stream");
-			}
-			success = parseXmlStream(_XML_stream);
+			if (DEBUG) Log.d(TAG,"parse XML Stream");
+            if (_XML_stream != null)
+                success = parseXmlStream(_XML_stream);
+            else {
+                inStream = new FileInputStream(_fileLock.getFile());
+                success = parseXmlStream(inStream);
+            }
 		}
-		catch (Exception e) {
-			if (DEBUG) {
-				Log.d(TAG,"FileNotFoundException");
-			}
-		}
-
-		if (DEBUG) {
-			Log.d(TAG,"result: " + success);
+		catch (FileNotFoundException fnfe) {
+			if (DEBUG) Log.e(TAG,"FileNotFound");
 		}
 
+		if (DEBUG) Log.d(TAG,"result: " + success);
 		// Clean up the stream, don't need it any more
-		try {_XML_stream.close();} catch (IOException e2) {}
+		if (inStream != null) {
+			try {inStream.close();} catch (IOException e2) {}
+		}
 
 		if (success)
 		{
@@ -140,23 +132,26 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 			if (_handler == null)
 			{
 				// Wasn't either kml or gpx
-				//_app.showErrorMessageNoLookup("error.load.dialogtitle",					I18nManager.getText("error.load.unknownxml") + " " + _unknownType);
+                Log.e(TAG,"error.load.unknownxml" + " " + _unknownType);
 			}
 			else
 			{
-				SourceInfo.FILE_TYPE sourceType = (_handler instanceof GpxHandler ? SourceInfo.FILE_TYPE.GPX : SourceInfo.FILE_TYPE.KML);
-				sourceInfo = new SourceInfo(_file, sourceType);
+				SourceInfo sourceInfo = new SourceInfo(_fileLock.getFile(), _handler.getFileType(),
+					_handler.getFileVersion());
 				sourceInfo.setFileTitle(_handler.getFileTitle());
+				sourceInfo.setFileDescription(_handler.getFileDescription());
+				sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
 
-				/* @since WB: set meta data */
-				sourceInfo.setMetaData (_handler.metaName, _handler.metaDescription, _handler.metaAuthor, _handler.metaTime, _handler.metaLink);
-				sourceInfo.setTrackDescription(_handler.trackDescription);
+				/* Pass information back to app
+				new FileTypeLoader(_app).loadData(_handler, sourceInfo, _autoAppend,
+					new MediaLinkInfo(_handler.getLinkArray()));
 
-				// Pass information back to app
+				 */
 				_app.informDataLoaded(_handler.getFieldArray(), _handler.getDataArray(),
-					null, sourceInfo, _handler.getTrackNameList());
+					null, sourceInfo, null /* _handler.getTrackNameList() */ );
 			}
 		}
+		_fileLock.release();
 	}
 
 	/**
@@ -167,39 +162,37 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	public boolean parseXmlStream(InputStream inStream)
 	{
 		boolean success = false;
-		if (DEBUG) {
-			Log.d(TAG,"Firstly, try to use xerces to parse the xml ");
-		}
+		if (DEBUG) 	Log.d(TAG,"Firstly, try to use xerces to parse the xml ");
 		// Firstly, try to use xerces to parse the xml (will throw an exception if not available)
 		try
 		{
-			XMLReader xmlReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-			xmlReader.setContentHandler(this);
-			xmlReader.parse(new InputSource(inStream));
+			SAXParser saxParser = SAXParserFactory.newInstance("org.apache.xerces.parsers.SAXParser", null).newSAXParser();
+			saxParser.parse(inStream, this);
 			success = true; // worked
 		}
-		catch (Exception e) {} // don't care too much if it didn't work, there's a backup
+		catch (Throwable e) {} // don't care too much if it didn't work, there's a backup
 
 		// If that didn't work, try the built-in classes (which work for xml1.0 but handling for 1.1 contains bugs)
-		if (!success) {
-            try {
-                if (DEBUG) {
-                    Log.d(TAG, "Parse with SAXParser");
-                }
-                // Construct a SAXParser and use this as a default handler
-                SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-                saxParser.parse(inStream, this);
-                success = true;
-                if (DEBUG) {
-                    Log.d(TAG, "Parsing with SAXParser successfull");
-                }
-            } catch (Exception e) {
-                if (DEBUG) {
-                    if (_parsedXmlStream) {
+		if (!success)
+		{
+			try
+			{
+                if (DEBUG) Log.d(TAG, "Parse with SAXParser");
+				// Construct a SAXParser and use this as a default handler
+				SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+				saxParser.parse(inStream, this);
+				success = true;
+				if (DEBUG) Log.d(TAG, "Parsing with SAXParser successfull");
+			}
+			catch (Exception e)
+			{
+               if (DEBUG) {
+                  if (_parsedXmlStream) {
                         Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
                         success = true;
                     } else {
-                        Log.d(TAG, "SAXParser Exception: " + e);
+//                      Log.e(TAG, "SAXParser Exception: " + e.getMessage()););
+					  
                         // BiselliW: accept "org.apache.harmony.xml.ExpatParser$ParseException: "
                         // At line 632, column 6: junk after document element"
                         if (e.getMessage().contains("junk after document element"))
@@ -209,6 +202,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                             success = true;
                         else
                             Log.d(TAG, "SAXParser Exception terminates XML file loading");
+
                     }
                 }
                 // Show error message
@@ -228,25 +222,16 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		// Check for "kml" or "gpx" tags
 		if (_handler == null)
 		{
-			if  (qName.equals("gpx")) {_handler = new GpxHandler();}
+			if  (qName.equals("gpx")) {
+				_handler = new GpxHandler();
+				}
 			else if (_unknownType == null && !qName.equals(""))
 			{
 				_unknownType = qName;
 			}
 		}
-		else
-		{
-			try {
-				// Handler instantiated so pass tags on to it
-				_handler.startElement(uri, localName, qName, attributes);
-			}
-
-			catch (Exception e)
-			{
-				if (DEBUG) {
-					Log.d(TAG,"Exception startElement");
-				}
-			}
+		if (_handler != null) {
+			_handler.startElement(uri, localName, qName, attributes);
 		}
 		super.startElement(uri, localName, qName, attributes);
 	}
@@ -280,7 +265,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 			// Handler instantiated so pass tags on to it
 			_handler.endElement(uri, localName, qName);
 
-			if  (qName.equals("gpx"))
+			if (qName.equals("gpx"))
 				_parsedXmlStream = true;
 		}
 		super.endElement(uri, localName, qName);
@@ -289,8 +274,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	/**
 	 * @return The Xml handler used for the parsing
 	 */
-	public XmlHandler getHandler()
-	{
+	public XmlHandler getHandler() {
 		return _handler;
 	}
+
 }
