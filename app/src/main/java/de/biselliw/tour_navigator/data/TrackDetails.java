@@ -14,10 +14,10 @@ package de.biselliw.tour_navigator.data;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2025 Walter Biselli (BiselliW)
 */
 
 import de.biselliw.tour_navigator.BuildConfig;
@@ -31,6 +31,7 @@ import de.biselliw.tour_navigator.tim_prune.data.Track;
  * class to hold all details of a track
  *
  * @author BiselliW
+ * @since 26.1
  */
 public class TrackDetails {
 
@@ -53,26 +54,26 @@ public class TrackDetails {
 
 	private int     _ptIndex;
     private DataPoint _prevPoint = null;
-    private int _altitude_m = 0, _minAltitude_m = 0, _maxAltitude_m = 0;
-    private int _prevAltitude_m = -1;
+    private double _altitude_m = 0, _minAltitude_m = 0, _maxAltitude_m = 0;
+    private double _prevAltitude_m = -1;
     
     private double _totalDistance_km = 0.0;
     private long   _totalSeconds = 0L;
-    private int    _totalClimb_m = 0;
-    private int    _totalDescent_m = 0;
+    private double  _totalClimb_m = 0;
+    private double  _totalDescent_m = 0;
 
     /** if true: data must be recalculated in current segment of the track */
     private boolean _segRecalc = false;
     private double  _segDistance_km = 0.0;
 	private int     _segStart = 0;
     private long    _segStart_s = 0L;
-    private int     _segStartClimb_m = 0;
-    private int     _segStartDescent_m = 0;
+    private double  _segStartClimb_m = 0;
+    private double  _segStartDescent_m = 0;
        
 	/** Flags for whether minimum or maximum has been found */
 	private boolean _gotPreviousMinimum = false, _gotPreviousMaximum = false;
 	/** Integer values of previous minimum and maximum, if any */
-	private int     _previousExtreme = 0;
+	private double     _previousExtreme = 0;
 	
 	// hiking speed parameters
     /** horizontal part in [km/h] */
@@ -173,7 +174,7 @@ public class TrackDetails {
 		boolean result = false;
 		boolean overallUp = false, overallDn = false;
 
-		if ((currPoint == null) || currPoint.isWayPoint() || currPoint.hasMedia())
+		if ((currPoint == null) || currPoint.isWayPoint() /* || currPoint.hasMedia() */ )
 			return false;
 
 		// does the current point has a valid altitude?
@@ -263,7 +264,7 @@ public class TrackDetails {
 
 				if (overallUp) {
 					// Add the climb from _previousExtreme up to _previousValue
-					int climb_m;
+                    double climb_m;
 					if (_segRecalc)
 					{
 						climb_m = _prevAltitude_m - _previousExtreme;
@@ -280,7 +281,7 @@ public class TrackDetails {
 					vertSeconds = (long) (climb_m / _vertSpeedClimb * _vertSecondsHour);
 				} else if (overallDn) {
 					// Add the descent from _previousExtreme down to _previousValue
-					int descent_m;
+                    double descent_m;
 					if (_segRecalc)
 					{
 						descent_m = _previousExtreme - _prevAltitude_m;
@@ -323,23 +324,23 @@ public class TrackDetails {
 	}
 
 
-	public int getAltitude () {
+	public double getAltitude () {
 		return _altitude_m;
 	}
 
-	public int getMinAltitude() { return _minAltitude_m; }
+	public double getMinAltitude() { return _minAltitude_m; }
 
-	public int getMaxAltitude() { return _maxAltitude_m; }
+	public double getMaxAltitude() { return _maxAltitude_m; }
 
 	public double getTotalDistance () {
 		return _totalDistance_km;
 	}
 
-	public int getTotalClimb () {
+	public double getTotalClimb () {
 		return _totalClimb_m;
 	}
 
-	public int getTotalDescent () {
+	public double getTotalDescent () {
 		return _totalDescent_m;
 	}
 

@@ -1,8 +1,10 @@
 package de.biselliw.tour_navigator.tim.prune.data;
+import java.util.List;
 
 /**
  * List of all possible unit sets, for example
  * metric, imperial, nautical
+ * @since 26.1
  */
 public abstract class UnitSetLibrary
 {
@@ -24,11 +26,11 @@ public abstract class UnitSetLibrary
 	public static final Unit SPEED_UNITS_MILESPERHOUR = new Unit(UNITS_MILES, "perhour", 60.0 * 60.0);
 	public static final Unit SPEED_UNITS_KNOTS        = new Unit(UNITS_NAUTICAL_MILES, "perhour", 60.0 * 60.0);
 	public static final Unit SPEED_UNITS_KMPERHOUR    = new Unit(UNITS_KILOMETRES, "perhour", 60.0 * 60.0);
-	public static final Unit[] ALL_SPEED_UNITS = {SPEED_UNITS_METRESPERSEC, SPEED_UNITS_KMPERHOUR,
-		SPEED_UNITS_FEETPERSEC, SPEED_UNITS_MILESPERHOUR};
+	public static final List<Unit> ALL_SPEED_UNITS = List.of(SPEED_UNITS_METRESPERSEC, SPEED_UNITS_KMPERHOUR,
+		SPEED_UNITS_FEETPERSEC, SPEED_UNITS_MILESPERHOUR);
 
 	/** Array of available unit sets */
-	private static UnitSet[] _sets =
+	private static final UnitSet[] _sets =
 	{
 		new UnitSet("unitset.kilometres", UNITS_KILOMETRES, UNITS_METRES, SPEED_UNITS_KMPERHOUR, SPEED_UNITS_METRESPERSEC),
 		new UnitSet("unitset.miles", UNITS_MILES, UNITS_FEET, SPEED_UNITS_MILESPERHOUR, SPEED_UNITS_FEETPERSEC),

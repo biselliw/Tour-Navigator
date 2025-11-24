@@ -6,6 +6,7 @@ import java.util.ArrayList;
  * Class to hold and manage a list of track names
  * from a gpx file, and report back which points
  * belong to which track
+ * @since 26.1 obsolete
  */
 public class TrackNameList
 {

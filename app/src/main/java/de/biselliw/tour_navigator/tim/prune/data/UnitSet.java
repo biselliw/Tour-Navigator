@@ -2,6 +2,7 @@ package de.biselliw.tour_navigator.tim.prune.data;
 
 /**
  * Class to hold a set of units for distance, altitude and speed
+ * @since 26.1 (no change)
  */
 public class UnitSet
 {

@@ -86,7 +86,7 @@ public class ProfileAdapter {
 
     int numPoints = 0;
     double lastDistance = 0.0;
-    int lastAltitude = 0;
+    double lastAltitude = 0;
     Track _track = null;
 
     private XYPlot dynamicPlot;
@@ -232,7 +232,7 @@ public class ProfileAdapter {
                 throw new IllegalArgumentException();
             }
 
-            int altitude = 0;
+            double altitude = 0;
             if (_track != null) {
                 DataPoint currPoint = _track.getPoint(index);
                 if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
@@ -327,7 +327,7 @@ public class ProfileAdapter {
 
                         // set the vertical grid steps
                         double rangeStepValue = 25.0;
-                        int minAltitude = _app.getMinAltitude();
+                        double minAltitude = _app.getMinAltitude();
                         double rangeAltitude = _app.getMaxAltitude() - _app.getMinAltitude();
                         int rangeSteps = (int) (rangeAltitude / rangeStepValue);
                         while (rangeSteps > 5) {

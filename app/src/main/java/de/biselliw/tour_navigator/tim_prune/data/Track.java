@@ -9,7 +9,7 @@ package de.biselliw.tour_navigator.tim_prune.data;
  * 
  * modified by Walter Biselli (BiselliW):
  * v. 22.2.006 - 2022-11-29
- *             - new functions: getOutsidePointIndex(), getNearestPointIndex() 
+ *             - new functions: getOutsidePointIndex(), getNearestPointIndex()
  */
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.tim.prune.data.Distance;
@@ -24,6 +24,7 @@ import de.biselliw.tour_navigator.helpers.Log;
 /**
  * Class to hold all track information,
  * including track points and waypoints
+ * @since 26.1
  */
 public class Track {
 	/**
@@ -104,6 +105,7 @@ public class Track {
 		// make DataPoint object from each point in inPointList
 		_dataPoints = new DataPoint[inPointArray.length];
 		int pointIndex = 0;
+        if (DEBUG) Log.d(TAG, "Create data points");
 		for (Object[] objects : inPointArray)
 		{
 			// Convert to DataPoint objects
@@ -112,18 +114,17 @@ public class Track {
 			{
 				// bugfix of outdooractive GPX tracks with GPX coordinates as track point names
 				String _pointName = point.getWaypointName();
+                if (DEBUG) Log.d(TAG, "data points " + pointIndex + ": " + _pointName);
 				if (_pointName.length() > 6) {
 					_pointName = _pointName.substring(0, 6);
 					try {
 						double lat = Double.parseDouble(_pointName);
-						if ((lat >= 0) && point.getWaypointSymbol().equals(""))
+						if ((lat >= 0) && point.getWaypointSymbol().isEmpty())
 							// remove same name as in previous track point
 							point.setWaypointName("");
 					}
-					catch (NumberFormatException e) {
-						;
+					catch (NumberFormatException ignored) {
 					}
-					finally {;}
 				}
 				_dataPoints[pointIndex] = point;
 				pointIndex++;
@@ -223,8 +224,8 @@ public class Track {
 		}
 		// calculate how many point swaps are required
 		int numPointsToReverse = (inEnd - inStart + 1) / 2;
-		DataPoint p = null;
-		for (int i=0; i<numPointsToReverse; i++)
+		DataPoint p;
+		for (int i = 0; i < numPointsToReverse; i++)
 		{
 			// swap pairs of points
 			p = _dataPoints[inStart + i];
@@ -258,22 +259,13 @@ public class Track {
 		DataPoint[] newPointArray = new DataPoint[_numPoints];
 
 		// calculate how many point swaps are required
-		int numPointsToSwap = _numPoints, indFrom = inStart, offset = inStart;
-		// Copy points from the new start
+        // Copy points from the new start
 		System.arraycopy(_dataPoints, inStart, newPointArray, 0, _numPoints - inStart);
 		// Copy points from the previous start
 		System.arraycopy(_dataPoints, 0, newPointArray, _numPoints - inStart, inStart);
 		// Copy points from new to current array
 		System.arraycopy(newPointArray, 0, _dataPoints, 0, _numPoints);
-		/*
-		// adjust segment starts
-		shiftSegmentStarts(inStart, inEnd);
-		// Find first track point and following track point, and set segment starts to true
-		DataPoint firstTrackPoint = getNextTrackPoint(inStart);
-		if (firstTrackPoint != null) {firstTrackPoint.setSegmentStart(true);}
-		DataPoint nextTrackPoint = getNextTrackPoint(inEnd+1);
-		if (nextTrackPoint != null) {nextTrackPoint.setSegmentStart(true);}
-		 */
+
 		// needs to be scaled again
 		_scaled = false;
 		UpdateMessageBroker.informSubscribers();
@@ -296,13 +288,12 @@ public class Track {
 		_numWaypoints = 0;
 		_waypoints = new DataPoint[_numPoints];
 		_pointIndices = new int[_numPoints];
-		DataPoint point = null;
-		if (!_scaled) scalePoints();
+        if (!_scaled) scalePoints();
 		if (DEBUG) Log.d(TAG, "interleaveWaypoints()");
 
 		// find nearest track points for all way points
-		int i = 0;
-		for (i=0; i<_numPoints; i++)
+        DataPoint point;
+        for (int i = 0; i < _numPoints; i++)
 		{
 			point = _dataPoints[i];
 			// remove link from track point to way point
@@ -830,13 +821,13 @@ public class Track {
 	void reorderPoints()
 	{
 		DataPoint[] dataCopy = new DataPoint[_numPoints];
-		DataPoint point = null;
-		int copyIndex = 0;
+        int copyIndex = 0;
 		// name first track point as "Start"
 		boolean setStart = true;
 		String strStart = I18nManager.getText("fieldname.waypointstart");
 
-		for (int i=0; i<_numPoints; i++)
+        DataPoint point;
+        for (int i = 0; i<_numPoints; i++)
 		{
 			point = _dataPoints[i];
 			// if it's a track point, copy it
@@ -947,34 +938,32 @@ public class Track {
 			linkedWP = getPointIndex(point);
 			double lat = point.getLatitude().getDouble();
 			double lon = point.getLongitude().getDouble();
-			if (point != null) {
-				// get the index to the currently linked track point  
-				linkedTP = point.getLinkIndex();
-				while ((linkedTP >= 0) && (linkedTP < _numPoints))
-				{
-					// find the next track point which is considered as outside of the track 
-					linkedTP = getOutsidePointIndex(linkedTP+1, _numPoints-1, lat, lon, MAX_DISTANCE_WP_TRACK, true);
+            // get the index to the currently linked track point
+            linkedTP = point.getLinkIndex();
+            while ((linkedTP >= 0) && (linkedTP < _numPoints))
+            {
+                // find the next track point which is considered as outside of the track
+                linkedTP = getOutsidePointIndex(linkedTP+1, _numPoints-1, lat, lon, MAX_DISTANCE_WP_TRACK, true);
 
-					// find the next track point after this one which is considered as inside the track again
-					if (linkedTP >= 0)
-					{
-						linkedTP = getNearestPointIndex(linkedTP+1, lat, lon, 0.020, 0.0, true);
-						while ((linkedTP >= 0) && (linkedTP < _numPoints-1))
-						{
-							point = _dataPoints[linkedTP];
-							if (point != null) {
-								if ((point.isTrackPoint()) && (point.getLinkIndex() <= 0))
-								{
-									point.makeRoutePoint(_waypoints[j].getWaypointName(), linkedWP);
-									break;
-								}
-							}
-							linkedTP++;
-						}
-					}
-					else
-						break;
-				}
+                // find the next track point after this one which is considered as inside the track again
+                if (linkedTP >= 0)
+                {
+                    linkedTP = getNearestPointIndex(linkedTP+1, lat, lon, 0.020, 0.0, true);
+                    while ((linkedTP >= 0) && (linkedTP < _numPoints-1))
+                    {
+                        point = _dataPoints[linkedTP];
+                        if (point != null) {
+                            if ((point.isTrackPoint()) && (point.getLinkIndex() <= 0))
+                            {
+                                point.makeRoutePoint(_waypoints[j].getWaypointName(), linkedWP);
+                                break;
+                            }
+                        }
+                        linkedTP++;
+                    }
+                }
+                else
+                    break;
 			}
 		}
 	}

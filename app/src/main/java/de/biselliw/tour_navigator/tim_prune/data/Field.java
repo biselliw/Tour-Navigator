@@ -1,39 +1,42 @@
 package de.biselliw.tour_navigator.tim_prune.data;
 
+import de.biselliw.tour_navigator.tim.prune.data.FileType;
 import de.biselliw.tour_navigator.tim_prune.I18nManager;
 
 /**
  * Class to represent a field of a data point
  * @implNote BiselliW: new fields WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK
+ * @since 26.1
 */
 public class Field
 {
 	private final String _labelKey;
+	private FileType _fileType = null;
+
+	public static final Field LATITUDE = new Field("latitude");
+	public static final Field LONGITUDE = new Field("longitude");
+	public static final Field ALTITUDE = new Field("altitude");
+	public static final Field TIMESTAMP = new Field("timestamp");
+	public static final Field WAYPT_NAME = new Field("waypointname");
+	public static final Field WAYPT_TYPE = new Field("waypointtype");
+	public static final Field DESCRIPTION = new Field("description");
+	public static final Field COMMENT = new Field("comment");
+	public static final Field SYMBOL = new Field("symbol");
+	public static final Field NEW_SEGMENT = new Field("newsegment");
 	private String _customLabel = null;
-	private final boolean _builtin;
+//	private final boolean _builtin;
 
-	public static final Field LATITUDE = new Field("fieldname.latitude", true);
-	public static final Field LONGITUDE = new Field("fieldname.longitude", true);
-	public static final Field ALTITUDE = new Field("fieldname.altitude", true);
-	public static final Field TIMESTAMP = new Field("fieldname.timestamp", true);
-	public static final Field WAYPT_NAME = new Field("fieldname.waypointname", true);
-	public static final Field WAYPT_TYPE = new Field("fieldname.waypointtype", true);
-	public static final Field DESCRIPTION = new Field("fieldname.description", true);
-	public static final Field COMMENT = new Field("fieldname.comment", true);
-	public static final Field NEW_SEGMENT = new Field("fieldname.newsegment", true);
 
-	public static final Field SPEED          = new Field("fieldname.speed", true);
-	public static final Field VERTICAL_SPEED = new Field("fieldname.verticalspeed", true);
-	public static final Field MEDIA_FILENAME = new Field("fieldname.mediafilename", true);
+	public static final Field SPEED = new Field("speed");
+	public static final Field VERTICAL_SPEED = new Field("verticalspeed");
 
 	public static final Field WAYPT_SYM = new Field("fieldname.waypointsym", true);
 	public static final Field WAYPT_DUR = new Field("fieldname.waypointdur", true);
 	public static final Field WAYPT_FLAG = new Field("fieldname.waypointflag", true);
 	public static final Field WAYPT_LINK = new Field("fieldname.waypointlink", true);
 
-	// TODO: Ability to load media (from text) and save (to text)
 
-	/** List of all the available fields */
+	/** List of all the available built-in fields */
 	private static final Field[] ALL_AVAILABLE_FIELDS = {
 		LATITUDE, LONGITUDE, ALTITUDE, TIMESTAMP, WAYPT_NAME, WAYPT_TYPE, DESCRIPTION, NEW_SEGMENT,
 		SPEED, VERTICAL_SPEED,
@@ -41,6 +44,26 @@ public class Field
 		WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK,
 		new Field(I18nManager.getText("fieldname.custom"))
 	};
+
+	/**
+	 * Private constructor
+	 * @param inLabelKey Key for label texts
+	 */
+	private Field(String inLabelKey)
+	{
+		_labelKey = "fieldname." + inLabelKey;
+		_fileType = null;
+	}
+
+	/**
+	 * Constructor for subtypes
+	 * @param inFileType file type for which this field is valid
+	 */
+	protected Field(FileType inFileType)
+	{
+		_labelKey = null;
+		_fileType = inFileType;
+	}
 
 	/**
 	 * Private constructor
@@ -57,14 +80,14 @@ public class Field
 			_labelKey = null;
 			_customLabel = inLabelKey;
 		}
-		_builtin = inBuiltin;
+	//	_builtin = inBuiltin;
 	}
 
 
 	/**
 	 * Public constructor for custom fields
-	 * @param inLabel label to use for display
-	 */
+	 * @param // inLabel label to use for display
+	 * /
 	public Field(String inLabel)
 	{
 		this(inLabel, false);
@@ -87,17 +110,21 @@ public class Field
 	 */
 	public void setName(String inName)
 	{
-		if (!isBuiltIn()) _customLabel = inName;
+		// ignored, only used for custom fields
+		// if (!isBuiltIn()) _customLabel = inName;
+	}
+
+	/** @return true if this field is specific to the given file type */
+	public boolean isSpecificToFileType(FileType inFileType) {
+		return _fileType == inFileType;
+	}
+
+	/** @return true if this field can be saved as the given file type */
+	public boolean matchesFileType(FileType inFileType) {
+		return _fileType == null || _fileType == inFileType;
 	}
 
 	/**
-	 * @return true if this is a built-in field
-	 */
-	public boolean isBuiltIn()
-	{
-		return _builtin;
-	}
-
 	/**
 	 * Checks if the two fields are equal
 	 * @param inOther other Field object
@@ -108,6 +135,12 @@ public class Field
 		return inOther != null
 				&& isBuiltIn() == inOther.isBuiltIn()
 				&& getName().equals(inOther.getName());
+	}
+
+
+	/** @return true if this is a built-in field, not a custom field or extension */
+	public final boolean isBuiltIn() {
+		return getClass() == Field.class;
 	}
 
 	/**

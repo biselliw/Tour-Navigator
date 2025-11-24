@@ -14,18 +14,19 @@ import java.util.regex.Pattern;
  * Class to hold a UTC-based timestamp, for example of a track point.
  * When the selected timezone changes, this timestamp will keep its
  * numerical value but the date and time will change accordingly.
+ * @since 26.1
  */
 public class TimestampUtc extends Timestamp
 {
-	private boolean _valid = false;
-	private long _milliseconds = 0L;
-	private String _text = null;
+	private final boolean _valid;
+	private final long _milliseconds;
+	private final String _text;
 
 	private static final DateFormat ISO_8601_FORMAT_NOZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 	private static DateFormat[] ALL_DATE_FORMATS = null;
 	private static Calendar CALENDAR = null;
 	private static final Pattern ISO8601_FRACTIONAL_PATTERN
-		= Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:[\\.,](\\d{1,3}))?(Z|[\\+-]\\d{2}(?::?\\d{2})?)?");
+		= Pattern.compile("(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(?:[.,](\\d{1,3}))?(Z|[+-]\\d{2}(?::?\\d{2})?)?");
 		//                    year     month     day T  hour    minute    sec             millisec   Z or +/-  hours  :   minutes
 	private static final Pattern GENERAL_TIMESTAMP_PATTERN
 		= Pattern.compile("(\\d{4})\\D(\\d{2})\\D(\\d{2})\\D(\\d{2})\\D(\\d{2})\\D(\\d{2})");
@@ -55,7 +56,7 @@ public class TimestampUtc extends Timestamp
 	}
 
 	/** Array of parse types to loop through (first one is changed to last successful type) */
-	private static ParseType[] ALL_PARSE_TYPES = {ParseType.NONE, ParseType.ISO8601_FRACTIONAL, ParseType.LONG,
+	private static final ParseType[] ALL_PARSE_TYPES = {ParseType.NONE, ParseType.ISO8601_FRACTIONAL, ParseType.LONG,
 		ParseType.FIXED_FORMAT0, ParseType.FIXED_FORMAT1, ParseType.FIXED_FORMAT2, ParseType.FIXED_FORMAT3,
 		ParseType.FIXED_FORMAT4, ParseType.FIXED_FORMAT5, ParseType.FIXED_FORMAT6, ParseType.FIXED_FORMAT7,
 		ParseType.FIXED_FORMAT8, ParseType.GENERAL_STRING};
@@ -98,48 +99,51 @@ public class TimestampUtc extends Timestamp
 	 */
 	public TimestampUtc(String inString)
 	{
-		_valid = false;
-		_text = null;
+		String text = null;
+		long millis = 0L;
 		if (inString != null && !inString.equals(""))
 		{
 			// Try each of the parse types in turn
 			for (ParseType type : ALL_PARSE_TYPES)
 			{
-				if (parseString(inString, type))
+				Long parsedMillis = parseString(inString, type);
+				if (parsedMillis != null)
 				{
 					ALL_PARSE_TYPES[0] = type;
-					_valid = true;
-					_text = inString;
-					return;
+					text = inString;
+					millis = parsedMillis;
+					break;
 				}
 			}
 		}
+		_text = text;
+		_milliseconds = millis;
+		_valid = (_text != null);
 	}
 
 	/**
 	 * Try to parse the given string in the specified way
 	 * @param inString String to parse
 	 * @param inType parse type to use
-	 * @return true if successful
+	 * @return milliseconds if parse was successful, otherwise false
 	 */
-	private boolean parseString(String inString, ParseType inType)
+	private static Long parseString(String inString, ParseType inType)
 	{
 		if (inString == null || inString.equals("")) {
-			return false;
+			return null;
 		}
 		switch (inType)
 		{
-			case NONE: return false;
+			case NONE:
+				return null;
 			case LONG:
 				// Try to parse into a long
 				try
 				{
 					long rawValue = Long.parseLong(inString.trim());
-					_milliseconds = getMilliseconds(rawValue);
-					return true;
+					return getMilliseconds(rawValue);
 				}
-				catch (NumberFormatException nfe)
-				{}
+				catch (NumberFormatException ignored) {}
 				break;
 
 			case ISO8601_FRACTIONAL:
@@ -147,7 +151,7 @@ public class TimestampUtc extends Timestamp
 				if (fmatcher.matches())
 				{
 					try {
-						_milliseconds = getMilliseconds(Integer.parseInt(fmatcher.group(1)), // year
+						return getMilliseconds(Integer.parseInt(fmatcher.group(1)), // year
 							Integer.parseInt(fmatcher.group(2)), // month
 							Integer.parseInt(fmatcher.group(3)), // day
 							Integer.parseInt(fmatcher.group(4)), // hour
@@ -155,9 +159,8 @@ public class TimestampUtc extends Timestamp
 							Integer.parseInt(fmatcher.group(6)), // second
 							fmatcher.group(7),                   // fractional seconds
 							fmatcher.group(8));                  // timezone, if any
-						return true;
 					}
-					catch (NumberFormatException nfe) {}
+					catch (NumberFormatException ignored) {}
 				}
 				break;
 
@@ -178,21 +181,20 @@ public class TimestampUtc extends Timestamp
 					if (matcher.matches())
 					{
 						try {
-							_milliseconds = getMilliseconds(Integer.parseInt(matcher.group(1)),
+							return getMilliseconds(Integer.parseInt(matcher.group(1)),
 								Integer.parseInt(matcher.group(2)),
 								Integer.parseInt(matcher.group(3)),
 								Integer.parseInt(matcher.group(4)),
 								Integer.parseInt(matcher.group(5)),
 								Integer.parseInt(matcher.group(6)),
 								null, null); // no fractions of a second and no timezone
-							return true;
 						}
-						catch (NumberFormatException nfe2) {} // parse shouldn't fail if matcher matched
+						catch (NumberFormatException ignored) {} // parse shouldn't fail if matcher matched
 					}
 				}
-				return false;
+				break;
 		}
-		return false;
+		return null;
 	}
 
 
@@ -200,20 +202,18 @@ public class TimestampUtc extends Timestamp
 	 * Try to parse the given string with the given date format
 	 * @param inString String to parse
 	 * @param inDateFormat Date format to use
-	 * @return true if successful
+	 * @return milliseconds if successful
 	 */
-	private boolean parseString(String inString, DateFormat inDateFormat)
+	private static Long parseString(String inString, DateFormat inDateFormat)
 	{
 		ParsePosition pPos = new ParsePosition(0);
 		Date date = inDateFormat.parse(inString, pPos);
 		if (date != null && inString.length() == pPos.getIndex()) // require use of _all_ the string, not just the beginning
 		{
 			CALENDAR.setTime(date);
-			_milliseconds = CALENDAR.getTimeInMillis();
-			return true;
+			return CALENDAR.getTimeInMillis();
 		}
-
-		return false;
+		return null;
 	}
 
 
@@ -224,6 +224,7 @@ public class TimestampUtc extends Timestamp
 	public TimestampUtc(long inMillis)
 	{
 		_milliseconds = inMillis;
+		_text = null;
 		_valid = true;
 	}
 
@@ -319,38 +320,41 @@ public class TimestampUtc extends Timestamp
 	/**
 	 * @return true if timestamp is valid
 	 */
-	public boolean isValid()
-	{
+	public boolean isValid() {
 		return _valid;
 	}
 
 	/**
 	 * @return true if the timestamp has non-zero milliseconds
 	 */
-	protected boolean hasMilliseconds()
-	{
+	protected boolean hasMilliseconds() {
 		return isValid() && (_milliseconds % 1000L) > 0;
 	}
 
 	/**
 	 * @return the milliseconds according to the given timezone
 	 */
-	public long getMilliseconds(TimeZone inZone)
-	{
+	public long getMilliseconds(TimeZone inZone) {
 		return _milliseconds;
 	}
 
+	/**
+	 * Add the given number of milliseconds offset
+	 * @param inOffset number of milliseconds to add/subtract
+	 * @return new timestamp, offset from this one
+	 */
+	public Timestamp addOffsetMilliseconds(long inOffset) {
+		return new TimestampUtc(_milliseconds + inOffset);
+	}
 
 	/**
 	 * Add the given number of seconds offset
 	 * @param inOffset number of seconds to add/subtract
+	 * @return new timestamp, offset from this one
 	 */
-	public void addOffsetSeconds(long inOffset)
-	{
-		_milliseconds += (inOffset * 1000L);
-		_text = null;
+	public Timestamp addOffsetSeconds(long inOffset) {
+		return addOffsetMilliseconds(inOffset * 1000L);
 	}
-
 
 	/**
 	 * @param inFormat format of timestamp
@@ -371,6 +375,23 @@ public class TimestampUtc extends Timestamp
 		return super.getText(inFormat, inTimezone);
 	}
 
+	/** @return a string describing the interpolated timestamp between two existing ones */
+	public static String interpolate(Timestamp inStartStamp, Timestamp inEndStamp, double inFrac)
+	{
+		if (inStartStamp == null || !inStartStamp.isValid()
+			|| inEndStamp == null || !inEndStamp.isValid()
+			|| inEndStamp.isBefore(inStartStamp))
+		{
+			return "";
+		}
+		TimeZone utcZone = TimeZone.getTimeZone("UTC");
+		final long startMillis = inStartStamp.getMilliseconds(utcZone);
+		final long endMillis = inEndStamp.getMilliseconds(utcZone);
+		final long middleMillis = startMillis + (long) (inFrac * (endMillis - startMillis));
+		TimestampUtc result = new TimestampUtc(middleMillis);
+		return result.getText(Format.ISO8601, utcZone);
+	}
+
 	/**
 	 * Utility method for formatting dates / times
 	 * @param inFormat formatter object
@@ -379,11 +400,14 @@ public class TimestampUtc extends Timestamp
 	 */
 	protected String format(DateFormat inFormat, TimeZone inTimezone)
 	{
-		CALENDAR.setTimeZone(TimeZone.getTimeZone("GMT"));
-		inFormat.setTimeZone(inTimezone == null ? TimeZone.getTimeZone("GMT") : inTimezone);
+		synchronized(CALENDAR)
+		{
+			CALENDAR.setTimeZone(TimeZone.getTimeZone("GMT"));
+			inFormat.setTimeZone(inTimezone == null ? TimeZone.getTimeZone("GMT") : inTimezone);
 
-		CALENDAR.setTimeInMillis(_milliseconds);
-		return inFormat.format(CALENDAR.getTime());
+			CALENDAR.setTimeInMillis(_milliseconds);
+			return inFormat.format(CALENDAR.getTime());
+		}
 	}
 
 	/**

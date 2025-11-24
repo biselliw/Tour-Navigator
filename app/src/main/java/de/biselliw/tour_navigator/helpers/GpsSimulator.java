@@ -18,7 +18,7 @@ import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSele
  * </p>GPS simulation is automatically activated after start up of the app and following these steps:
  * <ul>
  * <li>load a recorded GPX track file which does NOT include any waypoints or named track-points</li>
- * <li>load a GPX file including at least waypoints or named track-points</li>
+ * <li>load a GPX file including at least waypoints or named track points</li>
  * </ul>
  *
  * From that on all GPS location data (time stamp, latitude, longitude) will be simulated by this
@@ -34,11 +34,16 @@ public class GpsSimulator {
     private static final boolean _DEBUG = false; // Set to true to enable logging
     public static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    DataPoint[] gpsData;
-    int numPoints;
-    int gpsIndex;
-    Location location;
-    TimeZone timeZone;
+    /* GPX data loaded from recorded track for GPS simulation */
+    private static DataPoint[] gpsData;
+    private static int numPoints;
+
+    // current index used for simulation
+    private static int gpsIndex;
+
+    // geographic location data of a track point
+    private static Location location;
+    private static TimeZone timeZone;
 
     /**
      * GPS simulator with replay functionality
@@ -80,13 +85,17 @@ public class GpsSimulator {
         if (gpsIndex < numPoints)
         {
             if (DEBUG) {
-                Log.d(TAG, "getLocation(" + gpsIndex + ")");
+                Log.d(TAG, "getLocation() for gpsIndex = " + gpsIndex);
             }
+            /* get location information from the loadedGPX track points */
             DataPoint dataPoint = gpsData[gpsIndex++];
             location.setLongitude(dataPoint.getLongitude().getDouble());
             location.setLatitude(dataPoint.getLatitude().getDouble());
             location.setTime(dataPoint.getTimestamp().getMilliseconds(timeZone));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                /* declare the location as mock (faked GPS location intentionally provided to an
+                    Android device for GPS simulation instead of the real location)
+                 */
                 location.setMock(true);
             }
             return location;

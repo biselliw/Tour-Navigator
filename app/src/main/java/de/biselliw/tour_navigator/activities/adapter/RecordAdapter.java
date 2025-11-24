@@ -93,11 +93,11 @@ public class RecordAdapter extends BaseAdapter {
         public int trackPointIndex;
         public DataPoint trackPoint;
         public double Sdistance;
-        public int Sclimb;
-        public int Sdescent;
+        public double Sclimb;
+        public double Sdescent;
         public long Sseconds;
 
-        public Record (DataPoint _trackPoint, int _trackPointIndex, double _Sdistance, int _Sclimb, int _Sdescent, long _Sseconds)
+        public Record (DataPoint _trackPoint, int _trackPointIndex, double _Sdistance, double _Sclimb, double _Sdescent, long _Sseconds)
         {
             trackPointIndex = _trackPointIndex;
             trackPoint = _trackPoint;

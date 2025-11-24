@@ -14,10 +14,10 @@ package de.biselliw.tour_navigator.data;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2024 Walter Biselli (BiselliW)
+    Copyright 2025 Walter Biselli (BiselliW)
 */
 
 import android.content.res.Resources;
@@ -54,7 +54,7 @@ public class TourDetails {
         if (sourceInfo != null)
             description = sourceInfo.getTrackDescription();
 
-        return (!description.equals(""));
+        return (!description.isEmpty());
     }
 
     /**
@@ -69,7 +69,7 @@ public class TourDetails {
             DataPoint point = record.getTrackPoint();
             if (point != null) {
                 description = point.getDescription();
-                if (description.equals("")) {
+                if (description.isEmpty()) {
                     if (point.getLinkIndex() >= 0) {
                         point = app.getPoint(point.getLinkIndex());
                         if (point != null) {
@@ -83,11 +83,11 @@ public class TourDetails {
     }
 
     /**
-     * Interprete the Waypoint symbol provided by outdooractive GPX files
+     * Interpret the Waypoint symbol provided by outdooractive GPX files
      * @param symbol outdooractive specific waypoint symbol
      * @return interpreted string
      */
-    public String interpreteWaypointSymbol(String symbol)
+    public String interpretWaypointSymbol(String symbol)
     {
         switch (symbol) {
             case "waypointDirRightComb":
@@ -143,19 +143,19 @@ public class TourDetails {
                         }
                     }
                 }
-                if (!info.type.equals(""))
+                if (!info.type.isEmpty())
                 {
-                    if (info.comment.equals(""))
+                    if (info.comment.isEmpty())
                         info.comment = info.type;
                     else
                         info.comment = info.type + ": " + info.comment;
                 }
-                else if (!info.symbol.equals(""))
+                else if (!info.symbol.isEmpty())
                 {
                     /* Handle outdooractive GPX infos */
-                    info.symbol = interpreteWaypointSymbol(info.symbol);
+                    info.symbol = interpretWaypointSymbol(info.symbol);
 
-                    if (!info.comment.equals(""))
+                    if (!info.comment.isEmpty())
                         info.comment = info.symbol + ": " + info.comment;
                     /*
                     else if (!info.description.equals(""))

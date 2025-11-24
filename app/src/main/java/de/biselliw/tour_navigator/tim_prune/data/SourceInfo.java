@@ -4,30 +4,35 @@ package de.biselliw.tour_navigator.tim_prune.data;
 import java.io.File;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import de.biselliw.tour_navigator.tim.prune.data.FileType;
+import de.biselliw.tour_navigator.tim.prune.data.ExtensionInfo;
 
 /**
  * Class to hold the source of the point data, including the original file
  * and file type, and references to each of the point objects
+ * @since 26.1
  */
 public class SourceInfo
 {
-	/** File type of source file */
-	public enum FILE_TYPE {TEXT, GPX, KML, NMEA, GPSBABEL, GPSIES, JSON};
-
 	/** Source file */
-	private File _sourceFile = null;
+	private final File _sourceFile;
 	/** Name of source */
-	private String _sourceName = null;
+	private final String _sourceName;
 	/** File type */
-	private FILE_TYPE _fileType = null;
+	private final FileType _fileType;
+	/** File version */
+	private final String _fileVersion;
 	/** File title, if any */
 	private String _fileTitle = null;
-
-	/** Array of datapoints */
-	private DataPoint[] _points = null;
+	/** File description, if any */
+	private String _fileDescription = null;
+	/** Extension info, if any */
+	private ExtensionInfo _extensionInfo = null;
 	/** Number of points */
 	private int _numPoints = 0;
+	
+	/** Array of data points */
+	private DataPoint[] _points = null;
 	/** Array of point indices (if necessary) */
 	private int[] _pointIndices = null;
 
@@ -44,16 +49,23 @@ public class SourceInfo
 	private String _name = "";
 	private String _trackDescription = "";
 
+	/** Constructor giving just the file and its type, without a version */
+	public SourceInfo(File inFile, FileType inType) {
+		this(inFile, inType, null);
+	}
+
 	/**
 	 * Constructor
 	 * @param inFile source file
 	 * @param inType type of file
+	 * @param inVersion version
 	 */
-	public SourceInfo(File inFile, FILE_TYPE inType)
+	public SourceInfo(File inFile, FileType inType, String inVersion)
 	{
 		_sourceFile = inFile;
-		_sourceName = inFile != null ? inFile.getName() : "";
+		_sourceName = (inFile != null ? inFile.getName() : "");
 		_fileType = inType;
+		_fileVersion = inVersion;
 	}
 
 	/**
@@ -61,62 +73,114 @@ public class SourceInfo
 	 * @param inName name of source (without file)
 	 * @param inType type of file
 	 */
-	public SourceInfo(String inName, FILE_TYPE inType)
+	public SourceInfo(String inName, FileType inType)
 	{
 		_sourceFile = null;
 		_sourceName = inName;
 		_fileType = inType;
+		_fileVersion = null;
 	}
 
 	/**
 	 * @param inTitle title of file, eg from <name> tag in gpx
 	 */
-	public void setFileTitle(String inTitle)
-	{
+	public void setFileTitle(String inTitle) {
 		_fileTitle = inTitle;
+	}
+
+	/**
+	 * @param inDesc description of file, eg from <desc> tag in gpx
+	 */
+	public void setFileDescription(String inDesc) {
+		_fileDescription = inDesc;
+	}
+
+	public void setExtensionInfo(ExtensionInfo inInfo) {
+		_extensionInfo = inInfo;
 	}
 
 	/**
 	 * @return source file
 	 */
-	public File getFile()
-	{
+	public File getFile() {
 		return _sourceFile;
 	}
 
 	/**
 	 * @return source name
 	 */
-	public String getName()
-	{
+	public String getName() {
 		return _sourceName;
 	}
 
 	/**
 	 * @return file type of source
 	 */
-	public FILE_TYPE getFileType()
-	{
+	public FileType getFileType() {
 		return _fileType;
+	}
+
+	/** @return version of file */
+	public String getFileVersion() {
+		return _fileVersion;
 	}
 
 	/**
 	 * @return title of file
 	 */
-	public String getFileTitle()
-	{
-		return (_fileTitle != null ? _fileTitle : "");
+	public String getFileTitle() {
+		return _fileTitle;
+	}
+
+	/**
+	 * @return description of file
+	 */
+	public String getFileDescription() {
+		return _fileDescription;
+	}
+
+	/**
+	 * @param inNumPoints the number of points loaded from this source
+	 */
+	public void setNumPoints(int inNumPoints) {
+		_numPoints = inNumPoints;
 	}
 
 	/**
 	 * @return number of points from this source
 	 */
-	public int getNumPoints()
-	{
+	public int getNumPoints() {
 		return _numPoints;
 	}
 
 	/**
+	 * @return a string describing the extensions, or null if there aren't any
+	 */
+	public String getExtensions()
+	{
+		if (_extensionInfo == null) {
+			return null;
+		}
+		StringBuilder builder = null;
+		for (String url : _extensionInfo.getExtensions())
+		{
+			if (builder == null) {
+				builder = new StringBuilder();
+			}
+			else {
+				builder.append(", ");
+			}
+			builder.append(url);
+		}
+		return builder == null ? null : builder.toString();
+	}
+
+	/** @return the complete extension information, or null */
+	public ExtensionInfo getExtensionInfo() {
+		return _extensionInfo;
+	}
+	
+		/**
 	 * Set the indices of the points selected out of a loaded track
 	 * @param inSelectedFlags array of booleans showing whether each point in the original data was loaded or not
 	 */
@@ -266,4 +330,5 @@ public class SourceInfo
 	{
 		return _author;
 	}
+
 }
