@@ -52,7 +52,7 @@ public class TourDetails {
         String description = "";
         SourceInfo sourceInfo = App.getSourceInfo();
         if (sourceInfo != null)
-            description = sourceInfo.getTrackDescription();
+            description = sourceInfo.getFileDescription();
 
         return (!description.isEmpty());
     }
@@ -178,7 +178,7 @@ public class TourDetails {
             info.link        = "";
             SourceInfo sourceInfo = App.getSourceInfo();
             if (sourceInfo != null) {
-                info.description = sourceInfo.getTrackDescription();
+                info.description = sourceInfo.getFileDescription();
                 info.link        = sourceInfo.getMetaLink();
             }
         }

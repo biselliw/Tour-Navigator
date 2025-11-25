@@ -92,15 +92,17 @@ public abstract class XmlHandler extends DefaultHandler
 			return;
 		}
 		int index = getFieldIndex(inField);
-		if (_currentValues == null || _currentValues.length <= index)
-		{
-			String[] newValues = new String[_fieldList.size()];
-			if (_currentValues != null) {
-				System.arraycopy(_currentValues, 0, newValues, 0, _currentValues.length);
-			}
-			_currentValues = newValues;
-		}
-		_currentValues[index] = inValue;
+        if (index >= 0) {
+            if (_currentValues == null || _currentValues.length <= index)
+            {
+                String[] newValues = new String[_fieldList.size()];
+                if (_currentValues != null) {
+                    System.arraycopy(_currentValues, 0, newValues, 0, _currentValues.length);
+                }
+                _currentValues = newValues;
+            }
+            _currentValues[index] = inValue;
+        }
 	}
 
 	/** @return the value array for the current point */
@@ -151,7 +153,8 @@ public abstract class XmlHandler extends DefaultHandler
 	/**
 	 * @return the title of the file, or null
 	 */
-	public abstract String getFileTitle();
+
+    public abstract String getFileTitle();
 
 	/**
 	 * Can be overridden (eg by gpx handler) to provide the description of the file
@@ -180,4 +183,7 @@ public abstract class XmlHandler extends DefaultHandler
 		}
 		return null;
 	}
+
+    public abstract void setLink(String link);
+    public abstract String getLink();
 }

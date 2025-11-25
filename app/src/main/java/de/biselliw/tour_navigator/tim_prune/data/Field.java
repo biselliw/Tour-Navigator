@@ -30,7 +30,7 @@ public class Field
 	public static final Field SPEED = new Field("speed");
 	public static final Field VERTICAL_SPEED = new Field("verticalspeed");
 
-	public static final Field WAYPT_SYM = new Field("fieldname.waypointsym", true);
+//	public static final Field WAYPT_SYM = new Field("fieldname.waypointsym", true);
 	public static final Field WAYPT_DUR = new Field("fieldname.waypointdur", true);
 	public static final Field WAYPT_FLAG = new Field("fieldname.waypointflag", true);
 	public static final Field WAYPT_LINK = new Field("fieldname.waypointlink", true);
@@ -41,7 +41,7 @@ public class Field
 		LATITUDE, LONGITUDE, ALTITUDE, TIMESTAMP, WAYPT_NAME, WAYPT_TYPE, DESCRIPTION, NEW_SEGMENT,
 		SPEED, VERTICAL_SPEED,
 
-		WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK,
+            SYMBOL, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK,
 		new Field(I18nManager.getText("fieldname.custom"))
 	};
 

@@ -114,17 +114,18 @@ public class Track {
 			{
 				// bugfix of outdooractive GPX tracks with GPX coordinates as track point names
 				String _pointName = point.getWaypointName();
-                if (DEBUG) Log.d(TAG, "data points " + pointIndex + ": " + _pointName);
-				if (_pointName.length() > 6) {
-					_pointName = _pointName.substring(0, 6);
-					try {
-						double lat = Double.parseDouble(_pointName);
-						if ((lat >= 0) && point.getWaypointSymbol().isEmpty())
-							// remove same name as in previous track point
-							point.setWaypointName("");
-					}
-					catch (NumberFormatException ignored) {
-					}
+                if (!_pointName.isEmpty()) {
+                    if (DEBUG) Log.d(TAG, "data points " + pointIndex + ": " + _pointName);
+                    if (_pointName.length() > 6) {
+                        _pointName = _pointName.substring(0, 6);
+                        try {
+                            double lat = Double.parseDouble(_pointName);
+                            if ((lat >= 0) && point.getWaypointSymbol().isEmpty())
+                                // remove same name as in previous track point
+                                point.setWaypointName("");
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
 				}
 				_dataPoints[pointIndex] = point;
 				pointIndex++;

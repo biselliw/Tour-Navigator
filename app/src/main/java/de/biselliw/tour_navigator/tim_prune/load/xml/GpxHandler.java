@@ -4,7 +4,7 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
     Tour Navigator is a GPX file based app. It creates and observes the
     timetable of a tour in realtime
 
-    Copyright (C) 2022 Walter Biselli (BiselliW)
+    Copyright (C) 2025 Walter Biselli (BiselliW)
 
 	File has been reworked from GpxHandler.java as part of GpsPrune version 22.2:
 	https://github.com/activityworkshop/GpsPrune/blob/master/src/tim/prune/load/xml/GpxHandler.java
@@ -33,11 +33,11 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
  * @since 26.1
 */
 
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-
 import java.util.ArrayList;
 import java.util.Stack;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 import de.biselliw.tour_navigator.tim.prune.data.ExtensionInfo;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
@@ -91,7 +91,8 @@ public class GpxHandler extends XmlHandler {
     private boolean _startSegment = true;
 
     // Extensions by BiselliW
-    private boolean _insideMetaData = true;
+    private boolean _storeExtensions = false;
+    private boolean _insideMetaData = false;
     private boolean _metaAuthorSet = false;
     private boolean _insideTrack = false;
     private boolean _isTrackPoint = false;
@@ -106,8 +107,7 @@ public class GpxHandler extends XmlHandler {
 
 
     // Extensions by BiselliW
-    private GpxTag _metaName = new GpxTag();
-    private GpxTag _metaAuthor = new GpxTag(), _duration = new GpxTag();
+    private GpxTag _fileAuthor = new GpxTag(), _duration = new GpxTag();
 
     private GpxTag _currentTag = null;
     private final ExtensionInfo _extensionInfo = new ExtensionInfo();
@@ -138,7 +138,7 @@ public class GpxHandler extends XmlHandler {
                 Field.LATITUDE, Field.LONGITUDE, Field.ALTITUDE,
                 Field.TIMESTAMP,
                 Field.COMMENT,
-                Field.DESCRIPTION, Field.WAYPT_DUR, Field.WAYPT_TYPE, Field.WAYPT_SYM,
+                Field.DESCRIPTION, Field.WAYPT_DUR, Field.WAYPT_TYPE, Field.SYMBOL,
                 Field.NEW_SEGMENT,
                 Field.WAYPT_FLAG,
                 Field.WAYPT_LINK};
@@ -159,91 +159,116 @@ public class GpxHandler extends XmlHandler {
             throws SAXException {
         // Read the parameters for metadata, waypoints and track points
         String tag = qName.toLowerCase();
-        if (DEBUG) Log.d(TAG, "startElement() tag = " + tag);
+        // if (DEBUG) Log.d(TAG, "startElement() tag = " + tag);
         _gpxField = null;
-
-        if (
-                tag.equals("metadata") ||
-                        tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept")) {
-            if (tag.equals("metadata")) {
-                _insideMetaData = true;
-                _metaAuthorSet = false;
-            } else {
-                _insideMetaData = false;
-                _insidePoint = true;
-                _insideWaypoint = tag.equals("wpt");
-                _isTrackPoint = tag.equals("trkpt");
-            }
+        if (tag.equals("metadata")) {
+            _insideMetaData = true;
+            _metaAuthorSet = false;
             resetCurrentValues();
-
-            addCurrentValue(Field.LATITUDE, getAttribute(attributes, "lat"));
-            addCurrentValue(Field.LONGITUDE, getAttribute(attributes, "lon"));
-            _elevation.setValue(null);
-            _pointName.setValue(null);
-            _time.setValue(null);
-            _type.setValue(null);
+            _fileTitle.setValue(null);
+            _fileAuthor.setValue(null);
             _source.setValue(null);
             _link.setValue(null);
             _description.setValue(null);
             _comment.setValue(null);
-            _sym.setValue(null);
-
+        }
+        else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
+		{
+            _insideMetaData = false;
+			_insidePoint = true;
+			_insideWaypoint = tag.equals("wpt");
+            _isTrackPoint = tag.equals("trkpt");
+			resetCurrentValues();
+			addCurrentValue(Field.LATITUDE, getAttribute(attributes, "lat"));
+			addCurrentValue(Field.LONGITUDE, getAttribute(attributes, "lon"));
+			_elevation.setValue(null);
+			_pointName.setValue(null);
+			_time.setValue(null);
+			_type.setValue(null);
+            _link.setValue(null);
+            _description.setValue(null);
+            _comment.setValue(null);
+			_sym.setValue(null);
+            // additional values
+            _source.setValue(null);
             _duration.setValue(null);
-        } else if (tag.equals("ele")) {
-            _currentTag = _elevation;
-        } else if (tag.equals("name")) {
+        }
+		else if (tag.equals("ele")) {
+			_currentTag = _elevation;
+		}
+		else if (tag.equals("name"))
+		{
             if (_insideMetaData) {
                 if (!_metaAuthorSet) {
-                    _currentTag = _metaName;
+                    _currentTag = _fileTitle;
                 } else {
-                    _currentTag = _metaAuthor;
+                    _currentTag = _fileAuthor;
                 }
-            } else if (_insidePoint) {
-                _currentTag = _pointName;
-            } else if (_trackNum < 0) {
-                _currentTag = _fileTitle;
-            } else {
-                _currentTag = _trackName;
             }
-        } else if (tag.equals("time")) {
-            _currentTag = _time;
-        } else if (tag.equals("type")) {
-            _currentTag = _type;
-        } else if (tag.equals("description") || tag.equals("desc")) {
-            if (_insidePoint) {
-                _currentTag = _description;
-            } else {
-                _currentTag = _fileDescription;
-            }
-        } else if (tag.equals("cmt")) {
-            _currentTag = _comment;
-        } else if (tag.equals("sym")) {
-            _currentTag = _sym;
-        } else if (tag.equals("oa:Extension")) {
+			else if (_insidePoint) {
+				_currentTag = _pointName;
+			}
+			else if (_trackNum < 0) {
+				_currentTag = _fileTitle;
+			}
+			else {
+				_currentTag = _trackName;
+			}
+		}
+		else if (tag.equals("time")) {
+			_currentTag = _time;
+		}
+		else if (tag.equals("type")) {
+			_currentTag = _type;
+		}
+		else if (tag.equals("description") || tag.equals("desc"))
+		{
+			if (_insidePoint) {
+				_currentTag = _description;
+			}
+			else {
+				_currentTag = _fileDescription;
+			}
+		}
+		else if (tag.equals("cmt")) {
+			_currentTag = _comment;
+		}
+		else if (tag.equals("sym")) {
+			_currentTag = _sym;
+        } else if (tag.equals("oa:extension")) {
             _isOutdooractive = true;
         } else if (tag.equals("src")) {
             _currentTag = _source;
         } else if (tag.equals("link")) {
-            _link.setValue(attributes.getValue("href"));
-//			_currentTag = null;
-        } else if (tag.equals("pause")) {
-            _currentTag = _duration;
-        } else if (tag.equals("trkseg")) {
-            _startSegment = true;
-        } else if (tag.equals("trk")) {
-            _insideTrack = true;
-            _trackNum++;
-            _trackName.setValue(null);
-        } else if (tag.equals("extensions") && _insidePoint) {
-            _insideExtensions = true;
-            _currentTag = new GpxTag();
-            _extensionTags = new Stack<>();
-        } else if (_insideExtensions) {
-            _extensionTags.add(qName);
-            _currentTag.clear();
-        } else if (tag.equals("gpx")) {
-            setFileType(FileType.GPX);
-            processGpxAttributes(attributes);
+			_link.setValue(attributes.getValue("href"));
+		}
+		else if (tag.equals("trkseg")) {
+			_startSegment = true;
+		}
+		else if (tag.equals("trk"))
+		{
+			_trackNum++;
+			_trackName.setValue(null);
+		}
+		else if (tag.equals("extensions") && _insidePoint)
+		{
+			_insideExtensions = true;
+            if (_storeExtensions) {
+                _currentTag = new GpxTag();
+                _extensionTags = new Stack<>();
+            }
+		}
+		else if (_insideExtensions)
+		{
+			if (_storeExtensions)
+                _extensionTags.add(qName);
+            if (_currentTag != null)
+			    _currentTag.clear();
+		}
+		else if (tag.equals("gpx"))
+		{
+			setFileType(FileType.GPX);
+			processGpxAttributes(attributes);
         } else if (tag.equals("author")) {
             _metaAuthorSet = true;
         } else {
@@ -293,42 +318,80 @@ public class GpxHandler extends XmlHandler {
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
         String tag = qName.toLowerCase();
-        if (DEBUG) Log.d(TAG, "endElement() tag = " + tag);
-		if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
+        // if (DEBUG) Log.d(TAG, "endElement() tag = " + tag);
+        if (tag.equals("metadata")) {
+            // process meta data
+            processMetaData();
+            _insideMetaData = false;
+        }
+        else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
-			processPoint();
-			_insidePoint = false;
+            // Create alternative link to a POI if no web link is provided
+            if (tag.equals("wpt") && (_link.getValue().isEmpty())) {
+                String source = _source.getValue();
+                if (!source.isEmpty()) {
+                    // Create Outdooractive link to a POI if no web link is provided
+                    if (source.startsWith(_OutdooractiveSrcPrefix)) {
+                        source = source.substring(_OutdooractiveSrcPrefix.length());
+                        // link is only allowed to web site - no app!
+                        _link.setValue(_OutdooractiveLink.concat(source));
+                    }
+                    // Create Toubiz link to a POI if no web link is provided
+                    else if (source.startsWith(_toubizPrefix)) {
+                        source = source.substring(_toubizPrefix.length());
+                        // link is only allowed to web site - no app!
+                        _link.setValue(_toubizLink.concat(source));
+                    }
+                }
+            }
+
+            // don't load Outdooractive trackpoints which are only for routing
+            if (_isTrackPoint) {
+                if (_sym.getValue() == null)
+                    _pointName.setValue(null);
+                _isFirstTrackPoint = false;
+            }
+           //  if (_insidePoint)
+                processPoint();
+            _insideWaypoint = false;
+            _insidePoint = false;
 		}
 		else if (tag.equals("extensions")) {
 			_insideExtensions = false;
 		}
 		else if (_insideExtensions)
 		{
-			String value = _currentTag.getValue();
-			_extensionTags.pop();
-/* @todo FieldXml
-			if (!value.isEmpty())
-			{
-				FieldXml field = new FieldXml(FileType.GPX, tag, _extensionTags);
-				if (!hasField(field)) {
-					addField(field);
-				}
-				addCurrentValue(field, value);
+            if (_currentTag != null)
+            {
+                if (_storeExtensions) {
+                    String value = _currentTag.getValue();
+                    _extensionTags.pop();
+                    if (!value.isEmpty())
+                    {
+                        FieldXml field = new FieldXml(FileType.GPX, tag, _extensionTags);
+                        if (!hasField(field)) {
+                            addField(field);
+                        }
+                        addCurrentValue(field, value);
+                    }
+                }
+                _currentTag.clear();
             }
-			*/
-			_currentTag.clear();
 		}
 		else if (_gpxField != null)
 		{
-			String value = _currentTag.getValue();
-			if (!value.isEmpty())
-			{
-				if (!hasField(_gpxField)) {
-					addField(_gpxField);
-				}
-				addCurrentValue(_gpxField, value);
-			}
-			_currentTag.clear();
+            if (_currentTag != null)
+            {
+                String value = _currentTag.getValue();
+                if (!value.isEmpty())
+                {
+                    if (!hasField(_gpxField)) {
+                        addField(_gpxField);
+                    }
+                    addCurrentValue(_gpxField, value);
+                }
+                _currentTag.clear();
+            }
 			_gpxField = null;
 		}
 		else if (_insidePoint && _currentTag != null && getFileVersion().equals("1.0"))
@@ -353,57 +416,10 @@ public class GpxHandler extends XmlHandler {
 			_currentTag = null;
 		}
 
-
-        if (tag.equals("metadata")) {
-            _insideMetaData = false;
-            // process meta data
-            processMetaData();
-        } else if ((tag.equals("desc")) && _insideTrack) {
-            // only first value is used
-            if (trackDescription.equals(""))
-                trackDescription = _description.getValue();
-        } else if (tag.equals("trk")) {
+        if (tag.equals("trk"))
             _insideTrack = false;
-        } else if (tag.equals("author")) {
+        else if (tag.equals("author"))
             _metaAuthorSet = false;
-        } else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept")) {
-            /* Create alternative link to a POI if no web link is provided */
-            if (tag.equals("wpt") && (_link != null) && (_link.getValue() == null) && (_source != null)) {
-                String source = _source.getValue();
-                if (source != null) {
-                    /* Create Outdooractive link to a POI if no web link is provided */
-                    if (source.startsWith(_OutdooractiveSrcPrefix)) {
-                        source = source.substring(_OutdooractiveSrcPrefix.length());
-                        /* link is only allowed to web site - no app! */
-                        _link.setValue(_OutdooractiveLink.concat(source));
-                    }
-                    /* Create Toubiz link to a POI if no web link is provided */
-                    else if (source.startsWith(_toubizPrefix)) {
-                        source = source.substring(_toubizPrefix.length());
-                        /* link is only allowed to web site - no app! */
-                        _link.setValue(_toubizLink.concat(source));
-                    }
-                }
-            }
-
-            /* don't load waypoints which are simple trackpoints */
-            /* no longer used by Outdooractive ?
-			if (_insideWaypoint)
-				if ((_type != null) && (_type.getValue() != null))
-					if (_type.getValue().equals("TrackPt"))
-						_insidePoint = false;
-             */
-            /* don't load Outdooractive trackpoints which are only for routing */
-            if (_isTrackPoint) {
-                if ((_sym != null) && (_sym.getValue() == null))
-                    _pointName.setValue(null);
-                _isFirstTrackPoint = false;
-            }
-            if (_insidePoint)
-                processPoint();
-            _insideWaypoint = false;
-            _insidePoint = false;
-        }
 
         super.endElement(uri, localName, qName);
     }
@@ -443,10 +459,10 @@ public class GpxHandler extends XmlHandler {
         String ret;
         if (inVariable == null) {
             ret = inValue;
-            if (DEBUG) Log.d(TAG, "checkCharacters (null," + inValue + ") -> " + ret);
+            // if (DEBUG) Log.d(TAG, "checkCharacters (null," + inValue + ") -> " + ret);
         } else {
             ret = inVariable + inValue;
-            if (DEBUG) Log.d(TAG, "checkCharacters (" + inVariable + "," + inValue + ") -> " + ret);
+            // if (DEBUG) Log.d(TAG, "checkCharacters (" + inVariable + "," + inValue + ") -> " + ret);
         }
 
         return ret;
@@ -460,12 +476,10 @@ public class GpxHandler extends XmlHandler {
      * @since 22.2.006
      */
     private void processMetaData() {
-        // get Name from parsed GPX tag <metadata><name> */
-        metaName = _metaName.getValue();
         // get Description from parsed GPX tag <metadata><description> */
         metaDescription = _description.getValue();
         // get Author from parsed GPX tag <metadata><author><name>
-        metaAuthor = _metaAuthor.getValue();
+        metaAuthor = _fileAuthor.getValue();
         // get Time from parsed GPX tag <metadata><time>
         metaTime = _time.getValue();
         // get Link from parsed GPX tag <metadata><link>
@@ -499,7 +513,7 @@ public class GpxHandler extends XmlHandler {
 		_pointList.add(values);
 */
 
-        if (DEBUG) Log.d(TAG, "processPoint Start: " + _pointName.getValue());
+        // if (DEBUG) Log.d(TAG, "processPoint " + _pointName.getValue());
 
 		addCurrentValue(Field.ALTITUDE, _elevation.getValue());
 		if (_insideWaypoint) {
@@ -515,6 +529,9 @@ public class GpxHandler extends XmlHandler {
 		addCurrentValue(Field.DESCRIPTION, _description.getValue());
 		addCurrentValue(Field.COMMENT, _comment.getValue());
 		addCurrentValue(Field.SYMBOL, _sym.getValue());
+        if (!_insideWaypoint && !_sym.getValue().isEmpty()) {
+            addCurrentValue(Field.WAYPT_NAME, _pointName.getValue());
+        }
 
         addCurrentValue(Field.WAYPT_DUR, _duration.getValue()); // Pause
 
@@ -527,13 +544,13 @@ public class GpxHandler extends XmlHandler {
 //        _trackNameList.addPoint(_trackNum, _trackName.getValue(), _isTrackPoint);
         _linkList.add(_link.getValue());
 //		if (DEBUG)	Log.d(TAG, "processPoint "+values[0]);
-        if (DEBUG) Log.d(TAG, "processPoint End: " + _pointName.getValue());
+        // if (DEBUG) Log.d(TAG, "processPoint End: " + _pointName.getValue());
     }
 
 
 	/**
 	 * Return the parsed information as a 2d array
-	 * @see tim.prune.load.xml.XmlHandler#getDataArray()
+	 * @see XmlHandler#getDataArray()
 	 */
 	public String[][] getDataArray()
 	{
@@ -567,6 +584,7 @@ public class GpxHandler extends XmlHandler {
 
     /**
      * @return track name list
+     * @since 26.1 removed from GPsPrune
      */
 //    public TrackNameList getTrackNameList() {      return _trackNameList;     }
 
@@ -574,10 +592,7 @@ public class GpxHandler extends XmlHandler {
      * @return file title
      */
     public String getFileTitle() {
-        String fileTitle = _fileTitle.getValue();
-        if ((fileTitle == null) || (fileTitle.isEmpty()))
-            fileTitle = _metaName.getValue();
-        return fileTitle;
+        return _fileTitle.getValue();
     }
 
 	/**
@@ -591,4 +606,12 @@ public class GpxHandler extends XmlHandler {
 	public ExtensionInfo getExtensionInfo() {
 		return _extensionInfo;
 	}
+    public void setLink(String link)
+    {
+        metaLink = link;
+    }
+    public String getLink()
+    {
+        return metaLink;
+    }
 }

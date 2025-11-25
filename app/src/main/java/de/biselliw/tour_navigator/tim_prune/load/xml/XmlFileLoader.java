@@ -32,8 +32,7 @@ import static de.biselliw.tour_navigator.ui.ControlElements.control;
  */
 public class XmlFileLoader extends DefaultHandler implements Runnable
 {
-	private FileInputStream _XML_filestream = null;
-	private InputStream _XML_stream = null;
+    private InputStream _XML_stream = null;
 
 	private final App _app;
 	private FileToBeLoaded _fileLock = null;
@@ -42,11 +41,10 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	private boolean _parsedXmlStream = false;
 	private String _unknownType = null;
 
-	private Thread _thread = null;
 
 	/** TAG for log messages. */
 	static final String TAG = "XmlFileLoader";
-	private static final boolean _DEBUG = true; // Set to true to enable logging
+	private static final boolean _DEBUG = false; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
 	/**
@@ -72,6 +70,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	 * Open the selected file
 	 * @param inFileLock File to open
 	 * @param inAutoAppend true to auto-append
+     * @implNote does not work with Android devices
 	 */
 	public void openFile(FileToBeLoaded inFileLock, boolean inAutoAppend)
 	{
@@ -86,10 +85,10 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
     /**
      * Open the selected stream
      * @param inStream   stream to open
+     * @author BiselliW
      */
     public void openStream(InputStream inStream)  {
         _fileLock = new FileToBeLoaded(null,null);
-        _XML_filestream = null;
         _XML_stream = inStream;
         reset();
         if (DEBUG) {
@@ -141,6 +140,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 				sourceInfo.setFileTitle(_handler.getFileTitle());
 				sourceInfo.setFileDescription(_handler.getFileDescription());
 				sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
+                sourceInfo.setLink(_handler.getLink());
 
 				/* Pass information back to app
 				new FileTypeLoader(_app).loadData(_handler, sourceInfo, _autoAppend,
@@ -206,7 +206,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                     }
                 }
                 // Show error message
-                control.showErrorMessage(e.getMessage());
+                control.showErrorMessage(e.toString()); // .getMessage());
             }
         }
 		return success;

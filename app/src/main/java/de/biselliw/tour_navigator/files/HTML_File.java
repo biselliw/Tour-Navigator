@@ -457,7 +457,7 @@ public class HTML_File {
 
             html_buffer.append("</table>\n");
 
-            String desc = sourceInfo.getTrackDescription();
+            String desc = sourceInfo.getFileDescription();
             if (!desc.isEmpty()) {
                 html_buffer.append("<p>").append(desc).append("</p>\n")
                         .append("<p> </p>\n");

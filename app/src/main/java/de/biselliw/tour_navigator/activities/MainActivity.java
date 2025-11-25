@@ -69,6 +69,7 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
+import static android.app.Service.START_FLAG_REDELIVERY;
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static de.biselliw.tour_navigator.activities.SettingsActivity._app;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
@@ -174,7 +175,9 @@ public class MainActivity extends LocationActivity  implements
     @Override
     public void onStart() {
         super.onStart();
+        // Log.getMemoryInfo();
     }
+
 
     @Override
     public void onRestart() {

@@ -176,8 +176,8 @@ public class DataPoint
 		if (inField == null || inField == Field.WAYPT_TYPE) {
 			_wptType = getFieldValue(Field.WAYPT_TYPE);
 		}
-		if (inField == null || inField == Field.WAYPT_SYM) {
-			_symbol = getFieldValue(Field.WAYPT_SYM);
+		if (inField == null || inField == Field.SYMBOL) {
+			_symbol = getFieldValue(Field.SYMBOL);
 		}
  		if (inField == null || inField == Field.COMMENT) {
 			_comment = getFieldValue(Field.COMMENT);

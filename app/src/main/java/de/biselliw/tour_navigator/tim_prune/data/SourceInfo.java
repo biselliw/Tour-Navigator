@@ -47,7 +47,6 @@ public class SourceInfo
 	private String _metaTime = "";
 	private String _link = "";
 	private String _name = "";
-	private String _trackDescription = "";
 
 	/** Constructor giving just the file and its type, without a version */
 	public SourceInfo(File inFile, FileType inType) {
@@ -99,9 +98,13 @@ public class SourceInfo
 		_extensionInfo = inInfo;
 	}
 
-	/**
-	 * @return source file
-	 */
+    public void setLink (String link ) {
+       _link = link;
+    }
+
+    /**
+     * @return source file
+     */
 	public File getFile() {
 		return _sourceFile;
 	}
@@ -286,29 +289,6 @@ public class SourceInfo
 	{
 		if (_link == null) return "";
 		return _link;
-	}
-
-	/**
-	 * @return track description
-	 * @author BiselliW
-	 * @since 22.2.006
-	 */
-	@NonNull
-	public String getTrackDescription()
-	{
-		if (_trackDescription == null) return "";
-		return _trackDescription;
-	}
-
-	/**
-	 * Set the description of the track
-	 * @param inDescription Description of the track
-	 * @author BiselliW
-	 * @since 22.2.006
-	 */
-	public void setTrackDescription(String inDescription)
-	{
-		_trackDescription = inDescription;
 	}
 
 	/**
