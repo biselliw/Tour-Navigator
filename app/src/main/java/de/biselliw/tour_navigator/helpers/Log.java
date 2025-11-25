@@ -1,4 +1,6 @@
 package de.biselliw.tour_navigator.helpers;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.os.Build;
 import android.text.format.Time;
 
@@ -14,6 +16,8 @@ import java.util.Calendar;
 import androidx.annotation.NonNull;
 
 import de.biselliw.tour_navigator.BuildConfig;
+
+import static androidx.core.content.ContextCompat.getSystemService;
 import static de.biselliw.tour_navigator.files.FileUtils.getDownloadsDir;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
@@ -180,6 +184,37 @@ public final class Log {
         else  return 0;
     }
 
+    private static long available = 0;   // free RAM
+    private static long total = 0;       // total RAM
+    private static boolean low = false;     // if Android is in "Low Memory"-Mode
+    private static ActivityManager.MemoryInfo memInfo = null;
+    private static ActivityManager activityManager = null;
 
+    private static String mem_log = "";
+
+    /**
+     * Return general information about the memory state of the system.
+     *
+     * @return
+     */
+    public static void getMemoryInfo() {
+        memInfo = new ActivityManager.MemoryInfo();
+        activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+   }
+
+    private static Object getSystemService(String activityService) {
+        activityManager.getMemoryInfo(memInfo);
+
+        long MB = 1024 * 1024;
+        available = memInfo.availMem / MB;       // free RAM (MB)
+        long total = memInfo.totalMem / MB;      // total RAM
+        boolean low = memInfo.lowMemory;    // if Android is in "Low Memory"-Mode
+
+        mem_log = "available RAM : " + available + "MB / " + total + "MB " +
+                (low ? "low Memory-Mode" : "");
+
+        d ("", mem_log);
+        return null;
+    }
 }
 

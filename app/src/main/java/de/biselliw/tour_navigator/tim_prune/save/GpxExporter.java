@@ -134,7 +134,7 @@ public class GpxExporter {
 
 		// Output all track points, if any
 		String trackStart = "\t<trk>\n\t\t<name>" + trackName + "</name>\n\t\t<trkseg>\n";
-		inDesc = sourceinfo.getTrackDescription();
+		inDesc = sourceinfo.getFileDescription();
 		String trackDesc = (inDesc != null && !inDesc.equals("")) ? XmlUtils.fixCdata(inDesc) : "";
 		if (!trackDesc.equals(""))
 			trackStart += "\t\t<desc>" + trackDesc + "\n\t\t</desc>\n";
@@ -396,7 +396,7 @@ public class GpxExporter {
 		}
 
 		// symbol if any
-		final String symbol = inPoint.getFieldValue(Field.WAYPT_SYM);
+		final String symbol = inPoint.getFieldValue(Field.SYMBOL);
 		if (symbol != null && !symbol.equals(""))
 		{
 			inWriter.write("        <sym>");

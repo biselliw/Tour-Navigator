@@ -357,7 +357,8 @@ public class ControlElements extends BaseActivity {
         if ((additionalInfo != null) && !isErrorMessage()){
             TextView main_text_title = findViewById(R.id.main_text_title);
             main_text_title.setBackgroundColor(COLOR_MESSAGE);
-            main_text_title.setText(additionalInfo.title);
+            // main_text_title.setText(additionalInfo.title);
+            main_text_title.setText("");
 
 //                TextView commentView = main.findViewById(R.id.comment_view);
 //        commentView.setText(additionalInfo.comment);

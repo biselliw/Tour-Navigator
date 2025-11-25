@@ -401,15 +401,14 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         if (level == TRIM_MEMORY_UI_HIDDEN)
             /* the process had been showing a user interface, and is no longer doing so. Large allocations
                with the UI should be released at this point to allow memory to be better managed. */
-            msg = msg + "TRIM_MEMORY_UI_HIDDEN";
+            Log.w("MEMORY", msg + "TRIM_MEMORY_UI_HIDDEN");
         else if (level == TRIM_MEMORY_BACKGROUND)
             /* the process has gone on to the LRU list. This is a good opportunity to clean up resources
                that can efficiently and quickly be re-built if the user returns to the app. */
-            msg = msg + "TRIM_MEMORY_BACKGROUND";
+            Log.w("MEMORY", msg + "TRIM_MEMORY_BACKGROUND");
         else
             /* all other values are depreciated in API level 35 */
-            msg = msg + String.valueOf(level);
-        Log.w("MEMORY", "onTrimMemory level = " + msg);
+            Log.e("MEMORY", msg + String.valueOf(level));
     }
 
     /*
