@@ -62,7 +62,10 @@ public class FileInfo
 	 * @return source info object
 	 */
 	public SourceInfo getSource(int inIndex) {
-		return _sources.get(inIndex);
+        if (inIndex < _sources.size())
+		    return _sources.get(inIndex);
+        else
+            return null;
 	}
 
 	/** @return a list of all the unique titles in the order they appear */

@@ -311,4 +311,14 @@ public class SourceInfo
 		return _author;
 	}
 
+    /**
+     * set the name of the author of the gpx file
+     * @param inAuthor author of file, eg from meta tag <author><name in gpx file
+     * @author BiselliW
+     * @since 22.2.006
+     */
+    public void setAuthor(String inAuthor)
+    {
+         _author = inAuthor;
+    }
 }

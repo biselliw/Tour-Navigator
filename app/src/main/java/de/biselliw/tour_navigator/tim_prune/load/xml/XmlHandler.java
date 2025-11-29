@@ -160,9 +160,7 @@ public abstract class XmlHandler extends DefaultHandler
 	 * Can be overridden (eg by gpx handler) to provide the description of the file
 	 * @return file description, or null
 	 */
-	public String getFileDescription() {
-		return null;
-	}
+	public abstract String getFileDescription();
 
 	/**
 	 * @return the information about the Xml extensions, or null
@@ -186,4 +184,6 @@ public abstract class XmlHandler extends DefaultHandler
 
     public abstract void setLink(String link);
     public abstract String getLink();
+
+    public abstract String getAuthor();
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group
-        android:id="@+id/group_task_filter_modes"
+        android:id="@+id/nav_group_wpt_edit"
         android:checkableBehavior="none">
 
         <item
@@ -18,7 +18,7 @@
             app:showAsAction="never" />
     </group>
 
-    <group android:id="@+id/nav_group_nav">
+    <group android:id="@+id/nav_group_wpt_nav">
         <item
             android:id="@+id/itm_nav_waypoint"
             android:orderInCategory="1"
@@ -31,12 +31,15 @@
             app:showAsAction="never" />
     </group>
 
-    <group android:id="@+id/nav_group_edit">
+    <group android:id="@+id/nav_group_track_edit">
         <item
-            android:id="@+id/itm_split"
+            android:id="@+id/itm_separator"
             android:orderInCategory="2"
-            android:title="~~~~~~~~~~~~~~~~~~~"
-            app:showAsAction="never" />
+            android:enabled="false"
+            android:icon="@null"
+            android:title="_____________________________________________________________"
+            app:showAsAction="never"
+            android:layout_height="1dp"/>
         <item
             android:id="@+id/itm_set_new_start"
             android:orderInCategory="3"

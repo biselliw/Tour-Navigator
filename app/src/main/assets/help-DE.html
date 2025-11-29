@@ -1,94 +1,290 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="de">
 <head>
-    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
-    <title>Hilfe zu Tour Navigator</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Tour Navigator – Hilfe Mobil</title>
+    <style>
+        body { font-family: sans-serif; padding: 1em; line-height: 1.55; }
+        details { margin: 1em 0; border: 1px solid #ccc; border-radius: 8px; padding: .7em; }
+        summary { font-weight: bold; cursor: pointer; }
+        img { max-width: 100%; height: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: .4em; vertical-align: top; }
+        hr { margin: 1em 0; }
+    </style>
 </head>
 <body>
-<h3><a href="#Was_macht_die_App_Tour_Navigator">Was macht die App Tour Navigator?</a></h3>
-<h3><a href="#Was_beinhaltet_die_GPX-Datei">Was beinhaltet die GPX-Datei?</a></h3>
-<h3><a href="#Wie_funktioniert_die_Gehzeitberechnung">Wie funktioniert die Gehzeitberechnung?</a></h3>
-<h3><a href="#Auch_Pausen_sind_wichtig">Auch Pausen sind wichtig</a></h3>
-<h3><a href="#Navigation_zum_Ausgangspunkt_der_Route">Navigation zum Ausgangspunkt der Route</a></h3>
-<h3><a href="#Echtzeit-Navigation">Echtzeit-Navigation</a></h3>
-<h3><a href="#Was_macht_die_App_nicht">Was macht die App nicht?</a></h3>
-<h3><a href="#Was_macht_die_App_privatsphäre-freundlich">Was macht die App privatsphäre-freundlich?</a></h3>
-<h3><a href="#Welche_Berechtigungen_braucht_die_App">Welche Berechtigungen braucht die App?</a></h3>
+<h1>Tour Navigator – Hilfe</h1>
 
-<h3><a name="Was_macht_die_App_Tour_Navigator">Was macht die App Tour Navigator?</a></h3>
-Die privatsphäre-freundliche App erstellt auf der Basis einer vorhandenen GPX-Datei einen Zeitplan für den Ablauf einer Tour.
 
-<h3><a name="Was_beinhaltet_die_GPX-Datei">Was beinhaltet die GPX-Datei</a>?</h3>
-<p>Zur Speicherung von Geodaten wird das normierte GPS Exchange Format (GPX) verwendet. Dateien mit diesem Datenformat haben die Erweiterung ".gpx".<br>
-    Die GPX-Datei enthält den detaillierten Verlauf einer Route mit einer Liste von Trackpunkten. Diese enthalten neben den Koordinaten auch die Höhe und ggf. einen Namen.<br>
-    Aus Tourenportalen wie z.B. www.outdooractive.com lassen sich die Tracks herunterladen und ggf. auch nachbearbeiten.</p>
+<details open><summary>Übersicht</summary>
+    <h2>Was macht die App Tour Navigator?</h2>
+    <p>
+        Die privatsphäre-freundliche App Tour Navigator hilft dir dabei, jede Wanderung perfekt zu planen und entspannt zu genießen.
+        Die App erstellt aus einer vorhandenen GPX-Datei einen übersichtlichen Zeitplan – mit realistischen Gehzeiten, Zwischenzeiten und einem klar strukturierten Tourenablauf.
+    </p>
 
-<p>Um die zeitliche Dauer der Tour berechnen zu können, müssen die Trackpunkte auch Höhenwerte enthalten.</p>
+    <h2>Was beinhaltet die GPX-Datei?</h2>
+    <p>
+        GPX-Dateien sind der Standard für Touren und geografische Daten. Sie enthalten den genauen Verlauf einer Route, inklusive Höhenangaben und – idealerweise – benannten Wegpunkten.
+    </p>
+    <p>
+        Du kannst GPX-Dateien bequem über Tourenportale erhalten, z. B. von
+        <a href="https://www.outdooractive.com/de/">Outdooractive</a> oder dem
+        <a href="http://www.schwarzwaldverein-tourenportal.de/">Schwarzwaldverein</a>.
+        Je besser die Datei vorbereitet ist, desto exakter arbeitet Tour Navigator.
+    </p>
+    <p><b>Tipp:</b> Besonders einfach gelingt es mit dem
+        <a href="https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal">Tourenplaner des Schwarzwaldvereins</a>.
+    </p>
 
-<p>Für die Ermittlung von Zwischenzeiten an markanten Punkten entlang der Route muss die GPX-Datei zumindest benannte Trackpunkte enthalten oder
-    Wegpunkte in der Nähe des Tracks (POIs, Point of Interest).</p>
+    <p><b>Achtung:</b> Viele GPX-Dateien enthalten keine benannten Punkte – solche Dateien funktionieren nicht mit dieser App.</p>
 
-<p><b>Achtung:</b> Die meisten GPX-Dateien, vor allem aus aufgezeichneten Touren, enthalten keine benannten Track- oder Wegpunkte und können so mit der App nicht verwendet werden!</p>
+    <h2>Wie funktioniert die Gehzeitberechnung?</h2>
+    <p>
+        Tour Navigator arbeitet mit der bewährten DIN 33466 – der offiziellen Grundlage für verlässliche Wanderzeitberechnung.
+        Die Formel berücksichtigt Geschwindigkeit, Steigung und Gefälle und liefert ein realistisches Zeitmodell.
+    </p>
+    <details><summary>Details der Wanderzeitberechnung</summary>
+    <p>Sie geht davon aus, dass ein durchschnittlicher Wanderer eine
+        ebene Strecke von vier Kilometern in einer Stunde zurücklegt. In einer Stunde schafft er einen direkten Aufstieg von 300 Höhenmetern, in der gleichen Zeit
+        einen Abstieg von 500 Höhenmetern. Bei gemischten Teilstrecken mit horizontalen und vertikalen Anteilen werden zunächst alle Zeiten für sich berechnet.
+        Als Gehzeit für jeden Wegabschnitt werden anschließend der zeitlich längere Wert und die Hälfte des kürzeren Wertes addiert.</p>
 
-<h3><a name="Wie_funktioniert_die_Gehzeitberechnung">Wie funktioniert die Gehzeitberechnung?</a></h3>
-<p>Die einheitliche Berechnungsgrundlage dafür liefert die DIN 33466 (Wegweiser für Wanderwege). Sie geht davon aus, dass ein durchschnittlicher Wanderer eine
-    ebene Strecke von vier Kilometern in einer Stunde zurücklegt. In einer Stunde schafft er einen direkten Aufstieg von 300 Höhenmetern, in der gleichen Zeit
-    einen Abstieg von 500 Höhenmetern. Bei gemischten Teilstrecken mit horizontalen und vertikalen Anteilen werden zunächst alle Zeiten für sich berechnet.
-    Als Gehzeit für jeden Wegabschnitt werden anschließend der zeitlich längere Wert und die Hälfte des kürzeren Wertes addiert.</p>
+    <p>Beispiel: eine Wegstrecke besteht aus einem ebenen Anteil von 1 km Länge und einem Aufstieg von 300 Hm. Für den horizontalen
+        Anteil ergibt sich eine Gehzeit von 15 min, für den vertikalen Teil 60 min. Die Summe aus längerem Anteil (60 min) + Hälfte des kürzeren (15 min) ergibt
+        somit eine Gesamtzeit von 67,5 min.</p>
+    </details>
+    <p>Um die berechneten Gehzeiten an deine individuelle Leistung anzupassen, kannst Du die drei Parameter für die Formel in den Einstellungen der
+        App ändern. Diese werden permanent gespeichert.</p>
 
-<p>Beispiel: eine Wegstrecke besteht aus einem ebenen Anteil von 1 km Länge und einem Aufstieg von 300 Hm. Für den horizontalen
-    Anteil ergibt sich eine Gehzeit von 15 min, für den vertikalen Teil 60 min. Die Summe aus längerem Anteil (60 min) + Hälfte des kürzeren (15 min) ergibt
-    somit eine Gesamtzeit von 67,5 min.</p>
+    <p>Nach Eingabe der Startzeit berechnet die App anhand der vorliegenden Daten der GPX-Datei und deiner individuellen Parameter den Ablaufplan der Tour
+        in Form einer Tabelle.</p>
+    <p>Ein Höhenprofil zeigt zudem den vertikalen Verlauf der Tour.</p>
 
-<p>Um die berechneten Gehzeiten an deine individuelle Leistung anzupassen, kannst du die drei Parameter für die Formel in den Einstellungen der
-    App ändern. Diese werden permanent gespeichert.</p>
+    <h2>Auch Pausen sind wichtig</h2>
+    <p>
+        Für jeden Zwischenpunkt kannst du einen kurzen Kommentar hinzufügen und eine individuelle Pausenzeit festlegen – ideal für Foto-Stopps, Vesper oder Aussichtspunkte.
+    </p>
 
-<p>Nach Eingabe der Startzeit berechnet die App anhand der vorliegenden Daten der GPX-Datei und deiner individuellen Parameter den Ablaufplan der Tour
-    in Form einer Tabelle.</p>
-<p>Ein Höhenprofil zeigt zudem den vertikalen Verlauf der Tour.</p>
+    <h2>Navigation zum Ausgangspunkt der Route</h2>
+    <p>
+    Tour Navigator unterstützt dich bereits vor dem Start: Die App kann Koordinaten direkt an andere Navigations-Apps übergeben, z. B.
+        Google Maps – für die Anfahrt vom Wohnort. Die Navigation erfolgt dabei vollständig in der gewählten Ziel-App.
+            (Bitte Datenschutzhinweise beachten!)</p>
+    <p>
+        So findest du entspannt zum Startpunkt deiner Tour.
+    </p>
 
-<h3><a name="Auch_Pausen_sind_wichtig">Auch Pausen sind wichtig</a></h3>
-<p>Zu jedem Zwischenpunkt der Route kannst du eine Pausenzeit festlegen, zudem einen kurzen Kommentar hinzufügen.</p>
+    <h2>Echtzeit-Navigation</h2>
+    <p>
+        Während deiner Tour begleitet dich die App in Echtzeit.
+        Sie zeigt dir laufend an, wann du die nächsten Punkte erreichst und ob du im Zeitplan liegst.
+    </p>
+    <p>Dies setzt eine aktivierte GPS-Lokalisierung und genaue Positionsdaten vom GPS-Empfänger voraus.</p>
+    <p>
+        Verlässt du die Route, informiert dich Tour Navigator – auf Wunsch auch per Sprachnachricht.
+    </p>
 
-<h3><a name="Navigation_zum_Ausgangspunkt_der_Route">Navigation zum Ausgangspunkt der Route</a></h3>
-<p>Um zum Ausgangspunkt der Tour zu gelangen ist meist die Anreise mit PKW oder dem öffentlichen Verkehr erforderlich.
-    Auch dabei hilft dir die App indem sie zu jedem Zwischenpunkt dessen Koordinaten an eine zweite App weiterleiten kann, die in der Lage ist,
-    Geo-Koordinaten zu verarbeiten. Dies sind z.B.
-<ul>
-    <li>DB Navigator für die An/Rückreise mit der Bahn (funktioniert nach dem Update nicht mehr!)</li>
-	<li>Organic Maps: Offline Wandern, Radfahren, Wanderwege und Navigation:
-	<a href="https://organicmaps.app">https://organicmaps.app</a> </li>
-	<li>Google Maps zur Navigation vom Heimatort zum Start und wieder zurück 
-	(Datenschutzrichtlinie von Google beachten!) </li>
-</ul>
-Dabei übergibt die App Tour Navigator die Kontrolle an die zweite App bis diese verlassen wird um die Tour fortzusetzen.
-</p>
+    <h2>Was macht die App nicht?</h2>
+    <p>
+        Tour Navigator folgt bewusst einem klaren Konzept:
+        Die App berechnet keine Alternativrouten, sondern führt dich zuverlässig entlang der geplanten GPX-Strecke.
+    </p>
 
-<h3><a name="Echtzeit-Navigation">Echtzeit-Navigation</a></h3>
-<p>Diese setzt eine aktivierte GPS-Lokalisierung und genaue Positionsdaten vom GPS-Empfänger voraus.</p>
-<p>Vom Ausgangspunkt der Tour an berechnet die App dann die vermutliche Ankunftszeit an allen Zwischenpunkten und informiert dich ob du im
-    von dir selbst vorgegebenen Zeitplan liegst.</p>
-<p>Verlässt du die Route, warnt dich die App in Form einer Sprachnachricht, wenn diese Option eingestellt ist.</p>
+    <h2>Was macht die App privatsphäre-freundlich?</h2>
+    <p>
+        Tour Navigator ist 100 % privatsphäre-freundlich:
+        Es werden keinerlei persönliche Daten gespeichert oder weitergegeben.
+        Alle Informationen der Tour werden nach dem Schließen der App gelöscht – außer du speicherst sie bewusst.
+    </p>
 
-<h3><a name="Was_macht_die_App_nicht">Was macht die App nicht?</a></h3>
-<p>Die App Tour Navigator leitet dich nur entlang der vorgegebenen Route. Wird diese verlassen, berechnet sie keine Alternative!</p>
+    <h2>Welche Berechtigungen braucht die App?</h2>
+    <p>
+        Die App benötigt nur eine einzige Berechtigung:
+    </p>
+    <ul>
+        <li>Zugriff auf deine genaue GPS-Position – ausschließlich zur Navigation und Zeitplanung.</li>
+    </ul>
+</details>
 
-<h3><a name="Was_macht_die_App_privatsphäre-freundlich">Was macht die App privatsphäre-freundlich?</a></h3>
+<details><summary>Bedienungsanleitung</summary>
+    Die Bedienung der App erfolgt über diese Menüs:
+    <details><summary>Hauptmenü</summary>
+        Im Hauptmenü stehen diese globalen Funktionen zur Verfügung:
+        <table style="width: 100%">
+            <tr>
+                <td width=55"><img src="img/file_open.jpg" alt=""/></td>
+                <td>Öffnet eine GPX-Datei</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/description.png" alt=""/></td>
+                <td>Zeigt die aus der GPX-Datei geladene Informationen an.
+                    Sofern vorhanden, sind dies der Titel und die Beschreibung der Tour.
+                    Dazu präsentiert die App einen Web-Link zur Tour, um diese direkt über den Standard-Browser anzuzeigen.</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/swap_horiz.png" alt=""/></td>
+                <td>Damit kannst du die Richtung der Tour umkehren.
+                    Über den Menüpunkt <a href="#start_from_here">"Starte von hier"</a> lässt sich sogar der Startpunkt ändern.</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/schedule.png" alt=""/></td>
+                <td>Damit legst du die Startzeit der Tour fest. Sie wird für die Berechnung der Wegzeiten benötigt.
+                    Über den Menüpunkt <a href="#pause_time">"Pausenzeit"</a> kannst du zudem für jeden Wegpunkt eine Pausenzeit vorgeben.</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/table_rows.png" alt=""/></td>
+                <td>Die Wegzeittabelle ist die Kernfunktionalität der App. Aus den Geokoordinaten und Wegpunkten der geladenen GPX-Datei,
+                    den von dir vorgegebenen Parametern zur Wegzeitberechnung, der Start- und den Pausenzeiten erstellt die App eine Tabelle für den zeitlichen Ablauf der Tour und zeigt sie hier an.
+                </td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/file_save.png" alt=""/></td>
+                <td>Im GPX-Format kannst Du die bereits geladene GPX-Datei mit den zusätzlich von dir vorgegebenen Werten für die Startzeit sowie Kommentaren und Pausenzeiten für einzelne Wegpunkte der Tour exportieren.
+                    Diese Datei kannst du später wieder laden. So gehen keine Informationen verloren.</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/html.png" alt=""/></td>
+                <td>Im HTML-Format kannst du die erweiterte Wegzeittabelle mit allen gesammelten Informationen zur Tour exportieren.
+                    Jeder Wegpunkt der Tabelle wird dabei in einer weiteren Tabelle mit einem vorhandenen
+                    Eintrag zu ergänzenden Informationen verlinkt.
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr /></td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/settings.png" alt=""/></td>
+                <td>In den Einstellungen legst du u.a. die Parameter für die Wegzeitberechnung fest.</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/help.png" alt=""/></td>
+                <td>Damit wird diese Hilfedatei im internen Browser geöffnet.</td>
+            </tr>
+            <tr>
+                <td width=55"><img src="img/info.png" alt=""/></td>
+                <td>Hier werden Informationen zum Copyright der App angezeigt.</td>
+            </tr>
+        </table>
+    </details>
 
-<p>Zum Schutz der Privatsphäre sammelt die App keinerlei Daten über dich und gibt auch keine weiter.
-    Zur Erfüllung ihrer Aufgaben benötigt sie nur die mindestens erforderlichen Berechtigungen zum Zugriff auf die Ressourcen
-    des Gerätes. Die App schreibt nur Daten in den externen Speicher wenn du einen Download startest.
-    Die Informationen aus der gelesenen GPX-Datei und deine eingegebenen Informationen gehen nach dem Beenden der App verloren.
-    Zuvor kannst du die geänderte GPX-Datei und die daraus erstellte Wegzeit-Tabelle speichern um sie später wieder zu verwenden oder zu bearbeiten.</p>
-<p>Wenn du im Menüpunkt "Zum Wegpunkt navigieren" die Kontrolle an eine andere app übergibst, musst du dir selbst im Klaren sein ob diese deine Privatsphäre
-    weiterhin schützt oder ggf. Daten über dich sammelt. Dafür bist du selbst verantwortlich!</p>
+    <details><summary>Kontextmenü</summary>
+        <p>Abhängig vom ausgewählten Punkt der Tour stehen diese Funktionen zur Verfügung:</p>
 
-<h3><a name="Welche_Berechtigungen_braucht_die_App">Welche Berechtigungen braucht die App?</a></h3>
-<p>Die App Tour Navigator benötigt ausschließlich folgende Berechtigung:
-<ul>
-    <li>Zugriff auf die genaue GPS-Position zum Abgleich der aktuellen Position mit dem Zeitplan</li>
-</ul>
-</p>
+        <table style="width: 100%">
+            <tr>
+                <td valign="top"><a name="pause_time"></a>Pausenzeit</td>
+                <td>Für jeden Wegpunkt kannst du eine individuelle Pausenzeit festlegen die im zeitlichen Ablaufplan berücksichtigt wird.</td>
+            </tr>
+            <tr>
+                <td valign="top">Wegpunkt kommentieren</td>
+                <td>Für jeden Wegpunkt kannst du einen individuellen Kommentar hinzufügen, der in der Wegzeittabelle erscheint.</td>
+            </tr>
+            <tr>
+                <td valign="top"><a name="navigate"></a>Zum Wegpunkt navigieren</td>
+                <td>Bei jedem Wegpunkt kannst Du dessen Geo-Koordinaten an eine geeignete App weiterleiten, die diese auf einer Karte anzeigen kann, z.B.:<ul>
+                    <li>Organic Maps, eine datenschutzfreundliche Offline-Karten- und GPS-App zum Wandern, Radfahren und Autofahren:
+                        <a href="https://organicmaps.app">organicmaps.app</a> </li>
+                    <li>Locus Maps: <a href="https://www.locusmap.app/de/">www.locusmap.app</a> </li>
+                </ul>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top"><a name="Google_Navigation"></a>Google-Navigation</td>
+                <td>Bei jedem Wegpunkt kannst du dessen Geo-Koordinaten an Google Maps weiterleiten um eine Route von deinem aktuellen Standort zum gewählten Wegpunkt mit dem Pkw zu generieren oder einfach die Karte zu studieren.
+                    Vorab musst du die angezeigte Datenschutzrichtlinie von Google lesen und ihr einmalig zustimmen. Dies wird in den Einstellungen der App gespeichert.
+                    Wie "privatsphärefreundlich" Google deine Daten verarbeitet liegt dann allein in Deiner Verantwortung!
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2"><hr /></td>
+            </tr>
+            <tr>
+                <td><img src="img/warning.png" alt=""></td>
+                <td>Diese Aktionen können nicht rückgängig gemacht werden:</td>
+            </tr>
+            <tr>
+                <td valign="top"><a name="start_from_here"></a>Starte von hier</td>
+                <td>Du kannst jeden Wegpunkt als Ausgangspunkt der Route wählen. Mit dieser Funktion wird der Track so reorganisiert, dass er am gewählten Wegpunkt startet.</td>
+            </tr>
+            <tr>
+                <td valign="top">Wegpunkt entfernen</td>
+                <td>Du kannst jeden Wegpunkt aus der Tabelle löschen. Damit gehen aber auch der ihm zugeordnete Kommentar und die Pausenzeit verloren.</td>
+            </tr>
+            <tr>
+                <td valign="top">Alle Punkte danach entfernen</td>
+                <td>Du kannst ab dem aktuellen Wegpunkt in der Tabelle sämtliche Weg- und Trackpunkte der Route löschen, damit aber auch die ihnen zugeordneten Kommentare und Pausenzeiten.</td>
+            </tr>
+        </table>
+    </details>
+
+    <details><summary>Bedien- und Statuselemente in der Fußzeile</summary>
+        Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bereit:
+        <details><summary>Bedienelemente</summary>
+            <table style="width: 100%">
+                <tr>
+                    <td width=55"><img src="img/follow_the_signs.jpg" alt=""/></td>
+                    <td>Startet das Tracking oder führt es fort.
+                        <b>Wichtig:</b> Im Betrieb muss die App im Vordergrund bleiben!</td>
+                </tr>
+                <tr>
+                    <td><img src="img/accessibility_new.jpg" alt=""/></td>
+                    <td>Pausiert das Tracking</td>
+                </tr>
+                <tr>
+                    <td><img src="img/expand_more.jpg" alt=""/></td>
+                    <td>Mehr Informationen zum Punkt anzeigen</td>
+                </tr>
+                <tr>
+                    <td><img src="img/expand_less.jpg" alt=""/></td>
+                    <td>Weniger Informationen zum Punkt anzeigen</td>
+                </tr>
+                <tr>
+                    <td><img src="img/show_chart.jpg" alt=""/></td>
+                    <td>Höhenprofil anzeigen</td>
+                </tr>
+                <td><img src="img/open_in_full.jpg" alt=""/></td>
+                <td>Höhenprofil verbergen</td>
+                </tr>
+            </table>
+        </details>
+
+        <details><summary>Statussymbole</summary>
+            <table style="width: 100%">
+                <tr>
+                    <td width=55"><img src="img/alarm_on.jpg" alt=""/></td>
+                    <td>Die Alarmierung beim Verlassen des Weges ist über die Einstellungen der App aktiviert</td>
+                </tr>
+                <tr>
+                    <td width=55"><img src="img/alarm_off.jpg" alt=""/></td>
+                    <td>Die Alarmierung beim Verlassen des Weges ist deaktiviert</td>
+                </tr>
+                <tr>
+                    <td width=55"><img src="img/location_disabled.jpg" alt=""/></td>
+                    <td>Die genaue Standortberechtigung ist für die App nicht zugelassen. Sie kann über "Einstellungen -> Apps -> "Tour Navigator" -> App-Berechtigungen -> Standort" oder beim Neustart der App erteilt werden. Ohne diese kann die App nicht arbeiten.</td>
+                </tr>
+                <tr>
+                    <td width=55"><img src="img/satellite.jpg" alt=""/></td>
+                    <td>Es wurde noch keine Datei geladen oder die Standortberechtigung ist für das Gerät nicht aktiviert. Diese kann über "Einstellungen -> Standort" des Systems erteilt werden. Ohne diese kann die App nicht arbeiten.</td>
+                </tr>
+                <tr>
+                    <td width=55"><img src="img/location_off.png" alt=""/></td>
+                    <td>GPS aktiviert - Warten auf GPS Fix</td>
+                </tr>
+                <tr>
+                    <td width=55"><img src="img/sync_problem.jpg" alt=""/></td>
+                    <td>Warte auf genaue GPS-Daten nachdem eine Datei geladen wurde</td>
+                </tr>
+                <tr>
+                    <td width=55"><img src="img/location_on.png" alt=""/></td>
+                    <td>Genaue GPS-Positionsdaten sind verfügbar (GPS Fix)</td>
+                </tr>
+            </table>
+        </details>
+    </details>
+</details>
 
 </body>
 </html>

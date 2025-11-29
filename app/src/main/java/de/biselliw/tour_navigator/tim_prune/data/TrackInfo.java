@@ -1,10 +1,13 @@
 package de.biselliw.tour_navigator.tim_prune.data;
 
+import java.util.List;
+
 import de.biselliw.tour_navigator.tim.prune.data.FileInfo;
 
 /**
  * Class to hold all track information, including data
  * and the selection information
+ * @since 26.1
  */
 public class TrackInfo
 {
@@ -18,7 +21,6 @@ public class TrackInfo
 	public TrackInfo(Track inTrack)
 	{
 		_track = inTrack;
-		_fileInfo = new FileInfo();
 	}
 
 	/**
@@ -31,16 +33,33 @@ public class TrackInfo
 	/**
 	 * @return the FileInfo object
 	 */
-	public FileInfo getFileInfo() {
+	public FileInfo getFileInfo()
+	{
+		if (_fileInfo == null)
+		{
+			_fileInfo = new FileInfo();
+			for (int i = 0; i < _track.getNumPoints(); i++) {
+				_fileInfo.addSource(_track.getPoint(i).getSourceInfo());
+			}
+		}
 		return _fileInfo;
 	}
 
-	/**
-	 * Replace the file info with a previously made clone
-	 * @param inInfo cloned file info
-	 */
-	public void setFileInfo(FileInfo inInfo) {
-		_fileInfo = inInfo;
+	/** Delete the current file information so that it will be regenerated */
+	public void clearFileInfo() {
+		_fileInfo = null;
+	}
+
+	public boolean appendRange(List<DataPoint> inPoints)
+	{
+		final int currentNumPoints = getTrack().getNumPoints();
+		if (getTrack().appendRange(inPoints))
+		{
+			// Select the first point added
+//			selectPoint(currentNumPoints);
+			return true;
+		}
+		return false;
 	}
 
 }

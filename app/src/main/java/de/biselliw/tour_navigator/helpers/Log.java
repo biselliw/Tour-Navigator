@@ -28,6 +28,7 @@ public final class Log {
     private static String _prefix = "";
     private static FileWriter _writer = null;
 
+    private static String _HTML_String = "";
     /**
      * Enable writing to log file
      * @param enabled true if writing is enabled
@@ -130,10 +131,11 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int d(java.lang.String tag, java.lang.String msg) {
-        Write("D " + tag + " - " + msg);
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
+            Write("D " + tag + " - " + msg);
             return android.util.Log.d(tag, msg);
-        else  return 0;
+        }
+        else return 0;
     }
 
     /**
@@ -144,11 +146,13 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int e(java.lang.String tag, java.lang.String msg) {
-        control.showErrorMessage(tag + ": " + msg);
-        Write("E " + tag + " - " + msg);
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
+            control.showErrorMessage(msg);
+            addHTML(tag, "<red>E " + msg+ "</red>");
+            Write("E " + tag + " - " + msg);
             return android.util.Log.e(tag, msg);
-        else  return 0;
+        }
+        else return 0;
     }
 
     /**
@@ -160,13 +164,16 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int e(java.lang.String tag, java.lang.String msg, @NonNull Throwable tr) {
-        control.showErrorMessage(tag + ": " + msg);
-        Write("E " + tag + " - " + msg + ": "
-                + tr.toString()
-                + " called by "
-                + Arrays.toString(tr.getStackTrace())) ;
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
+            control.showErrorMessage(msg);
+            msg = "E " + tag + " - " + msg + ": "
+                    + tr.toString()
+                    + " called by "
+                    + Arrays.toString(tr.getStackTrace());
+            addHTML(tag, msg);
+            Write(msg);
             return android.util.Log.e(tag, msg, tr);
+        }
         else  return 0;
     }
 
@@ -178,11 +185,29 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int w(java.lang.String tag, java.lang.String msg) {
-        Write("W " + tag + " - " + msg);
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
+            Write("W " + tag + " - " + msg);
             return android.util.Log.w(tag, msg);
+        }
         else  return 0;
     }
+
+    public static void clearHTML () { _HTML_String = ""; }
+    public static void addHTML (java.lang.String tag, java.lang.String msg) {
+        _HTML_String = _HTML_String + tag + ": " + msg + "<br>";
+    }
+
+    public static String getHTML () { return getHTML(""); }
+    public static boolean isLoggedHTML () { // return false;
+        return !_HTML_String.isEmpty();
+    }
+    public static String getHTML (java.lang.String title)
+    {
+        String msg = "";
+        if (!title.isEmpty()) msg = "<b>" + title + "</b><br>";
+        return msg + _HTML_String;
+    }
+
 
     private static long available = 0;   // free RAM
     private static long total = 0;       // total RAM

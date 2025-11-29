@@ -2,6 +2,8 @@ package de.biselliw.tour_navigator.tim_prune.data;
 
 import java.util.TimeZone;
 
+import de.biselliw.tour_navigator.stubs.AudioClip;
+import de.biselliw.tour_navigator.stubs.Photo;
 import de.biselliw.tour_navigator.tim.prune.data.Altitude;
 import de.biselliw.tour_navigator.tim.prune.data.Coordinate;
 import de.biselliw.tour_navigator.tim.prune.data.Distance;
@@ -43,14 +45,15 @@ public class DataPoint
 	private int _originalIndex = -1;
 
 	/** Attached photo */
+	private Photo _photo = null;
     /**
      * @todo use media
-	private Photo _photo = null;
 	/** Attached audio clip */
     /**
      * @todo use media
+     * */
 	private AudioClip _audio = null;
-    */
+
 	private String _waypointName = null;
 	private boolean _startOfSegment = false;
 	private int _modifyCount = 0;
@@ -541,7 +544,7 @@ public class DataPoint
 	 * Set the photo for this data point
 	 * @param inPhoto Photo object
      * @todo use media
-	 * /
+	 */
 	public void setPhoto(Photo inPhoto) {
 		_photo = inPhoto;
 		_modifyCount++;
@@ -550,11 +553,10 @@ public class DataPoint
 	/**
 	 * @return associated Photo object
      * @todo use media
-	 * /
+	 */
 	public Photo getPhoto() {
 		return _photo;
 	}
-*/
 
 	/**
 	 * Set the audio clip for this point
@@ -570,11 +572,10 @@ public class DataPoint
 	/**
 	 * @return associated audio object
      * @todo use media
-	 * /
+	 */
 	public AudioClip getAudio() {
 		return _audio;
 	}
-    */
 
 	/**
 	 * @return true if the point is valid
@@ -675,6 +676,7 @@ public class DataPoint
 		}
 		return point;
 	}
+*/
 
 	public void setSourceInfo(SourceInfo inInfo) {
 		_sourceInfo = inInfo;
