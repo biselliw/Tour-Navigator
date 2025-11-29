@@ -563,17 +563,40 @@ public class FileUtils {
     }
 
     /**
-     * Delete the cache
+     * Delete the app cache
      * @author biselliw
      */
+    public static void clearAppCache(Context context) {
+        try {
+            File dir = context.getCacheDir();
+            deleteDir(dir);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (String child : children) {
+                boolean success = deleteDir(new File(dir, child));
+                if (!success) return false;
+            }
+        }
+        return dir.delete();
+    }
+
     public static void deleteDocumentCacheDir(@NonNull Context context)
     {
         File dir = new File(context.getCacheDir(), DOCUMENTS_DIR);
-        if (dir.exists())
-        {
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                file.delete();
+        if (dir.exists()) {
+            try {
+                File[] files = dir.listFiles();
+                for (File file : files) {
+                    file.delete();
+                }
+            } catch (Exception e) {
+                //            e.printStackTrace();
             }
         }
     }

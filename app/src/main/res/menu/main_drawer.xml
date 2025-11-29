@@ -4,10 +4,6 @@
     <group android:id="@+id/nav_group_main"
         android:checkableBehavior="all">
         <item
-            android:id="@+id/nav_main"
-            android:icon="@drawable/home"
-            android:title="@string/action_main" />
-        <item
             android:id="@+id/nav_open_gpx"
             android:icon="@drawable/file_open"
             android:title="@string/action_open_gpx" />
@@ -17,7 +13,7 @@
             android:title="@string/action_file_info" />
         <item
             android:id="@+id/nav_reverse_route"
-            android:icon="@drawable/undo"
+            android:icon="@drawable/swap_horiz"
             android:title="@string/action_reverse_route" />
         <item
             android:id="@+id/nav_start_time"

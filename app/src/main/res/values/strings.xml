@@ -3,7 +3,7 @@
     <string name="app_name">Tour Navigator</string>
     <string name="app_short_description">Timetable of hiking tour</string>
 
-    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2024 by Walter Biselli</string>
+    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2025 by Walter Biselli</string>
     <string name="app_description">Timetable of hiking tour</string>
     <string name="app_description2">Timetable of hiking tour</string>
     <string name="app_author">Author</string>
@@ -174,7 +174,7 @@
     <string name="nr">Nr</string>
     <string name="time">Time</string>
     <string name="arrive">Arrival</string>
-    <string name="place">Ort</string>
+    <string name="place">Place</string>
     <string name="next_place">Next Place</string>
     <string name="altitude_m">Altitude<br>[m]</br></string>
     <string name="dist_km">Diff<br>[km]</br></string>

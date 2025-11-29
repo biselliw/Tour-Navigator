@@ -4,6 +4,7 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
 // tim.prune.load.xml.XmlFileLoader
 // @since WB
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,31 +17,36 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.util.Log;
+// import android.util.Log;
 
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim.prune.load.FileToBeLoaded;
-
+import de.biselliw.tour_navigator.tim_prune.load.FileTypeLoader;
+import de.biselliw.tour_navigator.helpers.Log;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
  * Class for handling loading of Xml files, and passing the
  * loaded data back to the App object
  * @since 26.1
+ * @implNote BiselliW: support stream read/write
  */
 public class XmlFileLoader extends DefaultHandler implements Runnable
 {
-    private InputStream _XML_stream = null;
 
 	private final App _app;
 	private FileToBeLoaded _fileLock = null;
 	private boolean _autoAppend = false;
 	private XmlHandler _handler = null;
-	private boolean _parsedXmlStream = false;
 	private String _unknownType = null;
 
+    /**
+     * @implNote BiselliW: support stream read/write
+    */
+    private InputStream _XML_stream = null;
+    private boolean _parsedXmlStream = false;
 
 	/** TAG for log messages. */
 	static final String TAG = "XmlFileLoader";
@@ -70,7 +76,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	 * Open the selected file
 	 * @param inFileLock File to open
 	 * @param inAutoAppend true to auto-append
-     * @implNote does not work with Android devices
+	 * @implNote does not work on Android devices
 	 */
 	public void openFile(FileToBeLoaded inFileLock, boolean inAutoAppend)
 	{
@@ -78,26 +84,47 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		_fileLock.takeOwnership();	// we keep ownership for separate thread
 		_autoAppend = inAutoAppend;
 		reset();
+		_XML_stream = null;
 		// start new thread in case xml parsing is time-consuming
 		new Thread(this).start();
 	}
 
     /**
-     * Open the selected stream
-     * @param inStream   stream to open
+     * Open the selected file
+     * @param inFile File to open
+     * @param inAutoAppend true to auto-append
+     * @param inAfterwards runnable to be called afterwards
      * @author BiselliW
+     * @implNote works on Android devices
      */
-    public void openStream(InputStream inStream)  {
-        _fileLock = new FileToBeLoaded(null,null);
-        _XML_stream = inStream;
+    public void openFile(File inFile, boolean inAutoAppend, Runnable inAfterwards)  {
+        _fileLock = new FileToBeLoaded(inFile,inAfterwards);
+        _fileLock.takeOwnership();	// we keep ownership for separate thread
+        _autoAppend = inAutoAppend;
+        _XML_stream = null;
         reset();
-        if (DEBUG) {
-            Log.d(TAG, "Start new thread in case xml parsing is time-consuming");
-        }
+        // start new thread in case xml parsing is time-consuming
         new Thread(this).start();
     }
 
-	/**
+    /**
+     * Open the selected stream
+     * @param inStream   stream to open
+     * @param inAutoAppend true to auto-append
+     * @param inAfterwards runnable to be called afterwards
+     * @author BiselliW
+     */
+    public void openStream(InputStream inStream, boolean inAutoAppend, Runnable inAfterwards)  {
+        _fileLock = new FileToBeLoaded(null,inAfterwards);
+        _fileLock.takeOwnership();	// we keep ownership for separate thread
+        _autoAppend = inAutoAppend;
+        _XML_stream = inStream;
+        reset();
+        // Start new thread in case xml parsing is time-consuming
+        new Thread(this).start();
+    }
+
+    /**
 	 * Run method, to parse the file
 	 * @see java.lang.Runnable#run()
 	 */
@@ -107,19 +134,19 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		boolean success = false;
 		try
 		{
-			if (DEBUG) Log.d(TAG,"parse XML Stream");
+            if (DEBUG) Log.d(TAG,"parse XML Stream");
             if (_XML_stream != null)
                 success = parseXmlStream(_XML_stream);
             else {
                 inStream = new FileInputStream(_fileLock.getFile());
                 success = parseXmlStream(inStream);
             }
-		}
-		catch (FileNotFoundException fnfe) {
-			if (DEBUG) Log.e(TAG,"FileNotFound");
-		}
+        }
+        catch (FileNotFoundException fnfe) {
+            if (DEBUG) Log.e(TAG,"FileNotFound");
+        }
 
-		if (DEBUG) Log.d(TAG,"result: " + success);
+        if (DEBUG) Log.d(TAG,"result: " + success);
 		// Clean up the stream, don't need it any more
 		if (inStream != null) {
 			try {inStream.close();} catch (IOException e2) {}
@@ -138,21 +165,20 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 				SourceInfo sourceInfo = new SourceInfo(_fileLock.getFile(), _handler.getFileType(),
 					_handler.getFileVersion());
 				sourceInfo.setFileTitle(_handler.getFileTitle());
+                sourceInfo.setAuthor((_handler.getAuthor()));
 				sourceInfo.setFileDescription(_handler.getFileDescription());
 				sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
                 sourceInfo.setLink(_handler.getLink());
 
-				/* Pass information back to app
-				new FileTypeLoader(_app).loadData(_handler, sourceInfo, _autoAppend,
-					new MediaLinkInfo(_handler.getLinkArray()));
-
-				 */
-				_app.informDataLoaded(_handler.getFieldArray(), _handler.getDataArray(),
-					null, sourceInfo, null /* _handler.getTrackNameList() */ );
+				// Pass information back to app
+				new FileTypeLoader(_app).loadData(_handler, sourceInfo, _autoAppend
+                        // , new MediaLinkInfo(_handler.getLinkArray())
+                );
 			}
 		}
 		_fileLock.release();
 	}
+
 
 	/**
 	 * Try both Xerces and the built-in java classes to parse the given xml stream
@@ -224,9 +250,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		{
 			if  (qName.equals("gpx")) {
 				_handler = new GpxHandler();
-				}
-			else if (_unknownType == null && !qName.equals(""))
-			{
+			}
+			else if (_unknownType == null && !qName.equals("")) {
 				_unknownType = qName;
 			}
 		}

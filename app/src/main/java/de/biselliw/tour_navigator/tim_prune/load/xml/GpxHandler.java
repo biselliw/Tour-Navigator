@@ -614,4 +614,7 @@ public class GpxHandler extends XmlHandler {
     {
         return metaLink;
     }
+
+    public String getAuthor() { return metaAuthor; }
+
 }

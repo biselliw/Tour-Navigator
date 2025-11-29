@@ -51,9 +51,6 @@ import static de.biselliw.tour_navigator.tim_prune.I18nManager.APP_NAME;
  * @since 26.1
  */
 public class GpxExporter {
-	private static App _app;
-	private static TrackInfo _trackInfo = null;
-
 	/** this program name */
 	private static final String GPX_CREATOR = APP_NAME;
 
@@ -61,24 +58,20 @@ public class GpxExporter {
 	 * Constructor
 	 * @param inApp app object
 	 */
-	public GpxExporter(App inApp)
-	{
-		_app = inApp;
-		_trackInfo = inApp.getTrackInfo();
-	}
 
 	/**
 	 * Download the information to the given writer
 	 * @param  writer streaming object
+     * @param inInfo track info object
      * @author BiselliW
 	 */
-	public static void downloadData(OutputStreamWriter writer) throws IOException {
+	public static int downloadData(OutputStreamWriter writer, TrackInfo inInfo) throws IOException {
 
-		_trackInfo = _app.getTrackInfo();
-		if (_trackInfo != null) {
+		int result = 0;
+		if (inInfo != null) {
 
 			try {
-				exportData(writer, _trackInfo);
+                result = exportData(writer, inInfo);
 
 				// close file
 				writer.close();
@@ -86,7 +79,8 @@ public class GpxExporter {
 				writer.close();
 			}
 		}
-	}
+        return result;
+    }
 
 	/**
 	 * Export the information to the given writer
@@ -96,55 +90,65 @@ public class GpxExporter {
 	 * @throws IOException if io errors occur on write
 	 * @implNote BiselliW: reduced functionality (GpxCachers, fixed selections of exported data items, no media), add track description
 	 */
-	public static int exportData(OutputStreamWriter inWriter, TrackInfo inInfo) throws IOException
+	private static int exportData(OutputStreamWriter inWriter, TrackInfo inInfo) throws IOException
 	{
-		// Write or copy headers
-		inWriter.write(getXmlHeaderString(inWriter));
-		final String gpxHeader = getGpxHeaderString();
-		inWriter.write(gpxHeader);
-		// name and description
-		SourceInfo sourceinfo = _trackInfo.getFileInfo().getSource(0);
+        try {
+            // Write or copy headers
+            inWriter.write(getXmlHeaderString(inWriter));
+            final String gpxHeader = getGpxHeaderString();
+            inWriter.write(gpxHeader);
+            // name and description
+            SourceInfo sourceinfo = inInfo.getFileInfo().getSource(0);
+            if (sourceinfo != null ) {
+                String inName = sourceinfo.getMetaName();
+                String trackName = (inName != null && !inName.equals("")) ? XmlUtils.fixCdata(inName) : GPX_CREATOR + "Track";
+                String inDesc = sourceinfo.getMetaDescription();
+                String trackTitle = (inDesc != null && !inDesc.equals("")) ? XmlUtils.fixCdata(inDesc) : "Export from " + GPX_CREATOR;
+                writeNameAndDescription(inWriter, trackName, trackTitle, sourceinfo.getAuthor(), sourceinfo.getMetaTime(), sourceinfo.getMetaLink());
 
-		String inName = sourceinfo.getMetaName();
-		String trackName = (inName != null && !inName.equals("")) ? XmlUtils.fixCdata(inName) : GPX_CREATOR + "Track";
-		String inDesc = sourceinfo.getMetaDescription();
-		String trackTitle = (inDesc != null && !inDesc.equals("")) ? XmlUtils.fixCdata(inDesc) : "Export from " + GPX_CREATOR;
-		writeNameAndDescription(inWriter, trackName, trackTitle, sourceinfo.getAuthor(), sourceinfo.getMetaTime(), sourceinfo.getMetaLink());
+                DataPoint point;
+                // Loop over waypoints
+                final int numPoints = inInfo.getTrack().getNumPoints();
+                int numSaved = 0;
+                for (int i=0; i<numPoints; i++)
+                {
+                    point = inInfo.getTrack().getPoint(i);
+                    // Make a wpt element for each waypoint
+                    if (point.isWayPoint())
+                    {
+                        exportWaypoint(point, inWriter);
+                        numSaved++;
+                    }
+                }
 
-		DataPoint point;
-		// Loop over waypoints
-		final int numPoints = inInfo.getTrack().getNumPoints();
-		int numSaved = 0;
-		for (int i=0; i<numPoints; i++)
-		{
-			point = inInfo.getTrack().getPoint(i);
-			// Make a wpt element for each waypoint
-			if (point.isWayPoint())
-			{
-				exportWaypoint(point, inWriter);
-				numSaved++;
-			}
-		}
+                // Export both route points and then track points
+                // Output all route points (if any)
+                numSaved += writeTrackPoints(inWriter, inInfo,
+                        true, "\t<rte><number>1</number>\n",
+                        null, "\t</rte>\n");
 
-		// Export both route points and then track points
-		// Output all route points (if any)
-		numSaved += writeTrackPoints(inWriter, inInfo,
-			true, "\t<rte><number>1</number>\n",
-			null, "\t</rte>\n");
-
-		// Output all track points, if any
-		String trackStart = "\t<trk>\n\t\t<name>" + trackName + "</name>\n\t\t<trkseg>\n";
-		inDesc = sourceinfo.getFileDescription();
-		String trackDesc = (inDesc != null && !inDesc.equals("")) ? XmlUtils.fixCdata(inDesc) : "";
-		if (!trackDesc.equals(""))
-			trackStart += "\t\t<desc>" + trackDesc + "\n\t\t</desc>\n";
-		numSaved += writeTrackPoints(inWriter, inInfo,
-			false, trackStart,
-			"\t</trkseg>\n\t<trkseg>\n", "\t\t</trkseg>\n\t</trk>\n");
+                // Output all track points, if any
+                String trackStart = "\t<trk>\n\t\t<name>" + trackName + "</name>\n\t\t<trkseg>\n";
+                inDesc = sourceinfo.getFileDescription();
+                String trackDesc = (inDesc != null && !inDesc.equals("")) ? XmlUtils.fixCdata(inDesc) : "";
+                if (!trackDesc.equals(""))
+                    trackStart += "\t\t<desc>" + trackDesc + "\n\t\t</desc>\n";
+                numSaved += writeTrackPoints(inWriter, inInfo,
+                        false, trackStart,
+                        "\t</trkseg>\n\t<trkseg>\n", "\t\t</trkseg>\n\t</trk>\n");
 
 
-		inWriter.write("</gpx>\n");
-		return numSaved;
+                inWriter.write("</gpx>\n");
+                return numSaved;
+            }
+
+        } catch (IOException ioe) {
+        {
+            return 0;
+        }
+
+        }
+        return 0;
 	}
 
 

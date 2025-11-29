@@ -17,14 +17,20 @@ package de.biselliw.tour_navigator;
 
     Copyright 2025 Walter Biselli (BiselliW)
 */
+import android.net.Uri;
 import android.util.Log;
+
+import java.util.List;
 
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
 
+import de.biselliw.tour_navigator.tim.prune.DataSubscriber;
 import de.biselliw.tour_navigator.tim_prune.I18nManager;
+import de.biselliw.tour_navigator.tim_prune.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
@@ -49,8 +55,11 @@ public class App {
     private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    public static Uri gpxUri = null;
+
     private static SourceInfo _sourceInfo = null;
     private static Track _track = null;
+    private static List<DataPoint> _points = null;
     private final TrackInfo _trackInfo;
     static TrackDetails _stats = null;
     private final MainActivity _main;
@@ -69,6 +78,7 @@ public class App {
         app = this;
         _main = main;
         _recordAdapter = _main.recordAdapter;
+
         _track = new Track();
         _trackInfo = new TrackInfo(_track);
 
@@ -83,24 +93,49 @@ public class App {
         return _trackInfo;
     }
 
+    public void deleteAllPoints() {
+        _track.deleteAllPoints();
+    }
+
+    public void appendRange(List<DataPoint> inPoints) {
+        _points = inPoints;
+        _trackInfo.clearFileInfo();
+        _trackInfo.appendRange(inPoints);
+    }
 
     /**
-     * Receive loaded data and determine whether to filter on tracks or not
-     *
-     * @param inFieldArray    array of fields
-     * @param inDataArray     array of data
-     * @param inOptions       creation options such as units
-     * @param inSourceInfo    information about the source of the data
-     * @param inTrackNameList information about the track names
+     * Inform the app that the GPS simulation file has been loaded either successfully or cancelled
      */
-    public void informDataLoaded(Field[] inFieldArray, Object[][] inDataArray, PointCreateOptions inOptions,
-                                 SourceInfo inSourceInfo, TrackNameList inTrackNameList) {
-        if (DEBUG) {
-            Log.d(TAG, "informDataLoaded 3");
+    public void informUriFileLoadComplete() {
+        if (DEBUG) Log.i(TAG, "informUriFileLoadComplete");
+
+        SourceInfo sourceInfo = null;
+        Track loadedTrack = _track;
+        if (loadedTrack.getNumPoints() > 0) {
+            _sourceInfo = loadedTrack.getPoint(0).getSourceInfo();
+
+            // update sources in TrackInfo
+            _trackInfo.getFileInfo();
+
+            recalculate();
+//            _main.handleState(this, TASK_COMPLETE);
+
+            gpsSimulation = new GpsSimulator(_track);
+
+            _main.OpenCachedFileGPX();
         }
+    }
+
+    /**
+     * Inform the app that a file load process is complete, either successfully or cancelled
+     */
+    public void informDataLoadComplete()
+    {
+        SourceInfo sourceInfo = null;
+        if (DEBUG) Log.d(TAG, "informDataLoadComplete");
+
         // Check whether loaded array can be properly parsed into a Track
-        Track loadedTrack = new Track();
-        loadedTrack.load(inFieldArray, inDataArray, inOptions);
+        Track loadedTrack = _track;
         if (loadedTrack.getNumPoints() <= 0) {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
             return;
@@ -114,10 +149,13 @@ public class App {
             return;
         }
         else // if (loadedTrack.hasWaypoints())
-            trackName = inTrackNameList == null ? "" : inTrackNameList.getTrackName(0);
+            trackName = "";
 
+        if (loadedTrack.getNumPoints() > 0) {
+            sourceInfo = loadedTrack.getPoint(0).getSourceInfo();
+        }
         // go directly to load
-        informDataLoaded(loadedTrack, inSourceInfo);
+        informDataLoaded(loadedTrack, sourceInfo);
     }
 
     /**
@@ -129,35 +167,21 @@ public class App {
     public void informDataLoaded(Track inLoadedTrack, SourceInfo inSourceInfo) {
         // Decide whether to load or append
         _sourceInfo = inSourceInfo;
-        if (_track.getNumPoints() > 0)
-        {
-            // Don't append, replace data
-            _track.load(inLoadedTrack);
-            if (inSourceInfo != null)
-            {
-                // set source information
-                inSourceInfo.populatePointObjects(_track, _track.getNumPoints());
-                _trackInfo.getFileInfo().replaceSource(inSourceInfo);
-            }
-        }
-        else
-        {
-            // Currently no data held, so transfer received data
-            _track.load(inLoadedTrack);
-            if (inSourceInfo != null)
-            {
-                inSourceInfo.populatePointObjects(_track, _track.getNumPoints());
-                _trackInfo.getFileInfo().addSource(inSourceInfo);
-            }
-        }
+        // update sources in TrackInfo
+        _trackInfo.getFileInfo();
+
         recalculate();
         _main.handleState(this, TASK_COMPLETE);
 
         if (!_track.hasWaypoints() && !_track.hasNamedTrackpoints())
         {
+            // GPS simulation can only be used after initial loading of a GPX file after opening
+            // the app
             if (gpsSimulation == null)
             {
                 control.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
+                // remember the uri of the loaded file in case of automatic reload
+                AppState.gpxSimulationUri = gpxUri;
                 gpsSimulation = new GpsSimulator(_track);
             }
         }
@@ -299,8 +323,24 @@ public class App {
         return _track.getPointIndex(inPoint);
     }
 
-    public int getNearestTrackpointIndex(int inStart, double inLatitude, double inLongitude, double inMaxDist, double inMaxDistDest) {
-        return _track.getNearestTrackpointIndex(inStart, inLatitude, inLongitude, inMaxDist, inMaxDistDest);
+    /**
+     * Find the nearest track point to the specified Latitude and Longitude coordinates
+     * within a given range of track points
+     *
+     * @param inStart       start index
+     * @param inEnd         end index
+     * @param inLatitude    Latitude in degrees
+     * @param inLongitude   Longitude in degrees
+     * @param inMaxDist     maximum tolerated distance [km] between geo location and point
+     * @return <ul>
+     * 	<li>&gt;= 0: index of nearest track point within the specified max distance</li>
+     * 	<li>&lt; 0: index of nearest track point outside the specified max distance</li>
+     * 	<li>&nbsp;DataPoint.INVALID_INDEX if no point is within the specified max distance </li>
+     * </ul>
+     * @author BiselliW
+     */
+    public int getNearestTrackpointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMaxDist) {
+        return _track.getNearestTrackpointIndex(inStart, inEnd, inLatitude, inLongitude, inMaxDist);
     }
 
     /**

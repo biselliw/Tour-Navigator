@@ -238,12 +238,15 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * Get the selected item in the list of places
      *
-     * @return Index (starting at 0) / -1 if nothing is selected
+     * @return the selected record / null
      */
-    public int getPlace() {
-        return _selected;
+    public Record getCurrentItem() {
+        if (_selected >= 0)
+            return recordList.get(_selected);
+        else
+            return null;
+
     }
 
     /**
@@ -255,6 +258,15 @@ public class RecordAdapter extends BaseAdapter {
     public void setPlace(int inPlace) {
         _selected = Math.min(inPlace, recordList.size());
         notifyDataSetChanged();
+    }
+
+    /**
+     * Get the selected item in the list of places
+     *
+     * @return Index (starting at 0) / -1 if nothing is selected
+     */
+    public int getPlace() {
+        return _selected;
     }
 
     /**
@@ -286,6 +298,16 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
+     * @param inPlace table row
+     * @return the DataPoint for a selected row
+     */
+    public DataPoint getDataPoint(int inPlace) {
+        RecordAdapter.Record record = getItem(inPlace);
+        if (record == null) return null;
+        return record.getTrackPoint();
+    }
+
+    /**
      * get the formatted planned arrival time
      *
      * @param inPoint waypoint data
@@ -295,6 +317,16 @@ public class RecordAdapter extends BaseAdapter {
         long _t = _startTime.toMillis(true) + inPoint.getTime() * 1000L;
         calender.setTimeInMillis(_t);
         return timeFormat.format(calender.getTime());
+    }
+
+    public String getPlannedArriveTime(int inPlace) {
+        String res = "";
+        Record record = getItem(inPlace);
+        if (record != null) {
+            DataPoint point = record.trackPoint;
+            if (point != null) res = getPlannedArriveTime(point);
+        }
+        return res;
     }
 
     /**

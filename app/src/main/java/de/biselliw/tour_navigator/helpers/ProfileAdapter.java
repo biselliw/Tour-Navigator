@@ -22,7 +22,7 @@ package de.biselliw.tour_navigator.helpers;
  */
 
 /*
- * Copyright (C) 2022 Walter Biselli
+ * Copyright (C) 2025 Walter Biselli
  *
  *  This file is based on Privacy Friendly App Example:
  *
@@ -85,8 +85,8 @@ public class ProfileAdapter {
     private App _app;
 
     int numPoints = 0;
-    double lastDistance = 0.0;
-    double lastAltitude = 0;
+    Number lastDistance = 0;
+    Number lastAltitude = 0;
     Track _track = null;
 
     private XYPlot dynamicPlot;
@@ -218,8 +218,9 @@ public class ProfileAdapter {
             if (_track != null) {
                 DataPoint currPoint = _track.getPoint(index);
                 if ((currPoint != null) && !currPoint.isWayPoint()) {
-                    double distance = currPoint.getDistance();
-                    if (distance > 0.0)
+                    double dist = currPoint.getDistance();
+                    Number distance = dist;
+                    if (dist > 0)
                         lastDistance = distance;
                 }
             }
@@ -232,11 +233,11 @@ public class ProfileAdapter {
                 throw new IllegalArgumentException();
             }
 
-            double altitude = 0;
+            int altitude = 0;
             if (_track != null) {
                 DataPoint currPoint = _track.getPoint(index);
                 if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
-                    altitude = currPoint.getAltitude().getValue();
+                    altitude = (int)currPoint.getAltitude().getValue();
                     if (altitude > 0)
                         lastAltitude = altitude;
                 }
@@ -249,7 +250,8 @@ public class ProfileAdapter {
                 // draw cursor
                 if (index == _plotX) {
                     // show current altitude
-                    dynamicPlot.setTitle(String.valueOf(altitude) + " m");
+                    String title = String.valueOf(altitude);
+                    dynamicPlot.setTitle(title + " m");
                     return _app.getMaxAltitude();
                 }
                 else return 0;
@@ -263,7 +265,6 @@ public class ProfileAdapter {
         public void removeObserver(Observer observer) {
             notifier.deleteObserver(observer);
         }
-
     }
 
     class AltitudeSeries implements XYSeries {
@@ -327,9 +328,10 @@ public class ProfileAdapter {
 
                         // set the vertical grid steps
                         double rangeStepValue = 25.0;
-                        double minAltitude = _app.getMinAltitude();
-                        double rangeAltitude = _app.getMaxAltitude() - _app.getMinAltitude();
-                        int rangeSteps = (int) (rangeAltitude / rangeStepValue);
+                        int minAltitude = (int) _app.getMinAltitude();
+                        int maxAltitude = (int) _app.getMaxAltitude();
+                        int rangeAltitude = maxAltitude - minAltitude;
+                        int rangeSteps = rangeAltitude / (int)rangeStepValue;
                         while (rangeSteps > 5) {
                             rangeStepValue = rangeStepValue * 2.0;
                             rangeSteps = rangeSteps / 2;
@@ -339,8 +341,9 @@ public class ProfileAdapter {
                             rangeStepValue = rangeStepValue / 2.5;
                         }
                         minAltitude = (minAltitude / (int)rangeStepValue) * (int)rangeStepValue;
+                        maxAltitude = ((maxAltitude + (int)rangeStepValue) / (int)rangeStepValue) * (int)rangeStepValue;
                         dynamicPlot.setRangeStepValue(rangeStepValue);
-                        dynamicPlot.setRangeBoundaries(minAltitude, _app.getMaxAltitude(), BoundaryMode.FIXED);
+                        dynamicPlot.setRangeBoundaries(minAltitude, maxAltitude, BoundaryMode.FIXED);
                         dynamicPlot.redraw();
                     }
                 }
@@ -365,7 +368,7 @@ public class ProfileAdapter {
      * @param minX start distance [km]
      * @param maxX   end distance [km]
      */
-    public void setXRange(double minX, double maxX)
+    public void setXRange(Number minX, Number maxX)
     {
         if (profileRegion != null)
             lineFormatter.removeRegion(profileRegion);

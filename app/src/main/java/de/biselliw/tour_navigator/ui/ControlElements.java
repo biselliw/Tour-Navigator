@@ -164,7 +164,7 @@ public class ControlElements extends BaseActivity {
                             (id == R.id.itm_comment_waypoint) ||
                             (id == R.id.itm_nav_waypoint) ||
                             (id == R.id.itm_nav_google) ||
-                            (id == R.id.itm_split) ||
+                            (id == R.id.itm_separator) ||
                             (id == R.id.itm_set_new_start) ||
                             (id == R.id.itm_delete_waypoint) ||
                             (id == R.id.itm_delete_trackpoints))
@@ -191,7 +191,9 @@ public class ControlElements extends BaseActivity {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
             if (id == R.id.nav_file_info)
-                item.setEnabled(!_initUserInterface && fileInfoAvailable);
+                item.setEnabled(
+                        Log.isLoggedHTML() ||
+                        !_initUserInterface && fileInfoAvailable);
             else if (
                     (id == R.id.nav_reverse_route) ||
                             (id == R.id.nav_start_time) ||
@@ -283,8 +285,8 @@ public class ControlElements extends BaseActivity {
                 break;
             case PROVIDER_DISABLED:
                 image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.VISIBLE);
-                image_location_off.setVisibility(View.GONE);
+                image_location_home.setVisibility(View.INVISIBLE);
+                image_location_off.setVisibility(View.VISIBLE);
                 image_location_on.setVisibility(View.INVISIBLE);
                 image_location_wait.setVisibility(View.INVISIBLE);
                 break;
@@ -344,7 +346,7 @@ public class ControlElements extends BaseActivity {
         TextView main_text_title = findViewById(R.id.main_text_title);
         main_text_title.setBackgroundColor(COLOR_RED);
         main_text_title.setText(errorMessage);
-        Log.e(TAG,errorMessage);
+        Log.e("Error",errorMessage);
         _updateErrorMessage = false;
     }
 
@@ -357,11 +359,10 @@ public class ControlElements extends BaseActivity {
         if ((additionalInfo != null) && !isErrorMessage()){
             TextView main_text_title = findViewById(R.id.main_text_title);
             main_text_title.setBackgroundColor(COLOR_MESSAGE);
-            // main_text_title.setText(additionalInfo.title);
-            main_text_title.setText("");
+            main_text_title.setText(additionalInfo.title);
 
-//                TextView commentView = main.findViewById(R.id.comment_view);
-//        commentView.setText(additionalInfo.comment);
+            TextView commentView = main.findViewById(R.id.comment_view);
+            commentView.setText(additionalInfo.comment);
 
             TextView descriptionView = main.findViewById(R.id.description_view);
             String html = additionalInfo.description;
@@ -393,11 +394,11 @@ public class ControlElements extends BaseActivity {
      */
     private void onShowAdditionalInfo2() {
         _updateAdditionalInfo = false;
-
         String comment = _comment;
         if (additionalInfo != null) {
             comment = comment + additionalInfo.comment;
         }
+
         TextView commentView = main.findViewById(R.id.comment_view);
         commentView.setText(comment);
     }
@@ -460,7 +461,7 @@ public class ControlElements extends BaseActivity {
      * Setup the user interface after loading a new GPX track
      */
     public void setupUserInterface() {
-        fileInfoAvailable = details.isFileInfoAvailable();
+        fileInfoAvailable = details.getFileInfo() != null;
         _comment = "";
         showAddInfo(-1);
 
@@ -515,17 +516,16 @@ public class ControlElements extends BaseActivity {
      * @return true if view is expanded
      */
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
-        boolean isExpandableView = fileInfoAvailable;
-        if (details != null) {
+        boolean isExpandableView = false;
+        if (details != null)
+        {
             _place = inPlace;
-            if (inPlace >= 0) {
-                if (!isExpandableView) {
-                    isExpandableView = !details.getRoutePointDescription(inPlace).isEmpty();
-                    if (!isExpandableView) {
-                        TourDetails.AdditionalInfo info = details.getAdditionalInfo(inPlace);
-                        isExpandableView = (info.link != null) && !info.link.isEmpty();
-                    }
-                }
+            if (inPlace < 0)
+                isExpandableView = fileInfoAvailable || Log.isLoggedHTML();
+            else {
+                TourDetails.AdditionalInfo info = details.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
+                isExpandableView = !info.description.isEmpty() ||
+                        ((info.link != null) && !info.link.isEmpty());
             }
             if (isExpandableView)
                 if (inExpand)
@@ -566,7 +566,7 @@ public class ControlElements extends BaseActivity {
     }
 
     /**
-     * Show the file info if available
+     * Show the file info or HTML Log if available
      */
     public void showFileInfo() {
         // update the expansion mode
@@ -579,7 +579,7 @@ public class ControlElements extends BaseActivity {
      */
     public void showAddInfo(int inPlace) {
         if (details != null) {
-            additionalInfo = details.getAdditionalInfo(inPlace);
+            additionalInfo = details.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
             _updateExpandView = true;
             _updateAdditionalInfo = true;
         } else
