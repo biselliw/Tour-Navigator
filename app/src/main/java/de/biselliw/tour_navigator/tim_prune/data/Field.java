@@ -1,7 +1,6 @@
 package de.biselliw.tour_navigator.tim_prune.data;
 
 import de.biselliw.tour_navigator.tim.prune.data.FileType;
-import de.biselliw.tour_navigator.tim_prune.I18nManager;
 
 /**
  * Class to represent a field of a data point
@@ -44,7 +43,7 @@ public class Field
 	//	SPEED, VERTICAL_SPEED
 
         ,SYMBOL, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK,
-		new Field(I18nManager.getText("fieldname.custom"))
+		new Field(("custom"))
 	};
 
 	/**
@@ -82,9 +81,7 @@ public class Field
 			_labelKey = null;
 			_customLabel = inLabelKey;
 		}
-	//	_builtin = inBuiltin;
 	}
-
 
 	/**
 	 * Public constructor for custom fields
@@ -101,7 +98,7 @@ public class Field
 	public String getName()
 	{
 		if (_labelKey != null) {
-			return I18nManager.getText(_labelKey);
+			return _labelKey;
 		}
 		return _customLabel;
 	}

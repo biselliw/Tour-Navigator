@@ -87,7 +87,7 @@
         (Security • Usability • Society)\n
         Karlsruher Institut für Technologie (KIT):\n
         Privacy Friendly Apps:\n
-        https://secuso.org/privacy-friendly-apps\n
+        https://secuso.org/pfa\n
         https://github.com/secuso\n
         Licensed under GNU General Public License v3.\n
         \n
@@ -123,7 +123,7 @@
     <string name="pref_hiking_par_horSpeed">horizontal part in [m/h]</string>
     <string name="pref_hiking_par_vertSpeedClimb">ascending part in [m/h]</string>
     <string name="pref_hiking_par_vertSpeedDescent">descending part in [m/h]</string>
-    <string name="pref_hiking_par_set_to_default">Parameter set to default value</string>
+    <string name="pref_hiking_par_set_to_default">"Parameter was set to default value: "</string>
     <string name="pref_header_alarm_parameters">Alarms</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>
     <string name="pref_hiking_par_alarm_summary">Only available with app in foreground: signal leaving the track with vocational warning</string>

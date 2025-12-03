@@ -30,20 +30,14 @@ public class SourceInfo
 	private ExtensionInfo _extensionInfo = null;
 	/** Number of points */
 	private int _numPoints = 0;
-	
-	/** Array of data points */
-	private DataPoint[] _points = null;
-	/** Array of point indices (if necessary) */
-	private int[] _pointIndices = null;
 
 	/**
 	 * Extensions of SourceInfo
 	 * @implNote by BiselliW
 	 */
-	private String _metaName = "";
+
 	/** author parsed from tag <metadata><author><name> */
 	private String _author = "";
-	private String _metaDescription = "";
 	private String _metaTime = "";
 	private String _link = "";
 	private String _name = "";
@@ -149,12 +143,6 @@ public class SourceInfo
 		_numPoints = inNumPoints;
 	}
 
-	/**
-	 * @return number of points from this source
-	 */
-	public int getNumPoints() {
-		return _numPoints;
-	}
 
 	/**
 	 * @return a string describing the extensions, or null if there aren't any
@@ -183,77 +171,6 @@ public class SourceInfo
 		return _extensionInfo;
 	}
 	
-		/**
-	 * Set the indices of the points selected out of a loaded track
-	 * @param inSelectedFlags array of booleans showing whether each point in the original data was loaded or not
-	 */
-	public void setPointIndices(boolean[] inSelectedFlags)
-	{
-		_numPoints = inSelectedFlags.length;
-		_pointIndices = new int[_numPoints];
-		int p=0;
-		for (int i=0; i<_numPoints; i++) {
-			if (inSelectedFlags[i]) {_pointIndices[p++] = i;}
-		}
-		// Now the point indices array holds the index of each of the selected points
-	}
-
-	/**
-	 * Take the points from the given track and store
-	 * @param inTrack track object containing points
-	 * @param inNumPoints number of points loaded
-	 */
-	public void populatePointObjects(Track inTrack, int inNumPoints)
-	{
-		if (_numPoints == 0) {_numPoints = inNumPoints;}
-		if (inNumPoints > 0)
-		{
-			_points = new DataPoint[inNumPoints];
-			int trackLen = inTrack.getNumPoints();
-			System.arraycopy(inTrack.cloneContents(), trackLen-inNumPoints, _points, 0, inNumPoints);
-			// Note data copied twice here but still more efficient than looping
-		}
-	}
-
-	/**
-	 * Look for the given point in the array
-	 * @param inPoint point to look for
-	 * @return index, or -1 if not found
-	 */
-	public int getIndex(DataPoint inPoint)
-	{
-		int idx = -1;
-		for (int i=0; i<_points.length; i++)
-		{
-			if (_points[i] == inPoint) {
-				idx = i;
-				break;
-			}
-		}
-		if (idx == -1) {return idx;}             // point not found
-		if (_pointIndices == null) {return idx;} // All points loaded
-		return _pointIndices[idx]; // use point index mapping
-	}
-
-	/**
-	 * set meta data
-	 * @param name        short description of the route
-	 * @param description long  description of the route
-	 * @param author      author's name
-	 * @param time        timestamp of last update 
-	 * @param link        web link
-	 * @author BiselliW
-	 * @since 22.2.006
-	 */
-	public void setMetaData (String name, String description, String author, String time, String link)
-	{
-		_name = name;
-		_metaDescription = description;
-		_author = author;
-		_metaTime = time;
-		_link = link;
-	}
-
 	/**
 	/**
 	 * @return meta name
@@ -289,16 +206,6 @@ public class SourceInfo
 	{
 		if (_link == null) return "";
 		return _link;
-	}
-
-	/**
-	 * @return meta description of the file
-	 * @author BiselliW
-	 * @since 22.2.006
-	 */
-	public String getMetaDescription()
-	{
-		return _metaDescription;
 	}
 
 	/**

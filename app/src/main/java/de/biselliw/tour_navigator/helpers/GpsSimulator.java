@@ -77,6 +77,11 @@ public class GpsSimulator {
         gpsIndex = 0;
     }
 
+    public int getGpsIndex()
+    {
+        return gpsIndex;
+    }
+
     /**
      * @return next GPS location data or null
      */

@@ -1,52 +1,61 @@
 package de.biselliw.tour_navigator.activities;
 
-import android.content.Context;
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with FairEmail. If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2025 Walter Biselli (BiselliW)
+*/
+
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
-
-import java.util.List;
 
 import androidx.appcompat.app.ActionBar;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.AppCompatPreferenceActivity;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.data.TrackDetails;
-import de.biselliw.tour_navigator.tim_prune.I18nManager;
+import de.biselliw.tour_navigator.helpers.Log;
 
 /**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p/>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
+ * Application settings
+ * @see <a href="https://developer.android.com/reference/android/preference/PreferenceActivity">PreferenceActivity</a>
+ * @deprecated in API level 29
+ * @todo migrate to <a href="https://developer.android.com/reference/androidx/preference/package-summary"></a>AndroidX Preference Library</a>
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
     static App _app = null;
     static SharedPreferences sharedPref = null;
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
-    private static final String IS_GPX_FILE_LOADED   = "isGpxFileLoaded";
 
-    // hiking speed parameters
-    final static int DEF_HOR_SPEED = (int)(1000 * TrackDetails.DEF_HOR_SPEED); // horizontal part in [km/h]
-    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * TrackDetails.DEF_VERT_SPEED_CLIMB); // ascending part in [km/h]
-    final static int DEF_VERT_SPEED_DESC = (int)(1000 * TrackDetails.DEF_VERT_SPEED_DESC); // descending part in [km/h]
-    final static int DEF_MIN_HEIGHT_CHANGE = TrackDetails.DEF_MIN_HEIGHT_CHANGE;
+    /** default hiking speed parameter: horizontal part in [m/h] */
+    final static int DEF_HOR_SPEED = (int)(1000 * TrackDetails.DEF_HOR_SPEED);
+    /** default hiking speed parameter: ascending part in [m/h] */
+    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * TrackDetails.DEF_VERT_SPEED_CLIMB);
+    /** default hiking speed parameter: descending part in [m/h]; */
+    final static int DEF_VERT_SPEED_DESC = (int)(1000 * TrackDetails.DEF_VERT_SPEED_DESC);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,98 +77,64 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onDestroy();
     }
 
-
-    /**
-     * get preferences for hiking times calculation
-     *
-     * @param inSharedPref
-     * @param inApp
-     */
-    static public void getPreferences (SharedPreferences inSharedPref, App inApp)
-    {
-        sharedPref = inSharedPref;
-        _app = inApp;
-
-        // hiking speed parameters
-        int horSpeed = DEF_HOR_SPEED; // horizontal part in [km/h]
-        int vertSpeedClimb = DEF_VERT_SPEED_CLIMB; // ascending part in [km/h]
-        int vertSpeedDescent = DEF_VERT_SPEED_DESC; // descending part in [km/h]
-        int minHeightChange = DEF_MIN_HEIGHT_CHANGE;
-
-        String stringValue;
-        try {
-            stringValue = sharedPref.getString("pref_hiking_par_horSpeed", "");
-            if (!stringValue.equals(""))
-                horSpeed = Integer.parseInt(stringValue);
-            stringValue = sharedPref.getString("pref_hiking_par_vertSpeedClimb", "");
-            if (!stringValue.equals(""))
-                vertSpeedClimb = Integer.parseInt(stringValue);
-            stringValue = sharedPref.getString("pref_hiking_par_vertSpeedDescent", "");
-            if (!stringValue.equals(""))
-                vertSpeedDescent = Integer.parseInt(stringValue);
-
-            Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "TourNavigator_");
-        }
-        catch (Exception e) { }
-        _app.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0, vertSpeedDescent / 1000.0, minHeightChange);
-    }
-
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // Show the Up button in the action bar.
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         int id = item.getItemId();
         if (id == android.R.id.home) {
             if (!super.onMenuItemSelected(featureId, item)) {
                 finish();
-                //NavUtils.navigateUpFromSameTask(this);
             }
             return true;
         }
         return super.onMenuItemSelected(featureId, item);
     }
 
+    /*
+     * --------------------------------------------------------------------------------------------
+     * Private methods
+     * --------------------------------------------------------------------------------------------
+     */
 
     /**
-     * {@inheritDoc}
+     * Setup the {@link android.app.ActionBar}
      */
-    @Override
-    public boolean onIsMultiPane() {
-        return isXLargeTablet(this);
+    private void setupActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // show the user that selecting home will return one level up
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
     }
 
     /**
-     * Helper method to determine if the device has an extra-large screen. For
-     * example, 10" tablets are extra-large.
+     * store a boolean value in the settings
+     * @param key key name
+     * @param value value
      */
-    private static boolean isXLargeTablet(Context context) {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    private static void setBoolean(String key, boolean value) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
     }
 
     /**
-     * {@inheritDoc}
+     * store an integer value in the settings
+     * @param key key name
+     * @param value value
      */
-    @Override
-    public void onBuildHeaders(List<Header> target) {
- //       loadHeadersFromResource(R.xml.pref_headers, target);
+    private static void setInt(String key, int value) {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt(key, value);
+        editor.commit();
     }
 
     /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
+     * Callback to be invoked when the value of this Preference has been changed by the user
+     * @deprecated in API level 29
+     * @todo migrate to <a href="https://developer.android.com/reference/androidx/preference/package-summary"></a>AndroidX Preference Library</a>
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = (preference, value) -> {
+    private static Preference.OnPreferenceChangeListener preferenceChangeListener =
+            (preference, value) -> {
         String stringValue = value.toString();
 
         if (preference instanceof ListPreference) {
@@ -179,16 +154,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // simple string representation.
             int val = -1;
             try {
-                val = Integer.valueOf(stringValue);
+                val = Integer.parseInt(stringValue);
             }
-            catch (Exception e) {  }
+            catch (Exception ignored) {  }
             String key = preference.getKey();
             int minValue=0, defValue=0, maxValue=0;
-            EditTextPreference pref = (EditTextPreference)preference;
 
             switch (key) {
                 case "pref_hiking_par_horSpeed":
-                    minValue = 2000;
+                    minValue = 1000;
                     defValue = DEF_HOR_SPEED;
                     maxValue = 130000;
                     break;
@@ -198,16 +172,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     maxValue = 80000;
                     break;
                 case "pref_hiking_par_vertSpeedDescent":
-                    minValue = 200;
+                    minValue = 100;
                     defValue = DEF_VERT_SPEED_DESC;
                     maxValue = 80000;
                     break;
             }
             if ((val < minValue) || (val > maxValue)){
+                /* Apply default value */
                 stringValue = String.valueOf(defValue);
+                EditTextPreference pref = (EditTextPreference)preference;
                 pref.setText(stringValue);
-                String set_to_default = I18nManager.getText("pref_hiking_par_set_to_default");
-                stringValue = set_to_default + stringValue;
+                stringValue = App.resources.getString(R.string.pref_hiking_par_set_to_default) + stringValue;
             }
             preference.setSummary(stringValue);
         }
@@ -221,15 +196,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * immediately updated upon calling this method. The exact display format is
      * dependent on the type of preference.
      *
-     * @see #sBindPreferenceSummaryToValueListener
+     * @see #preferenceChangeListener
      */
     private static void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        preference.setOnPreferenceChangeListener(preferenceChangeListener);
 
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+        preferenceChangeListener.onPreferenceChange(preference,
                 PreferenceManager
                         .getDefaultSharedPreferences(preference.getContext())
                         .getString(preference.getKey(), ""));
@@ -244,6 +219,50 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 || GeneralPreferenceFragment.class.getName().equals(fragmentName);
     }
 
+    /*
+     * --------------------------------------------------------------------------------------------
+     * Public methods
+     * --------------------------------------------------------------------------------------------
+     */
+
+    /**
+     * get preferences for hiking times calculation
+     *
+     * @param inSharedPref
+     * @param inApp
+     */
+    static public void getPreferences (SharedPreferences inSharedPref, App inApp)
+    {
+        sharedPref = inSharedPref;
+        _app = inApp;
+
+        // hiking speed parameters
+        int horSpeed = DEF_HOR_SPEED; // horizontal part in [km/h]
+        int vertSpeedClimb = DEF_VERT_SPEED_CLIMB; // ascending part in [km/h]
+        int vertSpeedDescent = DEF_VERT_SPEED_DESC; // descending part in [km/h]
+
+        String stringValue;
+        try {
+            stringValue = sharedPref.getString("pref_hiking_par_horSpeed", "");
+            if (!stringValue.equals(""))
+                horSpeed = Integer.parseInt(stringValue);
+            stringValue = sharedPref.getString("pref_hiking_par_vertSpeedClimb", "");
+            if (!stringValue.equals(""))
+                vertSpeedClimb = Integer.parseInt(stringValue);
+            stringValue = sharedPref.getString("pref_hiking_par_vertSpeedDescent", "");
+            if (!stringValue.equals(""))
+                vertSpeedDescent = Integer.parseInt(stringValue);
+
+            Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "TourNavigator_");
+        }
+        catch (Exception ignored) { }
+
+        // set hiking parameters
+        _app.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
+                vertSpeedDescent / 1000.0, TrackDetails.DEF_MIN_HEIGHT_CHANGE);
+    }
+
+
     /**
      * This fragment shows general preferences only. It is used when the
      * activity is showing a two-pane settings UI.
@@ -254,7 +273,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
+            addPreferencesFromResource(R.xml.preferences);
             setHasOptionsMenu(true);
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
@@ -290,14 +309,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
     }
 
-    public static boolean isGpxFileLoaded() {
-        return sharedPref.getBoolean(IS_GPX_FILE_LOADED, false);
-    }
-
-    public static void setGpxFileLoaded(boolean value) {
-        setBoolean(IS_GPX_FILE_LOADED, value);
-    }
-
     public static long getStartTime() {
         return sharedPref.getLong("StartTime", 0L);
     }
@@ -328,16 +339,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     /**
      * Shared Preferences to restore application after shut down
+     * @todo is getProfileViewVisibility() still needed?
      */
-/*
-    public static int _getPlace() {
-        return sharedPref.getInt("Place", -1);
-    }
-
-    public static void _setPlace(int value) {
-        setInt("Place", value);
-    }
-*/
     public static int getProfileViewVisibility() {
         int value = sharedPref.getInt("ProfileViewVisibility", View.VISIBLE);
         if (value == View.GONE) value = View.VISIBLE;
@@ -354,17 +357,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static void setExpandView(boolean value) {
         setBoolean("SetExpandViewStatus", value);
-        }
-
-    private static void setBoolean(String key, boolean value) {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(key, value);
-        editor.commit();
     }
 
-    private static void setInt(String key, int value) {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(key, value);
-        editor.commit();
-    }
+
 }

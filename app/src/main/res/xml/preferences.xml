@@ -1,5 +1,6 @@
 <PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         android:title="@string/pref_header_hiking_parameters">
@@ -36,6 +37,7 @@
             android:id="@+id/pref_hiking_par_autostart"
             android:key="pref_hiking_par_autostart"
             android:title="@string/pref_hiking_par_autoStart"
+            app:isPreferenceVisible="false"
             android:summary="@string/pref_hiking_par_autoStart_summary"
             android:defaultValue="true"/>
     </PreferenceCategory>

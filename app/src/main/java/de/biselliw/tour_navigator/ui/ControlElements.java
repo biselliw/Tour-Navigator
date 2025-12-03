@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.ui;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2024 Walter Biselli (BiselliW)
+    Copyright 2025 Walter Biselli (BiselliW)
 */
 
 import android.os.Bundle;
@@ -33,7 +33,6 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 
-import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.LocationActivity;
@@ -176,17 +175,7 @@ public class ControlElements extends BaseActivity {
         return true;
     }
 
-    /**
-     * Enable/disable a group of navigation items
-     *
-     * @param menu NavigationView menu
-     */
-
-    void onPrepareMenu(@NonNull Menu menu) {
-
-    }
-
-    public boolean onPrepareNavigationMenu(Menu menu) {
+    public void onPrepareNavigationMenu(Menu menu) {
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
@@ -204,8 +193,6 @@ public class ControlElements extends BaseActivity {
             else
                 item.setVisible(true);
         }
-
-        return true;
     }
 
     /**
@@ -242,7 +229,7 @@ public class ControlElements extends BaseActivity {
             ImageView image_tracking_pause = main.findViewById(R.id.image_tracking_pause);
             ImageView image_tracking = main.findViewById(R.id.image_tracking);
 
-            if (la.isGPS_Fix()) {
+            if (la.isGpsFix()) {
                 if (_isTracking) {
                     image_tracking_pause.setVisibility(View.VISIBLE);
                     image_tracking.setVisibility(View.GONE);
@@ -269,7 +256,7 @@ public class ControlElements extends BaseActivity {
         _updateGpsStatus = false;
 
         switch (_gpsStatus) {
-            case NO_PERMISSION:
+            case PERMISSION_DENIED:
                 image_location_disabled.setVisibility(View.VISIBLE);
                 image_location_home.setVisibility(View.GONE);
                 image_location_off.setVisibility(View.GONE);
@@ -311,6 +298,13 @@ public class ControlElements extends BaseActivity {
                 image_location_on.setVisibility(View.GONE);
                 image_location_wait.setVisibility(View.VISIBLE);
                 break;
+            default:
+                image_location_disabled.setVisibility(View.GONE);
+                image_location_home.setVisibility(View.GONE);
+                image_location_off.setVisibility(View.INVISIBLE);
+                image_location_on.setVisibility(View.GONE);
+                image_location_wait.setVisibility(View.INVISIBLE);
+
         }
     }
 
@@ -384,7 +378,7 @@ public class ControlElements extends BaseActivity {
         description_content.setVisibility(expandView ? View.VISIBLE : View.GONE);
 
         if (!expandView) {
-            la.updateStatus();
+            la.requestStatusUpdate();
             la.scrollToListPosition();
         }
     }
@@ -425,7 +419,7 @@ public class ControlElements extends BaseActivity {
         }
 
         if (_profileViewVisibility == View.VISIBLE) {
-            la.updateStatus();
+            la.requestStatusUpdate();
             la.scrollToListPosition();
         }
     }
@@ -487,7 +481,7 @@ public class ControlElements extends BaseActivity {
      */
     public void setTrackingStatus(boolean inTracking) {
         _isTracking = inTracking;
-        if (inTracking)
+ //       if (inTracking)
             setExpandViewStatus(false);
         updateTrackingStatus();
     }
@@ -501,10 +495,11 @@ public class ControlElements extends BaseActivity {
 
 
     /**
-     * Show the GPS status
+     * Show the GPS location provider status
+     * @param inGpsStatus status of the GPS location provider
      */
-    public void showGPS_Status(LocationActivity.gpsStatus gpsStatus) {
-        _gpsStatus = gpsStatus;
+    public void showGpsStatus(LocationActivity.gpsStatus inGpsStatus) {
+        _gpsStatus = inGpsStatus;
         _updateGpsStatus = true;
         updateTrackingStatus();
     }
@@ -516,7 +511,7 @@ public class ControlElements extends BaseActivity {
      * @return true if view is expanded
      */
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
-        boolean isExpandableView = false;
+        boolean isExpandableView;
         if (details != null)
         {
             _place = inPlace;
@@ -543,6 +538,16 @@ public class ControlElements extends BaseActivity {
             isExpandableView = false;
 
         return isExpandableView;
+    }
+
+    /**
+     * Show one of the images expand more/less depending on the state of expandView
+     */
+    public void showExpandViewStatus() {
+//        setExpandViewStatus(expandView);
+ //       _updateExpandView = true;
+        _updateAdditionalInfo = true;
+
     }
 
     /**
@@ -630,4 +635,6 @@ public class ControlElements extends BaseActivity {
         errorMessage = "";
         _updateErrorMessage = false;
     }
+
+
 }

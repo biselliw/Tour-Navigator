@@ -207,7 +207,7 @@ public class HTML_File {
 
         // prepare table row assuming that there is anything to link to the time table
         // row "Nr":
-        tmp_buffer.append("<tr><td class=\"cell\" align=\"right\"><a name=\"poi").append(descItems + 1)
+        tmp_buffer.append("<tr><td class=\"cell\" valign=\"top\" align=\"right\"><a name=\"poi").append(descItems + 1)
                 .append("\"><a href=\"#wp").append(descItems + 1).append("\">")
                 .append(inPlace + 1).append("</a></a></td><td class=\"cell\" class=\"cell\">");
 
