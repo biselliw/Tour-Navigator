@@ -229,7 +229,7 @@ public class ControlElements extends BaseActivity {
             ImageView image_tracking_pause = main.findViewById(R.id.image_tracking_pause);
             ImageView image_tracking = main.findViewById(R.id.image_tracking);
 
-            if (la.isGpsFix()) {
+            if (la.isTrackingEnabled()) {
                 if (_isTracking) {
                     image_tracking_pause.setVisibility(View.VISIBLE);
                     image_tracking.setVisibility(View.GONE);
@@ -263,6 +263,7 @@ public class ControlElements extends BaseActivity {
                 image_location_on.setVisibility(View.INVISIBLE);
                 image_location_wait.setVisibility(View.INVISIBLE);
                 break;
+            case PERMISSION_GRANTED:
             case PROVIDER_ENABLED:
                 image_location_disabled.setVisibility(View.GONE);
                 image_location_home.setVisibility(View.VISIBLE);
