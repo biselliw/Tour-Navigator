@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'de.biselliw.tour_navigator'
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         applicationId "de.biselliw.tour_navigator"
@@ -36,11 +36,12 @@ android {
 
 dependencies {
 
-    def preference_version = "1.2.0"
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.androidplot:androidplot-core:1.5.10'
-    implementation 'com.google.android.material:material:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
+    def preference_version = '1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'com.androidplot:androidplot-core:1.5.11'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     // https://mvnrepository.com/artifact/androidx.preference/preference
     implementation("androidx.preference:preference:$preference_version") {
         exclude group: "androidx.fragment", module: "fragment-ktx"

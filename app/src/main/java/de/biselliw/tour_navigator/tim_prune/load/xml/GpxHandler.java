@@ -31,6 +31,7 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
  *             - load extra tags from gpx file: _metadata (name, author), _comment, _duration
  *             - reorder point fields
  * @since 26.1
+ * @todo create parent class for project
 */
 
 import java.util.ArrayList;
@@ -242,6 +243,9 @@ public class GpxHandler extends XmlHandler {
         } else if (tag.equals("link")) {
 			_link.setValue(attributes.getValue("href"));
 		}
+		else if (tag.equals("pause")) {
+			_currentTag = _duration;
+		}		
 		else if (tag.equals("trkseg")) {
 			_startSegment = true;
 		}
@@ -359,11 +363,12 @@ public class GpxHandler extends XmlHandler {
 		else if (tag.equals("extensions")) {
 			_insideExtensions = false;
 		}
-		else if (_insideExtensions)
+		else if (_insideExtensions && _storeExtensions)
 		{
             if (_currentTag != null)
             {
-                if (_storeExtensions) {
+                // if (_storeExtensions)
+                {
                     String value = _currentTag.getValue();
                     _extensionTags.pop();
                     if (!value.isEmpty())
@@ -476,6 +481,8 @@ public class GpxHandler extends XmlHandler {
      * @since 22.2.006
      */
     private void processMetaData() {
+		// get Name from parsed GPX tag <metadata><name> */
+//		metaName        = _metaName.getValue();
         // get Description from parsed GPX tag <metadata><description> */
         metaDescription = _description.getValue();
         // get Author from parsed GPX tag <metadata><author><name>

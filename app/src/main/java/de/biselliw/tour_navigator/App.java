@@ -17,6 +17,7 @@ package de.biselliw.tour_navigator;
 
     Copyright 2025 Walter Biselli (BiselliW)
 */
+import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
@@ -28,16 +29,10 @@ import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
 
-import de.biselliw.tour_navigator.tim.prune.DataSubscriber;
-import de.biselliw.tour_navigator.tim_prune.I18nManager;
-import de.biselliw.tour_navigator.tim_prune.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
-import de.biselliw.tour_navigator.tim.prune.load.TrackNameList;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
 import static de.biselliw.tour_navigator.helpers.GpsSimulator.gpsSimulation;
@@ -54,6 +49,8 @@ public class App {
     static final String TAG = "App";
     private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
+    static public Resources resources = null;
 
     public static Uri gpxUri = null;
 
@@ -77,12 +74,12 @@ public class App {
     public App(MainActivity main)  {
         app = this;
         _main = main;
+        resources = main.getResources();
+
         _recordAdapter = _main.recordAdapter;
 
         _track = new Track();
         _trackInfo = new TrackInfo(_track);
-
-        I18nManager.init(main);
     }
 
     /**

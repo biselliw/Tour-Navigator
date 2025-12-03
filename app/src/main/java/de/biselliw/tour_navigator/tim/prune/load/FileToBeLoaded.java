@@ -39,7 +39,7 @@ public class FileToBeLoaded
      * */
 	public synchronized void takeOwnership() {
 //        Log.d(TAG, "takeOwnership file = "+_file.getAbsolutePath());
-//		_ownerCounter++;
+//	@todo	_ownerCounter++;
 	}
 
 	/** Release ownership */

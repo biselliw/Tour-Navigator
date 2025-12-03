@@ -82,7 +82,7 @@
     <string name="pref_hiking_par_horSpeed">Geschwindigkeit in der Ebene [m/h]</string>
     <string name="pref_hiking_par_vertSpeedClimb">Geschwindigkeit im Aufstieg [Hm/h]</string>
     <string name="pref_hiking_par_vertSpeedDescent">Geschwindigkeit im Abstieg [Hm/h]</string>
-    <string name="pref_hiking_par_set_to_default">Parameter auf Standard gesetzt: </string>
+    <string name="pref_hiking_par_set_to_default">"Parameter wurde auf Standard gesetzt: "</string>
     <string name="pref_header_alarm_parameters">Alarmierungen</string>
     <string name="pref_hiking_par_alarm">Alarmierung beim Verlassen des Weges</string>
     <string name="pref_hiking_par_alarm_summary">Nur verfügbar wenn die app im Vordergrund ist: gibt eine Sprachmeldung aus</string>

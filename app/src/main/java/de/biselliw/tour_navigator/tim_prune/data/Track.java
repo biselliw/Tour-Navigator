@@ -13,14 +13,15 @@ package de.biselliw.tour_navigator.tim_prune.data;
  */
 import java.util.List;
 
+import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.tim.prune.data.Distance;
 import de.biselliw.tour_navigator.tim.prune.data.DoubleRange;
 import de.biselliw.tour_navigator.tim.prune.data.FieldList;
 import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
 import de.biselliw.tour_navigator.tim_prune.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.gui.MapUtils.MapUtils;
-import de.biselliw.tour_navigator.tim_prune.I18nManager;
 import de.biselliw.tour_navigator.helpers.Log;
 
 /**
@@ -714,8 +715,8 @@ public class Track {
         }
 
         if (DEBUG) {
-            int d = (int) (_nearestDist * 1000);
-            Log.d(TAG, "getNearestTrackpointIndex inStart = " + inStart + ", inEnd" + inEnd + ": nearestPoint = " + nearestPoint + "; nearestDist = " + d + "m");
+//            int d = (int) (_nearestDist * 1000);
+//            Log.d(TAG, "getNearestTrackpointIndex inStart = " + inStart + ", inEnd = " + inEnd + ": nearestPoint = " + nearestPoint + "; nearestDist = " + d + "m");
         }
         // Check whether it's within required distance
         if (nearestPoint >= 0)
@@ -1134,7 +1135,7 @@ public class Track {
         return nearestPoint;
     }
 
-    /*
+    /**
      * Loop round points copying to correct order
      * @author BiselliW
      */
@@ -1143,7 +1144,7 @@ public class Track {
         int copyIndex = 0;
         // name first track point as "Start"
         boolean setStart = true;
-        String strStart = I18nManager.getText("fieldname.waypointstart");
+        String strStart = App.resources.getString(R.string.start);
 
         DataPoint point;
         for (int i = 0; i < _numPoints; i++) {
@@ -1222,7 +1223,7 @@ public class Track {
 
         point = _dataPoints[endPoint];
         if (point.getWaypointName().isEmpty()) {
-            point.setWaypointName(I18nManager.getText("fieldname.waypointend"));
+            point.setWaypointName(App.resources.getString(R.string.destination));
         }
     }
 
