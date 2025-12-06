@@ -178,14 +178,14 @@ public class App {
             {
                 control.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
                 // remember the uri of the loaded file in case of automatic reload
-                AppState.gpxSimulationUri = gpxUri;
+                AppState.setGpxSimulationUri(gpxUri);
                 gpsSimulation = new GpsSimulator(_track);
             }
         }
         else
         {
             if (gpsSimulation != null)
-                gpsSimulation.Reset();
+                gpsSimulation.Reset(AppState.getGpxSimulationIndex());
         }
     }
 

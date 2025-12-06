@@ -125,15 +125,15 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
     }
 
     /**
-	 * Run method, to parse the file
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run()
-	{
-		FileInputStream inStream = null;
-		boolean success = false;
-		try
-		{
+     * Run method, to parse the file
+     * @see java.lang.Runnable#run()
+     */
+    public void run()
+    {
+        FileInputStream inStream = null;
+        boolean success = false;
+        try
+        {
             if (DEBUG) Log.d(TAG,"parse XML Stream");
             if (_XML_stream != null)
                 success = parseXmlStream(_XML_stream);
@@ -147,40 +147,40 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
         }
 
         if (DEBUG) Log.d(TAG,"result: " + success);
-		// Clean up the stream, don't need it any more
-		if (inStream != null) {
-			try {inStream.close();} catch (IOException e2) {}
-		}
+        // Clean up the stream, don't need it any more
+        if (inStream != null) {
+            try {inStream.close();} catch (IOException ignored) {}
+        }
 
-		if (success)
-		{
-			// Check whether handler was properly instantiated
-			if (_handler == null)
-			{
-				// Wasn't either kml or gpx
+        if (success)
+        {
+            // Check whether handler was properly instantiated
+            if (_handler == null)
+            {
+                // Wasn't either kml or gpx
                 Log.e(TAG,"error.load.unknownxml" + " " + _unknownType);
-			}
-			else
-			{
-				SourceInfo sourceInfo = new SourceInfo(_fileLock.getFile(), _handler.getFileType(),
-					_handler.getFileVersion());
-				sourceInfo.setFileTitle(_handler.getFileTitle());
+            }
+            else
+            {
+                SourceInfo sourceInfo = new SourceInfo(_fileLock.getFile(), _handler.getFileType(),
+                        _handler.getFileVersion());
+                sourceInfo.setFileTitle(_handler.getFileTitle());
                 sourceInfo.setAuthor((_handler.getAuthor()));
-				sourceInfo.setFileDescription(_handler.getFileDescription());
-				sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
+                sourceInfo.setFileDescription(_handler.getFileDescription());
+                sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
                 sourceInfo.setLink(_handler.getLink());
 
-				// Pass information back to app
-				new FileTypeLoader(_app).loadData(_handler, sourceInfo, _autoAppend
+                // Pass information back to app
+                new FileTypeLoader(_app).loadData(_handler, sourceInfo, _autoAppend
                         // , new MediaLinkInfo(_handler.getLinkArray())
                 );
-			}
-		}
-		_fileLock.release();
-	}
+            }
+        }
+        _fileLock.release();
+    }
 
 
-	/**
+    /**
 	 * Try both Xerces and the built-in java classes to parse the given xml stream
 	 * @param inStream input stream from file / zip / gzip
 	 * @return true on success, false if both xerces and built-in parser failed
@@ -196,7 +196,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 			saxParser.parse(inStream, this);
 			success = true; // worked
 		}
-		catch (Throwable e) {} // don't care too much if it didn't work, there's a backup
+		catch (Throwable ignored) {} // don't care too much if it didn't work, there's a backup
 
 		// If that didn't work, try the built-in classes (which work for xml1.0 but handling for 1.1 contains bugs)
 		if (!success)

@@ -77,6 +77,15 @@ public class GpsSimulator {
         gpsIndex = 0;
     }
 
+    /**
+     * Reset the GPS simulation after recreating the app
+     * @param inIndex starting index of the GPX simulation data
+     */
+    public void Reset(int inIndex)
+    {
+        gpsIndex = inIndex;
+    }
+
     public int getGpsIndex()
     {
         return gpsIndex;

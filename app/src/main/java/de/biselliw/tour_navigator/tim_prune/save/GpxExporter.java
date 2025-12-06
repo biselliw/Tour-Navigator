@@ -7,7 +7,7 @@ package de.biselliw.tour_navigator.tim_prune.save;
 	It's a cross-platform java application, and its home page is at
 	<a href="https://activityworkshop.net/software/gpsprune/">activityworkshop.net</a>
 
-	On github you'll find all the sources from version 1 to the current version 22.2:
+	On github you'll find all the sources from version 1 to the current version 26.1:
 
 	<a href="https://github.com/activityworkshop/GpsPrune">github.com/activityworkshop/GpsPrune</a>
 
@@ -24,7 +24,7 @@ package de.biselliw.tour_navigator.tim_prune.save;
 	You should have received a copy of the GNU General Public License
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-	Copyright (C) 2022 activityworkshop.net
+	Copyright (C) 2025 activityworkshop.net
 
  */
 
@@ -97,7 +97,7 @@ public class GpxExporter {
             // name and description
             SourceInfo sourceinfo = inInfo.getFileInfo().getSource(0);
             if (sourceinfo != null ) {
-                String inName = sourceinfo.getMetaName();
+                String inName = sourceinfo.getFileTitle();
                 String trackName = (!inName.isEmpty()) ? XmlUtils.fixCdata(inName) : GpxFileCreator + " Track";
                 String inDesc = sourceinfo.getFileDescription();
 //                String trackTitle = (inDesc != null && !inDesc.isEmpty()) ? XmlUtils.fixCdata(inDesc) : "Export from " + GpxFileCreator;

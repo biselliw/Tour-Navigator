@@ -24,6 +24,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.SwitchPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -114,7 +115,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static void setBoolean(String key, boolean value) {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(key, value);
-        editor.commit();
+//        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -125,7 +127,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static void setInt(String key, int value) {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(key, value);
-        editor.commit();
+//        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -149,7 +152,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             ? listPreference.getEntries()[index]
                             : null);
 
-        } else {
+        }
+        else if (preference instanceof SwitchPreference) {
+            // not reachable
+        }
+        else if (preference instanceof EditTextPreference) {
             // For all other preferences, set the summary to the value's
             // simple string representation.
             int val = -1;
@@ -253,7 +260,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             if (!stringValue.equals(""))
                 vertSpeedDescent = Integer.parseInt(stringValue);
 
-            Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "TourNavigator_");
+            Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "Tour Navigator ");
         }
         catch (Exception ignored) { }
 
@@ -316,7 +323,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static void setStartTime(long value) {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putLong("StartTime", value);
-        editor.commit();
+        editor.apply(); // editor.commit();
     }
 
     /**
@@ -351,6 +358,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         setInt("ProfileViewVisibility", value);
     }
 
+    /*
+
     public static boolean getExpandView() {
         return sharedPref.getBoolean("SetExpandViewStatus", false);
     }
@@ -358,6 +367,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static void setExpandView(boolean value) {
         setBoolean("SetExpandViewStatus", value);
     }
+     */
 
 
 }

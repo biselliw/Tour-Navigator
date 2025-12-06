@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:minHeight="48dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <ImageButton
             android:id="@+id/image_open_gpx"

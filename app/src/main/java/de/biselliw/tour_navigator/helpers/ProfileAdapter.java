@@ -28,7 +28,7 @@ package de.biselliw.tour_navigator.helpers;
  *
  *      https://github.com/SecUSo/privacy-friendly-app-example
  *
- * Hiking Navigator App (the "Software") is free software:
+ * Tour Navigator App (the "Software") is free software:
  *
  * you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation,
@@ -41,7 +41,7 @@ package de.biselliw.tour_navigator.helpers;
  *
  * Licensed under the GNU General Public License along with this (the "License");
  * you may not use this file except in compliance with the License.
- * You should have received a copy of the License along with Hiking Navigator App.
+ * You should have received a copy of the License along with Tour Navigator App.
  * If not, you may obtain a copy of the License at
  *
  *      http://www.gnu.org/licenses
@@ -164,9 +164,6 @@ public class ProfileAdapter {
                 XYGraphWidget.Edge.LEFT).setFormat(new DecimalFormat("###.#"));
     }
 
-    public void Pause() {
-        data.stopThread();
-    }
 
     /**
      * @implNote Observable class was deprecated in API level 33.
