@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="doc/Screenshot.jpg" alt=""/>
+</div>
+
 # Tour-Navigator
 Timetable of a hiking tour
 
