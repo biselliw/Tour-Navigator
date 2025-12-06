@@ -125,8 +125,9 @@ public class GpxHandler extends XmlHandler {
 
     private GpxTag _source = new GpxTag();
     private String _OutdooractiveSrcPrefix = "outdooractive.21430.";
+    private String _OutdooractiveSrcPostfix = ".21430.";
     private String _OutdooractiveLink = "https://www.schwarzwaldverein-tourenportal.de/poi/";
-    private String _toubizPrefix = "toubiz-tta-poi.21430.";
+    private String _toubizPrefix = "toubiz-"; // "toubiz-tta-poi.21430.";
     private String _toubizLink = "https://www.schwarzwald-tourismus.info/attraktionen/";
     private boolean _isFirstTrackPoint = true;
 
@@ -264,10 +265,11 @@ public class GpxHandler extends XmlHandler {
 		}
 		else if (_insideExtensions)
 		{
-			if (_storeExtensions)
+            if (_storeExtensions)
                 _extensionTags.add(qName);
-            if (_currentTag != null)
-			    _currentTag.clear();
+            if (_currentTag != null) {
+                _currentTag.clear();
+            }
 		}
 		else if (tag.equals("gpx"))
 		{
@@ -330,8 +332,10 @@ public class GpxHandler extends XmlHandler {
         }
         else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
-            // Create alternative link to a POI if no web link is provided
-            if (tag.equals("wpt") && (_link.getValue().isEmpty())) {
+            // Create alternative link to a POI superseding the web link
+            if (tag.equals("wpt")
+//                    && (_link.getValue().isEmpty())
+            ) {
                 String source = _source.getValue();
                 if (!source.isEmpty()) {
                     // Create Outdooractive link to a POI if no web link is provided
@@ -342,9 +346,13 @@ public class GpxHandler extends XmlHandler {
                     }
                     // Create Toubiz link to a POI if no web link is provided
                     else if (source.startsWith(_toubizPrefix)) {
-                        source = source.substring(_toubizPrefix.length());
-                        // link is only allowed to web site - no app!
-                        _link.setValue(_toubizLink.concat(source));
+                        int index = source.indexOf(_OutdooractiveSrcPostfix);
+                        if (index >= 0) {
+                            source = source.substring(index+_OutdooractiveSrcPostfix.length());
+                            if (source.length() > 10)
+                                // link is only allowed to web site - no app!
+                                _link.setValue(_toubizLink.concat(source));
+                        }
                     }
                 }
             }
@@ -421,9 +429,7 @@ public class GpxHandler extends XmlHandler {
 			_currentTag = null;
 		}
 
-        if (tag.equals("trk"))
-            _insideTrack = false;
-        else if (tag.equals("author"))
+        if (tag.equals("author"))
             _metaAuthorSet = false;
 
         super.endElement(uri, localName, qName);

@@ -212,9 +212,7 @@ public class Track {
      * @return The range of x values as a DoubleRange object
      */
     public DoubleRange getXRange() {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _xRange;
     }
 
@@ -222,9 +220,7 @@ public class Track {
      * @return The range of y values as a DoubleRange object
      */
     public DoubleRange getYRange() {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _yRange;
     }
 
@@ -232,9 +228,7 @@ public class Track {
      * @return The range of lat values as a DoubleRange object
      */
     public DoubleRange getLatRange() {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _latRange;
     }
 
@@ -242,9 +236,7 @@ public class Track {
      * @return The range of lon values as a DoubleRange object
      */
     public DoubleRange getLonRange() {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _longRange;
     }
 
@@ -253,9 +245,7 @@ public class Track {
      * @return scaled x value of specified point
      */
     public double getX(int inPointNum) {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _xValues[inPointNum];
     }
 
@@ -264,9 +254,7 @@ public class Track {
      * @return scaled y value of specified point
      */
     public double getY(int inPointNum) {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _yValues[inPointNum];
     }
 
@@ -334,9 +322,7 @@ public class Track {
      * @return true if track contains at least one trackpoint
      */
     public boolean hasTrackPoints() {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _hasTrackpoint;
     }
 
@@ -344,9 +330,7 @@ public class Track {
      * @return true if track contains waypoints
      */
     public boolean hasWaypoints() {
-        if (!_scaled) {
-            scalePoints();
-        }
+		if (!_scaled) {scalePoints();}
         return _hasWaypoint;
     }
 
@@ -419,8 +403,7 @@ public class Track {
         // Loop through all points in track, to see limits of lat, long
         _longRange = new DoubleRange();
         _latRange = new DoubleRange();
-        _hasWaypoint = false;
-        _hasTrackpoint = false;
+		_hasWaypoint = false; _hasTrackpoint = false;
         _hasNamedTrackpoint = false;
         _hasAltitude = false;
         for (int p = 0; p < getNumPoints(); p++) {
@@ -468,6 +451,48 @@ public class Track {
         return getNearestPointIndex(_xValues[inPointIndex], _yValues[inPointIndex], -1.0, true);
     }
 
+	/**
+	 * Find the nearest point to the specified x and y coordinates
+	 * or -1 if no point is within the specified max distance
+	 * @param inX x coordinate
+	 * @param inY y coordinate
+	 * @param inMaxDist maximum distance from selected coordinates
+	 * @param inJustTrackPoints true if waypoints should be ignored
+	 * @return index of nearest point or -1 if not found
+	 */
+	public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inJustTrackPoints)
+	{
+		int nearestPoint = 0;
+		double nearestDist = -1.0;
+		double mDist, yDist;
+		try {
+			for (int i=0; i < getNumPoints(); i++)
+			{
+				if (!inJustTrackPoints || !_dataPoints[i].isWaypoint())
+				{
+					yDist = Math.abs(_yValues[i] - inY);
+					if (yDist < nearestDist || nearestDist < 0.0)
+					{
+						// y dist is within range, so check x too
+						mDist = yDist + getMinXDist(_xValues[i] - inX);
+						if (mDist < nearestDist || nearestDist < 0.0)
+						{
+							nearestPoint = i;
+							nearestDist = mDist;
+						}
+					}
+				}
+			}
+		} catch (ArrayIndexOutOfBoundsException obe) {
+			return -1; // probably moving the mouse while data is changing
+		}
+		// Check whether it's within required distance
+		if (nearestDist > inMaxDist && inMaxDist > 0.0) {
+			return -1;
+		}
+		return nearestPoint;
+	}
+
     /**
      * Find the nearest point to the specified x and y coordinates
      * or -1 if no point is within the specified max distance
@@ -479,7 +504,7 @@ public class Track {
      * @return index of nearest point or -1 if not found
      * @implNote BiselliW
      */
-    public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inJustTrackPoints) {
+    public int _getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inJustTrackPoints) {
         int nearestPoint = -1;
 //		double nearestDist = -1.0;
         double mDist, xDist = 0, yDist = 0;
@@ -1235,21 +1260,24 @@ public class Track {
     void findNearestTrackPoints() {
         DataPoint point = null;
         for (int j = 0; j < _numWaypoints; j++) {
-            int linkedTP, linkedWP;
+            int linkedTP, prevLinkedTP=0, linkedWP;
             point = _waypoints[j];
             linkedWP = getPointIndex(point);
             double lat = point.getLatitude().getDouble();
             double lon = point.getLongitude().getDouble();
             // get the index to the currently linked track point
             linkedTP = point.getLinkIndex();
-            while ((linkedTP >= 0) && (linkedTP < _numPoints)) {
+            while ((linkedTP > prevLinkedTP) && (linkedTP < _numPoints)) {
+                prevLinkedTP = linkedTP;
                 // find the next track point which is considered as outside of the track
                 linkedTP = getOutsidePointIndex(linkedTP + 1, _numPoints - 1, lat, lon, MAX_DISTANCE_WP_TRACK, true);
 
                 // find the next track point after this one which is considered as inside the track again
-                if (linkedTP >= 0) {
+                if (linkedTP > prevLinkedTP) {
+                    prevLinkedTP = linkedTP;
                     linkedTP = getNearestPointIndex(linkedTP + 1, lat, lon, 0.020, 0.0, true);
-                    while ((linkedTP >= 0) && (linkedTP < _numPoints - 1)) {
+                    while ((linkedTP > prevLinkedTP) && (linkedTP < _numPoints - 1)) {
+                        prevLinkedTP = linkedTP;
                         point = _dataPoints[linkedTP];
                         if (point != null) {
                             if ((point.isTrackPoint()) && (point.getLinkIndex() <= 0)) {
@@ -1257,7 +1285,6 @@ public class Track {
                                 break;
                             }
                         }
-                        linkedTP++;
                     }
                 } else
                     break;

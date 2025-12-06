@@ -43,9 +43,7 @@ import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getExpandView;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.setExpandView;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
 
 public class ControlElements extends BaseActivity {
@@ -128,10 +126,10 @@ public class ControlElements extends BaseActivity {
                     onShowExpandViewStatus();
                 if (_updateErrorMessage)
                     onShowErrorMessage();
-                if (_updateAdditionalInfo)
-                    onShowAdditionalInfo2();
                 if (_updateExpandView)
                     onShowAdditionalInfo();
+                if (_updateAdditionalInfo)
+                    onShowAdditionalInfo2();
                 if (_updateProfile)
                     onShowProfile();
                 if (_rescalePlaceView)
@@ -297,7 +295,7 @@ public class ControlElements extends BaseActivity {
                 image_location_home.setVisibility(View.GONE);
                 image_location_off.setVisibility(View.VISIBLE);
                 image_location_on.setVisibility(View.GONE);
-                image_location_wait.setVisibility(View.VISIBLE);
+                image_location_wait.setVisibility(View.INVISIBLE);
                 break;
             default:
                 image_location_disabled.setVisibility(View.GONE);
@@ -356,20 +354,22 @@ public class ControlElements extends BaseActivity {
             main_text_title.setBackgroundColor(COLOR_MESSAGE);
             main_text_title.setText(additionalInfo.title);
 
-            TextView commentView = main.findViewById(R.id.comment_view);
-            commentView.setText(additionalInfo.comment);
+            if (expandView) {
+                TextView commentView = main.findViewById(R.id.comment_view);
+                commentView.setText(additionalInfo.comment);
 
-            TextView descriptionView = main.findViewById(R.id.description_view);
-            String html = additionalInfo.description;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                descriptionView.setText(Html.fromHtml(html));
+                TextView descriptionView = main.findViewById(R.id.description_view);
+                String html = additionalInfo.description;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    descriptionView.setText(Html.fromHtml(html));
+                }
+                descriptionView.scrollTo(0, 0);
+
+                TextView linkView = main.findViewById(R.id.link_view);
+                linkView.setText(additionalInfo.link);
             }
-            descriptionView.scrollTo(0, 0);
-
-            TextView linkView = main.findViewById(R.id.link_view);
-            linkView.setText(additionalInfo.link);
         }
 
         LinearLayout location_content = main.findViewById(R.id.location_content);
@@ -447,7 +447,7 @@ public class ControlElements extends BaseActivity {
         setTrackingStatus(false);
 
         activateProfile(View.GONE);
-        setExpandViewStatus(getExpandView());
+//        setExpandViewStatus(getExpandView());
         setViewVisibility(R.id.image_expand_more, View.GONE);
         _initUserInterface = true;
     }
@@ -460,7 +460,7 @@ public class ControlElements extends BaseActivity {
         _comment = "";
         showAddInfo(-1);
 
-//        activateProfile(View.VISIBLE);
+        // use stored state of profile view visibility
         activateProfile(getProfileViewVisibility());
         _setupUserInterface = true;
     }
@@ -560,7 +560,7 @@ public class ControlElements extends BaseActivity {
         int place = recordAdapter.getPlace();
         // update the expansion mode
         expandView = showExpandViewStatus(place, inExpand);
-        setExpandView(inExpand);
+//        setExpandView(inExpand);
         showAddInfo(place);
     }
 

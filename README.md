@@ -3,11 +3,12 @@ Timetable of a hiking tour
 
 Tour Navigator is a Privacy Friendly App for Android which presents hikers a timetable of a planned GPX route containing wayponts.
 
+[<img src="doc/Screenshot.jpg"](Screenshot)
+
 It's development is based on
 - Privacy Friendly Apps developed by the Technical University of Darmstadt: a group of Android applications which are optimized regarding privacy. Further information can be found on https://secuso.org/pfa
 
 - GpsPrune is a map-based application for viewing, editing and converting coordinate data from GPS systems. Further information and Java runnables can be found on  https://gpsprune.activityworkshop.net .
-
 
 ## Motivation
 

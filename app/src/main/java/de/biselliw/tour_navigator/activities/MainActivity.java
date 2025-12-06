@@ -102,14 +102,6 @@ public class MainActivity extends LocationActivity  implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // normal start?
-        if (savedInstanceState == null) {
-            AppState.gpxSimulationUri = null;
-
-            // delete any previously used cache
-            FileUtils.clearAppCache(this);
-        }
-
         // Load preferences
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         SettingsActivity.setSharedPreferences(sharedPref);
@@ -158,14 +150,11 @@ public class MainActivity extends LocationActivity  implements
 
         // app restarted by Android?
         if (savedInstanceState != null) {
-            if (AppState.gpxSimulationUri != null) {
-                OpenFileGPX(AppState.gpxSimulationUri);
+            if (AppState.getGpxSimulationUri() != null) {
+                OpenFileGPX(AppState.getGpxSimulationUri());
             } else if (AppState.isGpxFileCached())
                 OpenCachedFileGPX();
         }
-            // Load a GPX file from cache
-            // gpxFileCached = false; // SettingsActivity.isGpxFileLoaded();
-
     }
 
     /**
@@ -214,14 +203,14 @@ public class MainActivity extends LocationActivity  implements
             control.updateGpxFile = false;
         }
         super.onPause();
-        AppState.paused = true;
+        AppState.setPaused(true);
     }
 
     @Override
     public void onResume() {
         recordAdapter.notifyDataSetChanged();
         super.onResume();
-        AppState.resumed = true;
+        AppState.setPaused(false);
     }
 
 
@@ -372,13 +361,8 @@ public class MainActivity extends LocationActivity  implements
      *  @see <a href="https://developer.android.com/training/basics/intents/result#java">developer.android.com</a>
      */
     public void registerActivityResultLauncherOpenDocument() {
-
-        // Define the MIME type you want to filter by
-//        final String mimeType = "application/gpx+xml";
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("*/*")
-                .addCategory(Intent.CATEGORY_OPENABLE);
-        //        .putExtra(Intent.EXTRA_MIME_TYPES, new String[] { mimeType });
+        intent.setType("application/octet-stream").addCategory(Intent.CATEGORY_OPENABLE);
         OpenDocumentActivityResultLauncher.launch(intent);
     }
 
@@ -699,6 +683,7 @@ public class MainActivity extends LocationActivity  implements
      * Open GPX file
      */
     public void OpenFileGPX() {
+        AppState.clearNavigationState();
         registerActivityResultLauncherOpenDocument();
     }
 
@@ -707,6 +692,7 @@ public class MainActivity extends LocationActivity  implements
      * @param data Intent data
      */
     void OpenFileGPX(final Intent data) {
+        AppState.clearNavigationState();
         // delete any previously used cache
         // FileUtils.deleteDocumentCacheDir(this);
         clearErrorMessage();
@@ -795,49 +781,40 @@ public class MainActivity extends LocationActivity  implements
 
     /**
      * Reload a GPX file via URI
+     *
      * @param uriFile URI of the file
      */
-    public boolean OpenFileGPX(Uri uriFile ) {
+    public void OpenFileGPX(Uri uriFile ) {
         try {
             InputStream _xmlStream = null;
             try {
                 assert uriFile != null;
                 _xmlStream = this.getContentResolver().openInputStream(uriFile);
-            } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-                return false;
-            }
+            } catch (FileNotFoundException e) { return; }
             if (DEBUG) Log.d(TAG, "OpenFileGPX(Uri) uri =" + uriFile.getPath());
             _xmlFileLoader = new XmlFileLoader(super.app);
             _xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informUriFileLoadComplete);
             if (DEBUG) Log.d(TAG, "GPX file loaded?");
-            return true;
-        } catch (Exception e) {
-//                e.printStackTrace();
-        }
-        return false;
+        } catch (Exception ignored) {  }
     }
 
     /**
      * Load a GPX file from cache
      */
-    public boolean OpenCachedFileGPX() {
+    public void OpenCachedFileGPX() {
         try {
             android.content.Context context = getApplicationContext();
             File cacheDir = FileUtils.getDocumentCacheDir(context);
             File file = new File (cacheDir, "TourNavigator.gpx");
 
-            Log.d (TAG, "OpenCachedFileGPX()");
-            //            InputStream _xmlStream = null;
+            if(DEBUG) Log.d (TAG, "OpenCachedFileGPX()");
 
             _xmlFileLoader = new XmlFileLoader(super.app);
             _xmlFileLoader.openFile(file, _autoAppend, app::informDataLoadComplete);
             if (DEBUG) Log.d(TAG, "GPX file loaded?");
-            return true;
         } catch (Exception e) {
             Log.e(TAG,"OpenCachedFileGPX()", e);
         }
-        return false;
     }
 
     /*

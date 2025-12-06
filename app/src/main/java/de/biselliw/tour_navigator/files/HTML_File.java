@@ -209,27 +209,34 @@ public class HTML_File {
         // row "Nr":
         tmp_buffer.append("<tr><td class=\"cell\" valign=\"top\" align=\"right\"><a name=\"poi").append(descItems + 1)
                 .append("\"><a href=\"#wp").append(descItems + 1).append("\">")
-                .append(inPlace + 1).append("</a></a></td><td class=\"cell\" class=\"cell\">");
+                .append(inPlace + 1).append("</a></a></td>");
 
         // row "Type":
         String val = wptInfo.symbol;
+        tmp_buffer.append("<td class=\"cell\">");
         if (!val.isEmpty())
             tmp_buffer.append(details.interpretWaypointSymbol(val));
+        tmp_buffer.append("</td>");
 
         // row "Description":
-        tmp_buffer.append("</td><td class=\"cell\" class=\"cell\">");
+        String title = "<p><b>" + wptInfo.title + "</b></p>";
+        tmp_buffer.append("<td class=\"cell\">");
         val = wptInfo.description;
         if (!val.isEmpty()) {
+            tmp_buffer.append(title);
             tmp_buffer.append(val);
+            title = "";
             descAvailable = true;
         }
 
         val = wptInfo.link;
         if (!val.isEmpty()) {
-                tmp_buffer.append("<p><a href=\"")
-                        .append(val ).append("\" target=_blank>").append(val).append("</a></p>\n");
-                descAvailable = true;
-            }
+            if (!title.isEmpty())
+                tmp_buffer.append(title);
+            tmp_buffer.append("<p><a href=\"")
+                    .append(val).append("\" target=_blank>").append(val).append("</a></p>\n");
+            descAvailable = true;
+        }
 
         tmp_buffer.append("</td></tr>\n");
 

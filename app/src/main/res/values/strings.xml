@@ -83,6 +83,12 @@
     <string name="title_add_licenses">Used Licenses</string>
     <string name="used_licenses">This app uses licensed content of these developers:</string>
     <string name="attribution" translatable="false">
+        Activity Workshop:\n
+        GpsPrune, a map-based cross-platform java application for viewing, editing and converting coordinate data from GPS systems:\n
+        https://activityworkshop.net/software/gpsprune\n
+        https://github.com/activityworkshop/GpsPrune/\n
+        Licensed under GNU General Public License v2.0.\n
+        \n
         Forschungsgruppe SECUSO\n
         (Security • Usability • Society)\n
         Karlsruher Institut für Technologie (KIT):\n
@@ -90,12 +96,6 @@
         https://secuso.org/pfa\n
         https://github.com/secuso\n
         Licensed under GNU General Public License v3.\n
-        \n
-        Activity Workshop:\n
-        GpsPrune, a map-based cross-platform java application for viewing, editing and converting coordinate data from GPS systems:\n
-        https://activityworkshop.net/software/gpsprune\n
-        https://github.com/activityworkshop/GpsPrune/\n
-        Licensed under GNU General Public License v2.0.\n
         \n
         Nick Fellows (halfhp)\n
         androidplot: Charts and plots for Android\n

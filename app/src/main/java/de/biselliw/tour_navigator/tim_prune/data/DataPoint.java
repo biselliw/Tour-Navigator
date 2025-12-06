@@ -864,7 +864,7 @@ public class DataPoint
 
 	/**
 	 * Set the waypoint name
-	 * @param inWaypointName waypoint name
+	 * @ param inWaypointName waypoint name
 	 * @author BiselliW
 	 * @since 22.2.006
      * @todo setWaypointName

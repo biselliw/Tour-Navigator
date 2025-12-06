@@ -254,6 +254,7 @@ public class TourDetails {
         public String type;
         public String author = "";
         public String symbol;
+        public String sourceLink = "";
         public String link = "";
     }
 

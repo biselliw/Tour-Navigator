@@ -11,16 +11,6 @@
         android:smallScreens="false"
         android:xlargeScreens="true" />
 
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.wifi"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="true" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -36,7 +26,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.TourNavigator"
-        tools:targetApi="31" >
+        tools:targetApi="33" >
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -65,25 +55,6 @@
                 <data
                     android:mimeType="application/*"
                     android:scheme="content" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.gpx"
-                    android:scheme="http" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.gpx"
-                    android:scheme="https" />
-                <data
-                    android:host="*"
-                    android:pathPattern=".*\\.gpx"
-                    android:scheme="ftp" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

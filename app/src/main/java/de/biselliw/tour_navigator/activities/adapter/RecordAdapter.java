@@ -46,7 +46,12 @@ import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSele
  */
 public class RecordAdapter extends BaseAdapter {
 
-    private static final int COLOR_NOBE       = 0xAA000000;
+    /** max. tolerated delay [min] */
+    private static final int DELAY_MAX       = 8;
+
+    /* don't show the presumable arrival time */
+    private static final int COLOR_NONE       = 0xAA000000;
+    /* text colors depending on the current delay */
     private static final int COLOR_DELAY_NONE = 0xAA0000ff;
     private static final int COLOR_DELAY_MIN  = 0xAA008000;
     private static final int COLOR_DELAY_MAX  = 0xAAB71C1C;
@@ -284,9 +289,9 @@ public class RecordAdapter extends BaseAdapter {
     public void setDelay(int inDelay) {
         _delay_min = inDelay;
     }
+
     /**
-     * Get the current delay
-     * @return current delay [min]
+     * @return the current delay [min]
      */
     public int getDelay() {
         return _delay_min;
@@ -308,10 +313,10 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * get the formatted planned arrival time
+     * Format the planned arrival time for a waypoint
      *
      * @param inPoint waypoint data
-     * @return formatted arrival time
+     * @return formatted time string
      */
     public String getPlannedArriveTime(DataPoint inPoint) {
         long _t = _startTime.toMillis(true) + inPoint.getTime() * 1000L;
@@ -319,6 +324,12 @@ public class RecordAdapter extends BaseAdapter {
         return timeFormat.format(calender.getTime());
     }
 
+    /**
+     * Format the planned arrival time for a waypoint
+     *
+     * @param inPlace waypoint index of the record
+     * @return formatted time string
+     */
     public String getPlannedArriveTime(int inPlace) {
         String res = "";
         Record record = getItem(inPlace);
@@ -368,7 +379,7 @@ public class RecordAdapter extends BaseAdapter {
         }
         else {
             /* don't show the presumable arrival time */
-            inView.setTextColor(COLOR_NOBE);
+            inView.setTextColor(COLOR_NONE);
             if (inShowPlanned)
             {
                 /* get the formatted planned arrival time */
@@ -379,8 +390,11 @@ public class RecordAdapter extends BaseAdapter {
         inView.setText(sTime);
     }
 
+    /**
+     * @return the color code depending on the current delay
+     */
     public int getDelayColor() {
-        if (_delay_min >= 8) {
+        if (_delay_min >= DELAY_MAX) {
             return COLOR_DELAY_MAX;
         } else if (_delay_min > 0) {
             return COLOR_DELAY_MIN;

@@ -179,7 +179,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:layout_weight="2"></ListView>
+            android:layout_weight="2"/>
 
         <TextView
             android:id="@+id/comment_view"
@@ -197,7 +197,7 @@
             android:textSize="16sp"
             android:verticalScrollbarPosition="right"
             android:visibility="visible"
-            tools:visibility="visible"></TextView>
+            tools:visibility="visible"/>
 
     </LinearLayout>
 
