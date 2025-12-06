@@ -3,28 +3,34 @@ package de.biselliw.tour_navigator.data;
 import android.net.Uri;
 import android.os.Bundle;
 
+import de.biselliw.tour_navigator.activities.LocationActivity;
+
 /**
  * important app data for saving/restoring the application state after relaunching the app on
  * Android device
  */
 
 public abstract class AppState {
-    private static boolean valid = false;
-    private static boolean paused = false;
+    private static boolean _valid = false;
+    private static boolean _paused = false;
+
+    /**
+     * values to app state
+     */
+    private static LocationActivity.gpsStatus _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
+    private static LocationActivity.locationStatus _LocationStatus = LocationActivity.locationStatus.INITIAL;
+    private static int _StartGpsIndex = 0;
+    private static boolean _isTracking = false;
+
 
     /**
      * values to handle GPX files
      */
-    private static Uri gpxSimulationUri = null;
-    private static int gpxSimulationIndex = 0;
+    private static Uri _GpxSimulationUri = null;
+    private static int _GpxSimulationIndex = 0;
+    private static boolean _GpxFileCached = false;
+    // static int gpxInitialPlace = -1;
 
-    private static boolean gpxFileCached = false;
-    static int gpxInitialPlace = -1;
-    static int startGpsIndex = 0;
-
-    /**
-     * values to handle GPX simulation file
-     */
 
     public static boolean destroyed = false;
 //    public static boolean started = false;
@@ -41,7 +47,7 @@ public abstract class AppState {
      * Clear the app states on normal start
      */
     public static void clearState() {
-        gpxSimulationUri = null;
+        _GpxSimulationUri = null;
         clearNavigationState();
     }
 
@@ -49,62 +55,59 @@ public abstract class AppState {
      * Clear the navigation states on normal start
      */
     public static void clearNavigationState() {
-        gpxFileCached = false;
-        startGpsIndex = 0;
-        gpxInitialPlace = 0;
-        valid = false;
+        _GpxFileCached = false;
+        _StartGpsIndex = 0;
+//        gpxInitialPlace = 0;
+        _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
+        _LocationStatus = LocationActivity.locationStatus.INITIAL;
+        _valid = false;
     }
 
-    public boolean isValid () { return valid; }
+    public static boolean isValid () { return _valid; }
     public static void getValues (Bundle instanceState) {
-        /*
-        gpxFileCached = instanceState.getBoolean("gpxFileCached");
-        gpxInitialPlace = instanceState.getInt("gpxInitialPlace");
-        valid = true;
-
-         */
     }
 
     public static void putValues (Bundle instanceState) {
-        if (valid)
+        if (_valid)
         {
-/*
-            instanceState.putBoolean( "gpxFileCached", gpxFileCached );
-            // remember current place
-            instanceState.putInt("gpxInitialPlace", gpxInitialPlace);
-
- */
         }
     }
 
-    public static boolean getPaused () { return paused; }
-    public static void setPaused (boolean inPaused) { paused = inPaused; }
-    public static Uri getGpxSimulationUri () { return gpxSimulationUri; }
-    public static void setGpxSimulationUri (Uri inUri) { gpxSimulationUri = inUri; }
+    public static boolean getPaused() { return _paused; }
+    public static void setPaused(boolean inPaused) { _paused = inPaused; }
 
-    public static int getGpxSimulationIndex () { return gpxSimulationIndex; }
-    public static void setGpxSimulationIndex (int inIndex) { gpxSimulationIndex = inIndex; }
+    public static LocationActivity.gpsStatus getGpsStatus() { return _GpsStatus; }
+    public static void setGpsStatus(LocationActivity.gpsStatus inGpsStatus) { _GpsStatus = inGpsStatus; }
 
-    public static boolean isGpxFileCached() { return gpxFileCached; }
+    public static LocationActivity.locationStatus getLocationStatus () { return _LocationStatus; }
+    public static void setLocationStatus (LocationActivity.locationStatus inLocationStatus) { _LocationStatus = inLocationStatus; }
+
+    public static boolean isTracking() { return _isTracking; }
+    public static void setTracking(boolean isTracking) { _isTracking = isTracking; }
+
+
+    public static Uri getGpxSimulationUri() { return _GpxSimulationUri; }
+    public static void setGpxSimulationUri(Uri inUri) { _GpxSimulationUri = inUri; }
+
+    public static int getGpxSimulationIndex() { return _GpxSimulationIndex; }
+    public static void setGpxSimulationIndex(int inIndex) { _GpxSimulationIndex = inIndex; }
+
+    public static boolean isGpxFileCached() { return _GpxFileCached; }
     public static void setGpxFileCached(boolean cached) {
-        gpxFileCached = cached;
-        if (cached) valid = true;
+        _GpxFileCached = cached;
+        if (cached) _valid = true;
     }
 
-    public static int getGpxPlace() { return gpxInitialPlace; }
-    public static void setGpxPlace(int value) {
-        gpxInitialPlace = value;
-        valid = true;
+    public static int getStartGpsIndex() { return _StartGpsIndex; }
+    public static void setStartGpsIndex(int inIndex) {
+        _StartGpsIndex = inIndex;
+        _valid = true;
     }
-
-    public static int getStartGpsIndex () { return startGpsIndex; }
-    public static void setStartGpsIndex (int inIndex) { startGpsIndex = inIndex; }
-
 
     public static String getString() {
-        if (valid)
-            return "gpxFileCached = " + gpxFileCached +
-                    "; initialPlace = " + gpxInitialPlace;
+        if (_valid)
+            return "gpxFileCached = " + _GpxFileCached +
+                    "; _StartGpsIndex = " + _StartGpsIndex;
         else
             return "";
     }

@@ -47,14 +47,19 @@ import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSele
 public class RecordAdapter extends BaseAdapter {
 
     /** max. tolerated delay [min] */
-    private static final int DELAY_MAX       = 8;
+    public static final int DELAY_MIN       = 5;
+    public static final int DELAY_MAX       = 8;
+
+    /** Color Codes */
+    private static final int COLOR_BG_SELECTED = 0xFFB3DBFB;
+    private static final int COLOR_BG_RECORD = 0xFFFFFFFF;
 
     /* don't show the presumable arrival time */
     private static final int COLOR_NONE       = 0xAA000000;
     /* text colors depending on the current delay */
     private static final int COLOR_DELAY_NONE = 0xAA0000ff;
-    private static final int COLOR_DELAY_MIN  = 0xAA008000;
-    private static final int COLOR_DELAY_MAX  = 0xAAB71C1C;
+    public static final int COLOR_DELAY_MIN  = 0xAA008000;
+    public static final int COLOR_DELAY_MAX  = 0xAAB71C1C;
 
     Context recordContext;
     public List<Record> recordList;
@@ -129,6 +134,21 @@ public class RecordAdapter extends BaseAdapter {
         }
     }
 
+    public int indexOf (int inIndex)
+    {
+        int place = 0, result = -1;
+        while (place < getCount()) {
+            RecordAdapter.Record record = getItem(place);
+            assert (record != null);
+            if (inIndex <= record.trackPointIndex) {
+                result = place;
+                break;
+            }
+            place++;
+        }
+        return result;
+    }
+
     @Override
     public long getItemId(int i) {
         return i;
@@ -166,13 +186,10 @@ public class RecordAdapter extends BaseAdapter {
             if (point != null)
             {
                 /* Mark selected row */
-                if (view != null)
-                {
-                    if (i == _selected)
-                        view.setBackgroundColor(0xFFB3DBFB);
-                    else
-                        view.setBackgroundColor(0xFFFFFFFF);
-                }
+                if (i == _selected)
+                    view.setBackgroundColor(COLOR_BG_SELECTED);
+                else
+                    view.setBackgroundColor(COLOR_BG_RECORD);
 
                 /* get the formatted arrival time */
                 String time = getPlannedArriveTime(point);
@@ -192,9 +209,7 @@ public class RecordAdapter extends BaseAdapter {
                 /* show waypoint name */
                 holder.placeView.setText(point.getRoutePointName());
             }
-
         }
-
         return view;
     }
 
@@ -236,7 +251,6 @@ public class RecordAdapter extends BaseAdapter {
             DataPoint point = record.trackPoint;
             if (point != null) {
                 String time2445 = inTime.format2445();
-
                 point.setFieldValue(Field.TIMESTAMP,time2445,false);
             }
         }
@@ -251,7 +265,6 @@ public class RecordAdapter extends BaseAdapter {
             return recordList.get(_selected);
         else
             return null;
-
     }
 
     /**
@@ -275,6 +288,16 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
+     * Get the item in the list of places
+     * @param inPointIndex index of the data point
+     *
+     * @return Index (starting at 0) / -1 if nothing is selected
+     */
+    public int findPlace(int inPointIndex) {
+        return _selected;
+    }
+
+    /**
      * Set the current distance since start
      * @param inDistance inDistance
      */
@@ -284,7 +307,7 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * Set the current delay
-     * @param inDelay [min]
+     * @param inDelay delay [min]
      */
     public void setDelay(int inDelay) {
         _delay_min = inDelay;
@@ -297,6 +320,10 @@ public class RecordAdapter extends BaseAdapter {
         return _delay_min;
     }
 
+    /**
+     * Show/hide real time data in places list view
+     * @param inRealtime true to show
+     */
     public void setRealtime (boolean inRealtime)
     {
         _realtime = inRealtime;
@@ -374,8 +401,7 @@ public class RecordAdapter extends BaseAdapter {
                 calender.add(Calendar.MINUTE, _delay_min);
                 sTime = timeFormat.format(calender.getTime());
             }
-
-            inView.setTextColor(getDelayColor());
+            inView.setTextColor(getTextColorDelay());
         }
         else {
             /* don't show the presumable arrival time */
@@ -386,14 +412,26 @@ public class RecordAdapter extends BaseAdapter {
                 sTime = getPlannedArriveTime(inPoint);
             }
         }
-
         inView.setText(sTime);
     }
 
     /**
-     * @return the color code depending on the current delay
+     * @return the background color code depending on the current delay
      */
-    public int getDelayColor() {
+    public int getBackgroundColorDelay() {
+        if (_delay_min >= DELAY_MAX) {
+            return COLOR_DELAY_MAX;
+        } else if (_delay_min > 0) {
+            return COLOR_DELAY_MIN;
+        } else {
+            return COLOR_DELAY_NONE;
+        }
+    }
+
+    /**
+     * @return the text color code depending on the current delay
+     */
+    public int getTextColorDelay() {
         if (_delay_min >= DELAY_MAX) {
             return COLOR_DELAY_MAX;
         } else if (_delay_min > 0) {
