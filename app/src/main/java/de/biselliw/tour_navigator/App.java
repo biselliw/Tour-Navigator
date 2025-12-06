@@ -221,7 +221,6 @@ public class App {
             _stats.addPoint(ptIndex);
             if (currPoint.isRoutePoint())
             {
-
                 record = new RecordAdapter.Record(
                         currPoint,
                         ptIndex,
