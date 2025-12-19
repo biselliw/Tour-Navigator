@@ -20,12 +20,12 @@ package de.biselliw.tour_navigator.activities.adapter;
 */
 
 import android.app.Activity;
-import android.content.Context;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -34,43 +34,69 @@ import java.util.Calendar;
 import java.util.List;
 
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
+import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezoneStr;
+import static de.biselliw.tour_navigator.ui.ControlElements.control;
+import static de.biselliw.tour_navigator.ui.ControlElements.expandView;
 
 /**
  * class to handle all records of the timetable
  */
 public class RecordAdapter extends BaseAdapter {
 
-    /** max. tolerated delay [min] */
-    public static final int DELAY_MIN       = 5;
-    public static final int DELAY_MAX       = 8;
+    /**
+     * max. tolerated delay [min]
+     */
+    public static final int DELAY_MIN = 5;
+    public static final int DELAY_MAX = 8;
 
-    /** Color Codes */
+    /**
+     * Color Codes
+     */
     private static final int COLOR_BG_SELECTED = 0xFFB3DBFB;
     private static final int COLOR_BG_RECORD = 0xFFFFFFFF;
 
     /* don't show the presumable arrival time */
-    private static final int COLOR_NONE       = 0xAA000000;
+    private static final int COLOR_NONE = 0xAA000000;
     /* text colors depending on the current delay */
     private static final int COLOR_DELAY_NONE = 0xAA0000ff;
-    public static final int COLOR_DELAY_MIN  = 0xAA008000;
-    public static final int COLOR_DELAY_MAX  = 0xAAB71C1C;
+    public static final int COLOR_DELAY_MIN = 0xAA008000;
+    public static final int COLOR_DELAY_MAX = 0xAAB71C1C;
 
-    Context recordContext;
+    private LocationActivity _activity;
+    private ProfileAdapter _profileAdapter;
+
+    private ListView recordsView;
+
+    public boolean updating = false;
     public List<Record> recordList;
+
+    private List<Record> _updatedRecordList = null;
+
     private final Calendar calender;
     private int _selected = -1;
-    /** start time of the tour */
+    private int _initialPlace = -1;
+    private int lastPlace = -1;
+    private int endPlace = 0;
+
+    /**
+     * start time of the tour
+     */
     private final Time _startTime;
     private boolean _realtime = false;
-    /**  current distance since start */
+    /**
+     * current distance since start
+     */
     private double _distance = 0.0;
-    /** current delay [min] */
+    /**
+     * current delay [min]
+     */
     private int _delay_min = 0;
     final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     final DecimalFormat decFormat = new DecimalFormat("  #0.0");
@@ -82,21 +108,38 @@ public class RecordAdapter extends BaseAdapter {
         public TextView placeView;
     }
 
+    TextView track_place = null;
+    TextView track_arrive = null;
+
     /**
      * Constructor
-     * @param context context
+     *
+     * @param activity context
      * @param records list of all records
      */
-    public RecordAdapter(Context context, List<Record> records) {
+    public RecordAdapter(LocationActivity activity, ProfileAdapter inProfileAdapter, List<Record> records) {
         recordList = records;
-        recordContext = context;
+        _activity = activity;
+        _profileAdapter = inProfileAdapter;
+
+        track_place = activity.findViewById(R.id.track_place);
+        track_arrive = activity.findViewById(R.id.track_arrive);
+
+        recordsView = activity.findViewById(R.id.records_view);
+        recordsView.setAdapter(this);
+
+
+        // Create a Listener for this list view of places
+        recordsView.setOnItemClickListener((adapter, v, inPlace, arg3) ->
+                setPlace(inPlace, true));
+
         calender = Calendar.getInstance();
         calender.setTimeZone(getSelectedTimezone());
 
         _startTime = new Time(getSelectedTimezoneStr());
         _startTime.setToNow();
-        _startTime.hour =  0;
-        _startTime.minute =0;
+        _startTime.hour = 0;
+        _startTime.minute = 0;
     }
 
     public static class Record {
@@ -107,17 +150,23 @@ public class RecordAdapter extends BaseAdapter {
         public double Sdescent;
         public long Sseconds;
 
-        public Record (DataPoint _trackPoint, int _trackPointIndex, double _Sdistance, double _Sclimb, double _Sdescent, long _Sseconds)
-        {
+        public Record(DataPoint _trackPoint, int _trackPointIndex) {
             trackPointIndex = _trackPointIndex;
             trackPoint = _trackPoint;
-            Sdistance  = _Sdistance;
-            Sclimb     = _Sclimb;
-            Sdescent   = _Sdescent;
-            Sseconds   = _Sseconds;
         }
 
-        public DataPoint getTrackPoint() { return trackPoint;}
+        public Record(DataPoint _trackPoint, int _trackPointIndex, double _Sdistance, double _Sclimb, double _Sdescent, long _Sseconds) {
+            trackPointIndex = _trackPointIndex;
+            trackPoint = _trackPoint;
+            Sdistance = _Sdistance;
+            Sclimb = _Sclimb;
+            Sdescent = _Sdescent;
+            Sseconds = _Sseconds;
+        }
+
+        public DataPoint getTrackPoint() {
+            return trackPoint;
+        }
     }
 
     @Override
@@ -134,8 +183,7 @@ public class RecordAdapter extends BaseAdapter {
         }
     }
 
-    public int indexOf (int inIndex)
-    {
+    public int indexOf(int inIndex) {
         int place = 0, result = -1;
         while (place < getCount()) {
             RecordAdapter.Record record = getItem(place);
@@ -160,13 +208,16 @@ public class RecordAdapter extends BaseAdapter {
      * @param i         index of the place
      * @param view      returned view
      * @param viewGroup not used
-     * @return          view
+     * @return view
      */
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         RecordViewHolder holder;
+
+     //   if (updating) return null;
+
         if (view == null) {
-            LayoutInflater recordInflater = (LayoutInflater) recordContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater recordInflater = (LayoutInflater) _activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             // todo Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout's root element)
             view = recordInflater.inflate(R.layout.record, null);
             holder = new RecordViewHolder();
@@ -180,11 +231,9 @@ public class RecordAdapter extends BaseAdapter {
         }
 
         Record record = getItem(i);
-        if (record != null)
-        {
+        if (record != null) {
             DataPoint point = record.trackPoint;
-            if (point != null)
-            {
+            if (point != null) {
                 /* Mark selected row */
                 if (i == _selected)
                     view.setBackgroundColor(COLOR_BG_SELECTED);
@@ -213,13 +262,27 @@ public class RecordAdapter extends BaseAdapter {
         return view;
     }
 
+    public void onDataSetChanged() {
+        if (_updatedRecordList != null) {
+            RemoveRecords();
+            for (Record record : _updatedRecordList) {
+                add(record);
+            }
+            _updatedRecordList.clear();
+            _updatedRecordList = null;
+            notifyDataSetChanged();
+        }
+    }
+
+    public void notifyDataSetChanged(List<Record> records) {
+        _updatedRecordList = records;
+    }
+
     /**
      * Remove all records
      */
-    public void RemoveRecords()
-    {
-        while (getCount() > 0)
-        {
+    public void RemoveRecords() {
+        while (getCount() > 0) {
             recordList.remove(0);
         }
     }
@@ -233,6 +296,7 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * Set the start time of the tour
+     *
      * @param inTime start time of the tour
      */
     public void setStartTime(long inTime) {
@@ -241,6 +305,7 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * Set the start time of the tour
+     *
      * @param inTime start time of the tour
      */
     public void setStartTime(Time inTime) {
@@ -251,9 +316,10 @@ public class RecordAdapter extends BaseAdapter {
             DataPoint point = record.trackPoint;
             if (point != null) {
                 String time2445 = inTime.format2445();
-                point.setFieldValue(Field.TIMESTAMP,time2445,false);
+                point.setFieldValue(Field.TIMESTAMP, time2445, false);
             }
         }
+        track_arrive.setText("");
     }
 
     /**
@@ -271,7 +337,6 @@ public class RecordAdapter extends BaseAdapter {
      * Sets an item in the list of places
      *
      * @param inPlace Index (starting at 0) of the data item to be selected or -1 if nothing
-     * @see de.biselliw.tour_navigator.activities.LocationActivity#showPlace(int)
      */
     public void setPlace(int inPlace) {
         _selected = Math.min(inPlace, recordList.size());
@@ -288,25 +353,17 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * Get the item in the list of places
-     * @param inPointIndex index of the data point
-     *
-     * @return Index (starting at 0) / -1 if nothing is selected
-     */
-    public int findPlace(int inPointIndex) {
-        return _selected;
-    }
-
-    /**
      * Set the current distance since start
+     *
      * @param inDistance inDistance
      */
-    public void setDistance (double inDistance) {
+    public void setDistance(double inDistance) {
         _distance = inDistance;
     }
 
     /**
      * Set the current delay
+     *
      * @param inDelay delay [min]
      */
     public void setDelay(int inDelay) {
@@ -322,21 +379,11 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * Show/hide real time data in places list view
+     *
      * @param inRealtime true to show
      */
-    public void setRealtime (boolean inRealtime)
-    {
+    public void setRealtime(boolean inRealtime) {
         _realtime = inRealtime;
-    }
-
-    /**
-     * @param inPlace table row
-     * @return the DataPoint for a selected row
-     */
-    public DataPoint getDataPoint(int inPlace) {
-        RecordAdapter.Record record = getItem(inPlace);
-        if (record == null) return null;
-        return record.getTrackPoint();
     }
 
     /**
@@ -370,11 +417,12 @@ public class RecordAdapter extends BaseAdapter {
     /**
      * Show the presumable arrival time depending on the delay
      *
-     * @param inShowDelay if true: show the planned time plus delay
+     * @param inShowDelay   if true: show the planned time plus delay
      * @param inShowPlanned show planned time if presumable is not available
-     * @param inView TextView for display
-     * @param inPoint point data
-     * */
+     * @param inView        TextView for display
+     * @param inPoint       point data
+     *
+     */
     public void showPresumableArriveTime(boolean inShowDelay, boolean inShowPlanned, TextView inView, DataPoint inPoint) {
         String sTime = "";
         long _t = _startTime.toMillis(true);
@@ -395,37 +443,20 @@ public class RecordAdapter extends BaseAdapter {
                     String sDelay = timeFormat.format(calender.getTime());
                     sTime = sTime + " -" + sDelay;
                 }
-            }
-            else
-            {
+            } else {
                 calender.add(Calendar.MINUTE, _delay_min);
                 sTime = timeFormat.format(calender.getTime());
             }
             inView.setTextColor(getTextColorDelay());
-        }
-        else {
+        } else {
             /* don't show the presumable arrival time */
             inView.setTextColor(COLOR_NONE);
-            if (inShowPlanned)
-            {
+            if (inShowPlanned) {
                 /* get the formatted planned arrival time */
                 sTime = getPlannedArriveTime(inPoint);
             }
         }
         inView.setText(sTime);
-    }
-
-    /**
-     * @return the background color code depending on the current delay
-     */
-    public int getBackgroundColorDelay() {
-        if (_delay_min >= DELAY_MAX) {
-            return COLOR_DELAY_MAX;
-        } else if (_delay_min > 0) {
-            return COLOR_DELAY_MIN;
-        } else {
-            return COLOR_DELAY_NONE;
-        }
     }
 
     /**
@@ -443,11 +474,187 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * add a record without updating the list view
+     *
      * @param record record
      */
     public void add(Record record) {
         recordList.add(record);
     }
 
-}
+    /**
+     * Set next place to arrive:
+     * Put he marker to the row within the table of places which shows the next place to arrive
+     * after the given distance
+     *
+     * @param inDistance current distance since start
+     * @param inUser     true if invoked by the user
+     * @return index of the place within the list of places
+     */
+    public int setNextPlace(double inDistance, boolean inUser) {
+        int place = 0;
+        do {
+            DataPoint recPoint = getItem(place).getTrackPoint();
+            if (recPoint != null) {
+                double dist = recPoint.getDistance();
+                if (inDistance > dist)
+                    place++;
+                else
+                {
+                    setPlace(place, inUser);
+                    break;
+                }
+            }
+        }
+        while (place < getCount());
+        return place;
+    }
 
+    /**
+     * Set the position in list of places and update information
+     *
+     * @param inPlace row index of the table
+     * @param inUser  true if invoked by the user
+     * @see RecordAdapter#setPlace(int)
+     */
+    public boolean setPlace(int inPlace, boolean inUser) {
+        // if (DEBUG) Log.d(TAG,"setPlace "+ inPlace);
+        double distanceToPlace = 0.0;
+        if (inPlace < 0) inPlace = 0;
+        _initialPlace = inPlace;
+//        if (inPlace == 0) endIndex = 1;
+        endPlace = inPlace;
+        if (inUser)
+            control.clearErrorMessage();
+
+        if (showPlace(inPlace)) {
+            /* Set relative position in the seek bar */
+            RecordAdapter.Record record = getItem(inPlace);
+            if (record == null) return false;
+            DataPoint point = record.getTrackPoint();
+            if (point == null) return false;
+            double distance = point.getDistance();
+            distanceToPlace = distance - _distance; // dist_from_start;
+
+            /* Scroll to the place in the list */
+            setPlace(inPlace);
+
+            if (!expandView) {
+                if (!inUser)
+                    recordsView.smoothScrollToPosition(inPlace);
+                else
+                    control.updateTrackingStatus();
+            }
+
+            if (inUser) {
+                _activity.setStartGpsIndex(control.app.getPointIndex(point));
+                if (inPlace == 0) {
+                    _activity.resetLocationStatus();
+                }
+
+                record = getItem(inPlace + 1);
+                double nextDistance = distance + 1.0;
+                if (record != null) {
+                    point = record.getTrackPoint();
+                    if (point != null)
+                        nextDistance = point.getDistance();
+                }
+                _profileAdapter.setXRange(distance, nextDistance);
+            } else {
+                if (inPlace > 0) {
+                    record = getItem(inPlace - 1);
+                    double prevDistance = distance - 1.0;
+                    if (record != null) {
+                        point = record.getTrackPoint();
+                        if (point != null)
+                            prevDistance = point.getDistance();
+                    }
+                    _profileAdapter.setXRange(prevDistance, distance);
+                } else
+                    _profileAdapter.clearXRange();
+            }
+        } else {
+            _profileAdapter.setCursor(-1);
+            _profileAdapter.clearXRange();
+            setPlace(inPlace);
+        }
+
+        // Set the distance to the next place
+        control.setDistanceToPlace(distanceToPlace);
+
+        if (inPlace != lastPlace)
+        {
+            control.showExpandViewStatus(inPlace,expandView);
+            control.showAddInfo(inPlace);
+        }
+        notifyDataSetChanged();
+        recordsView.smoothScrollToPosition(inPlace);
+
+        lastPlace = inPlace;
+        return true;
+    }
+
+
+    /**
+     * Put the marker to a selected row within the table of places
+     *
+     * @param inPlace row index of the table
+     * @return if shown
+     */
+    public boolean showPlace(int inPlace) {
+        String place = "";
+        track_arrive.setText("");
+        endPlace = inPlace;
+
+        if (inPlace >= 0) {
+            if (inPlace < getCount()) {
+                /* Show the place on the board */
+                RecordAdapter.Record record = getItem(inPlace);
+                if (record == null) return false;
+                DataPoint point = record.getTrackPoint();
+                if (point == null) return false;
+                place = point.getRoutePointName();
+
+                /* Show time of arrival at next place */
+                if (_startTime.toMillis(true) > 0) {
+                    // show the presumable arrival time depending on the delay
+                    showPresumableArriveTime(true, true, track_arrive, point);
+                }
+            }
+        }
+        track_place.setText(place);
+        return (inPlace >= 0);
+    }
+
+    public void scrollToListPosition() {
+        notifyDataSetChanged();
+        int inPlace = getPlace();
+        if (inPlace >= 0)
+            recordsView.smoothScrollToPosition(inPlace);
+    }
+
+    public int getInitialPlace () { return _initialPlace; }
+
+    /* limit search to end of a record */
+    public int getEndIndex (int prevEndIndex) {
+        int startPlace = 0;
+        int endIndex = prevEndIndex;
+
+        RecordAdapter.Record currentRecord = getCurrentItem();
+        startPlace = getPlace();
+        if (startPlace > endPlace) endPlace = startPlace;
+        for (int place = startPlace; place < getCount() - 1; place++) {
+            if (place <= endPlace) {
+                RecordAdapter.Record nextRecord = getItem(place + 1);
+                int _endIndex = nextRecord.trackPointIndex - 1;
+                if (endIndex > _endIndex)
+                    endPlace++;
+                if (_endIndex > endIndex)
+                    endIndex = _endIndex;
+                break;
+            }
+        }
+        return endIndex;
+    }
+
+    public void resetEndPlace() {  endPlace = 0; }
+}

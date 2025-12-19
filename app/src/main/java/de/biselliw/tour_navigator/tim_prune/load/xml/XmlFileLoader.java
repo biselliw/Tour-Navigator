@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -17,12 +18,10 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-// import android.util.Log;
-
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
-import de.biselliw.tour_navigator.tim.prune.load.FileToBeLoaded;
+import tim.prune.load.FileToBeLoaded;
 import de.biselliw.tour_navigator.tim_prune.load.FileTypeLoader;
 import de.biselliw.tour_navigator.helpers.Log;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
@@ -142,9 +141,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                 success = parseXmlStream(inStream);
             }
         }
-        catch (FileNotFoundException fnfe) {
-            if (DEBUG) Log.e(TAG,"FileNotFound");
-        }
+		catch (FileNotFoundException ignored) {}
 
         if (DEBUG) Log.d(TAG,"result: " + success);
         // Clean up the stream, don't need it any more
@@ -188,7 +185,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 	public boolean parseXmlStream(InputStream inStream)
 	{
 		boolean success = false;
-		if (DEBUG) 	Log.d(TAG,"Firstly, try to use xerces to parse the xml ");
+ 		if (DEBUG) 	Log.d(TAG,"Firstly, try to use xerces to parse the xml ");
 		// Firstly, try to use xerces to parse the xml (will throw an exception if not available)
 		try
 		{
@@ -217,13 +214,13 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                         Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
                         success = true;
                     } else {
-//                      Log.e(TAG, "SAXParser Exception: " + e.getMessage()););
+                        Log.e(TAG, "SAXParser Exception: " + e.getMessage());
 					  
                         // BiselliW: accept "org.apache.harmony.xml.ExpatParser$ParseException: "
                         // At line 632, column 6: junk after document element"
-                        if (e.getMessage().contains("junk after document element"))
+                        if (Objects.requireNonNull(e.getMessage()).contains("junk after document element"))
                             success = true;
-                            // WB: accept "At line 3481, column 12: not well-formed (invalid token)"
+                            // BiselliW: accept "At line 3481, column 12: not well-formed (invalid token)"
                         else if (e.getMessage().contains("not well-formed (invalid token)"))
                             success = true;
                         else
@@ -251,7 +248,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 			if  (qName.equals("gpx")) {
 				_handler = new GpxHandler();
 			}
-			else if (_unknownType == null && !qName.equals("")) {
+			else if (_unknownType == null && !qName.isEmpty()) {
 				_unknownType = qName;
 			}
 		}

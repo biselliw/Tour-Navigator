@@ -2,19 +2,20 @@ package de.biselliw.tour_navigator.tim_prune.data;
 
 import java.util.TimeZone;
 
+import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.stubs.AudioClip;
 import de.biselliw.tour_navigator.stubs.Photo;
-import de.biselliw.tour_navigator.tim.prune.data.Altitude;
-import de.biselliw.tour_navigator.tim.prune.data.Coordinate;
-import de.biselliw.tour_navigator.tim.prune.data.Distance;
-import de.biselliw.tour_navigator.tim.prune.data.FieldList;
-import de.biselliw.tour_navigator.tim.prune.data.Latitude;
-import de.biselliw.tour_navigator.tim.prune.data.Longitude;
-import de.biselliw.tour_navigator.tim.prune.data.PointCreateOptions;
-import de.biselliw.tour_navigator.tim.prune.data.Timestamp;
-import de.biselliw.tour_navigator.tim.prune.data.TimestampUtc;
-import de.biselliw.tour_navigator.tim.prune.data.Unit;
-import de.biselliw.tour_navigator.tim.prune.data.UnitSet;
+import tim.prune.data.Altitude;
+import tim.prune.data.Coordinate;
+import tim.prune.data.Distance;
+import tim.prune.data.FieldList;
+import tim.prune.data.Latitude;
+import tim.prune.data.Longitude;
+import tim.prune.data.PointCreateOptions;
+import tim.prune.data.Timestamp;
+import tim.prune.data.TimestampUtc;
+import tim.prune.data.Unit;
+import tim.prune.data.UnitSet;
 
 /**
  * Class to represent a single data point in the series
@@ -35,11 +36,9 @@ public class DataPoint
 	private Coordinate _latitude = null, _longitude = null;
 	private Altitude _altitude = null;
 
-    /**
-     * @todo use Speed
-     * * /
-	private Speed _hSpeed = null, _vSpeed = null;
-*/
+    // @todo use Speed
+//	private Speed _hSpeed = null, _vSpeed = null;
+
 	private Timestamp _timestamp = null;
 	private SourceInfo _sourceInfo = null;
 	private int _originalIndex = -1;
@@ -72,7 +71,6 @@ public class DataPoint
 	private long _time_s;
 	/** pause time [min] at this trackpoint */
 	private int _duration = 0;
-	// todo _wptType
 	private String _wptType = null;
 	private String _symbol = null;
 	/** way point or trackpoint comment */ 
@@ -464,19 +462,9 @@ public class DataPoint
 	 * @return true if point has a waypoint name
 	 */
 	public boolean isWaypoint() {
-		return _waypointName != null && !_waypointName.equals("");
+        if (_waypointName == null) return false;
+		return !_waypointName.isEmpty();
 	}
-
-	/**
-	 * @return true if point is a waypoint 
-	 * @author BiselliW
-	 * @since 22.2.006
-	 */
-	public boolean isWayPoint()
-	{
-		return (_waypointName != null) && !_waypointName.equals("") && _isWaypoint;
-	}
-
 
 	/**
 	 * @return true if point has been modified since loading
@@ -651,33 +639,6 @@ public class DataPoint
 	}
 
 
-	/**
-	 * @return a clone object with copied data
-     * @todo use clonePoint
-	 * /
-	public DataPoint clonePoint()
-	{
-		// Copy all values (note that photo is not copied)
-		String[] valuesCopy = new String[_fieldValues.length];
-		System.arraycopy(_fieldValues, 0, valuesCopy, 0, _fieldValues.length);
-
-		PointCreateOptions options = new PointCreateOptions();
-		if (_altitude != null) {
-			options.setAltitudeUnits(_altitude.getUnit());
-		}
-		// Make new object to hold cloned data
-		DataPoint point = new DataPoint(valuesCopy, _fieldList, options);
-		// Copy the speed information
-		if (hasHSpeed()) {
-			point.getHSpeed().copyFrom(_hSpeed);
-		}
-		if (hasVSpeed()) {
-			point.getVSpeed().copyFrom(_vSpeed);
-		}
-		return point;
-	}
-*/
-
 	public void setSourceInfo(SourceInfo inInfo) {
 		_sourceInfo = inInfo;
 	}
@@ -734,9 +695,15 @@ public class DataPoint
 
 	/**
 	 * Get string for debug
+     * @implNote BiselliW check null
 	 */
-	public String toString() {
-		return "[Lat=" + getLatitude().toString() + ", Lon=" + getLongitude().toString() + "]";
+	@NonNull
+    public String toString() {
+        String lat = getLatitude() != null ? getLatitude().toString() : "null";
+        String lon = getLongitude() != null ? getLongitude().toString() : "null";
+        String res = "[Lat=" + lat + ", Lon=" + lon + "]";
+        if (_waypointName != null) res = _waypointName + ": " + res;
+		return res;
 	}
 	
 	/** 
@@ -818,6 +785,17 @@ public class DataPoint
 		return !_isWaypoint && ((_waypointName != null) && !_waypointName.equals(""));
 	}
 
+
+	/**
+	 * @return true if point is a waypoint 
+	 * @author BiselliW
+	 * @since 22.2.006
+	 */
+	public boolean isWayPoint()
+	{
+		return (_waypointName != null) && !_waypointName.equals("") && _isWaypoint;
+	}
+
 	/**
 	 * checks if a point is a Route Point:
 	 * - a track point with name
@@ -860,18 +838,6 @@ public class DataPoint
 		_isWaypoint = false;
 		_routePointName = inName;
 		_linkIndex = inLinkIndex;
-	}
-
-	/**
-	 * Set the waypoint name
-	 * @ param inWaypointName waypoint name
-	 * @author BiselliW
-	 * @since 22.2.006
-     * @todo setWaypointName
-	* /
-	public void setWaypointName(String inWaypointName)
-	{
-		setFieldValue(Field.WAYPT_NAME, inWaypointName, false);
 	}
 
 	/**
@@ -962,7 +928,6 @@ public class DataPoint
 	 * Set Time since start
 	 * @param time_s Time since start [s]
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public void setTime(long time_s)
 	{
@@ -972,8 +937,7 @@ public class DataPoint
 	/**
 	 * @return Time since start [s]
 	 * @author BiselliW
-	 * @since 22.2.006
-	 */ 
+	 */
 	public long getTime() { return _time_s; }
 
 	/**

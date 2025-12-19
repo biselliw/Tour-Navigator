@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import de.biselliw.tour_navigator.activities.LocationActivity;
+import de.biselliw.tour_navigator.helpers.GpsSimulator;
 
 /**
  * important app data for saving/restoring the application state after relaunching the app on
@@ -31,9 +32,13 @@ public abstract class AppState {
     private static boolean _GpxFileCached = false;
     // static int gpxInitialPlace = -1;
 
+    /**
+     * GPS simulator with replay functionality
+     */
+    public static GpsSimulator gpsSimulation = null;
+
 
     public static boolean destroyed = false;
-//    public static boolean started = false;
     public static boolean restarted = false;
     public static boolean stopped = false;
     public static boolean lowMemory = false;
@@ -57,21 +62,12 @@ public abstract class AppState {
     public static void clearNavigationState() {
         _GpxFileCached = false;
         _StartGpsIndex = 0;
-//        gpxInitialPlace = 0;
         _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
         _LocationStatus = LocationActivity.locationStatus.INITIAL;
         _valid = false;
     }
 
     public static boolean isValid () { return _valid; }
-    public static void getValues (Bundle instanceState) {
-    }
-
-    public static void putValues (Bundle instanceState) {
-        if (_valid)
-        {
-        }
-    }
 
     public static boolean getPaused() { return _paused; }
     public static void setPaused(boolean inPaused) { _paused = inPaused; }

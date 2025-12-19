@@ -28,30 +28,28 @@
     <string name="action_about">Über</string>
     <string name="action_tutorial">Tutorial</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <!-- ###MAIN### -->
     <string name="main_button_text">Test</string>
     <string name="main_button_disabled_text">Inaktiver Button</string>
     <string name="main_text_title"> - </string>
 
     <!-- ###Activities at Status### -->
-    <string name="load_gpx_file">Bitte GPX Datei laden</string>
-    <string name="set_start_time">Bitte Startzeit setzen</string>
+    <string name="load_gpx_file">Lade eine GPX Datei</string>
+    <string name="set_start_time">Setze die Startzeit</string>
     <string name="permit_location">Berechtigung für GPS-Position wurde verweigert</string>
-    <string name="activate_gps">Bitte GPS aktivieren</string>
+    <string name="activate_gps">Aktiviere GPS auf dem Gerät</string>
     <string name="wait_for_gps_fix">Warten auf GPS fix</string>
     <string name="gps_fix_lost">Kein GPS fix</string>
     <string name="wait_user_start">Die Tour kann starten!</string>
-    <string name="goto_start_pos">Gehen Sie zum Start</string>
-    <string name="on_track">Folgen Sie bitte weiter dem Weg</string>
-    <string name="returnto_track">Gehen Sie zurück auf den Weg</string>
+    <string name="goto_start_pos">Gehe zum Start</string>
+    <string name="on_track">Folge weiter dem Weg</string>
+    <string name="return_to_track">Gehe zurück auf den Weg</string>
     <string name="wait_gps">Warten auf GPS Position</string>
-    <string name="dest_reached">Sie sind am Ziel angekommen</string>
-    <string name="dest_failed">Sie haben Ihr Ziel verfehlt!</string>
+    <string name="dest_reached">Du bist am Ziel angekommen</string>
+    <string name="dest_failed">Du hast das Ziel verfehlt!</string>
 
     <!-- ###Menu Items###-->
+    <string name="pausing">"PAUSE: Weiter in "</string>
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
@@ -126,9 +124,13 @@
     <string name="DTD">zum Ziel"</string>
 
     <!-- ### TOUR ###-->
+    <string name="gpx_error_no_waypoints">Die GPX-Datei enthält keine Wegpunkte!</string>
+    <string name="gpx_error_no_altitudes">Die GPX-Datei enthält keine Höhenwerte</string>
+    <string name="gpx_info_simulation">Die GPX-Datei wird zur GPS-Simulation genutzt</string>
     <string name="tour_add_info">Weitere Informationen zur Tour</string>
     <string name="tour_author">Autor der Tour</string>
     <string name="tour_link">Link zur Tour</string>
+    <string name="tour_link_swv">im <a href="https://www.schwarzwaldverein-tourenportal.de/">Tourenportal des Schwarzwaldvereins</a></string>
     <string name="tour_updated">Letzte Aktualisierung:</string>
 
     <!-- ### TIMETABLE###-->
@@ -161,5 +163,8 @@
     <string name="waypointFlagComb">"Trackpunkt"</string>
 
     <string name="profile">"Höhenprofil"</string>
+    <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
+    <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
+    <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
 </resources>

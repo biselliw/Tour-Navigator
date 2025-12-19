@@ -60,33 +60,6 @@ public class FileUtils {
      */
     static final String TAG = "FileUtils";
     private static final boolean DEBUG = false; // Set to true to enable logging
-    /**
-     * File and folder comparator. TODO Expose sorting option method
-     */
-    public static Comparator<File> sComparator = (f1, f2) -> {
-        // Sort alphabetically by lower case, which is much cleaner
-        return f1.getName().toLowerCase().compareTo(
-                f2.getName().toLowerCase());
-    };
-    /**
-     * File (not directories) filter.
-     */
-    public static FileFilter sFileFilter = file -> {
-        final String fileName = file.getName();
-        // Return files only (not directories) and skip hidden files
-        return file.isFile() && !fileName.startsWith(HIDDEN_PREFIX);
-    };
-    /**
-     * Folder (directories) filter.
-     */
-    public static FileFilter sDirFilter = file -> {
-        final String fileName = file.getName();
-        // Return directories only and skip hidden directories
-        return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
-    };
-
-    private FileUtils() {
-    } //private constructor to enforce Singleton pattern
 
     /**
      * Gets the extension of a file name, like ".png" or ".jpg".
@@ -117,83 +90,6 @@ public class FileUtils {
     }
 
     /**
-     * @return True if Uri is a MediaStore Uri.
-     * @author paulburke
-     */
-    public static boolean isMediaUri(Uri uri) {
-        return "media".equalsIgnoreCase(uri.getAuthority());
-    }
-
-    /**
-     * Convert File into Uri.
-     *
-     * @param file
-     * @return uri
-     */
-    public static Uri getUri(File file) {
-        return (file != null) ? Uri.fromFile(file) : null;
-    }
-
-    /**
-     * Returns the path only (without file name).
-     *
-     * @param file
-     * @return
-     */
-    public static File getPathWithoutFilename(File file) {
-        if (file != null) {
-            if (file.isDirectory()) {
-                // no file to be split off. Return everything
-                return file;
-            } else {
-                String filename = file.getName();
-                String filepath = file.getAbsolutePath();
-
-                // Construct path without file name.
-                String pathwithoutname = filepath.substring(0,
-                        filepath.length() - filename.length());
-                if (pathwithoutname.endsWith("/")) {
-                    pathwithoutname = pathwithoutname.substring(0, pathwithoutname.length() - 1);
-                }
-                return new File(pathwithoutname);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @return The MIME type for the given file.
-     */
-    public static String getMimeType(File file) {
-
-        String extension = getExtension(file.getName());
-
-        if (extension.length() > 0)
-            return MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.substring(1));
-
-        return "application/octet-stream";
-    }
-
-    /**
-     * @return The MIME type for the give Uri.
-     */
-    public static String getMimeType(Context context, Uri uri) {
-        File file = new File(getPath(context, uri));
-        return getMimeType(file);
-    }
-
-      /**
-     * @return The MIME type for the give String Uri.
-     */
-    public static String getMimeType(Context context, String url) {
-        String type = context.getContentResolver().getType(Uri.parse(url));
-        if (type == null) {
-            type = "application/octet-stream";
-        }
-        return type;
-    }
-    
-    /**
      * @param uri The Uri to check.
      * @return Whether the Uri authority is local.
      */
@@ -215,27 +111,6 @@ public class FileUtils {
      */
     public static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
-    public static boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is Google Photos.
-     */
-    public static boolean isGooglePhotosUri(Uri uri) {
-        return "com.google.android.apps.photos.content".equals(uri.getAuthority());
-    }
-
-    public static boolean isGoogleDriveUri(Uri uri) {
-        return "com.google.android.apps.docs.storage.legacy".equals(uri.getAuthority()) ||
-                "com.google.android.apps.docs.storage".equals(uri.getAuthority());
     }
 
     /**
@@ -287,7 +162,6 @@ public class FileUtils {
      * @param context The context.
      * @param uri     The Uri to query.
      * @see #isLocal(String)
-     * @see #getFile(Context, Uri)
      */
     public static String getPath(final Context context, final Uri uri) {
         String absolutePath = getLocalPath(context, uri);
@@ -378,44 +252,9 @@ public class FileUtils {
  
 // todo                return fileName;
             }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                } else if ("video".equals(type)) {
-                    contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-                } else if ("audio".equals(type)) {
-                    contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-            //GoogleDriveProvider
-            else if (isGoogleDriveUri(uri)) {
-                return getGoogleDriveFilePath(uri, context);
-            }
         }
         // MediaStore (and general)
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
-
-            // Return the remote address
-            if (isGooglePhotosUri(uri)) {
-                return uri.getLastPathSegment();
-            }
-            // Google drive legacy provider
-            else if (isGoogleDriveUri(uri)) {
-                return getGoogleDriveFilePath(uri, context);
-            }
 
             return getDataColumn(context, uri, null, null);
         }
@@ -425,126 +264,6 @@ public class FileUtils {
         }
 
         return null;
-    }
-
-    /**
-     * Convert Uri into File, if possible.
-     *
-     * @return file A local file that the Uri was pointing to, or null if the
-     * Uri is unsupported or pointed to a remote resource.
-     * @author paulburke
-     * @see #getPath, Uri)
-     */
-    public static File getFile(Context context, Uri uri) {
-        if (uri != null) {
-            String path = getPath(context, uri);
-            if (path != null && isLocal(path)) {
-                return new File(path);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get the file size in a human-readable string.
-     *
-     * @param size
-     * @return
-     * @author paulburke
-     */
-    public static String getReadableFileSize(int size) {
-        final int BYTES_IN_KILOBYTES = 1024;
-        final DecimalFormat dec = new DecimalFormat("###.#");
-        final String KILOBYTES = " KB";
-        final String MEGABYTES = " MB";
-        final String GIGABYTES = " GB";
-        float fileSize = 0;
-        String suffix = KILOBYTES;
-
-        if (size > BYTES_IN_KILOBYTES) {
-            fileSize = size / BYTES_IN_KILOBYTES;
-            if (fileSize > BYTES_IN_KILOBYTES) {
-                fileSize = fileSize / BYTES_IN_KILOBYTES;
-                if (fileSize > BYTES_IN_KILOBYTES) {
-                    fileSize = fileSize / BYTES_IN_KILOBYTES;
-                    suffix = GIGABYTES;
-                } else {
-                    suffix = MEGABYTES;
-                }
-            }
-        }
-        return String.valueOf(dec.format(fileSize) + suffix);
-    }
-
-    /**
-     * Get the Intent for selecting content to be used in an Intent Chooser.
-     *
-     * @return The intent for opening a file with Intent.createChooser()
-     */
-    public static Intent createGetContentIntent() {
-        // Implicitly allow the user to select a particular kind of data
-        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        // The MIME data type filter
-        intent.setType("*/*");
-        // Only return URIs that can be opened with ContentResolver
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        return intent;
-    }
-
-
-    /**
-     * Creates View intent for given file
-     *
-     * @param file
-     * @return The intent for viewing file
-     */
-    public static Intent getViewIntent(Context context, File file) {
-        //Uri uri = Uri.fromFile(file);
-        Uri uri = FileProvider.getUriForFile(context, AUTHORITY, file);
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        String url = file.toString();
-        if (url.contains(".doc") || url.contains(".docx")) {
-            // Word document
-            intent.setDataAndType(uri, "application/msword");
-        } else if (url.contains(".pdf")) {
-            // PDF file
-            intent.setDataAndType(uri, "application/pdf");
-        } else if (url.contains(".ppt") || url.contains(".pptx")) {
-            // Powerpoint file
-            intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
-        } else if (url.contains(".xls") || url.contains(".xlsx")) {
-            // Excel file
-            intent.setDataAndType(uri, "application/vnd.ms-excel");
-        } else if (url.contains(".zip") || url.contains(".rar")) {
-            // WAV audio file
-            intent.setDataAndType(uri, "application/x-wav");
-        } else if (url.contains(".rtf")) {
-            // RTF file
-            intent.setDataAndType(uri, "application/rtf");
-        } else if (url.contains(".wav") || url.contains(".mp3")) {
-            // WAV audio file
-            intent.setDataAndType(uri, "audio/x-wav");
-        } else if (url.contains(".gif")) {
-            // GIF file
-            intent.setDataAndType(uri, "image/gif");
-        } else if (url.contains(".jpg") || url.contains(".jpeg") || url.contains(".png")) {
-            // JPG file
-            intent.setDataAndType(uri, "image/jpeg");
-        } else if (url.contains(".txt")) {
-            // Text file
-            intent.setDataAndType(uri, "text/plain");
-        } else if (url.contains(".3gp") || url.contains(".mpg") || url.contains(".mpeg") ||
-                url.contains(".mpe") || url.contains(".mp4") || url.contains(".avi")) {
-            // Video files
-            intent.setDataAndType(uri, "video/*");
-        } else {
-            intent.setDataAndType(uri, "*/*");
-        }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        return intent;
     }
 
     public static File getDownloadsDir() {
@@ -562,42 +281,27 @@ public class FileUtils {
         return dir;
     }
 
+    private static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            File[] children = dir.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteDir(child);
+                }
+            }
+        }
+        return dir != null && dir.delete();
+    }
+
     /**
      * Delete the app cache
      * @author biselliw
      */
     public static void clearAppCache(Context context) {
-        try {
-            File dir = context.getCacheDir();
-            deleteDir(dir);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+        deleteDir(context.getCacheDir());
 
-    private static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (String child : children) {
-                boolean success = deleteDir(new File(dir, child));
-                if (!success) return false;
-            }
-        }
-        return dir.delete();
-    }
-
-    public static void deleteDocumentCacheDir(@NonNull Context context)
-    {
-        File dir = new File(context.getCacheDir(), DOCUMENTS_DIR);
-        if (dir.exists()) {
-            try {
-                File[] files = dir.listFiles();
-                for (File file : files) {
-                    file.delete();
-                }
-            } catch (Exception e) {
-                //            e.printStackTrace();
-            }
+        if (context.getExternalCacheDir() != null) {
+            deleteDir(context.getExternalCacheDir());
         }
     }
 
@@ -673,43 +377,6 @@ public class FileUtils {
         }
     }
 
-    public static byte[] readBytesFromFile(String filePath) {
-
-        FileInputStream fileInputStream = null;
-        byte[] bytesArray = null;
-
-        try {
-
-            File file = new File(filePath);
-            bytesArray = new byte[(int) file.length()];
-
-            //read file into bytes[]
-            fileInputStream = new FileInputStream(file);
-            fileInputStream.read(bytesArray);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fileInputStream != null) {
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-        return bytesArray;
-
-    }
-
-    public static File createTempImageFile(Context context, String fileName) throws IOException {
-        // Create an image file name
-        File storageDir = new File(context.getCacheDir(), DOCUMENTS_DIR);
-        return File.createTempFile(fileName, ".jpg", storageDir);
-    }
-
     public static String getFileName(@NonNull Context context, Uri uri) {
         String mimeType = context.getContentResolver().getType(uri);
         String filename = null;
@@ -744,38 +411,4 @@ public class FileUtils {
         return filename.substring(index + 1);
     }
 
-    private static String getGoogleDriveFilePath(Uri uri, Context context) {
-        Uri returnUri = uri;
-        Cursor returnCursor = context.getContentResolver().query(returnUri, null, null, null, null);
-        /*
-         * Get the column indexes of the data in the Cursor,
-         *     * move to the first row in the Cursor, get the data,
-         *     * and display it.
-         * */
-        int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-        returnCursor.moveToFirst();
-
-        String name = (returnCursor.getString(nameIndex));
-        String size = (Long.toString(returnCursor.getLong(sizeIndex)));
-        File file = new File(context.getCacheDir(), name);
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            int read = 0;
-            int maxBufferSize = 1 * 1024 * 1024;
-            int bytesAvailable = inputStream.available();
-            int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-
-            final byte[] buffers = new byte[bufferSize];
-            while ((read = inputStream.read(buffers)) != -1) {
-                outputStream.write(buffers, 0, read);
-            }
-            inputStream.close();
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return file.getPath();
-    }
 }

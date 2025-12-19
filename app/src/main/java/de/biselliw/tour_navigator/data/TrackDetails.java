@@ -20,21 +20,31 @@ package de.biselliw.tour_navigator.data;
     Copyright 2025 Walter Biselli (BiselliW)
 */
 
-import de.biselliw.tour_navigator.BuildConfig;
-import de.biselliw.tour_navigator.tim.prune.data.Altitude;
-import de.biselliw.tour_navigator.tim.prune.data.Distance;
+import java.util.List;
 
+import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import tim.prune.data.Distance;
+import tim.prune.data.FieldList;
+import tim.prune.data.PointCreateOptions;
+
+import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
+
+import de.biselliw.tour_navigator.App;
+import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.helpers.Log;
+
 
 /**
  * class to hold all details of a track
  *
  * @author BiselliW
- * @since 26.1
  */
-public class TrackDetails {
+public class TrackDetails extends Track {
 
+    public String Creator = App.resources.getString(R.string.app_name);
     /**
      * TAG for log messages.
      */
@@ -42,311 +52,673 @@ public class TrackDetails {
 	private static final boolean _DEBUG = false; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    public final static double DEF_HOR_SPEED 			= 5.0;
-	public final static double DEF_VERT_SPEED_CLIMB 	= 0.35;
-	public final static double DEF_VERT_SPEED_DESC 		= 0.5;
-	public final static int    DEF_MIN_HEIGHT_CHANGE 	= 3;
+    /* maximum distance of a waypoint to the track */
+    protected final static double MAX_DISTANCE_WP_TRACK = 0.3;
 
-    final static double _secondsHour 			= 3600.0;
-    final static double _vertSecondsHour 		= 3.6;
 
-	private static Track _track = null;
-
-	private int     _ptIndex;
-    private DataPoint _prevPoint = null;
-    private double _altitude_m = 0, _minAltitude_m = 0, _maxAltitude_m = 0;
-    private double _prevAltitude_m = -1;
-    
-    private double _totalDistance_km = 0.0;
-    private long   _totalSeconds = 0L;
-    private double  _totalClimb_m = 0;
-    private double  _totalDescent_m = 0;
-
-    /** if true: data must be recalculated in current segment of the track */
-    private boolean _segRecalc = false;
-    private double  _segDistance_km = 0.0;
-	private int     _segStart = 0;
-    private long    _segStart_s = 0L;
-    private double  _segStartClimb_m = 0;
-    private double  _segStartDescent_m = 0;
-       
-	/** Flags for whether minimum or maximum has been found */
-	private boolean _gotPreviousMinimum = false, _gotPreviousMaximum = false;
-	/** Integer values of previous minimum and maximum, if any */
-	private double     _previousExtreme = 0;
-	
-	// hiking speed parameters
-    /** horizontal part in [km/h] */
-    private double _horSpeed = 			DEF_HOR_SPEED;
-    /** climbing part in [km/h] */
-    private double _vertSpeedClimb = 	DEF_VERT_SPEED_CLIMB;
-    /** descending part in [km/h] */
-    private double _vertSpeedDescent = 	DEF_VERT_SPEED_DESC;
-    /** hysteresis value for a change of altitude */
-    private int    _minHeightChange = 	DEF_MIN_HEIGHT_CHANGE;
-
+    private boolean _hasNamedTrackpoint = false;
+    private boolean _hasAltitude = false;
     /**
-     * set hiking parameters:
-     *
-     * @param inHorSpeed         horizontal part in [km/h]
-     * @param inVertSpeedClimb   ascending part in [km/h]
-     * @param inVertSpeedDescent descending part in [km/h]
-     * @param inMinHeightChange  min. required change of altitude
+     * Nearest distance of a track point to the specified Latitude and Longitude coordinates
      */
-    public void setHikingParameters(double inHorSpeed, double inVertSpeedClimb, double inVertSpeedDescent, int inMinHeightChange) {
-    	if (inHorSpeed > 0)
-    		_horSpeed = inHorSpeed;
-    	if (inVertSpeedClimb > 0)
-    		_vertSpeedClimb = inVertSpeedClimb;
-    	if (inVertSpeedDescent > 0)
-    		_vertSpeedDescent = inVertSpeedDescent;
-    	if (inMinHeightChange > 0)
-    		_minHeightChange = inMinHeightChange;
-    }    
+    private double _nearestDist = -1.0;
+
+
+    TrackTiming _trackTiming = null;
 
 	/**
 	 * Recalculate all selection details
 	 */
-    public TrackDetails(Track inTrack ) {
-		_track = inTrack;
-	}
-
-	public boolean addPoint(int ptIndex)
-	{
-		boolean result = false;
-
-		_ptIndex = ptIndex;
-		DataPoint currPoint = _track.getPoint(ptIndex);
-		result = addPoint(currPoint);
-
-		return result;
-	}
-
-	private void resetSegment()
-	{
-		// update overall data at the end of the segment from section data
-		_segDistance_km = 0.0;
-		_segStart = _ptIndex;
-		_segStart_s = _totalSeconds;
-		_segStartClimb_m = _totalClimb_m;
-		_segStartDescent_m = _totalDescent_m;
-		_segRecalc = false;
-	}
-
-	/**
-	 * Calculate distances and times of all points within the segment after analysis of the segment
-	 * @param inSegSeconds calculated total time within the segment
-	 */
-	private void calcSegmentTimes (long inSegSeconds) {
-		double segStartDistance_km = 0.0;
-		int totalPause_min = 0;
-		for (int ptIndex = _segStart; ptIndex <= _ptIndex; ptIndex++) {
-			DataPoint currPoint = _track.getPoint(ptIndex);
-
-			if (_segDistance_km > 0.0)
-			{
-				if (ptIndex == _segStart)
-					segStartDistance_km = currPoint.getDistance();
-				else
-				{
-					double segRelDistance = (currPoint.getDistance() - segStartDistance_km) / _segDistance_km;
-					double segCurrTime = segRelDistance * (double)inSegSeconds + 31;
-					long Time_s = _segStart_s + (int)segCurrTime + totalPause_min *60;
-					long prevTime_s = currPoint.getTime();
-					if (Time_s > prevTime_s)
-						currPoint.setTime(Time_s);
-					totalPause_min += currPoint.getWaypointDuration();
-				}
-			}
-		}
-
-		// update current overall data from section data
-		_totalSeconds  = _segStart_s + inSegSeconds + totalPause_min*60;
-	}
-
-	/**
-	 * add location data of a point to calculate its time and distance since start
-	 * @param currPoint
-	 * @return
-	 */
-	private boolean addPoint(DataPoint currPoint)
-	{
-		boolean result = false;
-		boolean overallUp = false, overallDn = false;
-
-		if ((currPoint == null) || currPoint.isWayPoint() /* || currPoint.hasMedia() */ )
-			return false;
-
-		// does the current point has a valid altitude?
-		_altitude_m = 0;
-		if (currPoint.hasAltitude())
-		{
-			Altitude altitude = currPoint.getAltitude();
-			if (altitude.isValid())
-				_altitude_m = altitude.getValue();
-		}
-		if (_altitude_m > 0)
-		{
-			// did the previous point have a valid altitude?
-			if (_prevAltitude_m >= 0)
-			{
-				// Got an altitude value which is different from the previous one
-				boolean segClimbing = (_altitude_m > _prevAltitude_m);
-				overallUp = _gotPreviousMinimum && (_prevAltitude_m > _previousExtreme);
-				overallDn = _gotPreviousMaximum && _prevAltitude_m < _previousExtreme;
-				final boolean moreThanWiggle = Math.abs(_altitude_m - _prevAltitude_m) > _minHeightChange;
-
-				// Do we know whether we're going up or down yet?
-				if (!_gotPreviousMinimum && !_gotPreviousMaximum)
-				{
-					// we don't know whether we're going up or down yet - check limit
-					if (moreThanWiggle)
-					{
-						if (segClimbing)
-							_gotPreviousMinimum = true;
-						else
-							_gotPreviousMaximum = true;
-						_previousExtreme = _prevAltitude_m;
-						_prevAltitude_m = _altitude_m;
-					}
-				}
-				else if (overallUp)
-				{
-					if (segClimbing)
-						// we're still going up - do nothing
-						_prevAltitude_m = _altitude_m;
-					else if (moreThanWiggle)
-						// we're going up but have dropped over a maximum
-						_segRecalc = true;
-				}
-				else if (overallDn)
-				{
-					if (segClimbing)
-					{
-						if (moreThanWiggle)
-							// we're going down but have climbed up from a minimum
-							_segRecalc = true;
-					}
-					else
-						// we're still going down - do nothing
-						_prevAltitude_m = _altitude_m;
-				}
-			}
-			else
-				// we haven't got a previous value at all, so it's the start of a new segment
-				_prevAltitude_m = _altitude_m;
-		}
-
-		// Calculate the distance to the previous trackpoint
-		if (_prevPoint != null)
-		{
-			double radians = DataPoint.calculateRadiansBetween(_prevPoint, currPoint);
-			double dist = Distance.convertRadiansToDistance(radians);
-			_totalDistance_km += dist;
-			currPoint.setDistance(_totalDistance_km);
-			_segDistance_km += dist;
-		}
-		else
-			currPoint.setDistance(0.0);
-		currPoint.setTime(0L);
-
-		// remember previous  point
-		_prevPoint = currPoint;;
-
-		if (_altitude_m > 0)
-		{
-			// need to calculate intermediate time?
-			if (currPoint.isRoutePoint() || _segRecalc)
-			{
-				long segSeconds, horSeconds, vertSeconds;
-				// calculate section times
-				horSeconds = (long) (_segDistance_km / _horSpeed * _secondsHour);
-
-				if (overallUp) {
-					// Add the climb from _previousExtreme up to _previousValue
-                    double climb_m;
-					if (_segRecalc)
-					{
-						climb_m = _prevAltitude_m - _previousExtreme;
-						_previousExtreme = _prevAltitude_m;
-						_gotPreviousMinimum = false; _gotPreviousMaximum = true;
-						_prevAltitude_m = _altitude_m;
-					}
-					else
-					{
-						climb_m = _altitude_m - _previousExtreme;
-					}
-					_totalClimb_m = _segStartClimb_m + climb_m;
-
-					vertSeconds = (long) (climb_m / _vertSpeedClimb * _vertSecondsHour);
-				} else if (overallDn) {
-					// Add the descent from _previousExtreme down to _previousValue
-                    double descent_m;
-					if (_segRecalc)
-					{
-						descent_m = _previousExtreme - _prevAltitude_m;
-						_previousExtreme = _prevAltitude_m;
-						_gotPreviousMinimum = true; _gotPreviousMaximum = false;
-						_prevAltitude_m = _altitude_m;
-					}
-					else
-					{
-						descent_m = _previousExtreme - _altitude_m;
-					}
-					_totalDescent_m = _segStartDescent_m + descent_m;
-
-					vertSeconds = (long) (descent_m / _vertSpeedDescent * _vertSecondsHour);
-				} else {
-					vertSeconds = 0;
-				}
-
-				if (horSeconds > vertSeconds) {
-					segSeconds = (long) (horSeconds + vertSeconds / 2.0);
-				} else {
-					segSeconds = (long) (horSeconds / 2.0 + vertSeconds);
-				}
-
-				calcSegmentTimes (segSeconds);
-				result = true;
-			}
-
-			if (_segRecalc) {
-				resetSegment();
-			}
-
-			if ((_altitude_m < _minAltitude_m) || (_minAltitude_m <= 0))
-				_minAltitude_m = _altitude_m;
-			else if (_altitude_m > _maxAltitude_m)
-				_maxAltitude_m = _altitude_m;
-		}
-
-		return result;
-	}
 
 
-	public double getAltitude () {
-		return _altitude_m;
-	}
 
-	public double getMinAltitude() { return _minAltitude_m; }
 
-	public double getMaxAltitude() { return _maxAltitude_m; }
+    public List<RecordAdapter.Record> recalculate() {
+        interleaveWaypoints();
+        _trackTiming = new TrackTiming(this);
+        return _trackTiming.recalculate();
+    }
 
-	public double getTotalDistance () {
-		return _totalDistance_km;
-	}
+    /**
+     * Find the nearest track point to the specified Latitude and Longitude coordinates
+     * within a given range of track points
+     *
+     * @param inStart       start index
+     * @param inEnd         end index
+     * @param inLatitude    Latitude in degrees
+     * @param inLongitude   Longitude in degrees
+     * @param inMaxDist     maximum tolerated distance [km] between geo location and point
+     * @return <ul>
+     * 	<li>&gt;= 0: index of nearest track point within the specified max distance</li>
+     * 	<li>&lt; 0: index of nearest track point outside the specified max distance</li>
+     * 	<li>&nbsp;DataPoint.INVALID_INDEX if no point is within the specified max distance </li>
+     * </ul>
+     * @author BiselliW
+     */
+    public int getNearestTrackpointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMaxDist) {
+        // init index of the nearest track point to the specified Latitude and Longitude coordinates
+        int nearestPoint = DataPoint.INVALID_INDEX;
+        _nearestDist = -1.0;
 
-	public double getTotalClimb () {
-		return _totalClimb_m;
-	}
+        if (inStart < 0) inStart = 0;
 
-	public double getTotalDescent () {
-		return _totalDescent_m;
-	}
+        if (inEnd >= _numPoints - 1) inEnd = _numPoints - 1;
+        for (int i = inStart; i <= inEnd; i++) {
+            DataPoint point = _dataPoints[i];
+            if (point.isTrackPoint()) {
+                double radians = point.calculateRadiansBetween(inLatitude, inLongitude);
+                double currDist = Distance.convertRadiansToDistance(radians);
+                if ((currDist < _nearestDist) || (_nearestDist < 0.0)) {
+                    nearestPoint = i;
+                    _nearestDist = currDist;
+                    if (currDist < 0.005)
+                        break;
+                }
+            }
+        }
+/*
+        if (DEBUG) {
+            int d = (int) (_nearestDist * 1000);
+            Log.d(TAG, "getNearestTrackpointIndex inStart = " + inStart + ", inEnd = " + inEnd + ": nearestPoint = " + nearestPoint + "; nearestDist = " + d + "m");
+        }
+ */
+        // Check whether it's within required distance
+        if (nearestPoint >= 0)
+            if (_nearestDist <= inMaxDist)
+                return nearestPoint;
+            else if (nearestPoint == 0)
+                // special use case: index 0 outside max distance
+                return DataPoint.INVALID_INDEX;
+            else
+                return -nearestPoint;
+        else
+            return DataPoint.INVALID_INDEX;
+    }
 
-	public long getTotalSeconds () {
-		return _totalSeconds;
-	}
+    /**
+     * Return the nearest distance of a track point to the specified Latitude and Longitude coordinates.
+     * Index of nearest track point must have been calculated using @see "getNearestPointIndex2()"
+     *
+     * @return distance of nearest track point [km], negated if not within the specified max distance
+     * @author BiselliW
+     * @since BiselliW
+     * - all coordinates in [km]
+     */
+    public double getNearestDistance() {
+        return _nearestDist;
+    }
+
+
+    /**
+     * Find the next track point which is considered as outside of the track
+     * or DataPoint.INVALID_INDEX if no
+     *
+     * @param inStart           start index
+     * @param inEnd             end index
+     * @param inLatitude        Latitude in degrees
+     * @param inLongitude       Longitude in degrees
+     * @param inMinDist         minimum distance from selected coordinates [km] to point
+     * @param inJustTrackPoints true if waypoints should be ignored
+     * @return index of the next track point which is considered as outside of the track
+     * @since BiselliW
+     * - all coordinates in [km]
+     */
+    public int getOutsidePointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMinDist, boolean inJustTrackPoints) {
+
+        if (inStart < 0) inStart = 0;
+        if (inStart > inEnd) return DataPoint.INVALID_INDEX;
+        if (inEnd >= _numPoints) return DataPoint.INVALID_INDEX;
+
+        for (int i = inStart; i < inEnd; i++) {
+            DataPoint point = _dataPoints[i];
+            if (point != null) {
+                if (!inJustTrackPoints || !point.isWaypoint()) {
+                    double radians = point.calculateRadiansBetween(inLatitude, inLongitude);
+                    double currDist = Distance.convertRadiansToDistance(radians);
+                    if (currDist > inMinDist) {
+                        if (DEBUG) {
+                            int d = (int) (currDist * 1000);
+                            Log.d(TAG, "getOutsidePointIndex() Dist = " + d + "m");
+                        }
+                        return i;
+                    }
+                }
+            }
+        }
+
+        return DataPoint.INVALID_INDEX;
+    }
+
+    /**
+     * Delete the specified range of points from the Track
+     *
+     * @param inStart start of range (inclusive)
+     * @param inEnd   end of range (inclusive)
+     * @return true if successful
+     * @author BiselliW
+     */
+    public boolean deleteRange(int inStart, int inEnd) {
+        if (inStart < 0 || inEnd < 0 || inEnd < inStart) {
+            // no valid range selected so can't delete
+            return false;
+        }
+        // check through range to be deleted, and see if any new segment flags present
+        boolean hasSegmentStart = false;
+        DataPoint nextTrackPoint = getNextTrackPoint(inEnd + 1);
+        if (nextTrackPoint != null) {
+            for (int i = inStart; i <= inEnd && !hasSegmentStart; i++) {
+                hasSegmentStart = _dataPoints[i].getSegmentStart();
+            }
+            // If segment break found, make sure next trackpoint also has break
+            if (hasSegmentStart) {
+                nextTrackPoint.setSegmentStart(true);
+            }
+        }
+        // valid range, let's delete it
+        int numToDelete = inEnd - inStart + 1;
+        DataPoint[] newPointArray = new DataPoint[_numPoints - numToDelete];
+        // Copy points before the selected range
+        if (inStart > 0) {
+            System.arraycopy(_dataPoints, 0, newPointArray, 0, inStart);
+        }
+        // Copy points after the deleted one(s)
+        if (inEnd < (_numPoints - 1)) {
+            System.arraycopy(_dataPoints, inEnd + 1, newPointArray, inStart,
+                    _numPoints - inEnd - 1);
+        }
+        // Copy points over original array
+        _dataPoints = newPointArray;
+        _numPoints -= numToDelete;
+        // needs to be scaled again
+        _scaled = false;
+        return true;
+    }
+
+
+    ////////////////////////////////////////
+    /**
+     * Load method, for initialising and reinitialising data
+     *
+     * @param inFieldArray array of Field objects describing fields
+     * @param inPointArray 2d object array containing data
+     * @param inOptions    load options such as units
+     * @implNote bugfix of outdooractive GPX tracks with GPX coordinates as track point names
+     * @author BiselliW
+     */
+    public void load(Field[] inFieldArray, Object[][] inPointArray, PointCreateOptions inOptions) {
+        if (DEBUG) Log.d(TAG, "Loaded");
+        if (inFieldArray == null || inPointArray == null) {
+            _numPoints = 0;
+            return;
+        }
+        // copy field list
+        _masterFieldList = new FieldList(inFieldArray);
+        // make DataPoint object from each point in inPointList
+        _dataPoints = new DataPoint[inPointArray.length];
+        int pointIndex = 0;
+        for (Object[] objects : inPointArray) {
+            // Convert to DataPoint objects
+            DataPoint point = new DataPoint((String[]) objects, _masterFieldList, inOptions);
+            if (point.isValid()) {
+                // bugfix of outdooractive GPX tracks with GPX coordinates as track point names
+                String _pointName = point.getWaypointName();
+                if (_pointName.length() > 6) {
+                    _pointName = _pointName.substring(0, 6);
+                    try {
+                        double lat = Double.parseDouble(_pointName);
+                        if ((lat >= 0) && point.getWaypointSymbol().isEmpty())
+                            // remove same name as in previous track point
+                            point.setWaypointName("");
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                _dataPoints[pointIndex] = point;
+                pointIndex++;
+            }
+        }
+        _numPoints = pointIndex;
+        // Set first track point to be start of segment
+        DataPoint firstTrackPoint = getNextTrackPoint(0);
+        if (firstTrackPoint != null) {
+            firstTrackPoint.setSegmentStart(true);
+        }
+        // needs to be scaled
+        _scaled = false;
+    }
+
+
+    /**
+     * Load the track by transferring the contents from a loaded Track object
+     *
+     * @param inOther Track object containing loaded data
+     * @author BiselliW
+     */
+    public void load(TrackDetails inOther) {
+        _numPoints = inOther._numPoints;
+        _masterFieldList = inOther._masterFieldList;
+        _dataPoints = inOther._dataPoints;
+        // needs to be scaled
+        _scaled = false;
+    }
+
+    /**
+     * Reverse the specified range of points
+     *
+     * @param inStart start index
+     * @param inEnd   end index
+     * @return true if successful, false otherwise
+     * @author BiselliW
+     */
+    public boolean reverseRange(int inStart, int inEnd) {
+        if (inStart < 0 || inEnd < 0 || inStart >= inEnd || inEnd >= _numPoints) {
+            return false;
+        }
+        // calculate how many point swaps are required
+        int numPointsToReverse = (inEnd - inStart + 1) / 2;
+        DataPoint p;
+        for (int i = 0; i < numPointsToReverse; i++) {
+            // swap pairs of points
+            p = _dataPoints[inStart + i];
+            _dataPoints[inStart + i] = _dataPoints[inEnd - i];
+            _dataPoints[inEnd - i] = p;
+        }
+        // adjust segment starts
+        shiftSegmentStarts(inStart, inEnd);
+        // Find first track point and following track point, and set segment starts to true
+        DataPoint firstTrackPoint = getNextTrackPoint(inStart);
+        if (firstTrackPoint != null) {
+            firstTrackPoint.setSegmentStart(true);
+        }
+        DataPoint nextTrackPoint = getNextTrackPoint(inEnd + 1);
+        if (nextTrackPoint != null) {
+            nextTrackPoint.setSegmentStart(true);
+        }
+        // needs to be scaled again
+        _scaled = false;
+// todo        UpdateMessageBroker.informSubscribers();
+        return true;
+    }
+
+    /**
+     * set a new starting point of the route
+     *
+     * @param inStart start index
+     * @return true if successful, false otherwise
+     * @author BiselliW
+     */
+    public boolean setNewStart(int inStart) {
+        if (inStart < 0 || inStart >= _numPoints) {
+            return false;
+        }
+        DataPoint[] newPointArray = new DataPoint[_numPoints];
+
+        // calculate how many point swaps are required
+        // Copy points from the new start
+        System.arraycopy(_dataPoints, inStart, newPointArray, 0, _numPoints - inStart);
+        // Copy points from the previous start
+        System.arraycopy(_dataPoints, 0, newPointArray, _numPoints - inStart, inStart);
+        // Copy points from new to current array
+        System.arraycopy(newPointArray, 0, _dataPoints, 0, _numPoints);
+
+        // needs to be scaled again
+        _scaled = false;
+// todo        UpdateMessageBroker.informSubscribers();
+        return true;
+    }
+
+    static DataPoint[] _waypoints;
+    static int _numWaypoints;
+    static int[] _pointIndices;
+
+    /**
+     * Interleave all waypoints by each nearest track point
+     *
+     * @implNote major changes
+     * @author BiselliW
+     * @since 20.2.006
+     */
+    public void interleaveWaypoints() {
+        // Separate waypoints and find nearest track point
+        _numWaypoints = 0;
+        _waypoints = new DataPoint[_numPoints];
+        _pointIndices = new int[_numPoints];
+        if (!_scaled) scalePoints();
+        if (DEBUG) Log.d(TAG, "interleaveWaypoints()");
+
+        // find nearest track points for all way points
+        DataPoint point;
+        for (int i = 0; i < _numPoints; i++) {
+            point = _dataPoints[i];
+            // remove link from track point to way point
+            point.clearWayPointLink();
+            // if point is a way point outside the track
+            if (point.isWayPoint()) {
+                // find nearest track point
+                _waypoints[_numWaypoints] = point;
+                _waypoints[_numWaypoints].clearWayPointLink();
+                _pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 15.0E-7, true);
+                _numWaypoints++;
+            }
+        }
+        // Exit if data not mixed
+        if (_numWaypoints == _numPoints) return;
+
+        // Loop round points copying to correct order
+        reorderPoints();
+
+        // make last trackpoint to end point
+        makeEndPoint();
+
+        // find all nearest track points for all way points
+        findNearestTrackPoints();
+
+        // needs to be scaled again to recalc x, y
+        _scaled = false;
+// todo        UpdateMessageBroker.informSubscribers();
+    }
+    //////// information methods /////////////
+
+//////// information methods /////////////
+
+
+    /**
+     * ///////// Internal processing methods ////////////////
+     * <p>
+     * /**
+     * Shift all the segment start flags in the given range by 1
+     * Method used by reverse range and its undo
+     *
+     * @param inStartIndex start of range, inclusive
+     * @param inEndIndex   end of range, inclusive
+     * @author BiselliW
+     */
+    public void shiftSegmentStarts(int inStartIndex, int inEndIndex) {
+        boolean prevFlag = true;
+        boolean currFlag;
+        for (int i = inStartIndex; i <= inEndIndex; i++) {
+            DataPoint point = getPoint(i);
+            if (point != null && !point.isWaypoint()) {
+                // remember flag
+                currFlag = point.getSegmentStart();
+                // shift flag by 1
+                point.setSegmentStart(prevFlag);
+                prevFlag = currFlag;
+            }
+        }
+    }
+
+    ////////////////// Cloning and replacing ///////////////////
+
+    /**
+     * Clone the array of DataPoints
+     *
+     * @return shallow copy of DataPoint objects
+     * @author BiselliW
+     */
+    public DataPoint[] cloneContents() {
+        DataPoint[] clone = new DataPoint[_numPoints];
+        System.arraycopy(_dataPoints, 0, clone, 0, _numPoints);
+        return clone;
+    }
+
+    /**
+     * Reverse the route
+     *
+     * @author BiselliW
+     */
+    public boolean reverseRoute() {
+        return reverseRange(0, _numPoints - 1);
+    }
+
+    /*
+     * Find the nearest track point to the specified Latitude and Longitude coordinates
+     * or DataPoint.INVALID_INDEX if no
+     *
+     * @param inStart start index
+     * @param inLatitude Latitude in degrees
+     * @param inLongitude Longitude in degrees
+     * @param inMaxDist maximum distance from selected coordinates [km] to point
+     * @param inMaxDistDest maximum distance along the track [km] towards the destination
+     * @param inJustTrackPoints true if waypoints should be ignored
+     * @return index of nearest track point or <= if no point is within the specified max distanceS
+     *
+     * @author BiselliW
+     * @since 22.2.006
+     * - all coordinates in [km]
+     */
+    private int getNearestPointIndex(int inStart, double inLatitude, double inLongitude, double inMaxDist, double inMaxDistDest, boolean inJustTrackPoints) {
+        /* index of the nearest track point to the specified Latitude and Longitude coordinates */
+        int nearestPoint = 0;
+        double startTrack = -1;
+        _nearestDist = -1.0;
+
+        if (inStart < 0) inStart = 0;
+        if (inStart >= _numPoints - 1) {
+            return DataPoint.INVALID_INDEX;
+        }
+
+        double currDist;
+        for (int i = inStart; i < _numPoints; i++) {
+            if (!inJustTrackPoints || !_dataPoints[i].isWaypoint()) {
+                DataPoint point = _dataPoints[i];
+                double radians = point.calculateRadiansBetween(inLatitude, inLongitude);
+                currDist = Distance.convertRadiansToDistance(radians);
+                if ((currDist < _nearestDist) || (_nearestDist < 0.0)) {
+                    nearestPoint = i;
+                    _nearestDist = currDist;
+                    if (currDist == 0) break;
+                }
+
+                if (inMaxDistDest > 0) {
+                    if (startTrack < 0)
+                        startTrack = _dataPoints[i].getDistance() + inMaxDistDest;
+                    else if (startTrack < _dataPoints[i].getDistance())
+                        break;
+                }
+            }
+        }
+
+        // Check whether it's within required distance
+        if ((_nearestDist > inMaxDist) && (inMaxDist > 0.0)) {
+            return -nearestPoint;
+        }
+        return nearestPoint;
+    }
+
+    /**
+     * Loop round points copying to correct order
+     * @author BiselliW
+     */
+    void reorderPoints() {
+        DataPoint[] dataCopy = new DataPoint[_numPoints];
+        int copyIndex = 0;
+        boolean setStart = true;
+        DataPoint point;
+        for (int i = 0; i < _numPoints; i++) {
+            point = _dataPoints[i];
+            // if it's a track point, copy it
+            if (!point.isWayPoint()) {
+                dataCopy[copyIndex] = point;
+                copyIndex++;
+                if (setStart) {
+                    if (point.isRoutePoint()) {
+                        setStart = false;
+                    } else {
+                        // name first track point as "Start"
+                        point.setWaypointName(App.resources.getString(R.string.start));
+                        point.setLinkIndex(0);
+                        setStart = false;
+                    }
+                } else {
+                    // check for way points with this index
+                    boolean foundWP = false;
+                    int linkedTP = DataPoint.INVALID_INDEX;
+                    for (int j = 0; j < _numWaypoints; j++) {
+                        if ((_pointIndices[j] >= 0) && (_pointIndices[j] <= i)) {
+                            /*
+                             *  is this way point the nearest to the track point?
+                             *  - link the track point to this way point
+                             */
+                            if (_waypoints[j] != null) {
+                                if (!foundWP) {
+                                    foundWP = true;
+                                    linkedTP = copyIndex - 1;
+                                    dataCopy[linkedTP].makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
+                                }
+                                _waypoints[j].setLinkIndex(linkedTP);
+                                // else link the following track point to this way point
+                                _pointIndices[j] = DataPoint.INVALID_INDEX;
+
+                                dataCopy[copyIndex] = _waypoints[j];
+                                copyIndex++;
+                            } else
+                                _waypoints[j] = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        // check for way points without index
+        for (int j = 0; j < _numWaypoints; j++) {
+            if (_pointIndices[j] != DataPoint.INVALID_INDEX) {
+                dataCopy[copyIndex] = _waypoints[j];
+                copyIndex++;
+            }
+        }
+        // Copy data back to track
+        _dataPoints = dataCopy;
+    }
+
+
+    /**
+     * make last trackpoint to end point
+     *
+     * @author BiselliW
+     * @since 22.2.006
+     */
+    private void makeEndPoint() {
+        int endPoint = 0;
+        DataPoint point;
+
+        for (int i = 0; i < _numPoints; i++) {
+            point = _dataPoints[i];
+            if (!point.isWayPoint()) {
+                endPoint = i;
+            }
+        }
+
+        point = _dataPoints[endPoint];
+        if (point.getWaypointName().isEmpty()) {
+            point.setWaypointName(App.resources.getString(R.string.destination));
+        }
+    }
+
+    /**
+     * find all nearest track points for all way points
+     *
+     * @author BiselliW
+     */
+    void findNearestTrackPoints() {
+        DataPoint point = null;
+        for (int j = 0; j < _numWaypoints; j++) {
+            int linkedTP, prevLinkedTP=0, linkedWP;
+            point = _waypoints[j];
+            linkedWP = getPointIndex(point);
+            double lat = point.getLatitude().getDouble();
+            double lon = point.getLongitude().getDouble();
+            // get the index to the currently linked track point
+            linkedTP = point.getLinkIndex();
+            while ((linkedTP > prevLinkedTP) && (linkedTP < _numPoints)) {
+                prevLinkedTP = linkedTP;
+                // find the next track point which is considered as outside of the track
+                linkedTP = getOutsidePointIndex(linkedTP + 1, _numPoints - 1, lat, lon, MAX_DISTANCE_WP_TRACK, true);
+
+                // find the next track point after this one which is considered as inside the track again
+                if (linkedTP > prevLinkedTP) {
+                    prevLinkedTP = linkedTP;
+                    linkedTP = getNearestPointIndex(linkedTP + 1, lat, lon, 0.020, 0.0, true);
+                    while ((linkedTP > prevLinkedTP) && (linkedTP < _numPoints - 1)) {
+                        prevLinkedTP = linkedTP;
+                        point = _dataPoints[linkedTP];
+                        if (point != null) {
+                            if ((point.isTrackPoint()) && (point.getLinkIndex() <= 0)) {
+                                point.makeRoutePoint(_waypoints[j].getWaypointName(), linkedWP);
+                                break;
+                            }
+                        }
+                    }
+                } else
+                    break;
+            }
+        }
+    }
+
+    /**
+     * @return true if track contains named trackpoints
+     * @author BiselliW
+     */
+    public boolean hasNamedTrackpoints() {
+        if (!_scaled) {
+            _hasNamedTrackpoint = false;
+            scalePoints();
+        }
+
+        if (!_hasNamedTrackpoint) {
+            for (int p = 0; p < _numPoints; p++) {
+                DataPoint point = getPoint(p);
+                if (point != null && point.isValid()) {
+                    if (!point.isWaypoint() &&
+                            point.isNamedTrackpoint()) {
+                        _hasNamedTrackpoint = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return _hasNamedTrackpoint;
+    }
+
+    /**
+     * @return true if track contains trackpoints with altitude
+     * @author BiselliW
+     */
+    public boolean hasAltitudes() {
+        if (!_scaled) {
+            _hasAltitude = false;
+            scalePoints();
+        }
+        if (!_hasAltitude) {
+            for (int p = 0; p < _numPoints; p++) {
+                DataPoint point = getPoint(p);
+                if (point != null && point.isValid()) {
+                    if (point.hasAltitude()){
+                        _hasAltitude = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return _hasAltitude;
+    }
+
+    /**
+     * Delete all points
+     *
+     * @return true if successful
+     * @author BiselliW
+     */
+    public boolean deleteAllPoints() {
+        _dataPoints = new DataPoint[0];
+        _numPoints = 0;
+        // needs to be scaled again
+        _scaled = false;
+        return true;
+    }
+
+    public boolean isValid() {
+        return hasAltitudes() && (hasWaypoints() || hasNamedTrackpoints());
+    }
 
 }
 

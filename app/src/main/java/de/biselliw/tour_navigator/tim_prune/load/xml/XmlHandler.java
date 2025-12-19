@@ -1,15 +1,15 @@
 package de.biselliw.tour_navigator.tim_prune.load.xml;
 /** @since WB
  * @since 26.1
- * */
+ */
 import java.util.ArrayList;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import de.biselliw.tour_navigator.tim.prune.data.ExtensionInfo;
+import tim.prune.data.ExtensionInfo;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.tim.prune.data.FileType;
+import tim.prune.data.FileType;
 
 /**
  * Abstract superclass of xml handlers
@@ -25,12 +25,10 @@ public abstract class XmlHandler extends DefaultHandler
 
 	/* @since WB */
 	// meta data
-	public String metaName = "";
 	public String metaDescription = "";
 	public String metaAuthor = "";
 	public String metaTime = "";
 	public String metaLink = "";
-	public String trackDescription = "";
 
 	/**
 	 * Method for returning data loaded from file
@@ -153,14 +151,15 @@ public abstract class XmlHandler extends DefaultHandler
 	/**
 	 * @return the title of the file, or null
 	 */
-
-    public abstract String getFileTitle();
+	public abstract String getFileTitle();
 
 	/**
 	 * Can be overridden (eg by gpx handler) to provide the description of the file
 	 * @return file description, or null
 	 */
-	public abstract String getFileDescription();
+	public String getFileDescription() {
+		return null;
+	}
 
 	/**
 	 * @return the information about the Xml extensions, or null

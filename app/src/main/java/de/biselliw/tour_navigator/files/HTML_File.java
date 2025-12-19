@@ -28,12 +28,21 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.data.TrackDetails;
+import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+
+import static de.biselliw.tour_navigator.App.app;
+import static de.biselliw.tour_navigator.data.TrackTiming.trackTiming;
 
 
 public class HTML_File {
@@ -65,11 +74,26 @@ public class HTML_File {
 
     TourDetails.AdditionalInfo addInfo;
 
+    /**
+     * Replace the link to an outdooractive tour with www.schwarzwaldverein-tourenportal.de if possible
+     * @param inLink outdooractive tour link
+     * @return replaced URL
+     */
+    public static String getSwvLink(String inLink)
+    {
+        final String outdooractiveLink = "https://www.outdooractive.com/";
+        final String swvLink = "https://www.schwarzwaldverein-tourenportal.de/";
+
+        if (inLink.startsWith(outdooractiveLink)) {
+            return inLink.replace(outdooractiveLink, swvLink);
+        }
+        else return "";
+    }
 
     public HTML_File(Context inContext, RecordAdapter inRecordAdapter) {
         res = inContext.getResources();
         recordAdapter = inRecordAdapter;
-        details = new TourDetails(inContext,App.app,inRecordAdapter);
+        details = new TourDetails(inContext, app,inRecordAdapter);
         addInfo = details.getFileInfo();
     }
 
@@ -108,9 +132,7 @@ public class HTML_File {
             // close file
             writer.close();
             _xmlStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) { }
     }
 
     /**
@@ -142,12 +164,12 @@ public class HTML_File {
     private void writeTimeTableHeader() {
         html_buffer.append("<table width=\"100%\" border=\"1\" cellpadding=\"0\" cellspacing=\"2\" summary=\"\">\n");
 
-        html_buffer.append("<caption>");
+        html_buffer.append("<caption><b>");
         html_buffer.append(res.getString(R.string.timetable));
         String title = (addInfo == null) ? "" : addInfo.title;
         if (!title.isEmpty())
             html_buffer.append(": ").append(title);
-        html_buffer.append("</caption>");
+        html_buffer.append("</b></caption>");
 
         // write table header
         html_buffer.append("<tr>");
@@ -212,29 +234,30 @@ public class HTML_File {
                 .append(inPlace + 1).append("</a></a></td>");
 
         // row "Type":
-        String val = wptInfo.symbol;
+        String type = wptInfo.type;
         tmp_buffer.append("<td class=\"cell\">");
-        if (!val.isEmpty())
-            tmp_buffer.append(details.interpretWaypointSymbol(val));
+        if (!type.isEmpty())
+            tmp_buffer.append(type);
+//        tmp_buffer.append(details.interpretWaypointSymbol(symbol));
         tmp_buffer.append("</td>");
 
         // row "Description":
-        String title = "<p><b>" + wptInfo.title + "</b></p>";
+        String title = "<p><b>" + wptInfo.title + "</b></p>\n";
         tmp_buffer.append("<td class=\"cell\">");
-        val = wptInfo.description;
-        if (!val.isEmpty()) {
-            tmp_buffer.append(title);
-            tmp_buffer.append(val);
-            title = "";
+        tmp_buffer.append(title);
+
+        String description = wptInfo.description;
+        String link = wptInfo.link;
+        if (!description.isEmpty()) {
+            // make all URLs clickable
+            String descHTML = UrlToHtmlConverter(description);
+            tmp_buffer.append(descHTML);
             descAvailable = true;
         }
 
-        val = wptInfo.link;
-        if (!val.isEmpty()) {
-            if (!title.isEmpty())
-                tmp_buffer.append(title);
+        if (!link.isEmpty()) {
             tmp_buffer.append("<p><a href=\"")
-                    .append(val).append("\" target=_blank>").append(val).append("</a></p>\n");
+                    .append(link).append("\" target=_blank>").append(link).append("</a></p>\n");
             descAvailable = true;
         }
 
@@ -255,6 +278,105 @@ public class HTML_File {
         return descAvailable;
     }
 
+    /**
+     * Coverts URLs in plain text:
+     * ✅ Supports URLs without http
+     * Example:
+     * www.example.com/path?a=1 → <a href="https://www.example.com/path?a=1" ...>www.example.com/path?a=1</a>
+     * (Uses https:// by default)
+     * ✅ Does NOT convert URLs that are already inside an <a> tag
+     * Example:
+     * <a href="http://inside.com">already</a> → left unchanged
+     * ✅ Supports Markdown: [title](url)
+     * @param inText original plain text
+     * @return formatted HTML text
+     */
+    public String UrlToHtmlConverter (String inText) {
+
+        // Matches complete <a ...>...</a> so we can protect them
+        final Pattern HTML_LINK =
+                Pattern.compile("<a\\b[^>]*>.*?</a>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+        // Markdown: [text](url)
+        final Pattern MD_LINK =
+                Pattern.compile("\\[(.+?)]\\((\\s*(?:https?://|www\\.)[^\\s)]+)\\)");
+
+        // Bare URLs (http/https)
+        final Pattern URL_PATTERN_HTTP =
+                Pattern.compile("(https?://[\\w.-]+(?:/[\\w\\-./?%&=]*)?)");
+
+        // Bare URLs (www without http/https)
+        final Pattern URL_PATTERN_WWW =
+                Pattern.compile("\\b(www\\.[\\w.-]+(?:/[\\w\\-./?%&=]*)?)");
+
+        // STEP 0 — PROTECT existing HTML <a> tags
+        Matcher htmlMatcher = HTML_LINK.matcher(inText);
+        int counter = 0;
+        StringBuffer protectedBuffer = new StringBuffer();
+        Map<String, String> protectedMap = new HashMap<>();
+
+        while (htmlMatcher.find()) {
+            String original = htmlMatcher.group();
+            String placeholder = "%%HTML_LINK_" + (counter++) + "%%";
+            protectedMap.put(placeholder, original);
+            htmlMatcher.appendReplacement(protectedBuffer, Matcher.quoteReplacement(placeholder));
+        }
+        htmlMatcher.appendTail(protectedBuffer);
+
+        String processed = protectedBuffer.toString();
+
+        // STEP 1 — Replace Markdown links first
+        Matcher mdMatcher = MD_LINK.matcher(processed);
+        StringBuffer mdOut = new StringBuffer();
+
+        while (mdMatcher.find()) {
+            String title = mdMatcher.group(1).trim();
+            String url = mdMatcher.group(2).trim();
+
+            // Add https:// if missing
+            if (url.startsWith("www.")) {
+                url = "https://" + url;
+            }
+
+            String replacement = "<a href=\"" + url + "\" target=\"_blank\">" + title + "</a>";
+            mdMatcher.appendReplacement(mdOut, Matcher.quoteReplacement(replacement));
+        }
+        mdMatcher.appendTail(mdOut);
+        processed = mdOut.toString();
+
+        // STEP 2 — Replace bare http/https URLs NOT inside HTML
+        Matcher urlMatcherHttp = URL_PATTERN_HTTP.matcher(processed);
+        StringBuffer httpOut = new StringBuffer();
+
+        while (urlMatcherHttp.find()) {
+            String url = urlMatcherHttp.group().trim();
+            String replacement = "<a href=\"" + url + "\" target=\"_blank\">" + url + "</a>";
+            urlMatcherHttp.appendReplacement(httpOut, Matcher.quoteReplacement(replacement));
+        }
+        urlMatcherHttp.appendTail(httpOut);
+        processed = httpOut.toString();
+
+        // STEP 3 — Replace bare www.* URLs (add https://) (ignored - not perfect!)
+        Matcher urlMatcherWww = URL_PATTERN_WWW.matcher(processed);
+        StringBuffer wwwOut = new StringBuffer();
+
+        while (urlMatcherWww.find()) {
+            String raw = urlMatcherWww.group().trim();
+            String fullUrl = "https://" + raw;
+
+            String replacement = "<a href=\"" + fullUrl + "\" target=\"_blank\">" + raw + "</a>";
+            urlMatcherWww.appendReplacement(wwwOut, Matcher.quoteReplacement(replacement));
+        }
+        urlMatcherWww.appendTail(wwwOut);
+        // processed = wwwOut.toString();
+
+        // STEP 4 — RESTORE original <a>...</a> blocks
+        for (Map.Entry<String, String> entry : protectedMap.entrySet()) {
+            processed = processed.replace(entry.getKey(), entry.getValue());
+        }
+
+        return processed;
+    }
 
     /**
      * write Time Table rows
@@ -350,7 +472,7 @@ public class HTML_File {
             switch (col) {
                 case COL_WPT_NAME:
                 case COL_COMMENT:
-                    html_buffer.append("<td class=\"cell\" class=\"cell\"><b>");
+                    html_buffer.append("<td class=\"cell\"><b>");
                     break;
                 default:
                     html_buffer.append("<td class=\"cell\" align=\"right\"><b>");
@@ -361,17 +483,17 @@ public class HTML_File {
                     html_buffer.append(res.getString(R.string.summary));
                     break;
                 case COL_CLIMB:
-                    html_buffer.append((int) App.getClimb());
+                    html_buffer.append((int) trackTiming.getTotalClimb());
                     break;
                 case COL_DESCENT:
-                    html_buffer.append((int) App.getDescent());
+                    html_buffer.append((int) trackTiming.getTotalDescent());
                     break;
                 case COL_DURATION:
-                    html_buffer.append(formatIntToTime((int) (App.getTotalSeconds() / 60L
-                    - App.getTotalPauseInMins())));
+                    html_buffer.append(formatIntToTime((int) (trackTiming.getTotalSeconds() / 60L
+                    - trackTiming.getTotalBreakTime_min())));
                     break;
                 case COL_PAUSE:
-                    html_buffer.append(formatIntToTime((int) App.getTotalPauseInMins()));
+                    html_buffer.append(formatIntToTime((int) trackTiming.getTotalBreakTime_min()));
                     break;
                 default:
                     html_buffer.append("&nbsp;");
@@ -432,6 +554,12 @@ public class HTML_File {
         if (!link.isEmpty()) {
             html_buffer.append("<tr><td class=\"cell\" class=\"cell\">").append(res.getString(R.string.tour_link)).append(":</td><td class=\"cell\" class=\"cell\"><a href=\"")
                     .append(link).append("\" target=_blank>").append(link).append("</a></td></tr>\n");
+            // add link to SWV if possible
+            String swvLink = getSwvLink(link);
+            if (!swvLink.isEmpty()) {
+                html_buffer.append("<tr><td class=\"cell\" class=\"cell\">").append(res.getString(R.string.tour_link_swv)).append(":</td><td class=\"cell\" class=\"cell\"><a href=\"")
+                    .append(swvLink).append("\" target=_blank>").append(swvLink).append("</a></td></tr>\n");
+            }
         }
 
         if (!time.isEmpty()) {
@@ -455,6 +583,6 @@ public class HTML_File {
             html_buffer.append(desc_buffer)
                     .append("</table>\n");
         }
-
     }
+
 }

@@ -2,31 +2,32 @@ package de.biselliw.tour_navigator.tim_prune.data;
 
 import java.util.List;
 
-import de.biselliw.tour_navigator.tim.prune.data.FileInfo;
+import de.biselliw.tour_navigator.data.TrackDetails;
+import tim.prune.data.FileInfo;
 
 /**
  * Class to hold all track information, including data
  * and the selection information
- * @since 26.1
  */
 public class TrackInfo
 {
-	private final Track _track;
+	private final TrackDetails _track;
 	private FileInfo _fileInfo = null;
 
 	/**
 	 * Constructor
 	 * @param inTrack Track object
 	 */
-	public TrackInfo(Track inTrack)
+	public TrackInfo(TrackDetails inTrack)
 	{
 		_track = inTrack;
 	}
 
+
 	/**
 	 * @return the Track object
 	 */
-	public Track getTrack() {
+	public TrackDetails getTrack() {
 		return _track;
 	}
 
@@ -50,16 +51,5 @@ public class TrackInfo
 		_fileInfo = null;
 	}
 
-	public boolean appendRange(List<DataPoint> inPoints)
-	{
-		final int currentNumPoints = getTrack().getNumPoints();
-		if (getTrack().appendRange(inPoints))
-		{
-			// Select the first point added
-//			selectPoint(currentNumPoints);
-			return true;
-		}
-		return false;
-	}
 
 }

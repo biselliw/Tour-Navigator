@@ -25,20 +25,17 @@ package de.biselliw.tour_navigator.tim_prune.save;
 	along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 	Copyright (C) 2025 activityworkshop.net
-
  */
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import de.biselliw.tour_navigator.App;
-import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.tim.prune.data.Coordinate;
-import de.biselliw.tour_navigator.tim.prune.data.UnitSetLibrary;
-import de.biselliw.tour_navigator.tim.prune.save.xml.XmlUtils;
+import tim.prune.data.Coordinate;
+import tim.prune.data.UnitSetLibrary;
+import tim.prune.save.xml.XmlUtils;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
@@ -57,24 +54,20 @@ public class GpxExporter {
 	 * Download the information to the given writer
 	 * @param  writer streaming object
      * @param inInfo track info object
+     * @return >0 if successful
      * @author BiselliW
 	 */
 	public static int downloadData(OutputStreamWriter writer, TrackInfo inInfo) throws IOException {
 
-        GpxFileCreator = App.resources.getString(R.string.app_name);
+        GpxFileCreator = inInfo.getTrack().Creator;
 
         int result = 0;
-		if (inInfo != null) {
-
-			try {
-                result = exportData(writer, inInfo);
-
-				// close file
-				writer.close();
-			} catch (IOException ioe) {
-				writer.close();
-			}
-		}
+        try {
+            result = exportData(writer, inInfo);
+        } catch (IOException ignored) {
+        }
+        // close file
+        writer.close();
         return result;
     }
 
@@ -97,11 +90,10 @@ public class GpxExporter {
             // name and description
             SourceInfo sourceinfo = inInfo.getFileInfo().getSource(0);
             if (sourceinfo != null ) {
-                String inName = sourceinfo.getFileTitle();
-                String trackName = (!inName.isEmpty()) ? XmlUtils.fixCdata(inName) : GpxFileCreator + " Track";
                 String inDesc = sourceinfo.getFileDescription();
-//                String trackTitle = (inDesc != null && !inDesc.isEmpty()) ? XmlUtils.fixCdata(inDesc) : "Export from " + GpxFileCreator;
-                writeNameAndDescription(inWriter, sourceinfo.getFileTitle(), trackName, sourceinfo.getFileDescription(),
+                String inName = sourceinfo.getFileTitle();
+                String trackName = (!inName.isEmpty()) ? XmlUtils.fixCdata(inName) : GpxFileCreator;
+                writeNameAndDescription(inWriter, trackName, inDesc,
                         sourceinfo.getAuthor(), sourceinfo.getMetaTime(), sourceinfo.getMetaLink());
 
                 DataPoint point;
@@ -127,7 +119,6 @@ public class GpxExporter {
 
                 // Output all track points, if any
                 String trackStart = "\t<trk>\n\t\t<name>" + trackName + "</name>\n\t\t<trkseg>\n";
-                inDesc = sourceinfo.getFileDescription();
                 String trackDesc = (inDesc != null && !inDesc.isEmpty()) ? XmlUtils.fixCdata(inDesc) : "";
                 if (!trackDesc.isEmpty())
                     trackStart += "\t\t<desc>" + trackDesc + "\n\t\t</desc>\n";
@@ -135,25 +126,16 @@ public class GpxExporter {
                         false, trackStart,
                         "\t</trkseg>\n\t<trkseg>\n", "\t\t</trkseg>\n\t</trk>\n");
 
-
                 inWriter.write("</gpx>\n");
                 return numSaved;
             }
-
-        } catch (IOException ioe) {
-        {
-            return 0;
-        }
-
-        }
+        } catch (IOException ignored) { }
         return 0;
 	}
-
 
 	/**
 	 * Write the name, description and time according to the GPX version number
 	 * @param inWriter writer object
-     * @param inTitle file title
 	 * @param inName name, or null if none supplied
 	 * @param inDesc description, or null if none supplied
 	 * @param inAuthor author, or null if none supplied
@@ -161,7 +143,7 @@ public class GpxExporter {
 	 * @param inLink link, or null if none supplied
 	 * @implNote BiselliW: add extra GPX meta tags author, time, link; GPX format 1.1 only
 	 */
-	private static void writeNameAndDescription(OutputStreamWriter inWriter, String inTitle, String inName,
+	private static void writeNameAndDescription(OutputStreamWriter inWriter, String inName,
 			String inDesc, String inAuthor, String inTime, String inLink) throws IOException
 	{
 		// Position of name and description fields needs to be different for GPX1.0 and GPX1.1
@@ -258,7 +240,6 @@ public class GpxExporter {
 		return "<?xml version=\"1.0\" encoding=\"" + XmlUtils.getEncoding(inWriter) + "\"?>\n";
 	}
 
-
 	/**
 	 * Get the header string for the gpx tag
 	 * @return header string as default
@@ -274,7 +255,6 @@ public class GpxExporter {
 
 		return gpxHeader + "\n";
 	}
-
 
 	/**
 	 * Export the specified waypoint into the file
@@ -350,12 +330,11 @@ public class GpxExporter {
 		inWriter.write("\t</wpt>\n");
 	}
 
-
 	/**
 	 * Export the specified trackpoint into the file
 	 * @param inPoint trackpoint to export
 	 * @param inWriter writer object
-	 * @implNote BiselliW: always export trackpoints, GPX tags name, sym, cmt and desc, extension:pause
+	 * @implNote BiselliW: always export trackpoints, GPX tags name, sym, cmt and desc, extension:break
 	 */
 	private static void exportTrackpoint(DataPoint inPoint, Writer inWriter)
 		throws IOException
@@ -417,11 +396,9 @@ public class GpxExporter {
 		// duration if any
 		if (inPoint.getWaypointDuration() > 0) {
 			inWriter.write("        <extensions>\n");
-			inWriter.write("          <pause>" + inPoint.getWaypointDuration() + "</pause>\n");
+			inWriter.write("          <break>" + inPoint.getWaypointDuration() + "</break>\n");
 			inWriter.write("        </extensions>\n");
 		}
 		inWriter.write("      </trkpt>\n");
 	}
-
-
 }

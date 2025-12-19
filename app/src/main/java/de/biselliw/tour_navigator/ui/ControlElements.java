@@ -22,6 +22,7 @@ package de.biselliw.tour_navigator.ui;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 
@@ -51,14 +53,16 @@ public class ControlElements extends BaseActivity {
     public static ControlElements control = null;
     public App app = null;
     public MainActivity main = null;
-    public ProfileAdapter pa = null;
+    public ProfileAdapter profileAdapter = null;
 
     private LocationActivity la = null;
     protected TourDetails details = null;
 
     public RecordAdapter recordAdapter = null;
 
-    protected static boolean expandView = false;
+    public TextToSpeech tts;
+
+    public static boolean expandView = false;
     private static boolean fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
@@ -80,6 +84,7 @@ public class ControlElements extends BaseActivity {
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
     boolean _updateExpandViewStatus = false;
+    boolean _updateSpeakStatus = false;
     TourDetails.AdditionalInfo additionalInfo = null;
     String errorMessage = "";
     boolean _updateErrorMessage = false;
@@ -122,7 +127,7 @@ public class ControlElements extends BaseActivity {
                     onShowTrackingStatus();
                 if (_updateGpsStatus)
                     onShowGpsStatus();
-                if (_updateExpandViewStatus)
+                if (_updateExpandViewStatus || _updateSpeakStatus)
                     onShowExpandViewStatus();
                 if (_updateErrorMessage)
                     onShowErrorMessage();
@@ -174,6 +179,8 @@ public class ControlElements extends BaseActivity {
     }
 
     public void onPrepareNavigationMenu(Menu menu) {
+        boolean gpxFileValid = app.getTrack().isValid();
+
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
@@ -187,7 +194,7 @@ public class ControlElements extends BaseActivity {
                             (id == R.id.nav_download_gpx) ||
                             (id == R.id.nav_download_html) ||
                             (id == R.id.nav_timetable))
-                item.setEnabled(!_initUserInterface);
+                item.setEnabled(!_initUserInterface && gpxFileValid);
             else
                 item.setVisible(true);
         }
@@ -223,22 +230,21 @@ public class ControlElements extends BaseActivity {
      */
     private void onShowTrackingStatus() {
         _updateTrackingStatus = false;
-        if (main != null) {
-            ImageView image_tracking_pause = main.findViewById(R.id.image_tracking_pause);
-            ImageView image_tracking = main.findViewById(R.id.image_tracking);
+        ImageView image_tracking_pause = findViewById(R.id.image_tracking_pause);
+        ImageView image_tracking = findViewById(R.id.image_tracking);
 
-            if (la.isTrackingEnabled()) {
-                if (_isTracking) {
-                    image_tracking_pause.setVisibility(View.VISIBLE);
-                    image_tracking.setVisibility(View.GONE);
-                } else {
-                    image_tracking_pause.setVisibility(View.GONE);
-                    image_tracking.setVisibility(View.VISIBLE);
-                }
+        if (la.isTrackingEnabled() && App.getTrack().isValid())
+        {
+            if (_isTracking) {
+                image_tracking_pause.setVisibility(View.VISIBLE);
+                image_tracking.setVisibility(View.GONE);
             } else {
                 image_tracking_pause.setVisibility(View.GONE);
-                image_tracking.setVisibility(View.INVISIBLE);
+                image_tracking.setVisibility(View.VISIBLE);
             }
+        } else {
+            image_tracking_pause.setVisibility(View.GONE);
+            image_tracking.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -311,22 +317,40 @@ public class ControlElements extends BaseActivity {
      * Show one of the images expand more/less depending on the state of expandView
      */
     private void onShowExpandViewStatus() {
-        ImageView image_expand_more = main.findViewById(R.id.image_expand_more);
-        ImageView image_expand_less = main.findViewById(R.id.image_expand_less);
+        ImageView image_expand_more = findViewById(R.id.image_expand_more);
+        ImageView image_expand_less = findViewById(R.id.image_expand_less);
+        ImageView image_text_to_speech = findViewById(R.id.image_text_to_speech);
+        ImageView image_voice_selection_off = findViewById(R.id.image_voice_selection_off);
 
         _updateExpandViewStatus = false;
         switch (_expandViewVisibility) {
             case View.INVISIBLE:
                 image_expand_more.setVisibility(View.GONE);
                 image_expand_less.setVisibility(View.VISIBLE);
+                if (tts.isSpeaking()){
+                    image_text_to_speech.setVisibility(View.INVISIBLE);
+                    image_voice_selection_off.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    image_text_to_speech.setVisibility(View.VISIBLE);
+                    image_voice_selection_off.setVisibility(View.INVISIBLE);
+                    _updateSpeakStatus = false;
+                }
                 break;
             case View.VISIBLE:
                 image_expand_more.setVisibility(View.VISIBLE);
                 image_expand_less.setVisibility(View.GONE);
+                image_text_to_speech.setVisibility(View.GONE);
+                image_voice_selection_off.setVisibility(View.GONE);
+                _updateSpeakStatus = false;
                 break;
             default:
                 image_expand_more.setVisibility(View.INVISIBLE);
                 image_expand_less.setVisibility(View.GONE);
+                image_text_to_speech.setVisibility(View.GONE);
+                image_voice_selection_off.setVisibility(View.GONE);
+                _updateSpeakStatus = false;
         }
     }
 
@@ -336,11 +360,20 @@ public class ControlElements extends BaseActivity {
     private void onShowErrorMessage() {
         _updateExpandView = false;
 
-        TextView main_text_title = findViewById(R.id.main_text_title);
-        main_text_title.setBackgroundColor(COLOR_RED);
-        main_text_title.setText(errorMessage);
+        setTitleText(errorMessage,COLOR_RED);
         Log.e("Error",errorMessage);
         _updateErrorMessage = false;
+    }
+
+    /**
+     * Set the title text
+     * @param inTitle title
+     * @param inBackgroundColor background color
+     */
+    public void setTitleText (String inTitle, int inBackgroundColor) {
+        TextView main_text_title = findViewById(R.id.main_text_title);
+        main_text_title.setBackgroundColor(inBackgroundColor);
+        main_text_title.setText(inTitle);
     }
 
     /**
@@ -349,16 +382,18 @@ public class ControlElements extends BaseActivity {
     private void onShowAdditionalInfo() {
         _updateExpandView = false;
 
-        if ((additionalInfo != null) && !isErrorMessage()){
-            TextView main_text_title = findViewById(R.id.main_text_title);
-            main_text_title.setBackgroundColor(COLOR_MESSAGE);
-            main_text_title.setText(additionalInfo.title);
+        if ((additionalInfo != null)
+                // && (!Log.isWritingEnabled() || !isErrorMessage())
+         ){
+            if (!isErrorMessage()) {
+                setTitleText(additionalInfo.title,COLOR_MESSAGE);
+            }
 
             if (expandView) {
-                TextView commentView = main.findViewById(R.id.comment_view);
+                TextView commentView = findViewById(R.id.comment_view);
                 commentView.setText(additionalInfo.comment);
 
-                TextView descriptionView = main.findViewById(R.id.description_view);
+                TextView descriptionView = findViewById(R.id.description_view);
                 String html = additionalInfo.description;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                     descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
@@ -367,20 +402,26 @@ public class ControlElements extends BaseActivity {
                 }
                 descriptionView.scrollTo(0, 0);
 
-                TextView linkView = main.findViewById(R.id.link_view);
-                linkView.setText(additionalInfo.link);
+                TextView linkView = findViewById(R.id.link_view);
+                String link = additionalInfo.link;
+                String swvLink = HTML_File.getSwvLink(link);
+                if (!swvLink.isEmpty())
+                {
+                    link = link + "\n" + // this.getResources().getString(R.string.tour_link_swv) + ":\n" +
+                        swvLink;
+                }
+                linkView.setText(link);
             }
         }
 
-        LinearLayout location_content = main.findViewById(R.id.location_content);
-        LinearLayout description_content = main.findViewById(R.id.description_content);
+        LinearLayout location_content = findViewById(R.id.location_content);
+        LinearLayout description_content = findViewById(R.id.description_content);
 
         location_content.setVisibility(expandView ? View.GONE : View.VISIBLE);
         description_content.setVisibility(expandView ? View.VISIBLE : View.GONE);
 
         if (!expandView) {
             la.requestStatusUpdate();
-            la.scrollToListPosition();
         }
     }
 
@@ -394,7 +435,7 @@ public class ControlElements extends BaseActivity {
             comment = comment + additionalInfo.comment;
         }
 
-        TextView commentView = main.findViewById(R.id.comment_view);
+        TextView commentView = findViewById(R.id.comment_view);
         commentView.setText(comment);
     }
 
@@ -403,7 +444,7 @@ public class ControlElements extends BaseActivity {
      */
     private void onShowProfile() {
         _updateProfile = false;
-        LinearLayout plot = main.findViewById(R.id.profile_plot);
+        LinearLayout plot = findViewById(R.id.profile_plot);
         plot.setVisibility(_profileViewVisibility == View.VISIBLE ? View.VISIBLE : View.GONE);
         switch (_profileViewVisibility) {
             case View.INVISIBLE:
@@ -421,7 +462,6 @@ public class ControlElements extends BaseActivity {
 
         if (_profileViewVisibility == View.VISIBLE) {
             la.requestStatusUpdate();
-            la.scrollToListPosition();
         }
     }
 
@@ -432,7 +472,7 @@ public class ControlElements extends BaseActivity {
 
     private void setViewVisibility(int id, int visibility) {
         if (main != null) {
-            ImageView view = main.findViewById(id);
+            ImageView view = findViewById(id);
             if (view != null)
                 view.setVisibility(visibility);
         }
@@ -456,7 +496,7 @@ public class ControlElements extends BaseActivity {
      * Setup the user interface after loading a new GPX track
      */
     public void setupUserInterface() {
-        fileInfoAvailable = details.getFileInfo() != null;
+        fileInfoAvailable = !details.getFileInfo().description.isEmpty();
         _comment = "";
         showAddInfo(-1);
 
@@ -542,16 +582,6 @@ public class ControlElements extends BaseActivity {
     }
 
     /**
-     * Show one of the images expand more/less depending on the state of expandView
-     */
-    public void showExpandViewStatus() {
-//        setExpandViewStatus(expandView);
- //       _updateExpandView = true;
-        _updateAdditionalInfo = true;
-
-    }
-
-    /**
      * Show extended description view and hide the list view
      *
      * @param inExpand true if description view shall be expanded
@@ -560,7 +590,6 @@ public class ControlElements extends BaseActivity {
         int place = recordAdapter.getPlace();
         // update the expansion mode
         expandView = showExpandViewStatus(place, inExpand);
-//        setExpandView(inExpand);
         showAddInfo(place);
     }
 
@@ -593,6 +622,36 @@ public class ControlElements extends BaseActivity {
     }
 
     /**
+     * Speak additional info if available
+     */
+    public void speakAddInfo() {
+        String urlRegex =
+                "(?i)\\b(" +
+                        "(?:https?|ftp)://\\S+|" +      // http://, https://, ftp://
+                        "//\\S+|" +                    // protocol-relative URLs
+                        "www\\.\\S+|" +                // www.*
+                        "[a-z0-9.-]+\\.[a-z]{2,}\\S*|" + // any-domain.anyTLD(/path)
+                        "\\d{1,3}(?:\\.\\d{1,3}){3}\\S*" + // IPv4 URL-like
+                        ")";
+        String html = additionalInfo.description.replaceAll("<[^>]*>", " ");
+
+        // Remove <a>...</a> tags but keep their text
+        html = html.replaceAll("<a[^>]*>(.*?)</a>", "$1");
+
+        html = html.replaceAll(urlRegex, "");
+
+        // Remove all attributes from all tags
+        String text = html.replaceAll("<(\\w+)[^>]*>", "<$1>");
+
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "speakAddInfo");
+        _updateSpeakStatus = true;
+    }
+
+    public void stopSpeaking() {
+       if (tts.isSpeaking()) {tts.stop(); }
+    }
+
+    /**
      * Set the distance to the next place
      * @param distanceToPlace distance in km
      */
@@ -600,7 +659,7 @@ public class ControlElements extends BaseActivity {
         if (distanceToPlace >= 1.0)
             _comment = new DecimalFormat("in #0.0 km: ").format(distanceToPlace);
         else
-            _comment = new DecimalFormat("in #0 m: ").format(distanceToPlace*1000.0);
+            _comment = new DecimalFormat("in #0 m: ").format((int)(distanceToPlace*100.0)*10);
         _updateAdditionalInfo = true;
     }
 
@@ -610,6 +669,8 @@ public class ControlElements extends BaseActivity {
      * @param state view state
      */
     public void activateProfile(int state) {
+        if (!App.getTrack().isValid())
+            state = View.GONE;
         _profileViewVisibility = state;
         if (state != View.GONE)
             setProfileViewVisibility(state);
@@ -636,6 +697,4 @@ public class ControlElements extends BaseActivity {
         errorMessage = "";
         _updateErrorMessage = false;
     }
-
-
 }
