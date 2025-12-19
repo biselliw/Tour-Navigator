@@ -40,6 +40,7 @@ public final class Log {
         if (!enabled)
             Close ();
     }
+    public static boolean isWritingEnabled() { return _writing_enabled; }
 
     /**
      * Create a log file
@@ -124,18 +125,35 @@ public final class Log {
     }
 
     /**
-     * Send a DEBUG log message and log the exception.
+     * Send a DEBUG log message
      * @param tag   String: Used to identify the source of a log message. It usually identifies
      *                  the class or activity where the log call occurs. This value may be null.
      * @param msg   String: The message you would like logged.
      * @return      A positive value if the message was loggable
      */
     public static int d(java.lang.String tag, java.lang.String msg) {
-        if (BuildConfig.DEBUG) {
+        if (_writing_enabled)
             Write("D " + tag + " - " + msg);
+        if (BuildConfig.DEBUG) {
             return android.util.Log.d(tag, msg);
         }
-        else return 0;
+        return 0;
+    }
+
+    /**
+     * Send an INFO log message
+     * @param tag   String: Used to identify the source of a log message. It usually identifies
+     *                  the class or activity where the log call occurs. This value may be null.
+     * @param msg   String: The message you would like logged.
+     * @return      A positive value if the message was loggable
+     */
+    public static int i(java.lang.String tag, java.lang.String msg) {
+        if (_writing_enabled)
+            Write("I " + tag + " - " + msg);
+        if (BuildConfig.DEBUG) {
+            return android.util.Log.i(tag, msg);
+        }
+        return 0;
     }
 
     /**
@@ -146,13 +164,16 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int e(java.lang.String tag, java.lang.String msg) {
+        if (_writing_enabled) {
+            String _msg = "E " + tag + " - " + msg;
+            control.showErrorMessage(_msg);
+            Write(_msg);
+            addHTML(tag, "<red>" + _msg+ "</red>");
+        }
         if (BuildConfig.DEBUG) {
-            control.showErrorMessage(msg);
-            addHTML(tag, "<red>E " + msg+ "</red>");
-            Write("E " + tag + " - " + msg);
             return android.util.Log.e(tag, msg);
         }
-        else return 0;
+        return 0;
     }
 
     /**
@@ -164,17 +185,20 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int e(java.lang.String tag, java.lang.String msg, @NonNull Throwable tr) {
+        String _msg = "E " + tag + " - " + msg + ": "
+                + tr.toString()
+                + " called by "
+                + Arrays.toString(tr.getStackTrace());
+        if (_writing_enabled) {
+            addHTML(tag, _msg);
+
+            Write(_msg);
+            control.showErrorMessage(_msg);
+        }
         if (BuildConfig.DEBUG) {
-            control.showErrorMessage(msg);
-            msg = "E " + tag + " - " + msg + ": "
-                    + tr.toString()
-                    + " called by "
-                    + Arrays.toString(tr.getStackTrace());
-            addHTML(tag, msg);
-            Write(msg);
             return android.util.Log.e(tag, msg, tr);
         }
-        else  return 0;
+        return 0;
     }
 
     /**
@@ -185,11 +209,15 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int w(java.lang.String tag, java.lang.String msg) {
+        String _msg = "W " + tag + " - " + msg;
+        if (_writing_enabled) {
+            addHTML(tag, _msg);
+            Write(_msg);
+        }
         if (BuildConfig.DEBUG) {
-            Write("W " + tag + " - " + msg);
             return android.util.Log.w(tag, msg);
         }
-        else  return 0;
+        return 0;
     }
 
     public static void clearHTML () { _HTML_String = ""; }

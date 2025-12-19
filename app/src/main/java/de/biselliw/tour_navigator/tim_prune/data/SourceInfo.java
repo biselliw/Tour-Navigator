@@ -4,8 +4,8 @@ package de.biselliw.tour_navigator.tim_prune.data;
 import java.io.File;
 
 import androidx.annotation.NonNull;
-import de.biselliw.tour_navigator.tim.prune.data.FileType;
-import de.biselliw.tour_navigator.tim.prune.data.ExtensionInfo;
+import tim.prune.data.FileType;
+import tim.prune.data.ExtensionInfo;
 
 /**
  * Class to hold the source of the point data, including the original file
@@ -40,7 +40,6 @@ public class SourceInfo
 	private String _author = "";
 	private String _metaTime = "";
 	private String _link = "";
-	// private String _name = "";
 
 	/** Constructor giving just the file and its type, without a version */
 	public SourceInfo(File inFile, FileType inType) {
@@ -143,6 +142,12 @@ public class SourceInfo
 		_numPoints = inNumPoints;
 	}
 
+	/**
+	 * @return number of points from this source
+	 */
+	public int getNumPoints() {
+		return _numPoints;
+	}
 
 	/**
 	 * @return a string describing the extensions, or null if there aren't any
@@ -170,20 +175,6 @@ public class SourceInfo
 	public ExtensionInfo getExtensionInfo() {
 		return _extensionInfo;
 	}
-	
-
-	/* *
-	 * @return meta name
-	 * @author BiselliW
-	 * @since 22.2.006
-	 * /
-	@NonNull
-	public String getMetaName()
-	{
-		if (_name == null) return "";
-		return _name;
-	}
-     */
 
 	/**
 	 * @return meta time

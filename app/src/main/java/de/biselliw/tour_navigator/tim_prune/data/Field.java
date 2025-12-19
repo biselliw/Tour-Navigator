@@ -1,16 +1,17 @@
 package de.biselliw.tour_navigator.tim_prune.data;
 
-import de.biselliw.tour_navigator.tim.prune.data.FileType;
+import tim.prune.data.FileType;
 
 /**
  * Class to represent a field of a data point
+ * File type-specific fields are represented by subclasses (not used)
  * @implNote BiselliW: new fields WAYPT_SYM, WAYPT_DUR, WAYPT_FLAG, WAYPT_LINK
  * @since 26.1
 */
 public class Field
 {
 	private final String _labelKey;
-	private final FileType _fileType = null;
+	private final FileType _fileType;
 
 	public static final Field LATITUDE = new Field("latitude");
 	public static final Field LONGITUDE = new Field("longitude");
@@ -22,8 +23,6 @@ public class Field
 	public static final Field COMMENT = new Field("comment");
 	public static final Field SYMBOL = new Field("symbol");
 	public static final Field NEW_SEGMENT = new Field("newsegment");
-	private String _customLabel = null;
-
 
 //	public static final Field SPEED = new Field("speed");
 //	public static final Field VERTICAL_SPEED = new Field("verticalspeed");
@@ -32,9 +31,9 @@ public class Field
 	public static final Field PHOTO = new Field("photo");
 	public static final Field AUDIO = new Field("audio");
 
-	public static final Field WAYPT_DUR = new Field("fieldname.waypointdur", true);
-	public static final Field WAYPT_FLAG = new Field("fieldname.waypointflag", true);
-	public static final Field WAYPT_LINK = new Field("fieldname.waypointlink", true);
+	public static final Field WAYPT_DUR = new Field("fieldname.waypointdur");
+	public static final Field WAYPT_FLAG = new Field("fieldname.waypointflag");
+	public static final Field WAYPT_LINK = new Field("fieldname.waypointlink");
 
 
 	/** List of all the available built-in fields */
@@ -53,7 +52,7 @@ public class Field
 	private Field(String inLabelKey)
 	{
 		_labelKey = "fieldname." + inLabelKey;
-	//	_fileType = null;
+		_fileType = null;
 	}
 
 	/**
@@ -63,33 +62,7 @@ public class Field
 	protected Field(FileType inFileType)
 	{
 		_labelKey = null;
-	//	_fileType = inFileType;
-	}
-
-	/**
-	 * Private constructor
-	 * @param inLabelKey Key for label texts
-	 * @param inBuiltin true for built-in types, false for custom
-	 */
-	private Field(String inLabelKey, boolean inBuiltin)
-	{
-		if (inBuiltin) {
-			_labelKey = inLabelKey;
-			_customLabel = null;
-		}
-		else {
-			_labelKey = null;
-			_customLabel = inLabelKey;
-		}
-	}
-
-	/**
-	 * Public constructor for custom fields
-	 * @param // inLabel label to use for display
-	 * /
-	public Field(String inLabel)
-	{
-		this(inLabel, false);
+		_fileType = inFileType;
 	}
 
 	/**
@@ -97,10 +70,7 @@ public class Field
 	 */
 	public String getName()
 	{
-		if (_labelKey != null) {
-			return _labelKey;
-		}
-		return _customLabel;
+		if (_labelKey != null) return _labelKey; else return "";
 	}
 
 	public void setName(String inName) {

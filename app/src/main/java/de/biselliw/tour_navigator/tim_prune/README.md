@@ -3,7 +3,7 @@
 GpsPrune is a map-based application for viewing, editing and converting coordinate data from GPS systems.
 
 It's a cross-platform java application, and its home page is at
-<https://activityworkshop.net/software/gpsprune/>
+<a href="https://activityworkshop.net/software/gpsprune/">activityworkshop.net</a>
 
 ## Repository
 
@@ -13,15 +13,17 @@ On github you'll find all the sources:
 
 ## Sources used for Tour Navigator
 
-All source files below this folder were merged from GpsPrune version 26.1 
+All source files below this folder were merged from GpsPrune version26.1 (October 2025 
 and adapted to the needs of Tour Navigator
 
 ## License
 
+GpsPrune and Tour Navigator are licensed under the GPLv2:
 GpsPrune is licensed under the GNU General Public License v2.0 (GPLv2):
-<http://www.gnu.org/licenses/>
 
-Copyright (C) 2025 activityworkshop.net
+<a href="http://www.gnu.org/licenses/">GNU General Public License v2.0</a>
+
+Copyright (C) 2025 activityworkshop.net, Walter Biselli
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

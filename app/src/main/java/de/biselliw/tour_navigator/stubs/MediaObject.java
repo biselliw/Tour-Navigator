@@ -3,7 +3,7 @@ package de.biselliw.tour_navigator.stubs;
 import java.io.File;
 
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim.prune.data.Timestamp;
+import tim.prune.data.Timestamp;
 
 /**
  * Stub class to represent a general media object for correlation.

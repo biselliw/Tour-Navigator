@@ -36,20 +36,14 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
 
 import java.util.ArrayList;
 import java.util.Stack;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-
-import de.biselliw.tour_navigator.tim.prune.data.ExtensionInfo;
+import tim.prune.data.ExtensionInfo;
+import tim.prune.data.FieldGpx;
+import tim.prune.data.FieldXml;
+import tim.prune.data.FileType;
+import tim.prune.load.xml.GpxTag;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.tim.prune.data.FieldGpx;
-import de.biselliw.tour_navigator.tim.prune.data.FieldXml;
-import de.biselliw.tour_navigator.tim.prune.data.FileType;
-
-
-import de.biselliw.tour_navigator.helpers.Log;
-import de.biselliw.tour_navigator.tim.prune.load.xml.GpxTag;
-
 
 /**
  * Class for handling specifics of parsing Gpx files
@@ -59,6 +53,7 @@ import de.biselliw.tour_navigator.tim.prune.load.xml.GpxTag;
  * @see <a href="https://docs.oracle.com/javase/7/docs/api/org/xml/sax/package-summary.html">Package org.xml.sax</a>
  * @author tim.prune
  * @implNote BiselliW: new GPX tags (WAYPT_CMT), new order of point fields in class Field
+ * @todo replace package org.xml.sax by the SAX2 Attributes interface
  *
  */
  /* new order of point fields (old one):<ul></ul>
@@ -70,7 +65,7 @@ import de.biselliw.tour_navigator.tim.prune.load.xml.GpxTag;
  * * - 4 ( ) : TIMESTAMP (_time)
  * * - 5 ()  : WAYPT_CMT (_comment)
  * * - 6 (7) : DESCRIPTION
- * * - 7 ()  : WAYPT_DUR (Pause)
+ * * - 7 ()  : WAYPT_DUR (break)
  * * - 8 (6) : WAYPT_TYPE (_type)
  * * - 9 ()  : WAYPT_SYM symbol name
  * * -10 (5) : NEW_SEGMENT 1 if _startSegment && !_insideWaypoint
@@ -78,13 +73,12 @@ import de.biselliw.tour_navigator.tim.prune.load.xml.GpxTag;
  * * -12 ()  : WAYPT_LINK
  */
 
-// todo replace package org.xml.sax by the SAX2 Attributes interface
 public class GpxHandler extends XmlHandler {
     /**
      * TAG for log messages.
      */
     static final String TAG = "GpxHandler";
-    private static final boolean DEBUG = true; // Set to true to enable logging
+    private static final boolean DEBUG = false; // Set to true to enable logging
 
     private boolean _insidePoint = false;
     private boolean _insideWaypoint = false;
@@ -92,10 +86,9 @@ public class GpxHandler extends XmlHandler {
     private boolean _startSegment = true;
 
     // Extensions by BiselliW
-    private boolean _storeExtensions = false;
+    private final boolean _storeExtensions = false;
     private boolean _insideMetaData = false;
     private boolean _metaAuthorSet = false;
-    private boolean _insideTrack = false;
     private boolean _isTrackPoint = false;
 
     private int _trackNum = -1;
@@ -108,29 +101,26 @@ public class GpxHandler extends XmlHandler {
 
 
     // Extensions by BiselliW
-    private GpxTag _fileAuthor = new GpxTag(), _duration = new GpxTag();
+    private final GpxTag _fileAuthor = new GpxTag();
+    private final GpxTag _duration = new GpxTag();
 
     private GpxTag _currentTag = null;
     private final ExtensionInfo _extensionInfo = new ExtensionInfo();
     private final ArrayList<String[]> _pointList = new ArrayList<>();
     private final ArrayList<String> _linkList = new ArrayList<>();
 
-//    private TrackNameList _trackNameList = new TrackNameList();
-
     private boolean _isOutdooractive = false;
 
     private Stack<String> _extensionTags = null;
     private FieldGpx _gpxField = null;
 
-
-    private GpxTag _source = new GpxTag();
-    private String _OutdooractiveSrcPrefix = "outdooractive.21430.";
+    private final GpxTag _source = new GpxTag();
+    private final String _OutdooractiveSrcPrefix = "outdooractive.21430.";
     private String _OutdooractiveSrcPostfix = ".21430.";
-    private String _OutdooractiveLink = "https://www.schwarzwaldverein-tourenportal.de/poi/";
-    private String _toubizPrefix = "toubiz-"; // "toubiz-tta-poi.21430.";
-    private String _toubizLink = "https://www.schwarzwald-tourismus.info/attraktionen/";
+    private final String _OutdooractivePoiLink = "https://www.schwarzwaldverein-tourenportal.de/poi/";
+    private final String _toubizPrefix = "toubiz-"; // "toubiz-tta-poi.21430.";
+    private final String _toubizLink = "https://www.schwarzwald-tourismus.info/attraktionen/";
     private boolean _isFirstTrackPoint = true;
-
 
     /**
      * Constructor, setting up the fields
@@ -149,7 +139,6 @@ public class GpxHandler extends XmlHandler {
             addField(field);
         }
     }
-
 
     /**
      * Receive the start of a tag
@@ -244,7 +233,7 @@ public class GpxHandler extends XmlHandler {
         } else if (tag.equals("link")) {
 			_link.setValue(attributes.getValue("href"));
 		}
-		else if (tag.equals("pause")) {
+		else if (tag.equals("break")) {
 			_currentTag = _duration;
 		}		
 		else if (tag.equals("trkseg")) {
@@ -287,10 +276,9 @@ public class GpxHandler extends XmlHandler {
     }
 
 
-    /**
-     * Process the attributes from the main gpx tag including extensions
-     */
-    private void processGpxAttributes(Attributes attributes) {
+	/** Process the attributes from the main gpx tag including extensions */
+	private void processGpxAttributes(Attributes attributes)
+	{
         // System.out.println("Start gpx element: " + qName);
         final int numAttributes = attributes.getLength();
         for (int i = 0; i < numAttributes; i++) {
@@ -305,9 +293,9 @@ public class GpxHandler extends XmlHandler {
                 _extensionInfo.setXsi(attrValue);
             } else if (attributeName.equals("xsi:schemalocation")) {
                 String[] schemas = attrValue.split(" ");
-                for (int s = 0; s < schemas.length; s++) {
-                    _extensionInfo.addXsiAttribute(schemas[s]);
-                }
+            for (String schema : schemas) {
+                _extensionInfo.addXsiAttribute(schema);
+            }
             } else if (attributeName.startsWith("xmlns:")) {
                 String prefix = attributeName.substring(6);
                 _extensionInfo.addNamespace(prefix, attrValue);
@@ -342,7 +330,7 @@ public class GpxHandler extends XmlHandler {
                     if (source.startsWith(_OutdooractiveSrcPrefix)) {
                         source = source.substring(_OutdooractiveSrcPrefix.length());
                         // link is only allowed to web site - no app!
-                        _link.setValue(_OutdooractiveLink.concat(source));
+                        _link.setValue(_OutdooractivePoiLink.concat(source));
                     }
                     // Create Toubiz link to a POI if no web link is provided
                     else if (source.startsWith(_toubizPrefix)) {
@@ -405,7 +393,7 @@ public class GpxHandler extends XmlHandler {
                 }
                 _currentTag.clear();
             }
-			_gpxField = null;
+            _gpxField = null;
 		}
 		else if (_insidePoint && _currentTag != null && getFileVersion().equals("1.0"))
 		{
@@ -464,20 +452,16 @@ public class GpxHandler extends XmlHandler {
 	 * Check to concatenate partially-received values, if necessary
 	 * @param inVariable variable containing characters received until now
 	 * @param inValue new value received
+     * @implNote BiselliW: replace "\n" with "<br>"
 	 * @return concatenation
-     */
-    private static String checkCharacters(String inVariable, String inValue) {
-        String ret;
-        if (inVariable == null) {
-            ret = inValue;
-            // if (DEBUG) Log.d(TAG, "checkCharacters (null," + inValue + ") -> " + ret);
-        } else {
-            ret = inVariable + inValue;
-            // if (DEBUG) Log.d(TAG, "checkCharacters (" + inVariable + "," + inValue + ") -> " + ret);
-        }
-
-        return ret;
-    }
+	 */
+	private static String checkCharacters(String inVariable, String inValue)
+	{
+		if (inVariable == null) {
+			return inValue;
+		}
+		return inVariable + inValue.replace("\n","<br>");
+	}
 
 
     /**
@@ -503,31 +487,9 @@ public class GpxHandler extends XmlHandler {
      * Process a point, either a waypoint or track point
      *
      * @implNote new GPX tags (WAYPT_CMT), new order of point fields in class Field
-     * @since 22.2.006
      */
     private void processPoint() {
-        // Put the values into a String array matching the order in getFieldArray()
-/*
-		final Field[] fields = {Field.LATITUDE, Field.LONGITUDE, Field.ALTITUDE,
-			Field.WAYPT_NAME, Field.TIMESTAMP, Field.NEW_SEGMENT,
-			Field.WAYPT_TYPE, Field.DESCRIPTION, Field.COMMENT, Field.SYMBOL};
-
-		String[] values = new String[13];
-		final Field[] fields = {Field.WAYPT_NAME,
-			Field.LATITUDE, Field.LONGITUDE, Field.ALTITUDE, 
-			Field.TIMESTAMP, 
-			Field.COMMENT, 
-			Field.DESCRIPTION, Field.WAYPT_DUR, Field.WAYPT_TYPE, Field.WAYPT_SYM, 
-			Field.NEW_SEGMENT, 
-			Field.WAYPT_FLAG,
-			Field.WAYPT_LINK};
-
-
-		_pointList.add(values);
-*/
-
-        // if (DEBUG) Log.d(TAG, "processPoint " + _pointName.getValue());
-
+		// Values go into a String array matching the order in getFieldArray()
 		addCurrentValue(Field.ALTITUDE, _elevation.getValue());
 		if (_insideWaypoint) {
 			addCurrentValue(Field.WAYPT_NAME, _pointName.getValue());
@@ -539,29 +501,26 @@ public class GpxHandler extends XmlHandler {
 			_startSegment = false;
 		}
 		addCurrentValue(Field.WAYPT_TYPE, _type.getValue());
-		addCurrentValue(Field.DESCRIPTION, _description.getValue());
-		addCurrentValue(Field.COMMENT, _comment.getValue());
+        if (!_description.getValue().isEmpty())
+		    addCurrentValue(Field.DESCRIPTION, _description.getValue().replace(" / ","<br>"));
+		addCurrentValue(Field.COMMENT, _comment.getValue().replace(" / ","<br>"));
 		addCurrentValue(Field.SYMBOL, _sym.getValue());
         if (!_insideWaypoint && !_sym.getValue().isEmpty()) {
             addCurrentValue(Field.WAYPT_NAME, _pointName.getValue());
         }
 
-        addCurrentValue(Field.WAYPT_DUR, _duration.getValue()); // Pause
+        addCurrentValue(Field.WAYPT_DUR, _duration.getValue()); // break
 
         // Field.WAYPT_FLAG
         addCurrentValue(Field.WAYPT_FLAG, !_isTrackPoint ? "1" : "0");
         addCurrentValue(Field.WAYPT_LINK, _link.getValue());
 
-        _pointList.add(getCurrentValues());
-
-//        _trackNameList.addPoint(_trackNum, _trackName.getValue(), _isTrackPoint);
-        _linkList.add(_link.getValue());
-//		if (DEBUG)	Log.d(TAG, "processPoint "+values[0]);
-        // if (DEBUG) Log.d(TAG, "processPoint End: " + _pointName.getValue());
-    }
+		_pointList.add(getCurrentValues());
+		_linkList.add(_link.getValue());
+	}
 
 
-	/**
+    /**
 	 * Return the parsed information as a 2d array
 	 * @see XmlHandler#getDataArray()
 	 */
@@ -595,18 +554,12 @@ public class GpxHandler extends XmlHandler {
 		return result;
 	}
 
-    /**
-     * @return track name list
-     * @since 26.1 removed from GPsPrune
-     */
-//    public TrackNameList getTrackNameList() {      return _trackNameList;     }
-
-    /**
-     * @return file title
-     */
-    public String getFileTitle() {
-        return _fileTitle.getValue();
-    }
+	/**
+	 * @return file title
+	 */
+	public String getFileTitle() {
+		return _fileTitle.getValue();
+	}
 
 	/**
 	 * @return file description
@@ -629,5 +582,4 @@ public class GpxHandler extends XmlHandler {
     }
 
     public String getAuthor() { return metaAuthor; }
-
 }

@@ -26,6 +26,7 @@ android {
     }
      buildFeatures {
         viewBinding false // causes timing issues
+        android.buildFeatures.buildConfig = true
     }
     
     compileOptions {

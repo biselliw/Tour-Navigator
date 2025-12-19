@@ -72,46 +72,6 @@ public class TourDetails {
     }
 
     /**
-     * Check if File Info is available
-     * @return true if File Info is available
-     * /
-    public boolean isFileInfoAvailable() {
-        String description = "";
-        SourceInfo sourceInfo = App.getSourceInfo();
-        if (sourceInfo != null)
-            description = sourceInfo.getFileDescription();
-
-        return (!description.isEmpty());
-    }
-
-
-    /**
-     * @param inPlace row index of the table
-     * @return true description of the route point or its linked one if available
-     * /
-    public String getRoutePointDescription(int inPlace) {
-        String description = "";
-
-        if ((inPlace >= 0) && (inPlace < recordAdapter.getCount())) {
-            RecordAdapter.Record record = recordAdapter.getItem(inPlace);
-            DataPoint point = record.getTrackPoint();
-            if (point != null) {
-                description = point.getDescription();
-                if (description.isEmpty()) {
-                    if (point.getLinkIndex() >= 0) {
-                        point = app.getPoint(point.getLinkIndex());
-                        if (point != null) {
-                            description = point.getDescription();
-                        }
-                    }
-                }
-            }
-        }
-        return description;
-    }
-    */
-
-    /**
      * Interpret the Waypoint symbol provided by outdooractive GPX files
      * @param symbol outdooractive specific waypoint symbol
      * @return interpreted string
@@ -144,8 +104,8 @@ public class TourDetails {
         AdditionalInfo info = new AdditionalInfo();
 
         /* provide info from GPX file */
-        info.comment = app.trackName;
-        info.title = app.trackName;
+        info.comment = "";
+        info.title = "";
         info.description = "";
         info.link = "";
         SourceInfo sourceInfo = App.getSourceInfo();

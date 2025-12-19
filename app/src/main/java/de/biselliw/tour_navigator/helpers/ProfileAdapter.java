@@ -75,14 +75,16 @@ import java.util.Observer;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
+
+import static de.biselliw.tour_navigator.data.TrackTiming.trackTiming;
 
 public class ProfileAdapter {
 
-    private MainActivity _main;
-    private App _app;
+    private final MainActivity _activity;
+    private final App _app;
 
     int numPoints = 0;
     Number lastDistance = 0;
@@ -100,8 +102,8 @@ public class ProfileAdapter {
 
     LineAndPointFormatter lineFormatter;
 
-    public ProfileAdapter(MainActivity main, App app) {
-        this._main = main;
+    public ProfileAdapter(MainActivity activity, App app) {
+        this._activity = activity;
         this._app = app;
 
         createPlot();
@@ -124,7 +126,7 @@ public class ProfileAdapter {
 
     public void createPlot() {
         // get handles to our View defined in layout.xml:
-        dynamicPlot = (XYPlot) _main.findViewById(R.id.plot);
+        dynamicPlot = (XYPlot) _activity.findViewById(R.id.plot);
 
         MyPlotUpdater plotUpdater = new MyPlotUpdater(dynamicPlot);
 
@@ -249,7 +251,7 @@ public class ProfileAdapter {
                     // show current altitude
                     String title = String.valueOf(altitude);
                     dynamicPlot.setTitle(title + " m");
-                    return _app.getMaxAltitude();
+                    return trackTiming.getMaxAltitude();
                 }
                 else return 0;
             }
@@ -308,7 +310,7 @@ public class ProfileAdapter {
                 numPoints = _track.getNumPoints();
                 // set the horizontal grid steps
                 if (numPoints > 0) {
-                    double totalDistance = _app.getTotalDistance();
+                    double totalDistance = trackTiming.getTotalDistance();
                     if (totalDistance > 0.0) {
                         double domainStepValue = 2.5;
                         int domainSteps = (int) (totalDistance / domainStepValue);
@@ -325,8 +327,8 @@ public class ProfileAdapter {
 
                         // set the vertical grid steps
                         double rangeStepValue = 25.0;
-                        int minAltitude = (int) _app.getMinAltitude();
-                        int maxAltitude = (int) _app.getMaxAltitude();
+                        int minAltitude = (int) trackTiming.getMinAltitude();
+                        int maxAltitude = (int) trackTiming.getMaxAltitude();
                         int rangeAltitude = maxAltitude - minAltitude;
                         int rangeSteps = rangeAltitude / (int)rangeStepValue;
                         while (rangeSteps > 5) {
@@ -369,7 +371,7 @@ public class ProfileAdapter {
     {
         if (profileRegion != null)
             lineFormatter.removeRegion(profileRegion);
-        profileRegion = new RectRegion(minX, maxX, 0.0, _app.getMaxAltitude(), "Short");
+        profileRegion = new RectRegion(minX, maxX, 0.0, trackTiming.getMaxAltitude(), "Short");
         if (profileRegionFormatter == null)
             profileRegionFormatter = new XYRegionFormatter(Color.YELLOW);
 

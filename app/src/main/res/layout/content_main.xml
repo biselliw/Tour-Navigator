@@ -97,14 +97,6 @@
         </TableRow>
     </TableLayout>
 
-    <SeekBar
-        android:id="@+id/seekBar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="0" />
-
     <TextView
         android:id="@+id/main_text_title"
         android:layout_width="match_parent"
@@ -210,11 +202,11 @@
             android:id="@+id/plot"
             style="@style/APDefacto.Light"
             android:layout_width="fill_parent"
-            android:layout_height="280dp"
+            android:layout_height="fill_parent"
             app:lineLabelRotationBottom="-45"
             app:lineLabels="left|bottom"
             app:rangeTitle="@string/altitude_m"
-            app:graphPaddingBottom="0dp"
+            app:graphPaddingBottom="-20dp"
             app:title="@string/profile" />
     </LinearLayout>
 
@@ -308,6 +300,22 @@
             android:onClick="expand_less"
             android:visibility="gone"
             app:srcCompat="@drawable/expand_less" />
+
+        <ImageButton
+            android:id="@+id/image_text_to_speech"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="text_to_speech"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/text_to_speech" />
+
+        <ImageButton
+            android:id="@+id/image_voice_selection_off"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:onClick="voice_selection_off"
+            android:visibility="invisible"
+            app:srcCompat="@drawable/voice_selection_off" />
 
         <ImageButton
             android:id="@+id/image_show_profile"

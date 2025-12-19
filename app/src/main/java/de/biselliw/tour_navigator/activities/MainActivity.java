@@ -24,12 +24,15 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
+import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,19 +48,23 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.LocationService;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.AppState;
+import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
-import de.biselliw.tour_navigator.dialogs.PauseTimeDialog;
+import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
@@ -70,7 +77,6 @@ import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static de.biselliw.tour_navigator.activities.SettingsActivity._app;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
 
 /**
@@ -97,10 +103,21 @@ public class MainActivity extends LocationActivity  implements
     SharedPreferences sharedPref = null;
     boolean firstStart = false;
 
+    Time _startTime = null;
+
+    Handler timerHandler = new Handler();
+
+
     @SuppressLint({"ResourceType", "MissingSuperCall"})
     @Override
+    /*
+     * One-time initialization
+     */
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i(TAG,"onCreate");
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Load preferences
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -110,29 +127,52 @@ public class MainActivity extends LocationActivity  implements
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
         super.app = new App(this);
-        super.pa = new ProfileAdapter(this, super.app);
 
-        SettingsActivity.getPreferences(sharedPref, super.app);
+        profileAdapter = new ProfileAdapter((MainActivity)this, super.app);
+        /* create a table of waypoints */
+        recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
+
+        SettingsActivity.getPreferences(sharedPref);
 
         gpxExporter = new GpxExporter();
+
+        /* Install a timer to handle all activities */
+        Runnable timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                main_runner();
+                timerHandler.postDelayed(this, _timerPeriod_ms);
+            }
+        };
+        timerHandler.postDelayed(timerRunnable, 1000);
     }
 
     @Override
+    /*
+     * Within the Android Activity lifecycle, onStart() is invoked
+     * - within One-time initialization after onCreate() and before onPostCreate()
+     * - between onRestart() and onResume(),
+     * at the point where the Activity is becoming visible to the user but is not yet in the foreground for interaction.
+     * Primary Responsibility: Acquire resources needed while visible
+     */
     public void onStart() {
+        Log.i(TAG,"onStart");
         super.onStart();
-        // Log.getMemoryInfo();
     }
 
     @Override
+    /*
+     * Within the Android Activity lifecycle, onPostCreate() is invoked after onCreate() and onStart()
+     * Primary Responsibility:
+     */
     protected void onPostCreate(Bundle savedInstanceState) {
+        Log.i(TAG,"onPostCreate");
         super.onPostCreate(savedInstanceState);
         super.main = this;
         mNavigationView.setNavigationItemSelectedListener(this);
         selectNavigationItem(R.id.nav_open_gpx);
 
         htmlFile = new HTML_File(this, recordAdapter);
-
-        Log.d (TAG, "onPostCreate");
 
         // Handle a received intent from another app
         Intent intent = getIntent();
@@ -154,39 +194,35 @@ public class MainActivity extends LocationActivity  implements
                 OpenFileGPX(AppState.getGpxSimulationUri());
             } else if (AppState.isGpxFileCached())
                 OpenCachedFileGPX();
+        } else {  // normal start:
+            FileUtils.clearAppCache(this);
         }
     }
 
-    /**
-     * The system can drop the activity from memory by simply killing its process, making it destroyed.
-     * When it is displayed again to the user, it must be completely restarted and restored to its previous state
-     * see <a href="https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle)">
-       Activity Lifecycle</a> on developer.android.com
+    @Override
+    /*
+     * Within the Android Activity lifecycle, onRestart() is invoked
+     * after onStop()
+     * Primary Responsibility:
      */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // app.State.setGpxFileCached(gpxFileCached);
-        AppState.putValues(outState);
-        Log.d(TAG,"onSaveInstanceState("+outState.toString()+")");
-        Log.Close();
-    }
-
-
-
-    @Override
     public void onRestart() {
-        Log.d(TAG,"Restart");
+        Log.i(TAG,"onRestart");
         super.onRestart();
         AppState.restarted = true;
     }
 
-
     @Override
-    public void onStop() {
-        Log.d(TAG,"onStop");
-        super.onStop();
-        AppState.stopped = true;
+    /*
+     * Within the Android Activity lifecycle, onResume() is invoked
+     * after onPostCreate()
+     * after onStart()
+     * Primary Responsibility:
+     */
+    public void onResume() {
+        Log.i(TAG,"onResume");
+        recordAdapter.notifyDataSetChanged();
+        super.onResume();
+        AppState.setPaused(false);
     }
 
     @Override
@@ -194,8 +230,10 @@ public class MainActivity extends LocationActivity  implements
      * This method is called when the app is no longer in the foreground and is partially visible.
      * This can happen when the user switches to another app or when the screen is turned off.
      * onPause() is a good place to save any unsaved data or state changes before the app is paused.
+     * Primary Responsibility: Release interaction-related resources
      */
     public void onPause() {
+        Log.i(TAG,"onPause");
         // Save the GPX file in the cache?
         if (control.updateGpxFile) {
             AppState.setGpxFileCached(SaveFileGPX());
@@ -207,12 +245,15 @@ public class MainActivity extends LocationActivity  implements
     }
 
     @Override
-    public void onResume() {
-        recordAdapter.notifyDataSetChanged();
-        super.onResume();
-        AppState.setPaused(false);
+    /*
+     * This method is called after onPause()
+     * Primary Responsibility: Release visibility-related resources
+     */
+    public void onStop() {
+        Log.i(TAG,"onStop");
+        super.onStop();
+        AppState.stopped = true;
     }
-
 
     @Override
     public void onLowMemory() {
@@ -233,7 +274,23 @@ public class MainActivity extends LocationActivity  implements
     }
 
     @Override
+    /*
+     * Within the Android Activity lifecycle, onSaveInstanceState() is invoked
+     * after onStop()
+     * before the system may drop the activity from memory by simply killing its process, making it destroyed.
+     * Primary Responsibility: save the state of the activity to completely restore it to its previous state after a restart
+     * @see <a href="https://developer.android.com/reference/android/app/Activity#onSaveInstanceState(android.os.Bundle)">
+     *      Activity Lifecycle</a> on developer.android.com
+     */
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i(TAG,"onSaveInstanceState()");
+        Log.Close();
+    }
+
+    @Override
     protected void onDestroy() {
+        Log.i(TAG,"onDestroy");
         super.onDestroy();
         AppState.destroyed = true;
     }
@@ -332,7 +389,6 @@ public class MainActivity extends LocationActivity  implements
         } else if (id == R.id.nav_start_time) {
             /* Change the start time of the tour */
             changeStartTime();
-            super.app.Update();
             return true;
         } else if (id == R.id.nav_reverse_route) {
             super.app.reverseRoute();
@@ -431,9 +487,9 @@ public class MainActivity extends LocationActivity  implements
             });
 
     /**
-     *  Change the start time of the tour
+     * Change the start time of the tour
      */
-    void changeStartTime() {
+    private void changeStartTime() {
         if (recordAdapter.getCount() > 0) {
             StartTimeDialog startTimeDialog = new StartTimeDialog(MainActivity.this, recordAdapter);
             startTimeDialog.show();
@@ -441,12 +497,24 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
+     * Notify the application of the changed start time of the tour
+     */
+    public void notifyStartTimeChanged(Time inStartTime) {
+        _startTime = inStartTime;
+    }
+
+    protected void onStartTimeChanged(Time inStartTime) {
+        super.onStartTimeChanged(_startTime);
+        app.Update();
+    }
+
+    /**
      * Change the pause time of the current waypoint
      */
     void changePauseTime() {
         if (recordAdapter.getPlace() > 0) {
-            PauseTimeDialog pauseTimeDialog = new PauseTimeDialog(MainActivity.this, recordAdapter, super.app);
-            pauseTimeDialog.show();
+            BreakTimeDialog breakTimeDialog = new BreakTimeDialog(MainActivity.this, recordAdapter, super.app);
+            breakTimeDialog.show();
         }
     }
 
@@ -456,8 +524,8 @@ public class MainActivity extends LocationActivity  implements
     public void commentRoutePoint()
     {
         Intent intent = new Intent(this, CommentActivity.class);
-            startActivity(intent);
-            overridePendingTransition(0, 0);
+        startActivity(intent);
+        overridePendingTransition(0, 0);
     }
 
     /**
@@ -479,7 +547,7 @@ public class MainActivity extends LocationActivity  implements
                 if (track != null) {
                     if ((record.trackPointIndex >= 0) && (record.trackPointIndex < track.getNumPoints())) {
                         track.deletePoint(record.trackPointIndex);
-                        _app.Update();
+                        app.Update();
                     }
                 }
             }
@@ -494,11 +562,11 @@ public class MainActivity extends LocationActivity  implements
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-                Track track = App.getTrack();
+                TrackDetails track = App.getTrack();
                 if (track != null) {
                     track.deleteRange(record.trackPointIndex+1,track.getNumPoints()-1);
-                    _app.Update();
-                    super.pa.initPlot();
+                    app.Update();
+                    super.profileAdapter.initPlot();
                 }
             }
         }
@@ -589,7 +657,7 @@ public class MainActivity extends LocationActivity  implements
      * @link <a href="https://developers.google.com/maps/documentation/urls/get-started#directions-action">developers.google.com</a>
      * @link <a href="https://bitcoden.com/answers/launching-google-maps-directions-via-an-intent-on-android">bitcoden.com</a>
      */
-   public void runGoogleMaps() {
+    public void runGoogleMaps() {
         if (recordAdapter.getCount() > 0) {
             /* Get destination coordinates */
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
@@ -616,7 +684,7 @@ public class MainActivity extends LocationActivity  implements
 
     /**
      * set active navigation item
-     * @param itemId index of the route point within the record list
+     * @param itemId index of the menu item
      */
     private void selectNavigationItem(int itemId) {
         for (int i = 0; i < mNavigationView.getMenu().size(); i++) {
@@ -684,6 +752,8 @@ public class MainActivity extends LocationActivity  implements
      */
     public void OpenFileGPX() {
         AppState.clearNavigationState();
+        Log.clearHTML();
+        clearErrorMessage();
         registerActivityResultLauncherOpenDocument();
     }
 
@@ -693,8 +763,8 @@ public class MainActivity extends LocationActivity  implements
      */
     void OpenFileGPX(final Intent data) {
         AppState.clearNavigationState();
-        // delete any previously used cache
-        // FileUtils.deleteDocumentCacheDir(this);
+        resetGpsIndex();
+        Log.clearHTML();
         clearErrorMessage();
 
         Uri uriFile = data.getData(); //The uri with the location of the file
@@ -716,7 +786,7 @@ public class MainActivity extends LocationActivity  implements
                 try {
                     assert uriFile != null;
                     _xmlStream = this.getContentResolver().openInputStream(uriFile);
-                    app.gpxUri = uriFile;
+                    App.gpxUri = uriFile;
                 } catch (FileNotFoundException e) {
 //                    e.printStackTrace();
                 }
@@ -746,7 +816,7 @@ public class MainActivity extends LocationActivity  implements
                 assert uri != null;
                 OutputStream _xmlStream = cr.openOutputStream(uri, "w");
                 OutputStreamWriter writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
-                GpxExporter.downloadData(writer,_app.getTrackInfo());
+                GpxExporter.downloadData(writer,app.getTrackInfo());
 
                 // exchange wrong file extension provided by Android: *.gpx (x) > * (x).gpx
                 try {
@@ -786,7 +856,7 @@ public class MainActivity extends LocationActivity  implements
      */
     public void OpenFileGPX(Uri uriFile ) {
         try {
-            InputStream _xmlStream = null;
+            InputStream _xmlStream;
             try {
                 assert uriFile != null;
                 _xmlStream = this.getContentResolver().openInputStream(uriFile);
@@ -834,7 +904,7 @@ public class MainActivity extends LocationActivity  implements
             // Open a FileOutputStream to write to the file
             FileOutputStream xmlStream = new FileOutputStream(file);
             OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
-            return (GpxExporter.downloadData(writer,_app.getTrackInfo()) > 0);
+            return (GpxExporter.downloadData(writer,app.getTrackInfo()) > 0);
         } catch (IOException e) {
             Log.e(TAG,"SaveFileGPX()", e);
         }
@@ -861,6 +931,7 @@ public class MainActivity extends LocationActivity  implements
      */
     public void pauseTracking(View view) {
         clearErrorMessage();
+        stopService(new Intent(this, LocationService.class));
         control.setTrackingStatus(false);
     }
 
@@ -871,6 +942,13 @@ public class MainActivity extends LocationActivity  implements
      */
     public void continueTracking(View view) {
         clearErrorMessage();
+
+//        if (gpsSimulation == null)
+        {
+            Intent intent = new Intent(this, LocationService.class);
+            ContextCompat.startForegroundService(this, intent);
+        }
+
         control.setTrackingStatus(true);
     }
 
@@ -895,6 +973,19 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
+     * Speaks the description text
+     * @implNote call back from XML
+     * @param view View provided from XML
+     */
+    public void text_to_speech(View view) {
+        speakAddInfo();
+    }
+
+    public void voice_selection_off(View v) {
+        stopSpeaking();
+    }
+
+    /**
      * Hide the altitude profile
      * @implNote call back from XML
      * @param view View provided from XML
@@ -914,4 +1005,18 @@ public class MainActivity extends LocationActivity  implements
         control.activateProfile(View.VISIBLE);
     }
 
+    /*
+     * --------------------------------------------------------------------------------------------
+     * Private methods
+     * --------------------------------------------------------------------------------------------
+     */
+
+    private void main_runner() {
+        if (_startTime != null)
+        {
+            onStartTimeChanged(_startTime);
+            _startTime = null;
+        }
+        super.runner ();
+    }
 }

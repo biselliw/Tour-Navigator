@@ -46,14 +46,8 @@ public class GpsSimulator {
     private static TimeZone timeZone;
 
     /**
-     * GPS simulator with replay functionality
-     */
-    public static GpsSimulator gpsSimulation = null;
-
-    /**
      * constructor for class GpsSimulator
-     *
-     * @param track track data for the initial recorded track
+     * @param track track data from a recorded track
      */
     public GpsSimulator(Track track)
     {
@@ -106,12 +100,6 @@ public class GpsSimulator {
             location.setLongitude(dataPoint.getLongitude().getDouble());
             location.setLatitude(dataPoint.getLatitude().getDouble());
             location.setTime(dataPoint.getTimestamp().getMilliseconds(timeZone));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                /* declare the location as mock (faked GPS location intentionally provided to an
-                    Android device for GPS simulation instead of the real location)
-                 */
-                location.setMock(true);
-            }
             return location;
         }
         else

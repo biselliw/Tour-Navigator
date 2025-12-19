@@ -34,8 +34,8 @@
     <string name="action_about">About</string>
     <string name="action_tutorial">Tutorial</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
     <!-- ###MAIN### -->
     <string name="main_button_text">Full Width Button</string>
@@ -52,13 +52,14 @@
     <string name="wait_user_start">Let\'s start</string>
     <string name="goto_start_pos">Go To Start</string>
     <string name="on_track">Follow the track</string>
-    <string name="returnto_track">Go back to the track</string>
+    <string name="return_to_track">Go back to the track</string>
     <string name="wait_gps">Waiting for GPS location</string>
     <string name="dest_reached">You reached the destination</string>
     <string name="dest_failed">You failed the destination!</string>
+    <string name="pausing">"BREAK: Continue in "</string>
 
     <!-- ###Menu Items###-->
-    <string name="pause_time">Pause Time</string>
+    <string name="pause_time">Break Time</string>
     <string name="comment_waypoint">Comment Waypoint</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
     <string name="nav_google">Google-Navigate</string>
@@ -127,8 +128,6 @@
     <string name="pref_header_alarm_parameters">Alarms</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>
     <string name="pref_hiking_par_alarm_summary">Only available with app in foreground: signal leaving the track with vocational warning</string>
-    <string name="pref_hiking_par_autoStart">Restart auto</string>
-    <string name="pref_hiking_par_autoStart_summary">Restart tracking at previous point</string>
     <string name="pref_header_consent_parameters">Consents</string>
     <string name="consent">Consent</string>
     <string name="decline">Decline</string>
@@ -157,16 +156,18 @@
     <string name="DTD">to Dest."</string>
 
     <!-- ### GPX File ###-->
-    <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
-    <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
-    <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
-    <string name="gpx_error_no_altitudes">Die GPX-Datei enthält keine Höhenwerte</string>
-    <string name="gpx_info_simulation">Die GPX-Datei wird zur GPS-Simulation genutzt</string>
+    <string name="error_invalid_gpx_file">No valid GPX file</string>
+    <string name="gpx_error_no_points">The GPX file contains no points</string>
+    <string name="gpx_error_no_trackpoints">The GPX file contains no track points</string>
+    <string name="gpx_error_no_waypoints">The GPX file contains no way points</string>
+    <string name="gpx_error_no_altitudes">The GPX file contains no altitude values</string>
+    <string name="gpx_info_simulation">The GPX file will be used for GPS simulation</string>
 
     <!-- ### TOUR ###-->
     <string name="tour_add_info">Further informationen to the tour</string>
     <string name="tour_author">Author of the tour</string>
     <string name="tour_link">Link to the tour</string>
+    <string name="tour_link_swv">in the <a href="https://www.schwarzwaldverein-tourenportal.de/">tour portal of Black Forest club</a></string>
     <string name="tour_updated">Last updated</string>
 
     <!-- ### TIMETABLE ###-->
@@ -199,5 +200,4 @@
     <string name="waypointFlagComb">"Trackpoint"</string>
 
     <string name="profile">"Profile"</string>
-
 </resources>

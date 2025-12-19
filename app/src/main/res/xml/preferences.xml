@@ -32,14 +32,6 @@
             android:title="@string/pref_hiking_par_alarm"
             android:summary="@string/pref_hiking_par_alarm_summary"
             android:defaultValue="true"/>
-
-        <SwitchPreference
-            android:id="@+id/pref_hiking_par_autostart"
-            android:key="pref_hiking_par_autostart"
-            android:title="@string/pref_hiking_par_autoStart"
-            app:isPreferenceVisible="false"
-            android:summary="@string/pref_hiking_par_autoStart_summary"
-            android:defaultValue="true"/>
     </PreferenceCategory>
 
     <PreferenceCategory

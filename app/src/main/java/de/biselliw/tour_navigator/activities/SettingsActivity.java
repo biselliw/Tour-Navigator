@@ -21,6 +21,7 @@ package de.biselliw.tour_navigator.activities;
 */
 
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -32,11 +33,10 @@ import android.view.MenuItem;
 import android.view.View;
 
 import androidx.appcompat.app.ActionBar;
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.AppCompatPreferenceActivity;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import de.biselliw.tour_navigator.data.TrackDetails;
+import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.helpers.Log;
 
 /**
@@ -46,17 +46,17 @@ import de.biselliw.tour_navigator.helpers.Log;
  * @todo migrate to <a href="https://developer.android.com/reference/androidx/preference/package-summary"></a>AndroidX Preference Library</a>
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
-    static App _app = null;
+    static Resources _resources = null;
     static SharedPreferences sharedPref = null;
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     /** default hiking speed parameter: horizontal part in [m/h] */
-    final static int DEF_HOR_SPEED = (int)(1000 * TrackDetails.DEF_HOR_SPEED);
+    final static int DEF_HOR_SPEED = (int)(1000 * TrackTiming.DEF_HOR_SPEED);
     /** default hiking speed parameter: ascending part in [m/h] */
-    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * TrackDetails.DEF_VERT_SPEED_CLIMB);
+    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * TrackTiming.DEF_VERT_SPEED_CLIMB);
     /** default hiking speed parameter: descending part in [m/h]; */
-    final static int DEF_VERT_SPEED_DESC = (int)(1000 * TrackDetails.DEF_VERT_SPEED_DESC);
+    final static int DEF_VERT_SPEED_DESC = (int)(1000 * TrackTiming.DEF_VERT_SPEED_DESC);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         overridePendingTransition(0, 0);
 
+        _resources = getResources();
         View mainContent = findViewById(R.id.main_content);
         if (mainContent != null) {
             mainContent.setAlpha(0);
@@ -74,7 +75,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     @Override
     protected void onDestroy() {
-        getPreferences(sharedPref, _app);
         super.onDestroy();
     }
 
@@ -115,7 +115,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static void setBoolean(String key, boolean value) {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putBoolean(key, value);
-//        editor.commit();
         editor.apply();
     }
 
@@ -127,7 +126,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static void setInt(String key, int value) {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt(key, value);
-//        editor.commit();
         editor.apply();
     }
 
@@ -151,7 +149,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     index >= 0
                             ? listPreference.getEntries()[index]
                             : null);
-
         }
         else if (preference instanceof SwitchPreference) {
             // not reachable
@@ -189,7 +186,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 stringValue = String.valueOf(defValue);
                 EditTextPreference pref = (EditTextPreference)preference;
                 pref.setText(stringValue);
-                stringValue = App.resources.getString(R.string.pref_hiking_par_set_to_default) + stringValue;
+                stringValue = _resources.getString(R.string.pref_hiking_par_set_to_default) + stringValue;
             }
             preference.setSummary(stringValue);
         }
@@ -236,12 +233,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * get preferences for hiking times calculation
      *
      * @param inSharedPref
-     * @param inApp
      */
-    static public void getPreferences (SharedPreferences inSharedPref, App inApp)
+    static public void getPreferences (SharedPreferences inSharedPref)
     {
         sharedPref = inSharedPref;
-        _app = inApp;
 
         // hiking speed parameters
         int horSpeed = DEF_HOR_SPEED; // horizontal part in [km/h]
@@ -251,13 +246,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         String stringValue;
         try {
             stringValue = sharedPref.getString("pref_hiking_par_horSpeed", "");
-            if (!stringValue.equals(""))
+            if (!stringValue.isEmpty())
                 horSpeed = Integer.parseInt(stringValue);
             stringValue = sharedPref.getString("pref_hiking_par_vertSpeedClimb", "");
-            if (!stringValue.equals(""))
+            if (!stringValue.isEmpty())
                 vertSpeedClimb = Integer.parseInt(stringValue);
             stringValue = sharedPref.getString("pref_hiking_par_vertSpeedDescent", "");
-            if (!stringValue.equals(""))
+            if (!stringValue.isEmpty())
                 vertSpeedDescent = Integer.parseInt(stringValue);
 
             Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "Tour Navigator ");
@@ -265,10 +260,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         catch (Exception ignored) { }
 
         // set hiking parameters
-        _app.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
-                vertSpeedDescent / 1000.0, TrackDetails.DEF_MIN_HEIGHT_CHANGE);
+        TrackTiming.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
+                vertSpeedDescent / 1000.0, TrackTiming.DEF_MIN_HEIGHT_CHANGE);
     }
-
 
     /**
      * This fragment shows general preferences only. It is used when the
@@ -341,7 +335,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * Preferences for writing Debug infos to Download dir
      */
     public static boolean getConsentDebug() {
-        return sharedPref.getBoolean("pref_consent_debug", false);
+        return sharedPref.getBoolean("pref_debug", false);
     }
 
     /**
@@ -357,17 +351,4 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static void setProfileViewVisibility(int value) {
         setInt("ProfileViewVisibility", value);
     }
-
-    /*
-
-    public static boolean getExpandView() {
-        return sharedPref.getBoolean("SetExpandViewStatus", false);
-    }
-
-    public static void setExpandView(boolean value) {
-        setBoolean("SetExpandViewStatus", value);
-    }
-     */
-
-
 }

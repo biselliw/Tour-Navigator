@@ -27,8 +27,8 @@ import android.widget.Button;
 import android.widget.TimePicker;
 
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.activities.LocationActivity;
 
 /**
  * Class to set the start time of the tour
@@ -70,10 +70,7 @@ public class StartTimeDialog extends FullScreenDialog {
                 time.hour =  timePicker.getHour();
                 time.minute =timePicker.getMinute();
 
-                _recordAdapter.setStartTime(time);
-                _recordAdapter.notifyDataSetChanged();
-
-                ((LocationActivity)_context).notifyStartTimeChanged();
+                ((MainActivity)_context).notifyStartTimeChanged(time);
                 dismiss();
             }
         });
