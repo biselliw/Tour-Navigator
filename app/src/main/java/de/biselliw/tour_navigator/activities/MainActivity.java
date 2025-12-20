@@ -19,7 +19,6 @@ package de.biselliw.tour_navigator.activities;
     Copyright 2025 Walter Biselli (BiselliW)
 */
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -86,6 +85,7 @@ public class MainActivity extends LocationActivity  implements
         NavigationView.OnNavigationItemSelectedListener {
 
     boolean intentFromOtherApp = false;
+
     public static HTML_File htmlFile;
     private final boolean _autoAppend = false;
     private String gpxFileName = "";
@@ -107,8 +107,6 @@ public class MainActivity extends LocationActivity  implements
 
     Handler timerHandler = new Handler();
 
-
-    @SuppressLint({"ResourceType", "MissingSuperCall"})
     @Override
     /*
      * One-time initialization
@@ -126,14 +124,15 @@ public class MainActivity extends LocationActivity  implements
 
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
-        super.app = new App(this);
+        app = new App(this);
 
-        profileAdapter = new ProfileAdapter((MainActivity)this, super.app);
+        profileAdapter = new ProfileAdapter(this, app);
         /* create a table of waypoints */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
         SettingsActivity.getPreferences(sharedPref);
 
+        // todo check Instantiation of utility class 'GpxExporter'
         gpxExporter = new GpxExporter();
 
         /* Install a timer to handle all activities */
@@ -802,7 +801,6 @@ public class MainActivity extends LocationActivity  implements
             control.showErrorMessage(getString(R.string.error_invalid_gpx_file));
     }
 
-
     /**
      * Save GPX file
      * @param data Intent data
@@ -894,20 +892,21 @@ public class MainActivity extends LocationActivity  implements
         android.content.Context context = getApplicationContext();
         File cacheDir = FileUtils.getDocumentCacheDir(context);
 
-        try {
-            Log.d (TAG, "SaveFileGPX()");
+            try {
+                Log.d (TAG, "SaveFileGPX()");
 
-            // Create a new file in the internal directory
-            File file = new File(cacheDir, "TourNavigator.gpx");
-            if (file.exists())
-                file.delete();
-            // Open a FileOutputStream to write to the file
-            FileOutputStream xmlStream = new FileOutputStream(file);
-            OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
-            return (GpxExporter.downloadData(writer,app.getTrackInfo()) > 0);
-        } catch (IOException e) {
-            Log.e(TAG,"SaveFileGPX()", e);
-        }
+                // Create a new file in the internal directory
+                File file = new File(cacheDir, "TourNavigator.gpx");
+                if (file.exists())
+                    file.delete();
+                // Open a FileOutputStream to write to the file
+                FileOutputStream xmlStream = new FileOutputStream(file);
+                OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
+                return (GpxExporter.downloadData(writer,app.getTrackInfo()) > 0);
+            } catch (IOException e) {
+                Log.e(TAG,"SaveFileGPX()", e);
+            }
+
         return false;
     }
 
@@ -1010,13 +1009,13 @@ public class MainActivity extends LocationActivity  implements
      * Private methods
      * --------------------------------------------------------------------------------------------
      */
-
     private void main_runner() {
-        if (_startTime != null)
-        {
+        if (_startTime != null) {
             onStartTimeChanged(_startTime);
             _startTime = null;
         }
+
         super.runner ();
     }
+
 }

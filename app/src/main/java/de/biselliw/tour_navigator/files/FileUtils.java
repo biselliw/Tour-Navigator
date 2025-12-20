@@ -411,4 +411,20 @@ public class FileUtils {
         return filename.substring(index + 1);
     }
 
+    /**
+     * todo delete files in advance
+     * /
+    File downloadsDir = FileUtils.getDownloadsDir();
+        if (downloadsDir.isDirectory()) {
+        FileFilter gpxFilter = file ->
+                file.isFile()
+                        && file.getName().startsWith(gpx_file_name)
+                        && file.getName().endsWith(".gpx");
+        File[] matchingFiles = downloadsDir.listFiles(gpxFilter);
+        if (matchingFiles != null) {
+            for (File file : matchingFiles)
+                file.delete();
+        }
+    }
+     */
 }
