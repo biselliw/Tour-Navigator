@@ -309,7 +309,7 @@ public class ProfileAdapter {
             if (_track != null) {
                 numPoints = _track.getNumPoints();
                 // set the horizontal grid steps
-                if (numPoints > 0) {
+                if ((numPoints > 0) && (trackTiming != null)) {
                     double totalDistance = trackTiming.getTotalDistance();
                     if (totalDistance > 0.0) {
                         double domainStepValue = 2.5;
