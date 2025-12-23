@@ -585,9 +585,9 @@ public class RecordAdapter extends BaseAdapter {
         {
             control.showExpandViewStatus(inPlace,expandView);
             control.showAddInfo(inPlace);
+            notifyDataSetChanged();
+            recordsView.smoothScrollToPosition(inPlace);
         }
-        notifyDataSetChanged();
-        recordsView.smoothScrollToPosition(inPlace);
 
         lastPlace = inPlace;
         return true;

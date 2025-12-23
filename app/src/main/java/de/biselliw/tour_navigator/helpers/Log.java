@@ -168,7 +168,7 @@ public final class Log {
             String _msg = "E " + tag + " - " + msg;
 //            control.showErrorMessage(_msg);
             Write(_msg);
-            addHTML(tag, "<red>" + _msg+ "</red>");
+            addHTML(tag, "<b> E " + msg+ "</b>");
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg);
@@ -190,7 +190,7 @@ public final class Log {
                 + " called by "
                 + Arrays.toString(tr.getStackTrace());
         if (_writing_enabled) {
-            addHTML(tag, _msg);
+            addHTML("<red> E " + _msg + "</red>");
 
             Write(_msg);
             control.showErrorMessage(_msg);
@@ -211,7 +211,7 @@ public final class Log {
     public static int w(java.lang.String tag, java.lang.String msg) {
         String _msg = "W " + tag + " - " + msg;
         if (_writing_enabled) {
-            addHTML(tag, _msg);
+            addHTML(_msg);
             Write(_msg);
         }
         if (BuildConfig.DEBUG) {
@@ -221,6 +221,9 @@ public final class Log {
     }
 
     public static void clearHTML () { _HTML_String = ""; }
+    public static void addHTML (java.lang.String msg) {
+        _HTML_String = _HTML_String + msg + "<br>";
+    }
     public static void addHTML (java.lang.String tag, java.lang.String msg) {
         _HTML_String = _HTML_String + tag + ": " + msg + "<br>";
     }

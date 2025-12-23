@@ -92,8 +92,8 @@ public class GpxExporter {
             if (sourceinfo != null ) {
                 String inDesc = sourceinfo.getFileDescription();
                 String inName = sourceinfo.getFileTitle();
-                String trackName = (!inName.isEmpty()) ? XmlUtils.fixCdata(inName) : GpxFileCreator;
-                writeNameAndDescription(inWriter, trackName, inDesc,
+                // String trackName = (!inName.isEmpty()) ? XmlUtils.fixCdata(inName) : GpxFileCreator;
+                writeNameAndDescription(inWriter, inName, inDesc,
                         sourceinfo.getAuthor(), sourceinfo.getMetaTime(), sourceinfo.getMetaLink());
 
                 DataPoint point;
@@ -118,7 +118,7 @@ public class GpxExporter {
                         null, "\t</rte>\n");
 
                 // Output all track points, if any
-                String trackStart = "\t<trk>\n\t\t<name>" + trackName + "</name>\n\t\t<trkseg>\n";
+                String trackStart = "\t<trk>\n\t\t<name>" + inName + "</name>\n\t\t<trkseg>\n";
                 String trackDesc = (inDesc != null && !inDesc.isEmpty()) ? XmlUtils.fixCdata(inDesc) : "";
                 if (!trackDesc.isEmpty())
                     trackStart += "\t\t<desc>" + trackDesc + "\n\t\t</desc>\n";

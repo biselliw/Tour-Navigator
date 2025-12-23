@@ -20,6 +20,7 @@ package de.biselliw.tour_navigator.activities;
     Copyright 2022 Walter Biselli (BiselliW)
 */
 
+import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -28,6 +29,7 @@ import android.webkit.WebView;
 import java.io.IOException;
 import java.util.Locale;
 
+import androidx.appcompat.app.ActionBar;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 
@@ -43,6 +45,10 @@ public class HelpActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
+        ActionBar ab = getSupportActionBar();
+        if(ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+        }
 
         view = findViewById(R.id.help);
 
@@ -69,6 +75,7 @@ public class HelpActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         view.scrollTo(0,0);

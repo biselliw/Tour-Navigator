@@ -220,7 +220,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        super.details = new TourDetails(this, super.app, recordAdapter);
+        super.tourDetails = new TourDetails(this, super.app, recordAdapter);
 
         /* Check if the ACCESS_FINE_LOCATION permission has been granted */
         requestPermissionsIfNeeded();
