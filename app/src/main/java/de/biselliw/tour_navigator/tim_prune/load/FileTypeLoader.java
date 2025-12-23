@@ -45,10 +45,7 @@ public class FileTypeLoader
 			inSourceInfo.setNumPoints(inPointList.size());
 		}
 
-        if (!inAppend)
-            _app.deleteAllPoints();
-
-        _app.appendRange(inPointList);
+        _app.onLoadData(inPointList, inSourceInfo, inAppend);
 	}
 
 	/**

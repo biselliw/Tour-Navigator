@@ -23,6 +23,8 @@ package de.biselliw.tour_navigator.activities;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+
+import androidx.core.view.GravityCompat;
 import androidx.preference.EditTextPreference;
 import android.text.InputType;
 import android.view.View;
@@ -117,6 +119,14 @@ public class SettingsActivity extends BaseActivity {
                         }
                         hikingParametersChanged = true;
                     }
+                    else if (preference instanceof SwitchPreference) {
+                        boolean val = (boolean)newValue;
+                        String key = preference.getKey();
+                        if (key.equals("pref_debug")) {
+                            if (!val)
+                                Log.clearHTML();
+                        }
+                    }
                     return true;
                 });
             }
@@ -125,10 +135,6 @@ public class SettingsActivity extends BaseActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
-            try {
-            }
-            catch (Exception ignored) {}
-
 
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences
             // to their values. When their values change, their summaries are
@@ -168,13 +174,21 @@ public class SettingsActivity extends BaseActivity {
             SharedPreferences.Editor editor = sharedPref.edit();
             for (int i = 0; i <= 2; i++)
             {
-         //       setInt(
                 def = String.valueOf(defaults[i]);
                 editor.putString(keys[i], def);
             }
             editor.apply();
             setDefaults = true;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!getConsentDebug() )
+        {
+            Log.clearHTML();
+        }
+        super.onBackPressed();
     }
 
     /*

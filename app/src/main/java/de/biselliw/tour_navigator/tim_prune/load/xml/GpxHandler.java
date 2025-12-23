@@ -272,6 +272,12 @@ public class GpxHandler extends XmlHandler {
             _currentTag = new GpxTag();
         }
 
+        /** @implNote BiselliW
+         * todo check initialisation of current tag */
+        if (_currentTag != null) {
+            _currentTag.clear();
+        }
+
         super.startElement(uri, localName, qName, attributes);
     }
 
@@ -563,9 +569,10 @@ public class GpxHandler extends XmlHandler {
 
 	/**
 	 * @return file description
+     * @implNote BiselliW remove <br> inserted by checkCharacters()
 	 */
 	public String getFileDescription() {
-		return _fileDescription.getValue();
+		return _fileDescription.getValue().replace("<br>","\r");
 	}
 
 	@Override

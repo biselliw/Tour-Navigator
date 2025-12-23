@@ -20,9 +20,11 @@ package de.biselliw.tour_navigator.activities;
     Copyright 2022 Walter Biselli (BiselliW)
 */
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -65,4 +67,9 @@ public class AboutActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-}
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        ScrollView view  = findViewById(R.id.svLicense);
+        view.scrollTo(0,0);
+    }}

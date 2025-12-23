@@ -56,14 +56,14 @@ public class ControlElements extends BaseActivity {
     public ProfileAdapter profileAdapter = null;
 
     private LocationActivity la = null;
-    protected TourDetails details = null;
+    protected TourDetails tourDetails = null;
 
     public RecordAdapter recordAdapter = null;
 
     public TextToSpeech tts;
 
     public static boolean expandView = false;
-    private static boolean fileInfoAvailable = false;
+    private static boolean _fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
     private static final int COLOR_RED = 0xAAB71C1C;
@@ -85,6 +85,7 @@ public class ControlElements extends BaseActivity {
     int _expandViewVisibility = View.GONE;
     boolean _updateExpandViewStatus = false;
     boolean _updateSpeakStatus = false;
+    boolean _speakEnabled = false;
     TourDetails.AdditionalInfo additionalInfo = null;
     String errorMessage = "";
     boolean _updateErrorMessage = false;
@@ -127,8 +128,10 @@ public class ControlElements extends BaseActivity {
                     onShowTrackingStatus();
                 if (_updateGpsStatus)
                     onShowGpsStatus();
-                if (_updateExpandViewStatus || _updateSpeakStatus)
+                if (_updateExpandViewStatus)
                     onShowExpandViewStatus();
+                if (_updateSpeakStatus)
+                    onShowSpeakStatus();
                 if (_updateErrorMessage)
                     onShowErrorMessage();
                 if (_updateExpandView)
@@ -139,11 +142,9 @@ public class ControlElements extends BaseActivity {
                     onShowProfile();
                 if (_rescalePlaceView)
                     onRescalePlaceView();
-                //    enableNavigationItem(R.id.nav_file_info, fileInfoAvailable);
 
                 timerHandler.postDelayed(this, 100);
             }
-
         };
         timerHandler.postDelayed(timerRunnable, 100);
     }
@@ -187,7 +188,7 @@ public class ControlElements extends BaseActivity {
             if (id == R.id.nav_file_info)
                 item.setEnabled(
                         Log.isLoggedHTML() ||
-                        !_initUserInterface && fileInfoAvailable);
+                        !_initUserInterface && _fileInfoAvailable);
             else if (
                     (id == R.id.nav_reverse_route) ||
                             (id == R.id.nav_start_time) ||
@@ -291,41 +292,53 @@ public class ControlElements extends BaseActivity {
     /**
      * Show one of the images expand more/less depending on the state of expandView
      */
+    private void onShowSpeakStatus() {
+        ImageView image_text_to_speech = findViewById(R.id.image_text_to_speech);
+        ImageView image_voice_selection_off = findViewById(R.id.image_voice_selection_off);
+        _updateSpeakStatus = false;
+
+        if (_speakEnabled && (_expandViewVisibility == View.VISIBLE) ) {
+            if (tts.isSpeaking()){
+                _updateSpeakStatus = true;
+                image_text_to_speech.setVisibility(View.INVISIBLE);
+                image_voice_selection_off.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                image_text_to_speech.setVisibility(View.VISIBLE);
+                image_voice_selection_off.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        if (!_speakEnabled) {
+            if (tts.isSpeaking()){
+                stopSpeaking();
+            }
+            image_text_to_speech.setVisibility(View.GONE);
+            image_voice_selection_off.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Show one of the images expand more/less depending on the state of expandView
+     */
     private void onShowExpandViewStatus() {
         ImageView image_expand_more = findViewById(R.id.image_expand_more);
         ImageView image_expand_less = findViewById(R.id.image_expand_less);
-        ImageView image_text_to_speech = findViewById(R.id.image_text_to_speech);
-        ImageView image_voice_selection_off = findViewById(R.id.image_voice_selection_off);
 
         _updateExpandViewStatus = false;
         switch (_expandViewVisibility) {
-            case View.INVISIBLE:
+            case View.VISIBLE:
                 image_expand_more.setVisibility(View.GONE);
                 image_expand_less.setVisibility(View.VISIBLE);
-                if (tts.isSpeaking()){
-                    image_text_to_speech.setVisibility(View.INVISIBLE);
-                    image_voice_selection_off.setVisibility(View.VISIBLE);
-                }
-                else
-                {
-                    image_text_to_speech.setVisibility(View.VISIBLE);
-                    image_voice_selection_off.setVisibility(View.INVISIBLE);
-                    _updateSpeakStatus = false;
-                }
                 break;
-            case View.VISIBLE:
+            case View.INVISIBLE:
                 image_expand_more.setVisibility(View.VISIBLE);
                 image_expand_less.setVisibility(View.GONE);
-                image_text_to_speech.setVisibility(View.GONE);
-                image_voice_selection_off.setVisibility(View.GONE);
-                _updateSpeakStatus = false;
                 break;
             default:
                 image_expand_more.setVisibility(View.INVISIBLE);
                 image_expand_less.setVisibility(View.GONE);
-                image_text_to_speech.setVisibility(View.GONE);
-                image_voice_selection_off.setVisibility(View.GONE);
-                _updateSpeakStatus = false;
         }
     }
 
@@ -457,7 +470,7 @@ public class ControlElements extends BaseActivity {
      * Initialize the user interface before loading a new GPX track
      */
     private void initUserInterface() {
-        fileInfoAvailable = false;
+        _fileInfoAvailable = false;
 
         setTrackingStatus(false);
 
@@ -471,7 +484,7 @@ public class ControlElements extends BaseActivity {
      * Setup the user interface after loading a new GPX track
      */
     public void setupUserInterface() {
-        fileInfoAvailable = !details.getFileInfo().description.isEmpty();
+        _fileInfoAvailable = !tourDetails.getFileInfo().description.isEmpty();
         _comment = "";
         showAddInfo(-1);
 
@@ -524,34 +537,45 @@ public class ControlElements extends BaseActivity {
      * Show one of the images expand more/less depending on the state of expandView
      *
      * @param inPlace row index of the table or -1
-     * @return true if view is expanded
+     * @param inExpand info window is expanded
+     * @return true if view will be expanded
      */
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
-        boolean isExpandableView;
-        if (details != null)
+        boolean isExpandableView = false;;
+        _speakEnabled = false;
+        if (tourDetails != null)
         {
             _place = inPlace;
-            if (inPlace < 0)
-                isExpandableView = fileInfoAvailable || Log.isLoggedHTML();
-            else {
-                TourDetails.AdditionalInfo info = details.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
-                isExpandableView = !info.description.isEmpty() ||
-                        ((info.link != null) && !info.link.isEmpty());
+            if (inPlace < 0) {
+                isExpandableView = _fileInfoAvailable || Log.isLoggedHTML();
+                _speakEnabled = _fileInfoAvailable && inExpand;
             }
+            else {
+                TourDetails.AdditionalInfo info = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
+                _speakEnabled = !info.description.isEmpty();
+                isExpandableView = _speakEnabled ||
+                        ((info.link != null) && !info.link.isEmpty());
+                _speakEnabled &= inExpand;
+            }
+            // is the info window expandable to present text?
             if (isExpandableView)
+                // shall it be expanded?
                 if (inExpand)
-                    _expandViewVisibility = View.INVISIBLE;
-                else {
+                    // view shall be visible
                     _expandViewVisibility = View.VISIBLE;
+                else {
+                    // view shall be visible
+                    _expandViewVisibility = View.INVISIBLE;
                     isExpandableView = false;
                 }
             else
+                // view shall be not available
                 _expandViewVisibility = View.GONE;
 
             _updateExpandViewStatus = true;
+            _updateSpeakStatus = true;
             _updateProfile = true;
-        } else
-            isExpandableView = false;
+        }
 
         return isExpandableView;
     }
@@ -588,8 +612,8 @@ public class ControlElements extends BaseActivity {
      * Show additional info if available
      */
     public void showAddInfo(int inPlace) {
-        if (details != null) {
-            additionalInfo = details.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
+        if (tourDetails != null) {
+            additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
             _updateExpandView = true;
             _updateAdditionalInfo = true;
         } else

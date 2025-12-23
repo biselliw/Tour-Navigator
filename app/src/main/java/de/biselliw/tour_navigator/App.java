@@ -21,7 +21,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.biselliw.tour_navigator.activities.MainActivity;
@@ -57,9 +56,12 @@ public class App {
 
     private static SourceInfo _sourceInfo = null;
     private static TrackDetails _track = null;
-    private static TrackDetails track = null;
 
-    List<RecordAdapter.Record> recordList = null;
+
+    private static List<DataPoint> _refPointList = null;
+    private static SourceInfo _refSourceInfo = null;
+    private static boolean _refAppend = false;
+
     private TrackInfo _trackInfo;
     private final MainActivity _main;
 
@@ -83,15 +85,10 @@ public class App {
         return _trackInfo;
     }
 
-    public void deleteAllPoints() {
-        _track = new TrackDetails();
-        _trackInfo = new TrackInfo(_track);
-        _track.deleteAllPoints();
-    }
-
-    public void appendRange(List<DataPoint> inPoints) {
-        _trackInfo.clearFileInfo();
-        _track.appendRange(inPoints);
+    public void onLoadData(List<DataPoint> inPointList, SourceInfo inSourceInfo, boolean inAppend) {
+        _refPointList = inPointList;
+        _refSourceInfo = inSourceInfo;
+        _refAppend = inAppend;
     }
 
     /**
@@ -118,21 +115,31 @@ public class App {
     /**
      * Inform the app that a file load process is complete, either successfully or cancelled
      */
-    public void informDataLoadComplete()
+    public synchronized void informDataLoadComplete()
     {
         boolean gpxFileValid = false;
         _sourceInfo = null;
         if (DEBUG) Log.d(TAG, "informDataLoadComplete");
 
-        // Check whether loaded array can be properly parsed into a Track
-        TrackDetails loadedTrack = _track;
-        if (loadedTrack.getNumPoints() <= 0) {
+        _sourceInfo = _refSourceInfo; _refSourceInfo = null;
+
+        /* Check whether loaded array can be properly parsed into a Track */
+        // delete all points of the current track
+        _track = new TrackDetails();
+        _trackInfo = new TrackInfo(_track);
+        _track.deleteAllPoints();
+
+        // append loaded points of the track
+        _trackInfo.clearFileInfo();
+        _track.appendRange(_refPointList); _refPointList = null;
+
+        if (_track.getNumPoints() <= 0) {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
         }
-        else if (!loadedTrack.hasTrackPoints()) {
+        else if (!_track.hasTrackPoints()) {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
         }
-        else if (!loadedTrack.hasAltitudes()) {
+        else if (!_track.hasAltitudes()) {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_altitudes));
         }
         else if (_track.isValid())// if (loadedTrack.hasWaypoints())
@@ -147,8 +154,8 @@ public class App {
         }
 
         if (gpxFileValid) {
-            if (loadedTrack.getNumPoints() > 0) {
-                _sourceInfo = loadedTrack.getPoint(0).getSourceInfo();
+            if (_track.getNumPoints() > 0) {
+                _sourceInfo = _track.getPoint(0).getSourceInfo();
             }
             // update sources in TrackInfo
             _trackInfo.getFileInfo();

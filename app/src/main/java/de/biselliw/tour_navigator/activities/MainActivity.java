@@ -875,7 +875,7 @@ public class MainActivity extends LocationActivity  implements
     public void OpenCachedFileGPX() {
         try {
             android.content.Context context = getApplicationContext();
-            File cacheDir = FileUtils.getDocumentCacheDir(context);
+            File cacheDir = FileUtils.getDownloadsDir(); // todo getDocumentCacheDir(context);
             File file = new File (cacheDir, "TourNavigator.gpx");
 
             if(DEBUG) Log.d (TAG, "OpenCachedFileGPX()");
@@ -893,7 +893,7 @@ public class MainActivity extends LocationActivity  implements
      */
     boolean SaveFileGPX() {
         android.content.Context context = getApplicationContext();
-        File cacheDir = FileUtils.getDocumentCacheDir(context);
+        File cacheDir = FileUtils.getDownloadsDir(); // todo FileUtils.getDocumentCacheDir(context);
 
             try {
                 Log.d (TAG, "SaveFileGPX()");
