@@ -1,50 +1,24 @@
-<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
         android:title="@string/pref_header_hiking_parameters">
         <EditTextPreference
+            android:dialogTitle="@string/pref_hiking_par_horSpeed"
             android:id="@+id/pref_hiking_par_horSpeed"
             android:key="pref_hiking_par_horSpeed"
-            android:defaultValue="4200"
-            android:summary="string/default_gallery_storage"
             android:title="@string/pref_hiking_par_horSpeed" />
         <EditTextPreference
             android:id="@+id/pref_hiking_par_vertSpeedClimb"
             android:key="pref_hiking_par_vertSpeedClimb"
-            android:defaultValue="350"
-            android:summary="string/default_gallery_storage"
+            android:defaultValue="2"
             android:title="@string/pref_hiking_par_vertSpeedClimb" />
         <EditTextPreference
             android:id="@+id/pref_hiking_par_vertSpeedDescent"
             android:key="pref_hiking_par_vertSpeedDescent"
-            android:defaultValue="500"
-            android:summary="string/default_gallery_storage"
+            android:defaultValue="3"
             android:title="@string/pref_hiking_par_vertSpeedDescent" />
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pref_header_alarm_parameters">
-        <SwitchPreference
-            android:id="@+id/pref_hiking_par_alarm"
-            android:key="pref_hiking_par_alarm"
-            android:title="@string/pref_hiking_par_alarm"
-            android:summary="@string/pref_hiking_par_alarm_summary"
-            android:defaultValue="true"/>
-    </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pref_header_consent_parameters">
-        <SwitchPreference
-            android:id="@+id/pref_consent_google_maps"
-            android:key="pref_consent_google_maps"
-            android:title="Google Maps"
-            android:defaultValue="false"/>
-        <SwitchPreference
-            android:id="@+id/pref_debug"
-            android:key="pref_debug"
-            android:title="Debug"
-            android:defaultValue="false"/>
-    </PreferenceCategory>
 </PreferenceScreen>

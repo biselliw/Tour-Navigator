@@ -130,7 +130,7 @@ public class MainActivity extends LocationActivity  implements
         /* create a table of waypoints */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
-        SettingsActivity.getPreferences(sharedPref);
+        SettingsActivity.getPreferences();
 
         // todo check Instantiation of utility class 'GpxExporter'
         gpxExporter = new GpxExporter();
@@ -188,12 +188,15 @@ public class MainActivity extends LocationActivity  implements
         }
 
         // app restarted by Android?
-        if (savedInstanceState != null) {
+        if (AppState.destroyed || (savedInstanceState != null)) {
             if (AppState.getGpxSimulationUri() != null) {
                 OpenFileGPX(AppState.getGpxSimulationUri());
             } else if (AppState.isGpxFileCached())
                 OpenCachedFileGPX();
-        } else {  // normal start:
+        } else
+        {  // normal start:
+            // Clear the app states
+            AppState.clearState();
             FileUtils.clearAppCache(this);
         }
     }
@@ -284,6 +287,7 @@ public class MainActivity extends LocationActivity  implements
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.i(TAG,"onSaveInstanceState()");
+        outState.putString(TAG,"onSaveInstanceState");
         Log.Close();
     }
 
@@ -719,7 +723,6 @@ public class MainActivity extends LocationActivity  implements
         } else if (id == R.id.nav_settings) {
             // open settings page
             intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
             intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
             startActivity(intent);
             overridePendingTransition(0, 0);
@@ -1009,7 +1012,7 @@ public class MainActivity extends LocationActivity  implements
      * Private methods
      * --------------------------------------------------------------------------------------------
      */
-    private void main_runner() {
+    private synchronized void main_runner() {
         if (_startTime != null) {
             onStartTimeChanged(_startTime);
             _startTime = null;

@@ -166,7 +166,7 @@ public final class Log {
     public static int e(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled) {
             String _msg = "E " + tag + " - " + msg;
-            control.showErrorMessage(_msg);
+//            control.showErrorMessage(_msg);
             Write(_msg);
             addHTML(tag, "<red>" + _msg+ "</red>");
         }

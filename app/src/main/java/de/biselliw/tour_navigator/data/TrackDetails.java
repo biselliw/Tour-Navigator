@@ -61,7 +61,7 @@ public class TrackDetails extends Track {
     /**
      * Nearest distance of a track point to the specified Latitude and Longitude coordinates
      */
-    private double _nearestDist = -1.0;
+    private double _nearestDist_km = -1.0;
 
 
     TrackTiming _trackTiming = null;
@@ -69,85 +69,107 @@ public class TrackDetails extends Track {
 	/**
 	 * Recalculate all selection details
 	 */
-
-
-
-
     public List<RecordAdapter.Record> recalculate() {
         interleaveWaypoints();
         _trackTiming = new TrackTiming(this);
         return _trackTiming.recalculate();
     }
 
+    double min_h2 = -1.0;
+
     /**
-     * Find the nearest track point to the specified Latitude and Longitude coordinates
-     * within a given range of track points
+     * Find the nearest track point to a given location within a given range of track points
      *
-     * @param inStart       start index
-     * @param inEnd         end index
-     * @param inLatitude    Latitude in degrees
-     * @param inLongitude   Longitude in degrees
-     * @param inMaxDist     maximum tolerated distance [km] between geo location and point
+     * @param inStart     start index within the track
+     * @param inEnd       end index within the track
+     * @param inLatitude  Latitude of the location in degrees
+     * @param inLongitude Longitude of the location in degrees
+     * @param inMaxDist   maximum distance [km] between location and track
      * @return <ul>
      * 	<li>&gt;= 0: index of nearest track point within the specified max distance</li>
      * 	<li>&lt; 0: index of nearest track point outside the specified max distance</li>
      * 	<li>&nbsp;DataPoint.INVALID_INDEX if no point is within the specified max distance </li>
      * </ul>
-     * @author BiselliW
+     * check the shortest distance between location and track:
+     * Within a triangle A-B-C calculate the height h from corner C projected to a line given by A and B
+     * The projected x value along A - B must be < c
+     * A: current point
+     * B: next point
+     * C: GPS location
+     * a distance B - C
+     * b distance A - C
+     * c distance A - B
      */
     public int getNearestTrackpointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMaxDist) {
         // init index of the nearest track point to the specified Latitude and Longitude coordinates
-        int nearestPoint = DataPoint.INVALID_INDEX;
-        _nearestDist = -1.0;
-
+        int nearestIndex = DataPoint.INVALID_INDEX;
+        min_h2 = -1.0;
         if (inStart < 0) inStart = 0;
-
         if (inEnd >= _numPoints - 1) inEnd = _numPoints - 1;
-        for (int i = inStart; i <= inEnd; i++) {
-            DataPoint point = _dataPoints[i];
+        DataPoint A = null, B = null;
+        double a = 0, b = 0, c;
+        int first = inStart;
+        double max_h2 = inMaxDist*inMaxDist, low_h2 = 0.005*0.005;
+
+        while (first <= inEnd) {
+            DataPoint point = _dataPoints[first];
             if (point.isTrackPoint()) {
-                double radians = point.calculateRadiansBetween(inLatitude, inLongitude);
-                double currDist = Distance.convertRadiansToDistance(radians);
-                if ((currDist < _nearestDist) || (_nearestDist < 0.0)) {
-                    nearestPoint = i;
-                    _nearestDist = currDist;
-                    if (currDist < 0.005)
-                        break;
+                if (A == null) {
+                    A = point;
+                    b = A.distanceTo(inLatitude, inLongitude);
                 }
+
+                int next = first + 1;
+                while (next <= inEnd) {
+                    point = _dataPoints[next];
+                    if (point.isTrackPoint()) {
+                        B = point;
+                        a = B.distanceTo(inLatitude, inLongitude);
+                        c = A.distanceTo(B);
+                        double x = (b * b - a * a + c * c) / (2 * c);
+                        double cb = c / b;
+                        double h2 = a * a / (2 + 2 * cb * cb);
+
+                        if ((h2 < min_h2) || (min_h2 < 0)) {
+                            min_h2 = h2;
+                            if ((x >= 0) && (x <= c)) {
+                                nearestIndex = first;
+                                if (min_h2 < low_h2) {
+                                    return nearestIndex;
+                                }
+                            }
+                        }
+                        break;
+                    } else
+                        next++;
+                }
+                // Move point A -> B
+                A = B; b = a;
+                first = next;
             }
         }
-/*
-        if (DEBUG) {
-            int d = (int) (_nearestDist * 1000);
-            Log.d(TAG, "getNearestTrackpointIndex inStart = " + inStart + ", inEnd = " + inEnd + ": nearestPoint = " + nearestPoint + "; nearestDist = " + d + "m");
-        }
- */
         // Check whether it's within required distance
-        if (nearestPoint >= 0)
-            if (_nearestDist <= inMaxDist)
-                return nearestPoint;
-            else if (nearestPoint == 0)
+        if (nearestIndex >= 0)
+            if (min_h2 <= max_h2)
+                return nearestIndex;
+            else if (nearestIndex == 0)
                 // special use case: index 0 outside max distance
                 return DataPoint.INVALID_INDEX;
             else
-                return -nearestPoint;
+                return -nearestIndex;
         else
             return DataPoint.INVALID_INDEX;
     }
 
     /**
-     * Return the nearest distance of a track point to the specified Latitude and Longitude coordinates.
-     * Index of nearest track point must have been calculated using @see "getNearestPointIndex2()"
-     *
-     * @return distance of nearest track point [km], negated if not within the specified max distance
-     * @author BiselliW
-     * @since BiselliW
-     * - all coordinates in [km]
+     * @return distance of nearest track point [km]
      */
     public double getNearestDistance() {
-        return _nearestDist;
+        if (min_h2 >= 0)
+            return Math.sqrt (min_h2);
+        else
+            return 999.9;
     }
-
 
     /**
      * Find the next track point which is considered as outside of the track
@@ -306,25 +328,31 @@ public class TrackDetails extends Track {
      *
      * @param inStart start index
      * @param inEnd   end index
-     * @return true if successful, false otherwise
-     * @author BiselliW
      */
-    public boolean reverseRange(int inStart, int inEnd) {
-        if (inStart < 0 || inEnd < 0 || inStart >= inEnd || inEnd >= _numPoints) {
-            return false;
-        }
-        // calculate how many point swaps are required
+    public void reverseRange(int inStart, int inEnd) {
+        if (inStart < 0 || inEnd < 0 || inStart >= inEnd || inEnd >= _numPoints) { return; }
+        /* calculate how many point swaps are required */
         int numPointsToReverse = (inEnd - inStart + 1) / 2;
-        DataPoint p;
         for (int i = 0; i < numPointsToReverse; i++) {
             // swap pairs of points
-            p = _dataPoints[inStart + i];
+            DataPoint p = _dataPoints[inStart + i];
             _dataPoints[inStart + i] = _dataPoints[inEnd - i];
             _dataPoints[inEnd - i] = p;
         }
-        // adjust segment starts
-        shiftSegmentStarts(inStart, inEnd);
-        // Find first track point and following track point, and set segment starts to true
+        /* adjust segment starts */
+        boolean prevFlag = true;
+        for (int i = inStart; i <= inEnd; i++) {
+            DataPoint point = getPoint(i);
+            if (point != null && !point.isWaypoint()) {
+                // remember flag
+                boolean currFlag = point.getSegmentStart();
+                // shift flag by 1
+                point.setSegmentStart(prevFlag);
+                prevFlag = currFlag;
+            }
+        }
+
+        /* Find first track point and following track point, and set segment starts to true */
         DataPoint firstTrackPoint = getNextTrackPoint(inStart);
         if (firstTrackPoint != null) {
             firstTrackPoint.setSegmentStart(true);
@@ -336,20 +364,16 @@ public class TrackDetails extends Track {
         // needs to be scaled again
         _scaled = false;
 // todo        UpdateMessageBroker.informSubscribers();
-        return true;
     }
 
     /**
      * set a new starting point of the route
      *
      * @param inStart start index
-     * @return true if successful, false otherwise
      * @author BiselliW
      */
-    public boolean setNewStart(int inStart) {
-        if (inStart < 0 || inStart >= _numPoints) {
-            return false;
-        }
+    public void setNewStart(int inStart) {
+        if (inStart < 0 || inStart >= _numPoints) { return; }
         DataPoint[] newPointArray = new DataPoint[_numPoints];
 
         // calculate how many point swaps are required
@@ -363,7 +387,6 @@ public class TrackDetails extends Track {
         // needs to be scaled again
         _scaled = false;
 // todo        UpdateMessageBroker.informSubscribers();
-        return true;
     }
 
     static DataPoint[] _waypoints;
@@ -372,10 +395,6 @@ public class TrackDetails extends Track {
 
     /**
      * Interleave all waypoints by each nearest track point
-     *
-     * @implNote major changes
-     * @author BiselliW
-     * @since 20.2.006
      */
     public void interleaveWaypoints() {
         // Separate waypoints and find nearest track point
@@ -386,9 +405,8 @@ public class TrackDetails extends Track {
         if (DEBUG) Log.d(TAG, "interleaveWaypoints()");
 
         // find nearest track points for all way points
-        DataPoint point;
         for (int i = 0; i < _numPoints; i++) {
-            point = _dataPoints[i];
+            DataPoint point = _dataPoints[i];
             // remove link from track point to way point
             point.clearWayPointLink();
             // if point is a way point outside the track
@@ -416,44 +434,11 @@ public class TrackDetails extends Track {
         _scaled = false;
 // todo        UpdateMessageBroker.informSubscribers();
     }
-    //////// information methods /////////////
-
-//////// information methods /////////////
-
-
-    /**
-     * ///////// Internal processing methods ////////////////
-     * <p>
-     * /**
-     * Shift all the segment start flags in the given range by 1
-     * Method used by reverse range and its undo
-     *
-     * @param inStartIndex start of range, inclusive
-     * @param inEndIndex   end of range, inclusive
-     * @author BiselliW
-     */
-    public void shiftSegmentStarts(int inStartIndex, int inEndIndex) {
-        boolean prevFlag = true;
-        boolean currFlag;
-        for (int i = inStartIndex; i <= inEndIndex; i++) {
-            DataPoint point = getPoint(i);
-            if (point != null && !point.isWaypoint()) {
-                // remember flag
-                currFlag = point.getSegmentStart();
-                // shift flag by 1
-                point.setSegmentStart(prevFlag);
-                prevFlag = currFlag;
-            }
-        }
-    }
-
-    ////////////////// Cloning and replacing ///////////////////
 
     /**
      * Clone the array of DataPoints
      *
      * @return shallow copy of DataPoint objects
-     * @author BiselliW
      */
     public DataPoint[] cloneContents() {
         DataPoint[] clone = new DataPoint[_numPoints];
@@ -464,62 +449,43 @@ public class TrackDetails extends Track {
     /**
      * Reverse the route
      *
-     * @author BiselliW
      */
-    public boolean reverseRoute() {
-        return reverseRange(0, _numPoints - 1);
+    public void reverseRoute() {
+        reverseRange(0, _numPoints - 1);
     }
 
-    /*
-     * Find the nearest track point to the specified Latitude and Longitude coordinates
-     * or DataPoint.INVALID_INDEX if no
+    /**
+     * Find the nearest track point to a given location
      *
-     * @param inStart start index
-     * @param inLatitude Latitude in degrees
-     * @param inLongitude Longitude in degrees
-     * @param inMaxDist maximum distance from selected coordinates [km] to point
-     * @param inMaxDistDest maximum distance along the track [km] towards the destination
-     * @param inJustTrackPoints true if waypoints should be ignored
-     * @return index of nearest track point or <= if no point is within the specified max distanceS
+     * @param inStart start index within the track
+     * @param inLatitude Latitude of the location in degrees
+     * @param inLongitude Longitude of the location in degrees
+     * @param inMaxDist maximum distance [km] between location and track
+     * @return index of nearest track point / INVALID_INDEX if no point is within the specified max distanceS
      *
-     * @author BiselliW
-     * @since 22.2.006
      * - all coordinates in [km]
      */
-    private int getNearestPointIndex(int inStart, double inLatitude, double inLongitude, double inMaxDist, double inMaxDistDest, boolean inJustTrackPoints) {
+    private int getNearestPointIndex(int inStart, double inLatitude, double inLongitude, double inMaxDist) {
         /* index of the nearest track point to the specified Latitude and Longitude coordinates */
         int nearestPoint = 0;
-        double startTrack = -1;
-        _nearestDist = -1.0;
-
+        double nearestDist_km = -1.0;
         if (inStart < 0) inStart = 0;
-        if (inStart >= _numPoints - 1) {
-            return DataPoint.INVALID_INDEX;
-        }
-
-        double currDist;
+        if (inStart >= _numPoints - 1) { return DataPoint.INVALID_INDEX; }
         for (int i = inStart; i < _numPoints; i++) {
-            if (!inJustTrackPoints || !_dataPoints[i].isWaypoint()) {
+            if (!_dataPoints[i].isWaypoint()) {
                 DataPoint point = _dataPoints[i];
                 double radians = point.calculateRadiansBetween(inLatitude, inLongitude);
-                currDist = Distance.convertRadiansToDistance(radians);
-                if ((currDist < _nearestDist) || (_nearestDist < 0.0)) {
+                double currDist_km = Distance.convertRadiansToDistance(radians);
+                if ((currDist_km < nearestDist_km) || (nearestDist_km < 0.0)) {
                     nearestPoint = i;
-                    _nearestDist = currDist;
-                    if (currDist == 0) break;
-                }
-
-                if (inMaxDistDest > 0) {
-                    if (startTrack < 0)
-                        startTrack = _dataPoints[i].getDistance() + inMaxDistDest;
-                    else if (startTrack < _dataPoints[i].getDistance())
-                        break;
+                    nearestDist_km = currDist_km;
+                    if (currDist_km == 0) break;
                 }
             }
         }
 
         // Check whether it's within required distance
-        if ((_nearestDist > inMaxDist) && (inMaxDist > 0.0)) {
+        if ((nearestDist_km > inMaxDist) && (inMaxDist > 0.0)) {
             return -nearestPoint;
         }
         return nearestPoint;
@@ -637,7 +603,7 @@ public class TrackDetails extends Track {
                 // find the next track point after this one which is considered as inside the track again
                 if (linkedTP > prevLinkedTP) {
                     prevLinkedTP = linkedTP;
-                    linkedTP = getNearestPointIndex(linkedTP + 1, lat, lon, 0.020, 0.0, true);
+                    linkedTP = getNearestPointIndex(linkedTP + 1, lat, lon, 0.020);
                     while ((linkedTP > prevLinkedTP) && (linkedTP < _numPoints - 1)) {
                         prevLinkedTP = linkedTP;
                         point = _dataPoints[linkedTP];

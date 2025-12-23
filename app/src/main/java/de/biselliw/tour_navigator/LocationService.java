@@ -25,6 +25,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.IntentSender;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -33,16 +34,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.text.format.Time;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.Priority;
+import com.google.android.gms.location.SettingsClient;
 
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.helpers.Log;
@@ -66,10 +71,11 @@ public class LocationService extends Service {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // Create a LocationRequest
         LocationRequest locationRequest = new LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY,
-                5000
-        ).setMinUpdateDistanceMeters(10)
+                1000
+        ).setMinUpdateDistanceMeters(2)
                 .build();
 
         if (ActivityCompat.checkSelfPermission(this,
@@ -79,12 +85,35 @@ public class LocationService extends Service {
             stopSelf();
             return;
         }
+        else {
+            // Build a LocationSettingsRequest
+            LocationSettingsRequest settingsRequest =
+                    new LocationSettingsRequest.Builder()
+                            .addLocationRequest(locationRequest)
+                            .setAlwaysShow(false)
+                            .build();
+
+            /* Check Location Settings */
+            SettingsClient settingsClient =
+                    LocationServices.getSettingsClient(this);
+
+            settingsClient.checkLocationSettings(settingsRequest)
+                    .addOnSuccessListener(locationSettingsResponse -> {
+                        // Location settings are enabled and meet requirements
+                        locationActivity.setGpsStatus (LocationActivity.gpsStatus.WAIT_FOR_GPS_FIX);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (e instanceof ResolvableApiException) {
+                            // Location is OFF or does not meet requirements
+                            locationActivity.setGpsStatus (LocationActivity.gpsStatus.PROVIDER_DISABLED);
+                        }
+                    });
+        }
 
         locationCallback = new LocationCallback() {
             @RequiresPermission(allOf = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION})
             @Override
-            public void onLocationResult(LocationResult result) {
-                if (result == null) return;
+            public void onLocationResult(@NonNull LocationResult result) {
                 for (Location location : result.getLocations()) {
                     handleLocation(location);
                 }
@@ -105,7 +134,7 @@ public class LocationService extends Service {
     }
 
     private void handleLocation(Location location) {
-        Log.d("GPS", location.getLatitude() + ", " + location.getLongitude());
+        Log.d("GPS", location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
         // use system clock instead of GPS device time
         Time CurrentTime = new Time();
         CurrentTime.setToNow();
@@ -122,9 +151,16 @@ public class LocationService extends Service {
             }
         }
 
-        locationActivity.handleGpsData(CurrentTime,location.getLatitude(),location.getLongitude());
+        // finally handle the real/simulated geo location in the user activity
+        float accuracy = 0; if (location.hasAccuracy()) {
+            accuracy = location.getAccuracy();
+        }
+        locationActivity.handleGpsData(CurrentTime,location.getLatitude(),location.getLongitude(), accuracy);
     }
 
+    /**
+     *  Dummy notification needed to fulfill Androids security restrictions for background operations
+     */
     private Notification buildNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("GPS Tracking Active")
