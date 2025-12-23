@@ -9,34 +9,27 @@
     android:fitsSystemWindows="true"
     tools:openDrawer="start">
 
+    <!-- Main content -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         tools:context=".activities.SettingsActivity">
 
-        <include layout="@layout/toolbar"/>
+        <!-- Toolbar -->
+        <include layout="@layout/toolbar" />
 
-        <LinearLayout
-            android:id="@+id/main_content"
+        <!-- Settings fragment container -->
+        <FrameLayout
+            android:id="@+id/settings_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#FFFFFF"
-            android:fitsSystemWindows="true"
-            android:orientation="vertical"
-            tools:context=".activities.SettingsActivity"
             android:layout_marginTop="?attr/actionBarSize"
-            android:weightSum="1">
-
-        <fragment android:name="de.biselliw.tour_navigator.activities.SettingsActivity$GeneralPreferenceFragment"
-            android:id="@+id/settings_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-        </LinearLayout>
+            android:background="#FFFFFF" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
+    <!-- Navigation drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"

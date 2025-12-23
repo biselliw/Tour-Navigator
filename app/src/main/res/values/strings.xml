@@ -127,7 +127,7 @@
     <string name="pref_hiking_par_set_to_default">"Parameter was set to default value: "</string>
     <string name="pref_header_alarm_parameters">Alarms</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>
-    <string name="pref_hiking_par_alarm_summary">Only available with app in foreground: signal leaving the track with vocational warning</string>
+    <string name="pref_hiking_par_alarm_summary">Signal leaving the track with vocational warning</string>
     <string name="pref_header_consent_parameters">Consents</string>
     <string name="consent">Consent</string>
     <string name="decline">Decline</string>

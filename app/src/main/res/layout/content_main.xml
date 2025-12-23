@@ -45,7 +45,7 @@
 
             <TextView
                 android:id="@+id/h_track_distance"
-                android:layout_width="60dp"
+                android:layout_width="70dp"
                 android:layout_height="20dp"
                 android:fontFamily="serif"
                 android:text="@string/distance"

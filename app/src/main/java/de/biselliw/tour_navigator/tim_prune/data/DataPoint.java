@@ -572,18 +572,18 @@ public class DataPoint
 		return _latitude != null && _longitude != null;
 	}
 
-	/**
+	/*
 	 * @return true if the point has either a photo or audio attached
-     * @todo use media
+     * @ todo use media
 	 * /
 	public boolean hasMedia() {
 //		return _photo != null || _audio != null;
         return false;
 	}
 
-	/**
-	 * @return name of attached photo and/or audio
-     * @todo use media
+	/*
+	 * @ return name of attached photo and/or audio
+     * @ todo use media
 	 * /
 	public String getMediaName()
 	{
@@ -602,6 +602,7 @@ public class DataPoint
 		}
 		return mediaName;
 	}
+*/
 
 	/**
 	 * Calculate the number of radians between two points (for distance calculation)
@@ -622,6 +623,13 @@ public class DataPoint
 		return Distance.calculateRadiansBetween(lat1, lon1, lat2, lon2);
 	}
 
+    public double distanceTo(double inLatitude, double inLongitude) {
+        return Distance.convertRadiansToDistance(calculateRadiansBetween(inLatitude, inLongitude));
+    }
+
+    public double distanceTo(DataPoint inPoint) {
+        return inPoint._distance_km - _distance_km;
+    }
 
 	/**
 	 * Resize the value array

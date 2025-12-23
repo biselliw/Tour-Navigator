@@ -259,57 +259,32 @@ public class ControlElements extends BaseActivity {
         ImageView image_location_wait = findViewById(R.id.image_location_wait);
         _updateGpsStatus = false;
 
+        image_location_disabled.setVisibility(View.GONE);
+        image_location_home.setVisibility(View.GONE);
+        image_location_off.setVisibility(View.GONE);
+        image_location_on.setVisibility(View.GONE);
+        image_location_wait.setVisibility(View.GONE);
+
         switch (_gpsStatus) {
             case PERMISSION_DENIED:
                 image_location_disabled.setVisibility(View.VISIBLE);
-                image_location_home.setVisibility(View.GONE);
-                image_location_off.setVisibility(View.GONE);
-                image_location_on.setVisibility(View.INVISIBLE);
-                image_location_wait.setVisibility(View.INVISIBLE);
                 break;
             case PERMISSION_GRANTED:
             case PROVIDER_ENABLED:
-                image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.VISIBLE);
-                image_location_off.setVisibility(View.INVISIBLE);
-                image_location_on.setVisibility(View.INVISIBLE);
-                image_location_wait.setVisibility(View.INVISIBLE);
                 break;
             case PROVIDER_DISABLED:
-                image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.INVISIBLE);
-                image_location_off.setVisibility(View.VISIBLE);
-                image_location_on.setVisibility(View.INVISIBLE);
-                image_location_wait.setVisibility(View.INVISIBLE);
+                image_location_home.setVisibility(View.VISIBLE);
                 break;
             case WAIT_FOR_GPS_FIX:
-                image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.GONE);
-                image_location_off.setVisibility(View.GONE);
-                image_location_on.setVisibility(View.INVISIBLE);
                 image_location_wait.setVisibility(View.VISIBLE);
                 break;
             case GPS_FIX:
-                image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.GONE);
-                image_location_off.setVisibility(View.GONE);
                 image_location_on.setVisibility(View.VISIBLE);
-                image_location_wait.setVisibility(View.INVISIBLE);
                 break;
             case GPS_TIMEOUT:
-                image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.GONE);
                 image_location_off.setVisibility(View.VISIBLE);
-                image_location_on.setVisibility(View.GONE);
-                image_location_wait.setVisibility(View.INVISIBLE);
                 break;
             default:
-                image_location_disabled.setVisibility(View.GONE);
-                image_location_home.setVisibility(View.GONE);
-                image_location_off.setVisibility(View.INVISIBLE);
-                image_location_on.setVisibility(View.GONE);
-                image_location_wait.setVisibility(View.INVISIBLE);
-
         }
     }
 

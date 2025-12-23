@@ -18,11 +18,7 @@ public class TrackTiming {
     private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    // hiking speed parameters
-    private static double horSpeed, vertSpeedClimb, vertSpeedDescent;
     public static TrackTiming trackTiming = null;
-    private int minHeightChange = 10;
-
 
     /** Flags for whether minimum or maximum has been found */
     private boolean _gotPreviousMinimum = false, _gotPreviousMaximum = false;
@@ -77,7 +73,6 @@ public class TrackTiming {
         _track = inTrack;
         trackTiming = this;
     }
-
 
     /**
      * set hiking parameters:
@@ -157,7 +152,6 @@ public class TrackTiming {
                 android.util.Log.d(TAG, "Sdescent: " + _totalDescent_m);
             }
         }
-
         return recordList;
     }
 
@@ -167,7 +161,6 @@ public class TrackTiming {
         DataPoint currPoint = _track.getPoint(ptIndex);
         addPoint(currPoint);
     }
-
 
     /**
      * add location data of a point to calculate its time and distance since start
@@ -372,21 +365,12 @@ public class TrackTiming {
     }
 
     public long getTotalBreakTime_min() { return _totalBreakTime_min; }
-
-
     public double getMinAltitude() { return _minAltitude_m; }
-
     public double getMaxAltitude() { return _maxAltitude_m; }
-
     public double getTotalDistance () {	return _totalDistance_km;}
-
     public double getTotalClimb () { return _totalClimb_m; }
-
     public double getTotalDescent () { return _totalDescent_m; }
-
     public long getTotalSeconds () {
         return _totalSeconds;
     }
-
-
 }

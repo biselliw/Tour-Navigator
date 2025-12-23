@@ -83,7 +83,7 @@
     <string name="pref_hiking_par_set_to_default">"Parameter wurde auf Standard gesetzt: "</string>
     <string name="pref_header_alarm_parameters">Alarmierungen</string>
     <string name="pref_hiking_par_alarm">Alarmierung beim Verlassen des Weges</string>
-    <string name="pref_hiking_par_alarm_summary">Nur verfügbar wenn die app im Vordergrund ist: gibt eine Sprachmeldung aus</string>
+    <string name="pref_hiking_par_alarm_summary">Gibt eine Sprachmeldung aus</string>
     <string name="pref_header_consent_parameters">Zustimmungen</string>
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>

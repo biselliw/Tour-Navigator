@@ -23,29 +23,29 @@ package de.biselliw.tour_navigator.activities;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.SwitchPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.view.MenuItem;
+import androidx.preference.EditTextPreference;
+import android.text.InputType;
 import android.view.View;
+
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+import androidx.preference.SwitchPreference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import androidx.appcompat.app.ActionBar;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.helper.AppCompatPreferenceActivity;
+
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.helpers.Log;
 
 /**
  * Application settings
- * @see <a href="https://developer.android.com/reference/android/preference/PreferenceActivity">PreferenceActivity</a>
- * @deprecated in API level 29
- * @todo migrate to <a href="https://developer.android.com/reference/androidx/preference/package-summary"></a>AndroidX Preference Library</a>
+ * @see <a href="https://developer.android.com/reference/androidx/preference/package-summary">AndroidX Preference Library</a>
  */
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends BaseActivity {
     static Resources _resources = null;
     static SharedPreferences sharedPref = null;
 
@@ -57,6 +57,88 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * TrackTiming.DEF_VERT_SPEED_CLIMB);
     /** default hiking speed parameter: descending part in [m/h]; */
     final static int DEF_VERT_SPEED_DESC = (int)(1000 * TrackTiming.DEF_VERT_SPEED_DESC);
+
+    static String[] keys = new String[]{"pref_hiking_par_horSpeed", "pref_hiking_par_vertSpeedClimb", "pref_hiking_par_vertSpeedDescent"};
+    static int[] defaults = new int[]{DEF_HOR_SPEED, DEF_VERT_SPEED_CLIMB, DEF_VERT_SPEED_DESC};
+    static boolean setDefaults = false;
+
+    static boolean hikingParametersChanged = false;
+
+    public static class SettingsFragment extends PreferenceFragmentCompat {
+
+        void bindPreferenceToValue(int ID) {
+            EditTextPreference ref = findPreference(keys[ID]);
+            if (ref != null) {
+                ref.setSummaryProvider(
+                        EditTextPreference.SimpleSummaryProvider.getInstance()
+                );
+                ref.setOnBindEditTextListener(editText -> {
+                    editText.setInputType(
+                            InputType.TYPE_CLASS_NUMBER
+                    );
+                    editText.setSingleLine(true);
+                });
+
+                ref.setOnPreferenceChangeListener((preference, newValue) -> {
+                    if (preference instanceof EditTextPreference) {
+                        // For all other preferences, set the summary to the value's
+                        // simple string representation.
+                        String stringValue = newValue.toString();
+                        int val = 0;
+                        try {
+                            val = Integer.parseInt(stringValue);
+                        }
+                        catch (Exception ignored) {  }
+                        String key = preference.getKey();
+                        int minValue=0, defValue=0, maxValue=0;
+
+                        if (key.equals(keys[0])) {
+                            minValue = 1000;
+                            defValue = defaults[0];
+                            maxValue = 130000;
+                        }
+                        else if (key.equals(keys[1])) {
+                            minValue = 100;
+                            defValue = defaults[1];
+                            maxValue = 80000;
+                        }
+                        else if (key.equals(keys[2])) {
+                            minValue = 100;
+                            defValue = defaults[2];
+                            maxValue = 80000;
+                        }
+                        //preference.setDefaultValue(defValue);
+                        if ((val < minValue) || (val > maxValue)){
+                            /* Apply default value */
+                            stringValue = String.valueOf(defValue);
+                            EditTextPreference pref = (EditTextPreference)preference;
+                            pref.setText(stringValue);
+                            return false;
+                        }
+                        hikingParametersChanged = true;
+                    }
+                    return true;
+                });
+            }
+        }
+
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.preferences, rootKey);
+            try {
+            }
+            catch (Exception ignored) {}
+
+
+            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
+            // to their values. When their values change, their summaries are
+            // updated to reflect the new value, per the Android Design
+            // guidelines.
+            bindPreferenceToValue(0);
+            bindPreferenceToValue(1);
+            bindPreferenceToValue(2);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,23 +153,28 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             mainContent.setAlpha(0);
             mainContent.animate().alpha(1).setDuration(BaseActivity.MAIN_CONTENT_FADEIN_DURATION);
         }
-    }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            if (!super.onMenuItemSelected(featureId, item)) {
-                finish();
-            }
-            return true;
+        setContentView(R.layout.activity_settings);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.settings_container, new SettingsFragment())
+                    .commit();
         }
-        return super.onMenuItemSelected(featureId, item);
+
+        String def = sharedPref.getString(keys[0],"");
+        if (def.isEmpty()) {
+            // set default preferences for hiking times calculation
+            SharedPreferences.Editor editor = sharedPref.edit();
+            for (int i = 0; i <= 2; i++)
+            {
+         //       setInt(
+                def = String.valueOf(defaults[i]);
+                editor.putString(keys[i], def);
+            }
+            editor.apply();
+            setDefaults = true;
+        }
     }
 
     /*
@@ -129,100 +216,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         editor.apply();
     }
 
-    /**
-     * Callback to be invoked when the value of this Preference has been changed by the user
-     * @deprecated in API level 29
-     * @todo migrate to <a href="https://developer.android.com/reference/androidx/preference/package-summary"></a>AndroidX Preference Library</a>
-     */
-    private static Preference.OnPreferenceChangeListener preferenceChangeListener =
-            (preference, value) -> {
-        String stringValue = value.toString();
-
-        if (preference instanceof ListPreference) {
-            // For list preferences, look up the correct display value in
-            // the preference's 'entries' list.
-            ListPreference listPreference = (ListPreference) preference;
-            int index = listPreference.findIndexOfValue(stringValue);
-
-            // Set the summary to reflect the new value.
-            preference.setSummary(
-                    index >= 0
-                            ? listPreference.getEntries()[index]
-                            : null);
-        }
-        else if (preference instanceof SwitchPreference) {
-            // not reachable
-        }
-        else if (preference instanceof EditTextPreference) {
-            // For all other preferences, set the summary to the value's
-            // simple string representation.
-            int val = -1;
-            try {
-                val = Integer.parseInt(stringValue);
-            }
-            catch (Exception ignored) {  }
-            String key = preference.getKey();
-            int minValue=0, defValue=0, maxValue=0;
-
-            switch (key) {
-                case "pref_hiking_par_horSpeed":
-                    minValue = 1000;
-                    defValue = DEF_HOR_SPEED;
-                    maxValue = 130000;
-                    break;
-                case "pref_hiking_par_vertSpeedClimb":
-                    minValue = 100;
-                    defValue = DEF_VERT_SPEED_CLIMB;
-                    maxValue = 80000;
-                    break;
-                case "pref_hiking_par_vertSpeedDescent":
-                    minValue = 100;
-                    defValue = DEF_VERT_SPEED_DESC;
-                    maxValue = 80000;
-                    break;
-            }
-            if ((val < minValue) || (val > maxValue)){
-                /* Apply default value */
-                stringValue = String.valueOf(defValue);
-                EditTextPreference pref = (EditTextPreference)preference;
-                pref.setText(stringValue);
-                stringValue = _resources.getString(R.string.pref_hiking_par_set_to_default) + stringValue;
-            }
-            preference.setSummary(stringValue);
-        }
-        return true;
-    };
-
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #preferenceChangeListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(preferenceChangeListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        preferenceChangeListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
-    }
-
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
-     */
-    protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName);
-    }
-
     /*
      * --------------------------------------------------------------------------------------------
      * Public methods
@@ -230,72 +223,49 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
 
     /**
-     * get preferences for hiking times calculation
-     *
-     * @param inSharedPref
+     * update preferences for hiking times calculation if they were changed
      */
-    static public void getPreferences (SharedPreferences inSharedPref)
-    {
-        sharedPref = inSharedPref;
+    static public boolean updatePreferences() {
+        if (hikingParametersChanged) {
+            getPreferences();
+            hikingParametersChanged = false;
+            return true;
+        }
+        return false;
+    }
 
-        // hiking speed parameters
-        int horSpeed = DEF_HOR_SPEED; // horizontal part in [km/h]
-        int vertSpeedClimb = DEF_VERT_SPEED_CLIMB; // ascending part in [km/h]
-        int vertSpeedDescent = DEF_VERT_SPEED_DESC; // descending part in [km/h]
 
-        String stringValue;
+    static int getIntFromPref(String inKey, int inDefault) {
+        int value = inDefault;
         try {
-            stringValue = sharedPref.getString("pref_hiking_par_horSpeed", "");
-            if (!stringValue.isEmpty())
-                horSpeed = Integer.parseInt(stringValue);
-            stringValue = sharedPref.getString("pref_hiking_par_vertSpeedClimb", "");
-            if (!stringValue.isEmpty())
-                vertSpeedClimb = Integer.parseInt(stringValue);
-            stringValue = sharedPref.getString("pref_hiking_par_vertSpeedDescent", "");
-            if (!stringValue.isEmpty())
-                vertSpeedDescent = Integer.parseInt(stringValue);
-
-            Log.setWritingEnabled (sharedPref.getBoolean("pref_debug", false), "Tour Navigator ");
+         // todo
+            value = Integer.parseInt(sharedPref.getString(inKey,""));;
         }
         catch (Exception ignored) { }
+        return value;
+    }
+
+    /**
+     * get preferences for hiking times calculation
+     */
+    static public void getPreferences()
+    {
+        // hiking speed parameters
+
+        // horizontal part in [km/h]
+        int horSpeed = getIntFromPref(keys[0], DEF_HOR_SPEED);
+        // ascending part in [km/h]
+        int vertSpeedClimb = getIntFromPref(keys[1], DEF_VERT_SPEED_CLIMB);
+        // descending part in [km/h]
+        int vertSpeedDescent = getIntFromPref(keys[2], DEF_VERT_SPEED_DESC);
+
+        setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
 
         // set hiking parameters
         TrackTiming.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
                 vertSpeedDescent / 1000.0, TrackTiming.DEF_MIN_HEIGHT_CHANGE);
     }
 
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     * The commented method bindPrefenceSummaryToValue should be added for all preferences
-     * with a summary that is depended from the current value of the preference
-     */
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.preferences);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("pref_hiking_par_horSpeed"));
-            bindPreferenceSummaryToValue(findPreference("pref_hiking_par_vertSpeedClimb"));
-            bindPreferenceSummaryToValue(findPreference("pref_hiking_par_vertSpeedDescent"));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                getActivity().finish();
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
 
     public static void setSharedPreferences(SharedPreferences inSharedPref)
     {
@@ -303,7 +273,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     }
 
     public static boolean isFirstTimeLaunch() {
-        return sharedPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+        boolean firstStart = sharedPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+        if (firstStart) {
+            // set default preferences for hiking times calculation
+            for (int i = 0; i <= 2; i++)
+            {
+//                setInt(keys[i], defaults[i]);
+            }
+        }
+
+        return firstStart;
     }
 
     public static void setFirstTimeLaunch(boolean isFirstTime) {
@@ -336,6 +315,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     public static boolean getConsentDebug() {
         return sharedPref.getBoolean("pref_debug", false);
+    }
+
+    private static void setWritingEnabled (boolean isEnabled) {
+        Log.setWritingEnabled (isEnabled, "Tour Navigator ");
     }
 
     /**
