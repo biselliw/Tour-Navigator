@@ -70,6 +70,7 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaFunction;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
@@ -103,6 +104,8 @@ public class MainActivity extends LocationActivity  implements
     Time _startTime = null;
 
     Handler timerHandler = new Handler();
+
+    
 
     @Override
     /*
@@ -339,7 +342,8 @@ public class MainActivity extends LocationActivity  implements
             commentRoutePoint();
         else if (id == R.id.itm_delete_waypoint)
             /* Delete the current waypoint */
-            deleteRoutePoint();
+            getNearbyWikipedia();
+            // deleteRoutePoint();
         else if (id == R.id.itm_delete_trackpoints)
             /* Delete all following trackpoints */
             deleteTrackPoints();
@@ -575,6 +579,20 @@ public class MainActivity extends LocationActivity  implements
                     app.Update();
                     super.profileAdapter.initPlot();
                 }
+            }
+        }
+    }
+
+    /**
+     * Delete the current route point from the track
+     */
+    public void getNearbyWikipedia() {
+        int selected = recordAdapter.getPlace();
+        if (selected >= 0) {
+            // Clear pause time in advance
+            RecordAdapter.Record record = recordAdapter.getItem(selected);
+            if (record != null) {
+                dataPointWikipedia = record.getTrackPoint();
             }
         }
     }
@@ -1009,6 +1027,8 @@ public class MainActivity extends LocationActivity  implements
             onStartTimeChanged(_startTime);
             _startTime = null;
         }
+
+       
 
         super.runner ();
     }

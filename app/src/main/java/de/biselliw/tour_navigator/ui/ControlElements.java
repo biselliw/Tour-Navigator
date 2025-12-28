@@ -49,6 +49,8 @@ import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaFunction;
 
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
@@ -112,12 +114,15 @@ public class ControlElements extends BaseActivity {
 
     public boolean updateGpxFile = false;
 
+    private GetWikipediaFunction getWikipediaFunction = null;
+    public DataPoint dataPointWikipedia = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         la = (LocationActivity) this;
-
+        getWikipediaFunction = new GetWikipediaFunction(this);
     }
 
     @Override
@@ -162,6 +167,11 @@ public class ControlElements extends BaseActivity {
                     onShowProfile();
                 if (_rescalePlaceView)
                     onRescalePlaceView();
+
+                if (dataPointWikipedia != null) {
+                    getWikipediaFunction.getWikipedia(dataPointWikipedia);
+                    dataPointWikipedia = null;
+                }
 
                 timerHandler.postDelayed(this, 100);
             }
