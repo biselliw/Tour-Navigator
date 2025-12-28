@@ -72,7 +72,13 @@ public class TrackDetails extends Track {
     public List<RecordAdapter.Record> recalculate() {
         interleaveWaypoints();
         _trackTiming = new TrackTiming(this);
-        return _trackTiming.recalculate();
+        try {
+            return _trackTiming.recalculate();
+        }
+        catch (Exception e) {
+            Log.e(TAG,"No records created yet");
+        }
+        return null;
     }
 
     double min_h2 = -1.0;

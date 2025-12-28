@@ -52,12 +52,10 @@ import java.util.ArrayList;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
-import de.biselliw.tour_navigator.LocationService;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.AppState;
@@ -101,7 +99,6 @@ public class MainActivity extends LocationActivity  implements
     int REQUEST_OPEN_GPX = 222;
 
     SharedPreferences sharedPref = null;
-    boolean firstStart = false;
 
     Time _startTime = null;
 
@@ -112,7 +109,7 @@ public class MainActivity extends LocationActivity  implements
      * One-time initialization
      */
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG,"onCreate");
+        if (DEBUG) Log.i(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -155,7 +152,7 @@ public class MainActivity extends LocationActivity  implements
      * Primary Responsibility: Acquire resources needed while visible
      */
     public void onStart() {
-        Log.i(TAG,"onStart");
+        if (DEBUG) Log.i(TAG,"onStart");
         super.onStart();
     }
 
@@ -165,8 +162,9 @@ public class MainActivity extends LocationActivity  implements
      * Primary Responsibility:
      */
     protected void onPostCreate(Bundle savedInstanceState) {
-        Log.i(TAG,"onPostCreate");
+        if (DEBUG) Log.i(TAG,"onPostCreate");
         super.onPostCreate(savedInstanceState);
+
         super.main = this;
         mNavigationView.setNavigationItemSelectedListener(this);
         selectNavigationItem(R.id.nav_open_gpx);
@@ -186,19 +184,24 @@ public class MainActivity extends LocationActivity  implements
             Intent mainIntent = new Intent(this, TutorialActivity.class);
             startActivity(mainIntent);
         }
-
         // app restarted by Android?
-        if (AppState.destroyed || (savedInstanceState != null)) {
-            if (AppState.getGpxSimulationUri() != null) {
-                OpenFileGPX(AppState.getGpxSimulationUri());
-            } else if (AppState.isGpxFileCached())
-                OpenCachedFileGPX();
-        } else
-        {  // normal start:
-            // Clear the app states
-            AppState.clearState();
-            FileUtils.clearAppCache(this);
+        else {
+            if (AppState.destroyed || (savedInstanceState != null)) {
+                if (AppState.getGpxSimulationUri() != null) {
+                    if (DEBUG) Log.d(TAG, "OpenFileGPX(AppState.getGpxSimulationUri())");
+                    OpenFileGPX(AppState.getGpxSimulationUri());
+                } else if (AppState.isGpxFileCached()) {
+                    OpenCachedFileGPX();
+                }
+            } else {  // normal start:
+                if (DEBUG) Log.d(TAG, "normal start");
+                // Clear the app states
+                AppState.clearState();
+                FileUtils.clearAppCache(this);
+            }
         }
+
+
     }
 
     @Override
@@ -208,7 +211,7 @@ public class MainActivity extends LocationActivity  implements
      * Primary Responsibility:
      */
     public void onRestart() {
-        Log.i(TAG,"onRestart");
+        if (DEBUG) Log.i(TAG,"onRestart");
         super.onRestart();
         AppState.restarted = true;
     }
@@ -221,7 +224,7 @@ public class MainActivity extends LocationActivity  implements
      * Primary Responsibility:
      */
     public void onResume() {
-        Log.i(TAG,"onResume");
+        if (DEBUG) Log.i(TAG,"onResume");
         recordAdapter.notifyDataSetChanged();
         super.onResume();
         AppState.setPaused(false);
@@ -235,12 +238,14 @@ public class MainActivity extends LocationActivity  implements
      * Primary Responsibility: Release interaction-related resources
      */
     public void onPause() {
-        Log.i(TAG,"onPause");
+        if (DEBUG) Log.i(TAG,"onPause");
         // Save the GPX file in the cache?
         if (control.updateGpxFile) {
-            AppState.setGpxFileCached(SaveFileGPX());
+            boolean savedFileGPX = SaveFileGPX();
+            AppState.setGpxFileCached(savedFileGPX);
+            if (DEBUG) Log.d(TAG,"updated GPX File " + (savedFileGPX ? "saved" : "NOT saved"));
             // SettingsActivity.setGpxFileLoaded(gpxFileCached);
-            control.updateGpxFile = false;
+            control.updateGpxFile = !savedFileGPX;
         }
         super.onPause();
         AppState.setPaused(true);
@@ -252,7 +257,7 @@ public class MainActivity extends LocationActivity  implements
      * Primary Responsibility: Release visibility-related resources
      */
     public void onStop() {
-        Log.i(TAG,"onStop");
+        if (DEBUG) Log.i(TAG,"onStop");
         super.onStop();
         AppState.stopped = true;
     }
@@ -260,19 +265,6 @@ public class MainActivity extends LocationActivity  implements
     @Override
     public void onLowMemory() {
         AppState.lowMemory = true;
-    }
-
-    @Override
-    /*
-     * Prevent closing the App here when user pressed the Back key
-     * @see https://developer.android.com/guide/components/activities/tasks-and-back-stack
-     */
-    public void onBackPressed()
-    {
-        if (!getExpandViewStatus())
-            if (intentFromOtherApp)
-                finish();
-        super.onBackPressed();
     }
 
     @Override
@@ -286,16 +278,30 @@ public class MainActivity extends LocationActivity  implements
      */
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Log.i(TAG,"onSaveInstanceState()");
+        // todo Dummy
         outState.putString(TAG,"onSaveInstanceState");
+        if (DEBUG) Log.i(TAG,"onSaveInstanceState(): close Log file");
         Log.Close();
     }
 
     @Override
     protected void onDestroy() {
-        Log.i(TAG,"onDestroy");
+        if (DEBUG) Log.e(TAG,"onDestroy");
         super.onDestroy();
         AppState.destroyed = true;
+    }
+
+    @Override
+    /*
+     * Prevent closing the App here when user pressed the Back key
+     * @see https://developer.android.com/guide/components/activities/tasks-and-back-stack
+     */
+    public void onBackPressed()
+    {
+        if (!getExpandViewStatus())
+            if (intentFromOtherApp)
+                finish();
+        super.onBackPressed();
     }
 
     /**
@@ -314,7 +320,6 @@ public class MainActivity extends LocationActivity  implements
     {
         return false;
     }
-
 
     /**
      * Handles menu options messages
@@ -401,8 +406,7 @@ public class MainActivity extends LocationActivity  implements
         mHandler.postDelayed(() -> {
             try {
                 goToNavigationItem(id);
-            } catch (IOException e) {
-//                e.printStackTrace();
+            } catch (IOException ignored) {
             }
         }, NAVDRAWER_LAUNCH_DELAY);
 
@@ -774,14 +778,14 @@ public class MainActivity extends LocationActivity  implements
         String uriFilePath = FileUtils.getPath(this, uriFile);
         String ext = FileUtils.getExtension(uriFilePath);
         if (DEBUG) {
-            Log.d(TAG, "GPX file URI: " + uriFile);
+            Log.d(TAG, "OpenFileGPX(): uri = " + uriFile);
             // Log.d(TAG, "GPX file name: " + uriFilePath);
             assert uriFile != null;
             // Log.d(TAG, "isExternalStorageDocument: " + FileUtils.isExternalStorageDocument(uriFile));
         }
         if (ext.startsWith(".gpx")) {
             gpxFileName = FileUtils.getFileName(this,uriFile);
-            if (DEBUG) Log.d(TAG, "Load GPX file: " + uriFile);
+            // if (DEBUG) Log.d(TAG, "Load GPX file: " + uriFile);
 
             try {
                 InputStream _xmlStream = null;
@@ -795,7 +799,7 @@ public class MainActivity extends LocationActivity  implements
                 // if (DEBUG) Log.d(TAG, "Open GPX stream");
                 _xmlFileLoader = new XmlFileLoader(super.app);
                 _xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informDataLoadComplete);
-                if (DEBUG) Log.d(TAG, "GPX file loaded?");
+                if (DEBUG) Log.d(TAG, "-> XmlFileLoader(app::informDataLoadComplete)");
             } catch (Exception e) {
 //                e.printStackTrace();
             }
@@ -810,6 +814,7 @@ public class MainActivity extends LocationActivity  implements
      */
     void SaveFileGPX(final Intent data) {
         try {
+            if (DEBUG) Log.d(TAG, "SaveFileGPX(intent)");
             if (data != null)
             {
                 Uri uri = data.getData(); //The uri with the location of the file
@@ -828,23 +833,18 @@ public class MainActivity extends LocationActivity  implements
                         String filename = path.substring(dot+1);
                         dot = filename.lastIndexOf(".");
                         if (dot > 0) {
-//                            String ext = filename.substring(dot);
                             filename = filename.substring(0,dot);
                             DocumentsContract.renameDocument(cr, uri, filename+".gpx");
                         }
                     }
-                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
+                }
+                catch (FileNotFoundException ignored) {
                 }
             }
 
         } catch (FileNotFoundException e) {
-            if (DEBUG) {
-                Log.d(TAG, "Download failed");
-            }
-//            e.printStackTrace();
-        } catch (IOException e) {
-//            e.printStackTrace();
+            if (DEBUG) Log.e(TAG, "Download failed");
+        } catch (IOException ignored) {
         }
 
         if (DEBUG) Log.d(TAG, "Download was successfully");
@@ -874,17 +874,16 @@ public class MainActivity extends LocationActivity  implements
      */
     public void OpenCachedFileGPX() {
         try {
-            android.content.Context context = getApplicationContext();
             File cacheDir = FileUtils.getDownloadsDir(); // todo getDocumentCacheDir(context);
             File file = new File (cacheDir, "TourNavigator.gpx");
 
-            if(DEBUG) Log.d (TAG, "OpenCachedFileGPX()");
+            if(DEBUG) Log.d (TAG, "OpenCachedFileGPX():");
 
             _xmlFileLoader = new XmlFileLoader(super.app);
             _xmlFileLoader.openFile(file, _autoAppend, app::informDataLoadComplete);
-            if (DEBUG) Log.d(TAG, "GPX file loaded?");
+            if (DEBUG) Log.d(TAG, "- GPX file loaded?");
         } catch (Exception e) {
-            Log.e(TAG,"OpenCachedFileGPX()", e);
+            if (DEBUG) Log.e(TAG,"- GPX file not loaded: ", e);
         }
     }
 
@@ -893,22 +892,25 @@ public class MainActivity extends LocationActivity  implements
      */
     boolean SaveFileGPX() {
         android.content.Context context = getApplicationContext();
-        File cacheDir = FileUtils.getDownloadsDir(); // todo FileUtils.getDocumentCacheDir(context);
+        File cacheDir = FileUtils.getDocumentCacheDir(context);
+        boolean res = true;
 
-            try {
-                Log.d (TAG, "SaveFileGPX()");
+        try {
+            if (DEBUG) Log.d (TAG, "SaveFileGPX()");
 
-                // Create a new file in the internal directory
-                File file = new File(cacheDir, "TourNavigator.gpx");
-                if (file.exists())
-                    file.delete();
+            // Create a new file in the internal directory
+            File file = new File(cacheDir, "TourNavigator.gpx");
+            if (file.exists())
+                res = file.delete();
+            if (res) {
                 // Open a FileOutputStream to write to the file
                 FileOutputStream xmlStream = new FileOutputStream(file);
                 OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
-                return (GpxExporter.downloadData(writer,app.getTrackInfo()) > 0);
-            } catch (IOException e) {
-                Log.e(TAG,"SaveFileGPX()", e);
+                return (GpxExporter.downloadData(writer, app.getTrackInfo()) > 0);
             }
+            } catch (IOException e) {
+            if (DEBUG) Log.e(TAG,"SaveFileGPX()", e);
+        }
 
         return false;
     }
@@ -922,7 +924,7 @@ public class MainActivity extends LocationActivity  implements
             assert uriFile != null;
             htmlFile.SaveFileHTML(this.getContentResolver().openOutputStream(uriFile, "w"));
         } catch (FileNotFoundException e) {
-            Log.e(TAG,"SaveFileHTML()", e);
+            if (DEBUG) Log.e(TAG,"SaveFileHTML()", e);
         }
     }
 
@@ -932,8 +934,6 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void pauseTracking(View view) {
-        clearErrorMessage();
-        stopService(new Intent(this, LocationService.class));
         control.setTrackingStatus(false);
     }
 
@@ -943,14 +943,6 @@ public class MainActivity extends LocationActivity  implements
      * @param view View provided from XML
      */
     public void continueTracking(View view) {
-        clearErrorMessage();
-
-//        if (gpsSimulation == null)
-        {
-            Intent intent = new Intent(this, LocationService.class);
-            ContextCompat.startForegroundService(this, intent);
-        }
-
         control.setTrackingStatus(true);
     }
 

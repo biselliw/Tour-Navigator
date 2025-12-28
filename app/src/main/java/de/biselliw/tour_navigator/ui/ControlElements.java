@@ -20,6 +20,7 @@ package de.biselliw.tour_navigator.ui;
     Copyright 2025 Walter Biselli (BiselliW)
 */
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
@@ -33,8 +34,12 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
+import androidx.core.content.ContextCompat;
 import de.biselliw.tour_navigator.App;
+import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.LocationService;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.MainActivity;
@@ -50,6 +55,13 @@ import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileV
 
 public class ControlElements extends BaseActivity {
 
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "ControlElements";
+    private static final boolean _DEBUG = true; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
     public static ControlElements control = null;
     public App app = null;
     public MainActivity main = null;
@@ -62,7 +74,20 @@ public class ControlElements extends BaseActivity {
 
     public TextToSpeech tts;
 
-    public static boolean expandView = false;
+    boolean _initUserInterface = false;
+    boolean _setupUserInterface = false;
+    boolean _updateTrackingStatus = false;
+    boolean _updateGpsStatus = false;
+    boolean _updateExpandViewStatus = false;
+    boolean _updateSpeakStatus = false;
+    boolean _updateErrorMessage = false;
+    boolean _updateExpandView = false;
+    boolean _updateWaypointType = false;
+    boolean _updateProfile = false;
+    boolean _rescalePlaceView = true;
+
+
+    public static boolean _isViewExpanded = false;
     private static boolean _fileInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
@@ -73,40 +98,35 @@ public class ControlElements extends BaseActivity {
      */
     private static boolean _isTracking;
 
+    protected boolean firstStart = false;
     Handler timerHandler = new Handler();
 
-    boolean _rescalePlaceView = true;
-    boolean _initUserInterface = false;
-    boolean _setupUserInterface = false;
-    boolean _updateTrackingStatus = false;
     LocationActivity.gpsStatus _gpsStatus;
-    boolean _updateGpsStatus = false;
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
-    boolean _updateExpandViewStatus = false;
-    boolean _updateSpeakStatus = false;
     boolean _speakEnabled = false;
-    TourDetails.AdditionalInfo additionalInfo = null;
+    private TourDetails.AdditionalInfo _additionalInfo = null;
     String errorMessage = "";
-    boolean _updateErrorMessage = false;
-    boolean _updateExpandView = false;
-    boolean _updateAdditionalInfo = false;
-    String _comment = "";
+    private String _distanceToPlace = "";
     int _profileViewVisibility = View.GONE;
-    boolean _updateProfile = false;
 
     public boolean updateGpxFile = false;
-
-    /**
-     * TAG for log messages.
-     */
-    static final String TAG = "ControlElements";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         la = (LocationActivity) this;
+
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        control = this;
+        super.onPostCreate(savedInstanceState);
+
+        // Initialize the user interface before loading a new GPX track
+        initUserInterface();
 
         /* Install a timer to update control elements */
         //runs without a timer by reposting this handler at the end of the runnable
@@ -135,9 +155,9 @@ public class ControlElements extends BaseActivity {
                 if (_updateErrorMessage)
                     onShowErrorMessage();
                 if (_updateExpandView)
-                    onShowAdditionalInfo();
-                if (_updateAdditionalInfo)
-                    onShowAdditionalInfo2();
+                    onShowAdditionalInfo(_additionalInfo, _isViewExpanded);
+                if (_updateWaypointType)
+                    onShowWaypointType(_distanceToPlace, _additionalInfo);
                 if (_updateProfile)
                     onShowProfile();
                 if (_rescalePlaceView)
@@ -147,14 +167,6 @@ public class ControlElements extends BaseActivity {
             }
         };
         timerHandler.postDelayed(timerRunnable, 100);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        control = this;
-        super.onPostCreate(savedInstanceState);
-        // Initialize the user interface before loading a new GPX track
-        initUserInterface();
     }
 
     @Override
@@ -171,7 +183,7 @@ public class ControlElements extends BaseActivity {
                             (id == R.id.itm_set_new_start) ||
                             (id == R.id.itm_delete_waypoint) ||
                             (id == R.id.itm_delete_trackpoints))
-                item.setEnabled(!expandView && (_place >= 0));
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
             else
                 item.setVisible(false);
         }
@@ -366,23 +378,25 @@ public class ControlElements extends BaseActivity {
 
     /**
      * Show additional info
+     * @param inAdditionalInfo additional information to be shown in the view
+     * @param inViewExpanded view for additional infos is expanded
      */
-    private void onShowAdditionalInfo() {
+    private void onShowAdditionalInfo(TourDetails.AdditionalInfo inAdditionalInfo, boolean inViewExpanded) {
         _updateExpandView = false;
 
-        if ((additionalInfo != null)
+        if ((inAdditionalInfo != null)
                 // && (!Log.isWritingEnabled() || !isErrorMessage())
          ){
-            if (!isErrorMessage()) {
-                setTitleText(additionalInfo.title,COLOR_MESSAGE);
-            }
+            if (inViewExpanded) {
+                if (!isErrorMessage()) {
+                    setTitleText(inAdditionalInfo.title,COLOR_MESSAGE);
+                }
 
-            if (expandView) {
                 TextView commentView = findViewById(R.id.comment_view);
-                commentView.setText(additionalInfo.comment);
+                commentView.setText(inAdditionalInfo.comment);
 
                 TextView descriptionView = findViewById(R.id.description_view);
-                String html = additionalInfo.description;
+                String html = inAdditionalInfo.description;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                     descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
                 } else {
@@ -391,7 +405,7 @@ public class ControlElements extends BaseActivity {
                 descriptionView.scrollTo(0, 0);
 
                 TextView linkView = findViewById(R.id.link_view);
-                String link = additionalInfo.link;
+                String link = inAdditionalInfo.link;
                 String swvLink = HTML_File.getSwvLink(link);
                 if (!swvLink.isEmpty())
                 {
@@ -405,22 +419,24 @@ public class ControlElements extends BaseActivity {
         LinearLayout location_content = findViewById(R.id.location_content);
         LinearLayout description_content = findViewById(R.id.description_content);
 
-        location_content.setVisibility(expandView ? View.GONE : View.VISIBLE);
-        description_content.setVisibility(expandView ? View.VISIBLE : View.GONE);
+        location_content.setVisibility(inViewExpanded ? View.GONE : View.VISIBLE);
+        description_content.setVisibility(inViewExpanded ? View.VISIBLE : View.GONE);
 
-        if (!expandView) {
+        if (!inViewExpanded) {
             la.requestStatusUpdate();
         }
     }
 
     /**
-     * Show additional info
+     * Show the distance to the next point and its waypoint type
+     * @param inDistanceToPlace formatted distance
+     * @param inAdditionalInfo additional information containing the waypoint type
      */
-    private void onShowAdditionalInfo2() {
-        _updateAdditionalInfo = false;
-        String comment = _comment;
-        if (additionalInfo != null) {
-            comment = comment + additionalInfo.comment;
+    private void onShowWaypointType(String inDistanceToPlace, TourDetails.AdditionalInfo inAdditionalInfo) {
+        _updateWaypointType = false;
+        String comment = inDistanceToPlace;
+        if (inAdditionalInfo != null) {
+            comment = comment + inAdditionalInfo.comment;
         }
 
         TextView commentView = findViewById(R.id.comment_view);
@@ -485,14 +501,18 @@ public class ControlElements extends BaseActivity {
      */
     public void setupUserInterface() {
         _fileInfoAvailable = !tourDetails.getFileInfo().description.isEmpty();
-        _comment = "";
-        showAddInfo(-1);
+        showAdditionalInfo(-1);
 
         // use stored state of profile view visibility
         activateProfile(getProfileViewVisibility());
         _setupUserInterface = true;
     }
 
+    public void notifyDataSetChanged(List<RecordAdapter.Record> records) {
+        _updateWaypointType = false;
+        if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
+        recordAdapter.notifyDataSetChanged(records);
+    }
 
     /**
      * Get the tracking status
@@ -509,9 +529,18 @@ public class ControlElements extends BaseActivity {
      * @param inTracking true if the GPS provider shall controls the tracking
      */
     public void setTrackingStatus(boolean inTracking) {
+        clearErrorMessage();
+        if (!inTracking)
+            stopService(new Intent(this, LocationService.class));
+        else {
+            la.requestForegroundPermissionIfNeeded();
+
+            Intent intent = new Intent(this, LocationService.class);
+            ContextCompat.startForegroundService(this, intent);
+        }
+
         _isTracking = inTracking;
- //       if (inTracking)
-            setExpandViewStatus(false);
+        setExpandViewStatus(false);
         updateTrackingStatus();
     }
 
@@ -588,15 +617,15 @@ public class ControlElements extends BaseActivity {
     public void setExpandViewStatus(boolean inExpand) {
         int place = recordAdapter.getPlace();
         // update the expansion mode
-        expandView = showExpandViewStatus(place, inExpand);
-        showAddInfo(place);
+        _isViewExpanded = showExpandViewStatus(place, inExpand);
+        showAdditionalInfo(place);
     }
 
     /**
      * @return true if extended description view is active
      */
     public boolean getExpandViewStatus() {
-        return expandView;
+        return _isViewExpanded;
     }
 
     /**
@@ -604,24 +633,23 @@ public class ControlElements extends BaseActivity {
      */
     public void showFileInfo() {
         // update the expansion mode
-        expandView = showExpandViewStatus(-1, true);
-        showAddInfo(-1);
+        _isViewExpanded = showExpandViewStatus(-1, true);
+        showAdditionalInfo(-1);
     }
 
     /**
      * Show additional info if available
      */
-    public void showAddInfo(int inPlace) {
+    public void showAdditionalInfo(int inPlace) {
         if (tourDetails != null) {
-            additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
+            _additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
             _updateExpandView = true;
-            _updateAdditionalInfo = true;
         } else
-            additionalInfo = null;
+            _additionalInfo = null;
     }
 
     /**
-     * Speak additional info if available
+     * Speak additional info if HTML description is available. All links will be removed
      */
     public void speakAddInfo() {
         String urlRegex =
@@ -632,7 +660,7 @@ public class ControlElements extends BaseActivity {
                         "[a-z0-9.-]+\\.[a-z]{2,}\\S*|" + // any-domain.anyTLD(/path)
                         "\\d{1,3}(?:\\.\\d{1,3}){3}\\S*" + // IPv4 URL-like
                         ")";
-        String html = additionalInfo.description.replaceAll("<[^>]*>", " ");
+        String html = _additionalInfo.description.replaceAll("<[^>]*>", " ");
 
         // Remove <a>...</a> tags but keep their text
         html = html.replaceAll("<a[^>]*>(.*?)</a>", "$1");
@@ -652,14 +680,14 @@ public class ControlElements extends BaseActivity {
 
     /**
      * Set the distance to the next place
-     * @param distanceToPlace distance in km
+     * @param inDistanceToPlace distance in km
      */
-    public void setDistanceToPlace(double distanceToPlace) {
-        if (distanceToPlace >= 1.0)
-            _comment = new DecimalFormat("in #0.0 km: ").format(distanceToPlace);
+    public void setDistanceToPlace(double inDistanceToPlace) {
+        if (inDistanceToPlace >= 1.0)
+            _distanceToPlace = new DecimalFormat("in #0.0 km: ").format(inDistanceToPlace);
         else
-            _comment = new DecimalFormat("in #0 m: ").format((int)(distanceToPlace*100.0)*10);
-        _updateAdditionalInfo = true;
+            _distanceToPlace = new DecimalFormat("in #0 m: ").format((int)(inDistanceToPlace*100.0)*10);
+        _updateWaypointType = true;
     }
 
     /**

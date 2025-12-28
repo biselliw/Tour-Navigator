@@ -5,17 +5,19 @@ import java.util.List;
 
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import tim.prune.data.Altitude;
 import tim.prune.data.Distance;
 
+import org.w3c.dom.*;
 
 public class TrackTiming {
     /**
      * TAG for log messages.
      */
     static final String TAG = "TrackTiming";
-    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     public static TrackTiming trackTiming = null;
@@ -48,10 +50,10 @@ public class TrackTiming {
 
     // hiking speed parameters
 
-    public final static double DEF_HOR_SPEED 			= 5.0;
+    public final static double DEF_HOR_SPEED 			= 4.5;
     public final static double DEF_VERT_SPEED_CLIMB 	= 0.35;
     public final static double DEF_VERT_SPEED_DESC 		= 0.5;
-    public final static int    DEF_MIN_HEIGHT_CHANGE 	= 3;
+    public final static int    DEF_MIN_HEIGHT_CHANGE 	= 15;
 
     final static double _secondsHour 			= 3600.0;
     final static double _vertSecondsHour 		= 3.6;
@@ -63,8 +65,9 @@ public class TrackTiming {
     /** descending part in [km/h] */
     private static double _vertSpeedDescent = 	DEF_VERT_SPEED_DESC;
     /** hysteresis value for a change of altitude */
-    private static int    _minHeightChange = 	DEF_MIN_HEIGHT_CHANGE;
+    private static double _minHeightChange = 	DEF_MIN_HEIGHT_CHANGE;
 
+    private static final double INVALID_VALUE = -9999.99;
 
     private final TrackDetails _track;
 
@@ -82,7 +85,7 @@ public class TrackTiming {
      * @param inVertSpeedDescent descending part in [km/h]
      * @param inMinHeightChange  min. required change of altitude
      */
-    public static void setHikingParameters(double inHorSpeed, double inVertSpeedClimb, double inVertSpeedDescent, int inMinHeightChange) {
+    public static void setHikingParameters(double inHorSpeed, double inVertSpeedClimb, double inVertSpeedDescent, double inMinHeightChange) {
         if (inHorSpeed > 0)
             _horSpeed = inHorSpeed;
         if (inVertSpeedClimb > 0)
@@ -96,8 +99,10 @@ public class TrackTiming {
     /**
      * Recalculate all track points
      */
-    public List<RecordAdapter.Record> recalculate() {
+    public List<RecordAdapter.Record> recalculate() throws Exception {
         List<RecordAdapter.Record> recordList = null;
+        boolean smooth = false;
+
         double sum_distance = 0.0;
         double sum_climb = 0;
         double sum_descent = 0;
@@ -110,7 +115,7 @@ public class TrackTiming {
         if (_numPoints <= 0) return null;
 
         if (DEBUG) {
-            android.util.Log.d(TAG, "recalculate(): " + _numPoints + " Trackpoints");
+            Log.d(TAG, "recalculate(): " + _numPoints + " Trackpoints");
         }
 
         recordList = new ArrayList<>();
@@ -121,66 +126,120 @@ public class TrackTiming {
         _totalDescent_m = 0L;
         _totalBreakTime_min = 0L;
 
-        for (int ptIndex = 0; ptIndex <= _numPoints - 1; ptIndex++) {
-            DataPoint currPoint = _track.getPoint(ptIndex);
+        if (smooth) {
+            /* test better smoothing - poor results ! */
+            double sigmaMeters = 30;
+            double maxGradeUp = 0.30; // 15% allowed climbing gradient for ascent/descent metrics
+            double maxGradeDown = 0.10; // 15% allowed climbing gradient for ascent/descent metrics
 
-            addPoint(ptIndex);
-            if (currPoint.isRoutePoint())
-            {
-                record = new RecordAdapter.Record(
-                        currPoint,
-                        ptIndex,
-                        _totalDistance_km - sum_distance,
-                        _totalClimb_m - sum_climb,
-                        _totalDescent_m - sum_descent,
-                        currPoint.getTime() - sum_seconds - breakTime_min * 60L
-                );
-
-                sum_distance = _totalDistance_km;
-                sum_climb = _totalClimb_m;
-                sum_descent = _totalDescent_m;
-                sum_seconds = currPoint.getTime();
-
-                breakTime_min = currPoint.getWaypointDuration();
-                _totalBreakTime_min += breakTime_min;
-
-                recordList.add(record);
+            double[] distances = cumulativeDistances();
+            double[] elevations = new double[_numPoints];
+            for (int i = 0; i < _numPoints; i++) {
+                DataPoint currPoint = _track.getPoint(i);
+                double altitude_m = 0.0;
+                elevations[i] = INVALID_VALUE;
+                if ((currPoint != null) && !currPoint.isWayPoint())
+                    // does the current point has a valid altitude?
+                    if (currPoint.hasAltitude()) {
+                        Altitude altitude = currPoint.getAltitude();
+                        if (altitude.isValid())
+                            elevations[i] = altitude.getValue();
+                    }
             }
-            if (DEBUG) {
-                android.util.Log.d(TAG, "timetable built");
-                android.util.Log.d(TAG, "Sclimb: " + _totalClimb_m);
-                android.util.Log.d(TAG, "Sdescent: " + _totalDescent_m);
+
+            double origUp = computeAscent(elevations, distances, maxGradeUp);
+            double origDown = computeDescent(elevations, distances, maxGradeDown);
+            System.out.printf("Original ascent: %.1f m | descent: %.1f m%n", origUp, origDown);
+
+            double[] smoothed = gaussianSmoothByDistance(elevations, distances, sigmaMeters);
+            double[] finalAlt = preserveAscentDescent(smoothed, elevations);
+            double smoothUp = computeAscent(finalAlt, distances, maxGradeUp);
+            double smoothDown = computeDescent(finalAlt, distances, maxGradeDown);
+            System.out.printf("Smoothed ascent: %.1f m | descent: %.1f m%n", smoothUp, smoothDown);
+
+
+            throw new Exception("No records created yet");
+        }
+        else {
+            for (int ptIndex = 0; ptIndex <= _numPoints - 1; ptIndex++) {
+                DataPoint currPoint = _track.getPoint(ptIndex);
+
+                addPoint(ptIndex);
+                if (currPoint.isRoutePoint()) {
+                    double calc_climb = _totalClimb_m - sum_climb;
+                    double calc_descent = _totalDescent_m - sum_descent;
+                    /*
+                     * @todo fix workaround for negative values
+                     */
+                    double use_climb = calc_climb;
+                    double use_descent = calc_descent;
+                    if (calc_climb < 0) {
+                        // exchange parts
+                        // - sum of climb values remains unchanged -> invalid _totalDescent_m
+                        use_climb = 0;
+                        use_descent -= calc_climb;
+                        Log.d(TAG,"fixed negative climb value for point " + currPoint.toString());
+                    }
+                    if (calc_descent < 0) {
+                        // exchange parts
+                        // - sum of descent values remains unchanged -> invalid _totalClimb_m
+                        use_descent = 0;
+                        use_climb -= calc_descent;
+                        Log.d(TAG,"fixed negative descent value for point " + currPoint.toString());
+                    }
+
+                    record = new RecordAdapter.Record(
+                            currPoint,
+                            ptIndex,
+                            _totalDistance_km - sum_distance,
+                            use_climb,
+                            use_descent,
+                            currPoint.getTime() - sum_seconds - breakTime_min * 60L
+                    );
+
+                    sum_distance = _totalDistance_km;
+                    sum_climb = _totalClimb_m;
+                    sum_descent = _totalDescent_m;
+                    sum_seconds = currPoint.getTime();
+
+                    breakTime_min = currPoint.getWaypointDuration();
+                    _totalBreakTime_min += breakTime_min;
+
+                    recordList.add(record);
+                }
+                /*
+                if (DEBUG) {
+                    Log.d(TAG, "timetable built");
+                    Log.d(TAG, "Sclimb: " + _totalClimb_m);
+                    Log.d(TAG, "Sdescent: " + _totalDescent_m);
+                }
+                 */
             }
         }
         return recordList;
     }
 
-    public void addPoint(int ptIndex)
+    /**
+     * add location data of a point to calculate its time and distance since start
+     * @param ptIndex index of current data point
+     * see clearPointCalc ()
+     */
+    public boolean addPoint(int ptIndex)
     {
         _ptIndex = ptIndex;
         DataPoint currPoint = _track.getPoint(ptIndex);
-        addPoint(currPoint);
-    }
 
-    /**
-     * add location data of a point to calculate its time and distance since start
-     * @param inPoint current data point
-     * @return true if successful
-     * see clearPointCalc ()
-     */
-    private boolean addPoint(DataPoint inPoint)
-    {
         boolean result = false;
         boolean overallUp = false, overallDn = false;
         double altitude_m = 0.0;
 
-        if ((inPoint == null) || inPoint.isWayPoint())
+        if ((currPoint == null) || currPoint.isWayPoint())
             return false;
 
         // does the current point has a valid altitude?
-        if (inPoint.hasAltitude())
+        if (currPoint.hasAltitude())
         {
-            Altitude altitude = inPoint.getAltitude();
+            Altitude altitude = currPoint.getAltitude();
             if (altitude.isValid())
                 altitude_m = altitude.getValue();
         }
@@ -239,23 +298,23 @@ public class TrackTiming {
         // Calculate the distance to the previous trackpoint
         if (_prevPoint != null)
         {
-            double radians = DataPoint.calculateRadiansBetween(_prevPoint, inPoint);
+            double radians = DataPoint.calculateRadiansBetween(_prevPoint, currPoint);
             double dist = Distance.convertRadiansToDistance(radians);
             _totalDistance_km += dist;
-            inPoint.setDistance(_totalDistance_km);
+            currPoint.setDistance(_totalDistance_km);
             _segDistance_km += dist;
         }
         else
-            inPoint.setDistance(0.0);
-        inPoint.setTime(0L);
+            currPoint.setDistance(0.0);
+        currPoint.setTime(0L);
 
         // remember previous  point
-        _prevPoint = inPoint;;
+        _prevPoint = currPoint;
 
         if (altitude_m > 0)
         {
             // need to calculate intermediate time?
-            if (inPoint.isRoutePoint() || _segRecalc)
+            if (currPoint.isRoutePoint() || _segRecalc)
             {
                 long segSeconds, horSeconds, vertSeconds;
                 // calculate section times
@@ -373,4 +432,268 @@ public class TrackTiming {
     public long getTotalSeconds () {
         return _totalSeconds;
     }
+
+    /**
+     * How it works (business-level explanation)
+     * Stage	Purpose
+     * Gaussian smoothing	Remove local noise
+     * Compute ascent/descent totals	Anchor performance metrics
+     * Scaling positive & negative deltas separately	Maintain climb/desc symmetry
+     * Re-integrate from first altitude	Guarantee continuity
+     *
+     * This approach ensures:
+     *
+     * No distortion of total ascent
+     *
+     * No distortion of total descent
+     *
+     * Smooth, natural-looking profile
+     *
+     * Robust to arbitrary noise levels
+     *
+     * Numerical Stability Considerations
+     *
+     * The algorithm handles:
+     *
+     * flat segments
+     *
+     * very small σ
+     *
+     * very noisy GPS tracks
+     *
+     * zero-ascent or zero-descent routes
+     *
+     * If original ascent or descent truly equals 0, scaling defaults to 1.0 to avoid exploding values.
+     *
+     * Recommended σ (for distance-tracked GPX)
+     * Activity	σ
+     * Running	1.0–1.5
+     * Road cycling	1.5–2.5
+     * MTB	1.0–2.0
+     * Hiking	1.0–2.0
+     *
+     *
+     */
+
+
+    /**
+     * Gaussian smoothing overview (for altitudes)
+     * For samples x[i] and Gaussian kernel w[k]:
+     * y[i]=∑w[k]*x[i+k]
+     *
+     *
+     * Gaussian smoothing based on distance spacing (meters), not point index
+     *
+     * Ignore unrealistically steep segments
+     *
+     * Report ascent/descent before & after smoothing (and still preserve totals)
+     *
+     *
+     * Key Design Choices (Summary)
+     *
+     * We compute true path distance between points using the haversine formula.
+     *
+     * The Gaussian kernel is evaluated continuously by distance, not by index.
+     *
+     * Unrealistic gradients (configurable) are excluded from ascent/descent metrics.
+     *
+     * Ascent/descent totals are preserved after smoothing.
+     *
+     *
+     * Defaults (you can tune):
+     *
+     * σDistanceMeters = 30 m
+     *
+     * Max gradient for ascent accounting = 150 m per km (15%), adjust if desired.
+     * Tuning Guidance
+     * 1. Smoothing strength (σ in meters)
+     * σ (m)	Use case
+     * 10–20	running, dense sampling
+     * 20–40	road cycling
+     * 40–80	MTB / noisy barometer
+     * 100+	very noisy data
+     * 2. Gradient threshold
+     * maxGrade = 0.15
+     *
+     *
+     * Means 15% grade.
+     * If your GPS is noisy, reduce to 0.10.
+     *
+     * This setting affects ascent/descent computation only, not smoothing.
+     */
+
+
+
+    private static double haversine(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371000.0;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    private double[] cumulativeDistances() {
+        int n = _track.getNumPoints();
+        double[] d = new double[n];
+        d[0] = 0;
+        _track.getPoint(0).setDistance(0);
+        for (int i = 1; i < n; i++) {
+            d[i] = d[i - 1] + haversine(
+                    _track.getPoint(i - 1).getLatitude().getDouble(),
+                    _track.getPoint(i - 1).getLongitude().getDouble(),
+                    _track.getPoint(i).getLatitude().getDouble(),
+                    _track.getPoint(i).getLongitude().getDouble());
+            _track.getPoint(i).setDistance(d[i]);
+        }
+        return d;
+    }
+
+    private double computeAscent(double[] vals, double[] dist, double maxGrade) {
+        double up = 0;
+        int n = vals.length;
+        for (int i = 0; i < n-1; i++) {
+            if (vals[i] != INVALID_VALUE) {
+                double lastVal = vals[i];
+                for (int j = i+1; j < n; j++) {
+                    if (vals[j] != INVALID_VALUE) {
+                        double currVal = vals[j];
+                        double d = currVal - lastVal;
+                        double dx = dist[j] - dist[i];
+                        if (dx > 0) {
+                            double grade = Math.abs(d / dx);
+                            if (d >= 0)
+                                if (grade <= maxGrade) up += d;
+                                else
+                                    up = up;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return up;
+    }
+
+    private double computeDescent(double[] vals, double[] dist, double maxGrade) {
+        double down = 0;
+        int n = _track.getNumPoints();
+        for (int i = 0; i < n-1; i++) {
+            if (vals[i] != INVALID_VALUE) {
+                double lastVal = vals[i];
+                for (int j = i+1; j < n; j++) {
+                    if (vals[j] != INVALID_VALUE) {
+                        double currVal = vals[j];
+                        double d = currVal - lastVal;
+                        double dx = dist[j] - dist[i];
+                        if (dx > 0) {
+                            double grade = Math.abs(d / dx);
+                            if (d <= 0)
+                                if (grade <= maxGrade) down -= d;
+                                else
+                                    down = down;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return down;
+    }
+
+    private double[] gaussianSmoothByDistance(double[] values,
+                                              double[] dist,
+                                              double sigmaMeters) {
+        int n = values.length;
+        double[] out = new double[n];
+        double twoSigma2 = 2 * sigmaMeters * sigmaMeters;
+
+        for (int i = 0; i < n; i++) {
+            if (values[i] != INVALID_VALUE) {
+                double sum = 0;
+                double wsum = 0;
+
+                for (int j = 0; j < n; j++) {
+                    if (values[j] != INVALID_VALUE) {
+                        double d = dist[j] - dist[i];
+                        double w = Math.exp(-(d * d) / twoSigma2);
+                        sum += w * values[j];
+                        wsum += w;
+                    }
+                }
+                out[i] = sum / wsum;
+            }
+            else
+                out[i] = INVALID_VALUE;
+        }
+        return out;
+    }
+
+    private double[] preserveAscentDescent(double[] smoothed, double[] original) {
+
+        int n = smoothed.length;
+
+        double origUp = 0, origDown = 0;
+        for (int i = 0; i < n-1; i++) {
+            if (original[i] != INVALID_VALUE) {
+                double lastVal = original[i];
+                for (int j = i + 1; j < n; j++) {
+                    if (original[j] != INVALID_VALUE) {
+                        double currVal = original[j];
+                        double d = currVal - lastVal;
+                        if (d > 0) origUp += d;
+                        else origDown -= d;
+                        break;
+                    }
+                }
+            }
+        }
+
+        double smoothUp = 0, smoothDown = 0;
+        for (int i = 0; i < n-1; i++) {
+            if (smoothed[i] != INVALID_VALUE) {
+                double lastVal = smoothed[i];
+                for (int j = i + 1; j < n; j++) {
+                    if (smoothed[j] != INVALID_VALUE) {
+                        double currVal = smoothed[j];
+                        double d = currVal - lastVal;
+                        if (d > 0) smoothUp += d;
+                        else smoothDown -= d;
+                        break;
+                    }
+                }
+            }
+        }
+
+        double upScale = (smoothUp > 0) ? (origUp / smoothUp) : 1.0;
+        double downScale = (smoothDown > 0) ? (origDown / smoothDown) : 1.0;
+
+        double[] adjusted = new double[n];
+        adjusted[0] = smoothed[0];
+
+        for (int i = 0; i < n-1; i++) {
+            if (smoothed[i] != INVALID_VALUE) {
+                double lastVal = smoothed[i];
+                for (int j = i + 1; j < n; j++) {
+                    if (smoothed[j] != INVALID_VALUE) {
+                        double currVal = smoothed[j];
+                        double d = currVal - lastVal;
+                        if (d > 0) d *= upScale;
+                        else d *= downScale;
+                        adjusted[j] = adjusted[i] + d;
+                        break;
+                    }
+                }
+            }
+            else
+                adjusted[i] = INVALID_VALUE;
+        }
+
+        return adjusted;
+    }
+
 }
+

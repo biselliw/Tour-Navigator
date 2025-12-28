@@ -33,9 +33,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -43,12 +45,19 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezoneStr;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
-import static de.biselliw.tour_navigator.ui.ControlElements.expandView;
+import static de.biselliw.tour_navigator.ui.ControlElements._isViewExpanded;
 
 /**
  * class to handle all records of the timetable
  */
 public class RecordAdapter extends BaseAdapter {
+
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "RecordAdapter";
+    private static final boolean _DEBUG = true; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     /**
      * max. tolerated delay [min]
@@ -276,6 +285,7 @@ public class RecordAdapter extends BaseAdapter {
 
     public void notifyDataSetChanged(List<Record> records) {
         _updatedRecordList = records;
+        if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
     }
 
     /**
@@ -538,7 +548,7 @@ public class RecordAdapter extends BaseAdapter {
             /* Scroll to the place in the list */
             setPlace(inPlace);
 
-            if (!expandView) {
+            if (!_isViewExpanded) {
                 if (!inUser)
                     recordsView.smoothScrollToPosition(inPlace);
                 else
@@ -583,8 +593,8 @@ public class RecordAdapter extends BaseAdapter {
 
         if (inPlace != lastPlace)
         {
-            control.showExpandViewStatus(inPlace,expandView);
-            control.showAddInfo(inPlace);
+            control.showExpandViewStatus(inPlace, _isViewExpanded);
+            control.showAdditionalInfo(inPlace);
             notifyDataSetChanged();
             recordsView.smoothScrollToPosition(inPlace);
         }

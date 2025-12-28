@@ -707,10 +707,12 @@ public class DataPoint
 	 */
 	@NonNull
     public String toString() {
+        String name = !getWaypointName().isEmpty() ? getWaypointName() :
+                (_routePointName != null) ? _routePointName : "";
         String lat = getLatitude() != null ? getLatitude().toString() : "null";
         String lon = getLongitude() != null ? getLongitude().toString() : "null";
         String res = "[Lat=" + lat + ", Lon=" + lon + "]";
-        if (_waypointName != null) res = _waypointName + ": " + res;
+        if (name != null) res = name + ": " + res;
 		return res;
 	}
 	

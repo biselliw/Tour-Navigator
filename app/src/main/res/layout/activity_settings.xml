@@ -17,7 +17,7 @@
         tools:context=".activities.SettingsActivity">
 
         <!-- Toolbar -->
-        <include layout="@layout/toolbar" />
+
 
         <!-- Settings fragment container -->
         <FrameLayout

@@ -24,9 +24,12 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.preference.EditTextPreference;
 import android.text.InputType;
+import android.text.format.Time;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.preference.ListPreference;
@@ -37,17 +40,21 @@ import androidx.preference.SwitchPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
 import androidx.appcompat.app.ActionBar;
+import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.helpers.Log;
 
+import static android.app.ActionBar.DISPLAY_SHOW_CUSTOM;
+import static de.biselliw.tour_navigator.App.app;
+
 /**
  * Application settings
  * @see <a href="https://developer.android.com/reference/androidx/preference/package-summary">AndroidX Preference Library</a>
  */
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends AppCompatActivity {
     static Resources _resources = null;
     static SharedPreferences sharedPref = null;
 
@@ -154,11 +161,6 @@ public class SettingsActivity extends BaseActivity {
         overridePendingTransition(0, 0);
 
         _resources = getResources();
-        View mainContent = findViewById(R.id.main_content);
-        if (mainContent != null) {
-            mainContent.setAlpha(0);
-            mainContent.animate().alpha(1).setDuration(BaseActivity.MAIN_CONTENT_FADEIN_DURATION);
-        }
 
         setContentView(R.layout.activity_settings);
         if (savedInstanceState == null) {
@@ -182,14 +184,38 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
+
     @Override
     public void onBackPressed() {
-        if (!getConsentDebug() )
-        {
-            Log.clearHTML();
-        }
+        updatePreferences();
         super.onBackPressed();
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Respond to the action bar's Up/Home button
+        if (item.getItemId() == android.R.id.home) {
+            updatePreferences();
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    /*
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            if (!super.onMenuItemSelected(featureId, item)) {
+                finish();
+                return super.onMenuItemSelected(featureId, item);
+            }
+        }
+    }
+    */
+
+
 
     /*
      * --------------------------------------------------------------------------------------------
@@ -204,8 +230,20 @@ public class SettingsActivity extends BaseActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // show the user that selecting home will return one level up
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.show();
+            //actionBar.setDisplayHomeAsUpEnabled(true);
+
         }
+    }
+
+    /**
+     * Returning false permanently disables the menu
+     * so no menu items or overflow icon will appear.
+     * /
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        menu.close();
+        return false;
     }
 
     /**
@@ -243,7 +281,13 @@ public class SettingsActivity extends BaseActivity {
         if (hikingParametersChanged) {
             getPreferences();
             hikingParametersChanged = false;
+            App.app.recalculate();
+            App.app.Update();
             return true;
+        }
+        if (!getConsentDebug() )
+        {
+            Log.clearHTML();
         }
         return false;
     }
@@ -287,16 +331,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static boolean isFirstTimeLaunch() {
-        boolean firstStart = sharedPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
-        if (firstStart) {
-            // set default preferences for hiking times calculation
-            for (int i = 0; i <= 2; i++)
-            {
-//                setInt(keys[i], defaults[i]);
-            }
-        }
-
-        return firstStart;
+        return sharedPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
     }
 
     public static void setFirstTimeLaunch(boolean isFirstTime) {
@@ -304,7 +339,14 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static long getStartTime() {
-        return sharedPref.getLong("StartTime", 0L);
+        Time time = new Time();
+        time.set(sharedPref.getLong("StartTime", 0L));
+        int hour = time.hour;
+        int min = time.minute;
+        time.setToNow();
+        time.set(0,min,hour,time.monthDay,time.month,time.year);
+        long startTime = time.toMillis(true);
+        return startTime;
     }
 
     public static void setStartTime(long value) {
