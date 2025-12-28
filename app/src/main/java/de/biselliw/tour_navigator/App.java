@@ -191,7 +191,7 @@ public class App {
     public void recalculate() {
         List<RecordAdapter.Record> recordList = _track.recalculate();
 
-        control.recordAdapter.notifyDataSetChanged(recordList);
+        control.notifyDataSetChanged(recordList);
         control.updateGpxFile = true;
     }
 

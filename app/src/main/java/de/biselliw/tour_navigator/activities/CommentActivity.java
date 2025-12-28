@@ -31,11 +31,9 @@ import androidx.appcompat.app.ActionBar;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
-import static de.biselliw.tour_navigator.data.TourDetails.details;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 public class CommentActivity extends BaseActivity {
@@ -75,7 +73,7 @@ public class CommentActivity extends BaseActivity {
         Button btnTake = findViewById(R.id.btComment);
         btnTake.setOnClickListener(view -> {
             dataPoint.setFieldValue(Field.COMMENT, edit.getText().toString(), false); // setWaypointComment(edit.getText().toString());
-            control.showAddInfo(selected);
+            control.showAdditionalInfo(selected);
             control.updateGpxFile = true;
             finish();
         });

@@ -75,7 +75,7 @@ public class LocationService extends Service {
         LocationRequest locationRequest = new LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY,
                 1000
-        ).setMinUpdateDistanceMeters(2)
+        ).setMinUpdateDistanceMeters(0)
                 .build();
 
         if (ActivityCompat.checkSelfPermission(this,
