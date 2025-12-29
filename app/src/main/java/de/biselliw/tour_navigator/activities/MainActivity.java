@@ -63,6 +63,7 @@ import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
+import de.biselliw.tour_navigator.dialogs.WikipediaDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
@@ -70,7 +71,6 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaFunction;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
@@ -340,10 +340,12 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_comment_waypoint)
             /* comment the current waypoint */
             commentRoutePoint();
+        else if (id == R.id.itm_find_nearby_wikipedia)
+            /* find nearby Wikipedia articles */
+            getNearbyWikipedia();
         else if (id == R.id.itm_delete_waypoint)
             /* Delete the current waypoint */
-            getNearbyWikipedia();
-            // deleteRoutePoint();
+            deleteRoutePoint();
         else if (id == R.id.itm_delete_trackpoints)
             /* Delete all following trackpoints */
             deleteTrackPoints();
@@ -589,10 +591,10 @@ public class MainActivity extends LocationActivity  implements
     public void getNearbyWikipedia() {
         int selected = recordAdapter.getPlace();
         if (selected >= 0) {
-            // Clear pause time in advance
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-                dataPointWikipedia = record.getTrackPoint();
+               WikipediaDialog wikipediaDialog = new WikipediaDialog(this, record.getTrackPoint());
+               wikipediaDialog.show();
             }
         }
     }

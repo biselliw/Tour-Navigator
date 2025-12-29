@@ -49,8 +49,6 @@ import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaFunction;
 
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
@@ -114,15 +112,13 @@ public class ControlElements extends BaseActivity {
 
     public boolean updateGpxFile = false;
 
-    private GetWikipediaFunction getWikipediaFunction = null;
-    public DataPoint dataPointWikipedia = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         la = (LocationActivity) this;
-        getWikipediaFunction = new GetWikipediaFunction(this);
+
     }
 
     @Override
@@ -168,11 +164,6 @@ public class ControlElements extends BaseActivity {
                 if (_rescalePlaceView)
                     onRescalePlaceView();
 
-                if (dataPointWikipedia != null) {
-                    getWikipediaFunction.getWikipedia(dataPointWikipedia);
-                    dataPointWikipedia = null;
-                }
-
                 timerHandler.postDelayed(this, 100);
             }
         };
@@ -192,7 +183,8 @@ public class ControlElements extends BaseActivity {
                             (id == R.id.itm_separator) ||
                             (id == R.id.itm_set_new_start) ||
                             (id == R.id.itm_delete_waypoint) ||
-                            (id == R.id.itm_delete_trackpoints))
+                            (id == R.id.itm_delete_trackpoints) ||
+                            (id == R.id.itm_find_nearby_wikipedia))
                 item.setEnabled(!_isViewExpanded && (_place >= 0));
             else
                 item.setVisible(false);
