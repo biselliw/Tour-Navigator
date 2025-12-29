@@ -16,6 +16,11 @@
             android:orderInCategory="1"
             android:title="@string/comment_waypoint"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/itm_find_nearby_wikipedia"
+            android:orderInCategory="1"
+            android:title="@string/find_nearby_wikipedia"
+            app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/nav_group_wpt_nav">

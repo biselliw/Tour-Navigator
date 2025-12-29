@@ -6,7 +6,8 @@
     <string name="app_description">Tour Navigator ist eine quelloffene App, die sich auf Privatsphäre und Sicherheit konzentriert.</string>
     <string name="app_description2">Es werden nur diejenigen Rechte benötigt, welche die App für die beschriebene Funktionalität erfordert.</string>
     <string name="app_author">Autor</string>
-    <string name="app_donate">erzeugt von Tour Navigator (©2025 Walter Biselli)</string>
+    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli)</string>
+    <string name="lang">de</string>
 
     <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>
     <string name="title_license">Quelloffene Lizenz</string>
@@ -52,6 +53,7 @@
     <string name="pausing">"PAUSE: Weiter in "</string>
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
+    <string name="find_nearby_wikipedia">Wikipediaartikel in der Nähe</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
     <string name="action_set_new_start">Starte von hier</string>
@@ -167,4 +169,6 @@
     <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
     <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
+    <!-- ### Wikipedia articles ###-->
+    <string name="wikipedia_article">Wikipedia Artikel</string>
 </resources>

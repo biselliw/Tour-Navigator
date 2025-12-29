@@ -25,8 +25,6 @@ import android.view.WindowManager;
 
 abstract public class FullScreenDialog extends Dialog {
 
-//    protected TodoCallback callback;
-
     public FullScreenDialog(Context context, int layoutId) {
         super(context);
 
@@ -40,6 +38,4 @@ abstract public class FullScreenDialog extends Dialog {
         lp.horizontalMargin = 40;
         window.setAttributes(lp);
     }
-
-
 }
