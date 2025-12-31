@@ -16,7 +16,7 @@ package de.biselliw.tour_navigator.activities.adapter;
     You should have received a copy of the GNU General Public License. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.app.Activity;
@@ -27,11 +27,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
-
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.dialogs.SearchResultDialog;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
@@ -45,7 +42,7 @@ public class SearchResultAdapter extends BaseAdapter {
      * TAG for log messages.
      */
     static final String TAG = "SearchResultAdapter";
-    private static final boolean _DEBUG = true; // Set to true to enable logging
+    private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     /**
@@ -57,24 +54,12 @@ public class SearchResultAdapter extends BaseAdapter {
     private SearchResultDialog _parent;
     TrackListModel _trackListModel = null;
 
-    private ListView recordsView;
-
-    public boolean updating = false;
-
-
     private int _selected = -1;
-
-    /**
-     * start time of the tour
-     */
-
-    final DecimalFormat decFormat = new DecimalFormat("  #0.0");
 
     private static class RecordViewHolder {
         public TextView nameView;
         public TextView distanceView;
     }
-
 
     /**
      * Constructor
@@ -89,7 +74,7 @@ public class SearchResultAdapter extends BaseAdapter {
 
         // Create a Listener for this list view of places
         recordsView.setOnItemClickListener((adapter, v, inPlace, arg3) ->
-                setPlace(inPlace));
+                setTableRow(inPlace));
     }
 
     @Override
@@ -98,9 +83,9 @@ public class SearchResultAdapter extends BaseAdapter {
     }
 
     /**
-     * update the list view of places
+     * update the list view of search results
      *
-     * @param i         index of the place
+     * @param i         index of the result
      * @param view      returned view
      * @param viewGroup not used
      * @return view
@@ -108,8 +93,6 @@ public class SearchResultAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         RecordViewHolder holder;
-
-     //   if (updating) return null;
 
         if (view == null) {
             LayoutInflater recordInflater = (LayoutInflater) _parent.getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
@@ -136,16 +119,6 @@ public class SearchResultAdapter extends BaseAdapter {
         return view;
     }
 
-    public void onDataSetChanged() {
-    }
-
-    /**
-     * Remove all records
-     */
-    public void RemoveRecords() {
-    }
-
-
     @Override
     public int getCount() {
         int count = 0;
@@ -161,33 +134,25 @@ public class SearchResultAdapter extends BaseAdapter {
 
     }
 
-
     /**
      * Get the selected item in the list of places
      *
      * @return Index (starting at 0) / -1 if nothing is selected
      */
-    public int getPlace() {
+    public int getSelected() {
         return _selected;
     }
 
     /**
      * Sets an item in the list of places
      *
-     * @param inPlace Index (starting at 0) of the data item to be selected or -1 if nothing
+     * @param inRow Index (starting at 0) of the data item to be selected or -1 if nothing
      */
-    public void setPlace(int inPlace) {
-        _selected = inPlace;
-        TextView _descriptionBox = _parent.findViewById(R.id.desc_search_result_view);
-        _parent.setDescription(_trackListModel.getTrack(inPlace).getDescription());
+    public void setTableRow(int inRow) {
+        _selected = inRow;
+        _parent.setDescription(_trackListModel.getTrack(inRow).getDescription());
+        _parent.setTableRow(inRow);
         notifyDataSetChanged();
-    }
-
-    public void scrollToListPosition() {
-        notifyDataSetChanged();
-        int inPlace = getPlace();
-        if (inPlace >= 0)
-            recordsView.smoothScrollToPosition(inPlace);
     }
 
 }

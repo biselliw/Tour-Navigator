@@ -432,24 +432,15 @@ public class Track {
 	}
 
 	/**
-	 * Find the nearest track point to the specified point
-	 * @param inPointIndex index of point within track
-	 * @return point index of nearest track point
-	 */
-	public int getNearestTrackPointIndex(int inPointIndex) {
-		return getNearestPointIndex(_xValues[inPointIndex], _yValues[inPointIndex], -1.0, true);
-	}
-
-	/**
 	 * Find the nearest point to the specified x and y coordinates
 	 * or -1 if no point is within the specified max distance
 	 * @param inX x coordinate
 	 * @param inY y coordinate
 	 * @param inMaxDist maximum distance from selected coordinates
-	 * @param inJustTrackPoints true if waypoints should be ignored
+	 * @param inIsProtectedWayPoint true if waypoints should be used always
 	 * @return index of nearest point or -1 if not found
 	 */
-	public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inJustTrackPoints)
+	public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inIsProtectedWayPoint)
 	{
 		int nearestPoint = 0;
 		double nearestDist = -1.0;
@@ -457,7 +448,7 @@ public class Track {
 		try {
 			for (int i=0; i < getNumPoints(); i++)
 			{
-				if (!inJustTrackPoints || !_dataPoints[i].isWaypoint())
+				if (!_dataPoints[i].isWaypoint())
 				{
 					yDist = Math.abs(_yValues[i] - inY);
 					if (yDist < nearestDist || nearestDist < 0.0)
@@ -476,9 +467,10 @@ public class Track {
 			return -1; // probably moving the mouse while data is changing
 		}
 		// Check whether it's within required distance
-		if (nearestDist > inMaxDist && inMaxDist > 0.0) {
-			return -1;
-		}
+        if (!inIsProtectedWayPoint)
+		    if (nearestDist > inMaxDist && inMaxDist > 0.0) {
+			    return -1;
+		    }
 		return nearestPoint;
 	}
 
@@ -644,4 +636,19 @@ public class Track {
 		_scaled = false;
 		return true;
 	}
+
+    /**
+     * Check if the track already contains a point
+     * @param inPoint object to compare
+     * @return true if the track already contains the point
+     * @author BiselliW
+     */
+    public boolean contains(DataPoint inPoint) {
+        for (int i = 0; i < _numPoints; i++) {
+            DataPoint point = _dataPoints[i];
+            if (point.isDuplicate(inPoint))
+                return true;
+        }
+        return false;
+    }
 }

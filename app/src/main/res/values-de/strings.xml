@@ -14,6 +14,9 @@
 
     <!-- Common UI strings -->
     <string name="ok">OK</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="wait">Bitte warten ...</string>
+    <string name="description">Beschreibung</string>
 
     <!-- ###DRAWER###-->
     <string name="action_main">Hauptmenü</string>
@@ -170,5 +173,11 @@
     <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_article">Wikipedia Artikel</string>
+    <string name="wikipedia_articles_nearby">Wikipedia-Artikel in der Nähe</string>
+    <string name="wikipedia_articles_nonefound">Keine Wikipedia-Artikel in der Nähe gefunden!</string>
+    <string name="wikipedia_article_name">Artikelname</string>
+    <string name="wikipedia_article_show">Artikel zeigen</string>
+
+    <string name="point_already_loaded">The track already contains the point!</string>
+
 </resources>

@@ -552,10 +552,18 @@ public class MainActivity extends LocationActivity  implements
             if (record != null) {
                 DataPoint dataPoint = record.getTrackPoint();
                 dataPoint.setWaypointDuration(0);
+                dataPoint.setWaypointName("");
 
-                recordAdapter.recordList.remove(selected);
-                recordAdapter.notifyDataSetChanged();
-
+                if (dataPoint.getLinkIndex() > 0) {
+                    Track track = App.getTrack();
+                    if (track != null) {
+                       track.deletePoint(dataPoint.getLinkIndex());
+                        app.Update();
+                    }
+                }
+//                recordAdapter.recordList.remove(selected);
+//                recordAdapter.notifyDataSetChanged();
+/*
                 Track track = App.getTrack();
                 if (track != null) {
                     if ((record.trackPointIndex >= 0) && (record.trackPointIndex < track.getNumPoints())) {
@@ -563,6 +571,8 @@ public class MainActivity extends LocationActivity  implements
                         app.Update();
                     }
                 }
+
+ */
             }
         }
     }

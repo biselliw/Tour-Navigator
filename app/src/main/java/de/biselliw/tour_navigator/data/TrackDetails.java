@@ -49,7 +49,7 @@ public class TrackDetails extends Track {
      * TAG for log messages.
      */
     static final String TAG = "TrackDetails";
-	private static final boolean _DEBUG = false; // Set to true to enable logging
+	private static final boolean _DEBUG = true; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     /* maximum distance of a waypoint to the track */
@@ -65,6 +65,9 @@ public class TrackDetails extends Track {
 
 
     TrackTiming _trackTiming = null;
+    static DataPoint[] _waypoints;
+    static int _numWaypoints;
+    static int[] _pointIndices;
 
 	/**
 	 * Recalculate all selection details
@@ -395,14 +398,14 @@ public class TrackDetails extends Track {
 // todo        UpdateMessageBroker.informSubscribers();
     }
 
-    static DataPoint[] _waypoints;
-    static int _numWaypoints;
-    static int[] _pointIndices;
 
     /**
      * Interleave all waypoints by each nearest track point
      */
     public void interleaveWaypoints() {
+        final List<String> protectedWaypointTypes = List.of(
+                "Wikipedia"
+        );
         // Separate waypoints and find nearest track point
         _numWaypoints = 0;
         _waypoints = new DataPoint[_numPoints];
@@ -419,8 +422,10 @@ public class TrackDetails extends Track {
             if (point.isWayPoint()) {
                 // find nearest track point
                 _waypoints[_numWaypoints] = point;
+                if (protectedWaypointTypes.contains(point.getWaypointType()))
+                    _waypoints[_numWaypoints].makeProtectedWaypoint();
                 _waypoints[_numWaypoints].clearWayPointLink();
-                _pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 15.0E-7, true);
+                _pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 15.0E-7, point.isProtectedWayPoint());
                 _numWaypoints++;
             }
         }
@@ -502,7 +507,7 @@ public class TrackDetails extends Track {
      * @author BiselliW
      */
     void reorderPoints() {
-        DataPoint[] dataCopy = new DataPoint[_numPoints];
+        DataPoint[] dataCopy = new DataPoint[_numPoints*2];
         int copyIndex = 0;
         boolean setStart = true;
         DataPoint point;
@@ -527,24 +532,29 @@ public class TrackDetails extends Track {
                     int linkedTP = DataPoint.INVALID_INDEX;
                     for (int j = 0; j < _numWaypoints; j++) {
                         if ((_pointIndices[j] >= 0) && (_pointIndices[j] <= i)) {
-                            /*
-                             *  is this way point the nearest to the track point?
-                             *  - link the track point to this way point
-                             */
+                            /*  is this way point the nearest to the track point?
+                             *  - link the track point to this way point */
                             if (_waypoints[j] != null) {
                                 if (!foundWP) {
                                     foundWP = true;
                                     linkedTP = copyIndex - 1;
                                     dataCopy[linkedTP].makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
+                                    _pointIndices[j] = DataPoint.INVALID_INDEX;
                                 }
                                 _waypoints[j].setLinkIndex(linkedTP);
                                 // else link the following track point to this way point
-                                _pointIndices[j] = DataPoint.INVALID_INDEX;
 
-                                dataCopy[copyIndex] = _waypoints[j];
-                                copyIndex++;
-                            } else
-                                _waypoints[j] = null;
+                                  //  _pointIndices[j] = DataPoint.INVALID_INDEX;
+
+                                if (copyIndex < _numPoints) {
+                                    dataCopy[copyIndex] = _waypoints[j];
+                                    copyIndex++;
+                                }
+                                else
+                                    copyIndex = 0;
+                                if (foundWP)
+                                    break;
+                            }
                         }
                     }
                 }
@@ -553,13 +563,16 @@ public class TrackDetails extends Track {
 
         // check for way points without index
         for (int j = 0; j < _numWaypoints; j++) {
-            if (_pointIndices[j] != DataPoint.INVALID_INDEX) {
+            if (_pointIndices[j] >= 0) {
+//            if (_pointIndices[j] != DataPoint.INVALID_INDEX) {
                 dataCopy[copyIndex] = _waypoints[j];
                 copyIndex++;
             }
         }
         // Copy data back to track
         _dataPoints = dataCopy;
+
+        _numPoints = copyIndex;
     }
 
 
