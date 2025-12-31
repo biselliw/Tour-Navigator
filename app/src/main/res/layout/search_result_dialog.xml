@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:overScrollMode="always"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activities.MainActivity">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <TextView
         android:id="@+id/search_title"
@@ -26,47 +25,54 @@
         android:textSize="16sp"
         android:text="@string/wait"/>
 
-    <TableLayout
-        android:id="@+id/table_layout"
+    <LinearLayout
+        android:id="@+id/location_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="25dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TableRow
-            android:id="@+id/table_row1"
+        <TableLayout
+            android:id="@+id/table_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:longClickable="true">
+            android:minHeight="25dp">
 
-            <TextView
-                android:id="@+id/search_result_name"
+            <TableRow
+                android:id="@+id/table_row1"
                 android:layout_width="match_parent"
-                android:layout_height="25dp"
-                android:fontFamily="serif"
-                android:text="@string/wikipedia_article_name"
-                android:textColor="@color/black" />
-            <TextView
-                android:id="@+id/search_result_distance"
-                android:layout_width="90dp"
-                android:layout_height="25dp"
-                android:fontFamily="serif"
-                android:text=""
-                android:textColor="@color/black"/>
-        </TableRow>
+                android:layout_height="wrap_content">
 
-        <View
+                <TextView
+                    android:id="@+id/search_result_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:fontFamily="serif"
+                    android:text="@string/wikipedia_article_name"
+                    android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/search_result_distance"
+                    android:layout_width="100dp"
+                    android:textAlignment="viewEnd"
+                    android:layout_height="25dp"
+                    android:fontFamily="serif"
+                    android:text="Entfernung"
+                    android:textColor="@color/black"/>
+            </TableRow>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dip"
+                android:background="#ff0000" />
+        </TableLayout>
+
+        <ListView
+            android:id="@+id/search_result_view"
             android:layout_width="match_parent"
-            android:layout_height="3dip"
-            android:background="#ff0000" />
-    </TableLayout>
-
-    <ListView
-        android:id="@+id/search_result_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:layout_weight="2"
-        android:longClickable="true"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_weight="2"
+            android:longClickable="true"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/desc_search_result"

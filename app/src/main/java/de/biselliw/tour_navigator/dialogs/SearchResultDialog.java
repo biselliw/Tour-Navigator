@@ -103,7 +103,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         };
         timerHandler.postDelayed(timerRunnable, 100);
     }
-
+    
     protected void showStatus(String inStatus) {
         _statusLabel.setText(inStatus);
         _statusLabel.setTextColor(R.color.black);
