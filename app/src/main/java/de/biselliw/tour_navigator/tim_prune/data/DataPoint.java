@@ -65,7 +65,9 @@ public class DataPoint
 	public static final int INVALID_INDEX = -32000;
 	private String _routePointName = null;
 	private boolean _isWaypoint;
-	/** Distance since start [km] */
+    private boolean _isProtectedWaypoint;
+
+    /** Distance since start [km] */
 	private double _distance_km;
 	/** Time since start [s] */
 	private long _time_s;
@@ -707,13 +709,14 @@ public class DataPoint
 	 */
 	@NonNull
     public String toString() {
+        String type = _isWaypoint ? "WP " : "TP ";
         String name = !getWaypointName().isEmpty() ? getWaypointName() :
                 (_routePointName != null) ? _routePointName : "";
         String lat = getLatitude() != null ? getLatitude().toString() : "null";
         String lon = getLongitude() != null ? getLongitude().toString() : "null";
         String res = "[Lat=" + lat + ", Lon=" + lon + "]";
         if (name != null) res = name + ": " + res;
-		return res;
+		return type + res;
 	}
 	
 	/** 
@@ -727,6 +730,15 @@ public class DataPoint
 		return _comment;
 	}
 
+    /**
+     * @param inDescription way point or trackpoint description
+     * @author BiselliW
+     * @since 22.2.005
+     */
+    public void setDescription(String inDescription)
+    {
+        _description = inDescription;
+    }
 	/** 
 	 * @return way point or trackpoint description, if any 
 	 * @author BiselliW
@@ -738,7 +750,17 @@ public class DataPoint
 		return _description;
 	}
 
-	/**
+    /**
+     * @param inWebLink way point or trackpoint weblink
+     * @author BiselliW
+     * @since 22.2.005
+     */
+    public void setWebLink(String inWebLink)
+    {
+        _webLink = inWebLink;
+    }
+
+    /**
 	 * @return way point or trackpoint weblink, if any
 	 * @author BiselliW
 	 * @since 22.2.005
@@ -806,6 +828,15 @@ public class DataPoint
 		return (_waypointName != null) && !_waypointName.equals("") && _isWaypoint;
 	}
 
+    /**
+     * @return true if point is a protected waypoint
+     * @author BiselliW
+     */
+    public boolean isProtectedWayPoint()
+    {
+        return isWayPoint() && _isProtectedWaypoint;
+    }
+
 	/**
 	 * checks if a point is a Route Point:
 	 * - a track point with name
@@ -850,6 +881,15 @@ public class DataPoint
 		_linkIndex = inLinkIndex;
 	}
 
+    /**
+     * @implNote only internal use for tour navigator
+     * @param inSymbol waypoint symbol
+     * @author BiselliW
+     */
+    public void setWaypointSymbol(String inSymbol)
+    {
+        _symbol = inSymbol;
+    }
 	/**
 	 * @implNote only internal use for tour navigator
 	 * @return waypoint symbol, if any
@@ -861,7 +901,17 @@ public class DataPoint
 		return _symbol;
 	}
 
-	/**
+    /**
+     * @implNote only internal use for tour navigator
+     * @param inType waypoint type
+     * @author BiselliW
+     */
+    public void setWaypointType(String inType)
+    {
+        _wptType = inType;
+    }
+
+    /**
 	 * @implNote only internal use for tour navigator
 	 * @return waypoint type, if any
 	 * @author BiselliW
@@ -1007,5 +1057,15 @@ public class DataPoint
 	 * @author BiselliW
 	 */
 	public void _setRealtimeDataTime(long time_s) { _time_s = time_s; }
+
+    /**
+     * mark a point as protected way point
+     * @author BiselliW
+     */
+    public void makeProtectedWaypoint()
+    {
+        _isWaypoint = true;
+        _isProtectedWaypoint = true;
+    }
 
 }

@@ -20,6 +20,9 @@
 
     <!-- Common UI strings -->
     <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="wait">Please wait ...</string>
+    <string name="description">Description</string>
 
     <!-- ###DRAWER###-->
     <string name="action_main">Main</string>
@@ -204,5 +207,12 @@
     <string name="profile">"Profile"</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_article">Wikipedia Article</string>
+    <string name="wikipedia_articles_nearby">Wikipedia articles nearby</string>
+    <string name="wikipedia_articles_nonefound">No Wikipedia articles found nearby!</string>
+    <string name="wikipedia_article_already_loaded">No Wikipedia articles found nearby!</string>
+    <string name="wikipedia_article_name">Article Name</string>
+    <string name="wikipedia_article_show">Show article</string>
+
+    <string name="point_already_loaded">The track already contains the point!</string>
+
 </resources>
