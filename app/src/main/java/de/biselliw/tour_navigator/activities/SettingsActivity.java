@@ -44,6 +44,7 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.Segments;
 import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.helpers.Log;
 
@@ -61,11 +62,11 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     /** default hiking speed parameter: horizontal part in [m/h] */
-    final static int DEF_HOR_SPEED = (int)(1000 * TrackTiming.DEF_HOR_SPEED);
+    final static int DEF_HOR_SPEED = (int)(1000 * Segments.DEF_HOR_SPEED);
     /** default hiking speed parameter: ascending part in [m/h] */
-    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * TrackTiming.DEF_VERT_SPEED_CLIMB);
+    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * Segments.DEF_VERT_SPEED_CLIMB);
     /** default hiking speed parameter: descending part in [m/h]; */
-    final static int DEF_VERT_SPEED_DESC = (int)(1000 * TrackTiming.DEF_VERT_SPEED_DESC);
+    final static int DEF_VERT_SPEED_DESC = (int)(1000 * Segments.DEF_VERT_SPEED_DESC);
 
     static String[] keys = new String[]{"pref_hiking_par_horSpeed", "pref_hiking_par_vertSpeedClimb", "pref_hiking_par_vertSpeedDescent"};
     static int[] defaults = new int[]{DEF_HOR_SPEED, DEF_VERT_SPEED_CLIMB, DEF_VERT_SPEED_DESC};
@@ -320,8 +321,8 @@ public class SettingsActivity extends AppCompatActivity {
         setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
 
         // set hiking parameters
-        TrackTiming.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
-                vertSpeedDescent / 1000.0, TrackTiming.DEF_MIN_HEIGHT_CHANGE);
+        Segments.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
+                vertSpeedDescent / 1000.0, Segments.DEF_MIN_HEIGHT_CHANGE);
     }
 
 

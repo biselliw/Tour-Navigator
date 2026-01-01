@@ -33,12 +33,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
-import de.biselliw.tour_navigator.data.TrackDetails;
-import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static de.biselliw.tour_navigator.App.app;
@@ -411,7 +408,7 @@ public class HTML_File {
                             html_buffer.append(details.getPlannedArriveTime(row));
                             break;
                         case COL_DISTANCE:
-                            html_buffer.append(decFormat.format(recPoint.getDistance()));
+                            html_buffer.append(decFormat.format(recPoint.getDistance() + 0.05));
                             break;
                         case COL_WPT_NAME:
                             // is extended description available?
@@ -423,21 +420,21 @@ public class HTML_File {
                                 html_buffer.append(recPoint.getRoutePointName());
                             break;
                         case COL_HEIGHT:
-                            html_buffer.append((int) recPoint.getAltitude().getValue());
+                            html_buffer.append(roundToInt(recPoint.getAltitude().getValue()));
                             break;
                         case COL_DIST:
                             if (row > 0) {
                                 final DecimalFormat formatter = new DecimalFormat("  #0.0");
-                                html_buffer.append(formatter.format(record.Sdistance));
+                                html_buffer.append(formatter.format(record.Sdistance + 0.05));
                             }
                             break;
                         case COL_CLIMB:
                             if (row > 0)
-                                html_buffer.append((int) record.Sclimb);
+                                html_buffer.append(roundToInt(record.Sclimb));
                             break;
                         case COL_DESCENT:
                             if (row > 0)
-                                html_buffer.append((int) record.Sdescent);
+                                html_buffer.append(roundToInt(record.Sdescent));
                             break;
                         case COL_DURATION:
                             if (row > 0)
@@ -483,10 +480,10 @@ public class HTML_File {
                     html_buffer.append(res.getString(R.string.summary));
                     break;
                 case COL_CLIMB:
-                    html_buffer.append((int) trackTiming.getTotalClimb());
+                    html_buffer.append(roundToInt(trackTiming.getTotalClimb()));
                     break;
                 case COL_DESCENT:
-                    html_buffer.append((int) trackTiming.getTotalDescent());
+                    html_buffer.append(roundToInt(trackTiming.getTotalDescent()));
                     break;
                 case COL_DURATION:
                     html_buffer.append(formatIntToTime((int) (trackTiming.getTotalSeconds() / 60L
@@ -529,6 +526,9 @@ public class HTML_File {
                 arguments);
     }
 
+    int roundToInt(double inValue) {
+        return (int)(inValue + 0.5);
+    }
 
     /**
      * write Description header
