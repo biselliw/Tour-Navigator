@@ -127,8 +127,8 @@
     <string name="pref_header_general">General</string>
     <string name="pref_header_hiking_parameters">Hiking Parameters</string>
     <string name="pref_hiking_par_horSpeed">horizontal part in [m/h]</string>
-    <string name="pref_hiking_par_vertSpeedClimb">ascending part in [m/h]</string>
-    <string name="pref_hiking_par_vertSpeedDescent">descending part in [m/h]</string>
+    <string name="pref_hiking_par_vertSpeedClimb">ascending part in [hm/h]</string>
+    <string name="pref_hiking_par_vertSpeedDescent">descending part in [hm/h]</string>
     <string name="pref_hiking_par_set_to_default">"Parameter was set to default value: "</string>
     <string name="pref_header_alarm_parameters">Alarms</string>
     <string name="pref_hiking_par_alarm">Notify when out of track</string>

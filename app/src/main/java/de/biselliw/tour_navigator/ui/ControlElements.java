@@ -45,7 +45,9 @@ import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.EstimateParams;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
@@ -202,7 +204,9 @@ public class ControlElements extends BaseActivity {
             if (id == R.id.nav_file_info)
                 item.setEnabled(
                         Log.isLoggedHTML() ||
-                        !_initUserInterface && _fileInfoAvailable);
+                                (!_initUserInterface && _fileInfoAvailable) ||
+                                app.getTrack().isValidRecordedTrackFile()
+                        );
             else if (
                     (id == R.id.nav_reverse_route) ||
                             (id == R.id.nav_start_time) ||
@@ -220,7 +224,7 @@ public class ControlElements extends BaseActivity {
      */
     private void onRescalePlaceView() {
         TextView placeView = findViewById(R.id.track_place);
-        TableLayout table_layout1 = findViewById(R.id.table_layout1);
+        TableLayout table_layout1 = findViewById(R.id.table_head);
         int layoutWidth = table_layout1.getWidth();
 
         int h_track_arrive = getViewWidth(R.id.h_track_arrive);
@@ -236,6 +240,19 @@ public class ControlElements extends BaseActivity {
     }
 
     private void onSetupUserInterface() {
+        TableLayout tableLayoutHead = findViewById(R.id.table_head);
+        TableLayout tableLayoutRecords = findViewById(R.id.table_records);
+        TextView commentView = findViewById(R.id.comment_view);
+        if (App.getTrack().isValidRecordedTrackFile()) {
+            tableLayoutHead.setVisibility(View.GONE);
+            tableLayoutRecords.setVisibility(View.GONE);
+            commentView.setVisibility(View.GONE);
+        }
+        else {
+            tableLayoutHead.setVisibility(View.VISIBLE);
+            tableLayoutRecords.setVisibility(View.VISIBLE);
+            commentView.setVisibility(View.VISIBLE);
+        }
         setTrackingStatus(false);
         _setupUserInterface = false;
     }
@@ -634,9 +651,16 @@ public class ControlElements extends BaseActivity {
      * Show the file info or HTML Log if available
      */
     public void showFileInfo() {
-        // update the expansion mode
-        _isViewExpanded = showExpandViewStatus(-1, true);
-        showAdditionalInfo(-1);
+        if (app.getTrack().isValidRecordedTrackFile()) {
+            _isViewExpanded = true;
+            _updateExpandView = true;
+            _additionalInfo = TrackTiming.estimate.getRecordedTrackFileInfo();
+        } else {
+            // update the expansion mode
+            _isViewExpanded = showExpandViewStatus(-1, true);
+            showAdditionalInfo(-1);
+
+        }
     }
 
     /**
@@ -698,13 +722,15 @@ public class ControlElements extends BaseActivity {
      * @param state view state
      */
     public void activateProfile(int state) {
-        if (!App.getTrack().isValid())
-            state = View.GONE;
-        _profileViewVisibility = state;
-        if (state != View.GONE)
-            setProfileViewVisibility(state);
+        if (App.getTrack() != null) {
+            if (!App.getTrack().hasAltitudes())
+                state = View.GONE;
+            _profileViewVisibility = state;
+            if (state != View.GONE)
+                setProfileViewVisibility(state);
 
-        _updateProfile = true;
+            _updateProfile = true;
+        }
     }
 
     /**

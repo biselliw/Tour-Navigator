@@ -17,11 +17,12 @@
     tools:showIn="@layout/activity_main">
 
     <TableLayout
-        android:id="@+id/table_layout1"
+        android:id="@+id/table_head"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
-        android:minHeight="25dp">
+        android:minHeight="25dp"
+        android:visibility="invisible">
 
         <TableRow
             android:id="@+id/table_row11"
@@ -114,10 +115,11 @@
         android:orientation="vertical">
 
         <TableLayout
-            android:id="@+id/table_layout"
+            android:id="@+id/table_records"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="25dp">
+            android:minHeight="25dp"
+            android:visibility="invisible">
 
             <TableRow
                 android:id="@+id/table_row1"
