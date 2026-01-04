@@ -9,6 +9,8 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import org.w3c.dom.*;
 
+import static de.biselliw.tour_navigator.data.BaseSegments.baseSegments;
+
 
 public class TrackTiming {
     /**
@@ -24,7 +26,7 @@ public class TrackTiming {
 
     private final TrackDetails _track;
 
-    long _totalBreakTime_min = 0L;
+    public static EstimateParams estimate = null;
 
     public TrackTiming (TrackDetails inTrack)
     {
@@ -37,10 +39,6 @@ public class TrackTiming {
      */
     public List<RecordAdapter.Record> recalculate()  {
         List<RecordAdapter.Record> recordList = null;
-
-        recordList = new ArrayList<>();
-        RecordAdapter.Record record;
-
         int _numPoints = _track.getNumPoints();
         if (_numPoints <= 0) return null;
 
@@ -48,71 +46,77 @@ public class TrackTiming {
             android.util.Log.d(TAG, "recalculate(): " + _numPoints + " Trackpoints");
         }
 
-        segments = new Segments();
-        List<Segment> _segments = segments.calcSegments(_track);
-        if (!_segments.isEmpty()) {
-            int seg = 0;
-            Segment segment = _segments.get(seg);
+        if (_track.isValidRecordedTrackFile()) {
+            estimate = new EstimateParams();
+            List<Segment> _segments = estimate.calcSegments(_track);
+            estimate.estimate(_segments);
+        }
+        else {
+            segments = new Segments();
+            List<Segment> _segments = segments.calcSegments(_track);
+            if (!_segments.isEmpty()) {
+                int seg = 0;
+                Segment segment = _segments.get(seg);
+                recordList = new ArrayList<>();
+                RecordAdapter.Record record;
 
-            double sumDistance_km = 0;
-            double sumClimb_m = 0, sumDescent_m = 0;
-            long sumSeconds = 0L;
-            int breakTime_min = 0;
-            int sumBreakTime_min = 0;
-            for (int ptIndex = 0; ptIndex <= _numPoints - 1; ptIndex++) {
-                DataPoint currPoint = _track.getPoint(ptIndex);
+                double sumDistance_km = 0;
+                double sumClimb_m = 0, sumDescent_m = 0;
+                long sumSeconds = 0L;
+                int breakTime_min = 0;
+                for (int ptIndex = 0; ptIndex <= _numPoints - 1; ptIndex++) {
+                    DataPoint currPoint = _track.getPoint(ptIndex);
 
-                if (currPoint.isRoutePoint()) {
-                    double segDistance = currPoint.getDistance() - segment.startDistance_km;
-                    double climb = 0, descent = 0;
-                    long seconds = 0L;
-                    if (segment.distance_km > 0) {
-                        double relDistance = segDistance / segment.distance_km;
-                        climb = segment.startClimb_m + relDistance * segment.climb_m;
-                        descent = segment.startDescent_m + relDistance * segment.descent_m;
-                        seconds = segment.startSeconds + (long)(relDistance * segment.totalSeconds);
+                    if (currPoint.isRoutePoint()) {
+                        double segDistance = currPoint.getDistance() - segment.startDistance_km;
+                        double climb = 0, descent = 0;
+                        long seconds = 0L;
+                        if (segment.distance_km > 0) {
+                            double relDistance = segDistance / segment.distance_km;
+                            climb = segment.startClimb_m + relDistance * segment.climb_m;
+                            descent = segment.startDescent_m + relDistance * segment.descent_m;
+                            seconds = segment.startSeconds + (long)(relDistance * segment.totalSeconds);
+                        }
+                        record = new RecordAdapter.Record(
+                                currPoint,
+                                ptIndex,
+                                currPoint.getDistance() - sumDistance_km,
+                                climb - sumClimb_m,
+                                descent - sumDescent_m,
+                                seconds - sumSeconds - breakTime_min * 60L
+                        );
+
+                        sumDistance_km = currPoint.getDistance();
+                        sumClimb_m = climb;
+                        sumDescent_m = descent;
+                        breakTime_min = currPoint.getWaypointDuration();
+                        sumSeconds = seconds + breakTime_min * 60L;
+
+                        recordList.add(record);
                     }
-                    record = new RecordAdapter.Record(
-                            currPoint,
-                            ptIndex,
-                            currPoint.getDistance() - sumDistance_km,
-                            climb - sumClimb_m,
-                            descent - sumDescent_m,
-                            seconds - sumSeconds - breakTime_min * 60L
-                    );
-
-                    sumDistance_km = currPoint.getDistance();
-                    sumClimb_m = climb;
-                    sumDescent_m = descent;
-                    breakTime_min = currPoint.getWaypointDuration();
-                    sumSeconds = seconds + breakTime_min * 60L;
-                    sumBreakTime_min += breakTime_min;
-
-                    recordList.add(record);
-                }
-                if (DEBUG) {
-                    android.util.Log.d(TAG, "timetable built");
-                    android.util.Log.d(TAG, "Sclimb: " + sumClimb_m);
-                    android.util.Log.d(TAG, "Sdescent: " + sumDescent_m);
-                }
-                currPoint.setTime(sumSeconds);
-                if (ptIndex == segment.endIndex) {
-                    if(_segments.size() > ++seg)
-                        segment = _segments.get(seg);
-                    else
-                        break;
+                    if (DEBUG) {
+                        android.util.Log.d(TAG, "timetable built");
+                        android.util.Log.d(TAG, "Sclimb: " + sumClimb_m);
+                        android.util.Log.d(TAG, "Sdescent: " + sumDescent_m);
+                    }
+                    currPoint.setTime(sumSeconds);
+                    if (ptIndex == segment.endIndex) {
+                        if(_segments.size() > ++seg)
+                            segment = _segments.get(seg);
+                        else
+                            break;
+                    }
                 }
             }
-            _totalBreakTime_min = sumBreakTime_min;
         }
 
         return recordList;
     }
 
-    public long getTotalBreakTime_min() { return _totalBreakTime_min; }
-    public double getMinAltitude() { return segments.getMinAltitude(); }
-    public double getMaxAltitude() { return segments.getMaxAltitude(); }
-    public double getTotalDistance () {	return segments.getTotalDistance();}
+    public long getTotalBreakTime_min() { return segments.getTotalBreakTime_min(); }
+    public double getMinAltitude() { return baseSegments.getMinAltitude(); }
+    public double getMaxAltitude() { return baseSegments.getMaxAltitude(); }
+    public double getTotalDistance () { return baseSegments.getTotalDistance();}
     public double getTotalClimb () { return segments.getTotalClimb(); }
     public double getTotalDescent () { return segments.getTotalDescent(); }
     public long getTotalSeconds () { return segments.getTotalSeconds(); }

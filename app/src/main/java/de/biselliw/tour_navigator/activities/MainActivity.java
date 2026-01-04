@@ -1040,9 +1040,9 @@ public class MainActivity extends LocationActivity  implements
             _startTime = null;
         }
 
-       
-
-        super.runner ();
+        if (App.getTrack() != null)
+            if (!App.getTrack().isValidRecordedTrackFile())
+                super.runner ();
     }
 
 }

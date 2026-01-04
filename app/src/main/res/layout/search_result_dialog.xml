@@ -32,7 +32,7 @@
         android:orientation="vertical">
 
         <TableLayout
-            android:id="@+id/table_layout"
+            android:id="@+id/table_search_results"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="25dp">

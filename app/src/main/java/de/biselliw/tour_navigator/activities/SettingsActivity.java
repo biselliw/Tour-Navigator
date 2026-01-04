@@ -44,6 +44,7 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.BaseSegments;
 import de.biselliw.tour_navigator.data.Segments;
 import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.helpers.Log;
@@ -305,9 +306,17 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * get preferences for hiking times calculation
+     * get preferences
      */
     static public void getPreferences()
+    {
+        setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
+    }
+
+    /**
+     * get preferences for hiking times calculation
+     */
+    static public void getHikingParameters(Segments inSegments)
     {
         // hiking speed parameters
 
@@ -321,7 +330,7 @@ public class SettingsActivity extends AppCompatActivity {
         setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
 
         // set hiking parameters
-        Segments.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
+        inSegments.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
                 vertSpeedDescent / 1000.0, Segments.DEF_MIN_HEIGHT_CHANGE);
     }
 

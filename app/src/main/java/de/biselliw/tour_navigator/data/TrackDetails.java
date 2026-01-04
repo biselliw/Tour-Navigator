@@ -58,6 +58,8 @@ public class TrackDetails extends Track {
 
     private boolean _hasNamedTrackpoint = false;
     private boolean _hasAltitude = false;
+    private boolean _hasTimestamps = false;
+
     /**
      * Nearest distance of a track point to the specified Latitude and Longitude coordinates
      */
@@ -688,6 +690,26 @@ public class TrackDetails extends Track {
     }
 
     /**
+     * @return true if track contains trackpoints with time stamps
+     * @author BiselliW
+     */
+    public boolean hasTimestamps() {
+        if (!_hasTimestamps) {
+            for (int p = 1; p < _numPoints; p++) {
+                DataPoint point = getPoint(p);
+                if (point != null && point.isValid()) {
+                    if (point.hasTimestamp()){
+                        _hasTimestamps = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return _hasTimestamps;
+    }
+
+
+    /**
      * Delete all points
      *
      * @return true if successful
@@ -705,6 +727,9 @@ public class TrackDetails extends Track {
         return hasAltitudes() && (hasWaypoints() || hasNamedTrackpoints());
     }
 
+    public boolean isValidRecordedTrackFile() {
+        return hasAltitudes() && hasTimestamps();
+    }
 }
 
 

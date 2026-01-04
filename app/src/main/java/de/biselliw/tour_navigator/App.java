@@ -62,7 +62,7 @@ public class App {
     private static SourceInfo _refSourceInfo = null;
     private static boolean _refAppend = false;
 
-    private TrackInfo _trackInfo;
+    private TrackInfo _trackInfo = null;
     private final MainActivity _main;
 
     public static App app = null;
@@ -73,8 +73,10 @@ public class App {
         app = this;
         _main = main;
         resources = main.getResources();
+
+        // create empty track
         _track = new TrackDetails();
-        _trackInfo = new TrackInfo(_track);
+//        _trackInfo = new TrackInfo(_track);
     }
 
     /**
@@ -190,7 +192,6 @@ public class App {
      */
     public void recalculate() {
         List<RecordAdapter.Record> recordList = _track.recalculate();
-
         control.notifyDataSetChanged(recordList);
         control.updateGpxFile = true;
     }

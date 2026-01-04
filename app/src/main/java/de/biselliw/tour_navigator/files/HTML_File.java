@@ -408,7 +408,7 @@ public class HTML_File {
                             html_buffer.append(details.getPlannedArriveTime(row));
                             break;
                         case COL_DISTANCE:
-                            html_buffer.append(decFormat.format(recPoint.getDistance() + 0.05));
+                            html_buffer.append(decFormat.format(recPoint.getDistance()));
                             break;
                         case COL_WPT_NAME:
                             // is extended description available?
@@ -425,7 +425,7 @@ public class HTML_File {
                         case COL_DIST:
                             if (row > 0) {
                                 final DecimalFormat formatter = new DecimalFormat("  #0.0");
-                                html_buffer.append(formatter.format(record.Sdistance + 0.05));
+                                html_buffer.append(formatter.format(record.Sdistance));
                             }
                             break;
                         case COL_CLIMB:
@@ -509,7 +509,7 @@ public class HTML_File {
             html_buffer.append("</body></html>");
     }
 
-    String formatIntToTime(int inMinutes) {
+    public String formatIntToTime(int inMinutes) {
         // separate minutes and hours
         int minute = inMinutes % 60;
         int hour = (inMinutes / 60) % 60;

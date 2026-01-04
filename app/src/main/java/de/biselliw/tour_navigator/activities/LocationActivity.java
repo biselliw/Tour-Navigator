@@ -656,6 +656,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     }
                     else
                         control.setTrackingStatus(false);
+                    if (!app.getTrack().isValidRecordedTrackFile())
                         setLocationStatus(locationStatus.WAIT_USER_START);
                     break;
                 }

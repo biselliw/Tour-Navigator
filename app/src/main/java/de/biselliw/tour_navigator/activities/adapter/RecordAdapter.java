@@ -279,12 +279,14 @@ public class RecordAdapter extends BaseAdapter {
             }
             _updatedRecordList.clear();
             _updatedRecordList = null;
-            notifyDataSetChanged();
         }
     }
 
     public void notifyDataSetChanged(List<Record> records) {
         _updatedRecordList = records;
+        if (records == null) {
+            RemoveRecords();
+        }
         if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
     }
 
@@ -295,6 +297,7 @@ public class RecordAdapter extends BaseAdapter {
         while (getCount() > 0) {
             recordList.remove(0);
         }
+        _selected = -1;
     }
 
     /**
