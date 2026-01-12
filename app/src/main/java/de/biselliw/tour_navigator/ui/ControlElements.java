@@ -28,8 +28,10 @@ import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -45,13 +47,13 @@ import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import de.biselliw.tour_navigator.data.EstimateParams;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 
+import static android.view.View.VISIBLE;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
 
@@ -67,6 +69,9 @@ public class ControlElements extends BaseActivity {
     public static ControlElements control = null;
     public App app = null;
     public MainActivity main = null;
+
+    protected WebView webView = null;
+
     public ProfileAdapter profileAdapter = null;
 
     private LocationActivity la = null;
@@ -79,11 +84,14 @@ public class ControlElements extends BaseActivity {
     boolean _initUserInterface = false;
     boolean _setupUserInterface = false;
     boolean _updateTrackingStatus = false;
+    protected static boolean raiseAlarm = true;
+
     boolean _updateGpsStatus = false;
     boolean _updateExpandViewStatus = false;
     boolean _updateSpeakStatus = false;
     boolean _updateErrorMessage = false;
     boolean _updateExpandView = false;
+    boolean _updateFileInfo = false;
     boolean _updateWaypointType = false;
     boolean _updateProfile = false;
     boolean _rescalePlaceView = true;
@@ -120,7 +128,6 @@ public class ControlElements extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         la = (LocationActivity) this;
-
     }
 
     @Override
@@ -134,7 +141,6 @@ public class ControlElements extends BaseActivity {
         /* Install a timer to update control elements */
         //runs without a timer by reposting this handler at the end of the runnable
         Runnable timerRunnable = new Runnable() {
-
             @Override
             public void run() {
                 if (_initUserInterface) {
@@ -147,6 +153,8 @@ public class ControlElements extends BaseActivity {
                     onPrepareNavigationMenu(mNavigationView.getMenu());
                     onSetupUserInterface();
                 }
+                if (_updateFileInfo)
+                    showFileInfo();
                 if (_updateTrackingStatus)
                     onShowTrackingStatus();
                 if (_updateGpsStatus)
@@ -170,6 +178,11 @@ public class ControlElements extends BaseActivity {
             }
         };
         timerHandler.postDelayed(timerRunnable, 100);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -206,14 +219,16 @@ public class ControlElements extends BaseActivity {
                         Log.isLoggedHTML() ||
                                 (!_initUserInterface && _fileInfoAvailable) ||
                                 app.getTrack().isValidRecordedTrackFile()
-                        );
+                );
             else if (
                     (id == R.id.nav_reverse_route) ||
                             (id == R.id.nav_start_time) ||
-                            (id == R.id.nav_download_gpx) ||
                             (id == R.id.nav_download_html) ||
                             (id == R.id.nav_timetable))
                 item.setEnabled(!_initUserInterface && gpxFileValid);
+            else if
+                    (id == R.id.nav_download_gpx)
+                item.setEnabled(!_initUserInterface && gpxFileValid || app.getTrack().isValidRecordedTrackFile());
             else
                 item.setVisible(true);
         }
@@ -240,18 +255,28 @@ public class ControlElements extends BaseActivity {
     }
 
     private void onSetupUserInterface() {
-        TableLayout tableLayoutHead = findViewById(R.id.table_head);
+ //       TableLayout tableLayoutHead = findViewById(R.id.table_head);
         TableLayout tableLayoutRecords = findViewById(R.id.table_records);
+        ListView recordsView = findViewById(R.id.records_view);
         TextView commentView = findViewById(R.id.comment_view);
+        LinearLayout location_content = findViewById(R.id.location_content);
+        LinearLayout description_content = findViewById(R.id.description_content);
+        LinearLayout web_content = findViewById(R.id.web_content);
         if (App.getTrack().isValidRecordedTrackFile()) {
-            tableLayoutHead.setVisibility(View.GONE);
+            setViewVisibility(R.id.table_head,View.GONE);
             tableLayoutRecords.setVisibility(View.GONE);
+            recordsView.setVisibility(View.GONE);
             commentView.setVisibility(View.GONE);
+            location_content.setVisibility(View.GONE);
+            description_content.setVisibility(View.GONE);
+            web_content.setVisibility(View.VISIBLE);
         }
         else {
-            tableLayoutHead.setVisibility(View.VISIBLE);
-            tableLayoutRecords.setVisibility(View.VISIBLE);
-            commentView.setVisibility(View.VISIBLE);
+            setViewVisibility(R.id.table_head,VISIBLE);
+            tableLayoutRecords.setVisibility(VISIBLE);
+            recordsView.setVisibility(VISIBLE);
+            commentView.setVisibility(VISIBLE);
+            web_content.setVisibility(View.GONE);
         }
         setTrackingStatus(false);
         _setupUserInterface = false;
@@ -262,21 +287,120 @@ public class ControlElements extends BaseActivity {
      */
     private void onShowTrackingStatus() {
         _updateTrackingStatus = false;
-        ImageView image_tracking_pause = findViewById(R.id.image_tracking_pause);
-        ImageView image_tracking = findViewById(R.id.image_tracking);
 
         if (la.isTrackingEnabled() && App.getTrack().isValid())
         {
             if (_isTracking) {
-                image_tracking_pause.setVisibility(View.VISIBLE);
-                image_tracking.setVisibility(View.GONE);
+                setViewVisibility(R.id.image_tracking_pause,VISIBLE);
+                setViewVisibility(R.id.image_tracking,View.GONE);
             } else {
-                image_tracking_pause.setVisibility(View.GONE);
-                image_tracking.setVisibility(View.VISIBLE);
+                setViewVisibility(R.id.image_tracking_pause,View.GONE);
+                setViewVisibility(R.id.image_tracking,VISIBLE);
             }
         } else {
-            image_tracking_pause.setVisibility(View.GONE);
-            image_tracking.setVisibility(View.INVISIBLE);
+            setViewVisibility(R.id.image_tracking_pause,View.GONE);
+            setViewVisibility(R.id.image_tracking,View.INVISIBLE);
+        }
+    }
+
+    /**
+     * Show one of the images expand more/less depending on the state of expandView
+     */
+    private void onShowExpandViewStatus() {
+        _updateExpandViewStatus = false;
+        switch (_expandViewVisibility) {
+            case VISIBLE:
+                setViewVisibility(R.id.image_expand_more,View.GONE);
+                setViewVisibility(R.id.image_expand_less,VISIBLE);
+                break;
+            case View.INVISIBLE:
+                setViewVisibility(R.id.image_expand_more,VISIBLE);
+                setViewVisibility(R.id.image_expand_less,View.GONE);
+                break;
+            default:
+                setViewVisibility(R.id.image_expand_more,View.INVISIBLE);
+                setViewVisibility(R.id.image_expand_less,View.GONE);
+        }
+    }
+
+    /**
+     * Show one of the images expand more/less depending on the state of expandView
+     */
+    private void onShowSpeakStatus() {
+        ImageView image_text_to_speech = findViewById(R.id.image_text_to_speech);
+        ImageView image_voice_selection_off = findViewById(R.id.image_voice_selection_off);
+        _updateSpeakStatus = false;
+
+        if (_speakEnabled && (_expandViewVisibility == VISIBLE) ) {
+            if (tts.isSpeaking()){
+                _updateSpeakStatus = true;
+                image_text_to_speech.setVisibility(View.INVISIBLE);
+                image_voice_selection_off.setVisibility(VISIBLE);
+            }
+            else
+            {
+                image_text_to_speech.setVisibility(VISIBLE);
+                image_voice_selection_off.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        if (!_speakEnabled) {
+            if (tts.isSpeaking()){
+                stopSpeaking();
+            }
+            image_text_to_speech.setVisibility(View.GONE);
+            image_voice_selection_off.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Show/hide the profile
+     */
+    private void onShowProfile() {
+        _updateProfile = false;
+        LinearLayout plot = findViewById(R.id.profile_plot);
+        plot.setVisibility(_profileViewVisibility == VISIBLE ? VISIBLE : View.GONE);
+        switch (_profileViewVisibility) {
+            case View.INVISIBLE:
+                setViewVisibility(R.id.image_show_profile, VISIBLE);
+                setViewVisibility(R.id.image_hide_profile, View.GONE);
+                break;
+            case VISIBLE:
+                setViewVisibility(R.id.image_show_profile, View.GONE);
+                setViewVisibility(R.id.image_hide_profile, VISIBLE);
+                break;
+            default:
+                setViewVisibility(R.id.image_show_profile, View.INVISIBLE);
+                setViewVisibility(R.id.image_hide_profile, View.GONE);
+        }
+
+        if (_profileViewVisibility == VISIBLE) {
+            la.requestStatusUpdate();
+            profileAdapter.setCursor(0);
+        }
+    }
+
+    public static void setAlarmPreference(boolean inRaiseAlarm) {
+        raiseAlarm = inRaiseAlarm;
+    }
+    /**
+     * Show alarm setting (On/Off)
+     */
+    public void showAlarmPreference()
+    {
+        if (App.getTrack().isValidRecordedTrackFile()) {
+            setViewVisibility(R.id.image_alarm_off,View.GONE);
+            setViewVisibility(R.id.image_alarm_on,View.GONE);
+        }
+        else if (raiseAlarm)
+        {
+            setViewVisibility(R.id.image_alarm_off,View.GONE);
+            setViewVisibility(R.id.image_alarm_on,View.VISIBLE);
+        }
+        else
+        {
+            setViewVisibility(R.id.image_alarm_off,View.VISIBLE);
+            setViewVisibility(R.id.image_alarm_on,View.GONE);
         }
     }
 
@@ -299,77 +423,24 @@ public class ControlElements extends BaseActivity {
 
         switch (_gpsStatus) {
             case PERMISSION_DENIED:
-                image_location_disabled.setVisibility(View.VISIBLE);
+                image_location_disabled.setVisibility(VISIBLE);
                 break;
             case PERMISSION_GRANTED:
             case PROVIDER_ENABLED:
                 break;
             case PROVIDER_DISABLED:
-                image_location_home.setVisibility(View.VISIBLE);
+                image_location_home.setVisibility(VISIBLE);
                 break;
             case WAIT_FOR_GPS_FIX:
-                image_location_wait.setVisibility(View.VISIBLE);
+                image_location_wait.setVisibility(VISIBLE);
                 break;
             case GPS_FIX:
-                image_location_on.setVisibility(View.VISIBLE);
+                image_location_on.setVisibility(VISIBLE);
                 break;
             case GPS_TIMEOUT:
-                image_location_off.setVisibility(View.VISIBLE);
+                image_location_off.setVisibility(VISIBLE);
                 break;
             default:
-        }
-    }
-
-    /**
-     * Show one of the images expand more/less depending on the state of expandView
-     */
-    private void onShowSpeakStatus() {
-        ImageView image_text_to_speech = findViewById(R.id.image_text_to_speech);
-        ImageView image_voice_selection_off = findViewById(R.id.image_voice_selection_off);
-        _updateSpeakStatus = false;
-
-        if (_speakEnabled && (_expandViewVisibility == View.VISIBLE) ) {
-            if (tts.isSpeaking()){
-                _updateSpeakStatus = true;
-                image_text_to_speech.setVisibility(View.INVISIBLE);
-                image_voice_selection_off.setVisibility(View.VISIBLE);
-            }
-            else
-            {
-                image_text_to_speech.setVisibility(View.VISIBLE);
-                image_voice_selection_off.setVisibility(View.INVISIBLE);
-            }
-        }
-
-        if (!_speakEnabled) {
-            if (tts.isSpeaking()){
-                stopSpeaking();
-            }
-            image_text_to_speech.setVisibility(View.GONE);
-            image_voice_selection_off.setVisibility(View.GONE);
-        }
-    }
-
-    /**
-     * Show one of the images expand more/less depending on the state of expandView
-     */
-    private void onShowExpandViewStatus() {
-        ImageView image_expand_more = findViewById(R.id.image_expand_more);
-        ImageView image_expand_less = findViewById(R.id.image_expand_less);
-
-        _updateExpandViewStatus = false;
-        switch (_expandViewVisibility) {
-            case View.VISIBLE:
-                image_expand_more.setVisibility(View.GONE);
-                image_expand_less.setVisibility(View.VISIBLE);
-                break;
-            case View.INVISIBLE:
-                image_expand_more.setVisibility(View.VISIBLE);
-                image_expand_less.setVisibility(View.GONE);
-                break;
-            default:
-                image_expand_more.setVisibility(View.INVISIBLE);
-                image_expand_less.setVisibility(View.GONE);
         }
     }
 
@@ -438,8 +509,8 @@ public class ControlElements extends BaseActivity {
         LinearLayout location_content = findViewById(R.id.location_content);
         LinearLayout description_content = findViewById(R.id.description_content);
 
-        location_content.setVisibility(inViewExpanded ? View.GONE : View.VISIBLE);
-        description_content.setVisibility(inViewExpanded ? View.VISIBLE : View.GONE);
+        location_content.setVisibility(inViewExpanded ? View.GONE : VISIBLE);
+        description_content.setVisibility(inViewExpanded ? VISIBLE : View.GONE);
 
         if (!inViewExpanded) {
             la.requestStatusUpdate();
@@ -462,31 +533,6 @@ public class ControlElements extends BaseActivity {
         commentView.setText(comment);
     }
 
-    /**
-     * Show/hide the profile
-     */
-    private void onShowProfile() {
-        _updateProfile = false;
-        LinearLayout plot = findViewById(R.id.profile_plot);
-        plot.setVisibility(_profileViewVisibility == View.VISIBLE ? View.VISIBLE : View.GONE);
-        switch (_profileViewVisibility) {
-            case View.INVISIBLE:
-                setViewVisibility(R.id.image_show_profile, View.VISIBLE);
-                setViewVisibility(R.id.image_hide_profile, View.GONE);
-                break;
-            case View.VISIBLE:
-                setViewVisibility(R.id.image_show_profile, View.GONE);
-                setViewVisibility(R.id.image_hide_profile, View.VISIBLE);
-                break;
-            default:
-                setViewVisibility(R.id.image_show_profile, View.INVISIBLE);
-                setViewVisibility(R.id.image_hide_profile, View.GONE);
-        }
-
-        if (_profileViewVisibility == View.VISIBLE) {
-            la.requestStatusUpdate();
-        }
-    }
 
     private int getViewWidth(int id) {
         TextView view = findViewById(id);
@@ -495,7 +541,7 @@ public class ControlElements extends BaseActivity {
 
     private void setViewVisibility(int id, int visibility) {
         if (main != null) {
-            ImageView view = findViewById(id);
+            View view = findViewById(id);
             if (view != null)
                 view.setVisibility(visibility);
         }
@@ -512,6 +558,7 @@ public class ControlElements extends BaseActivity {
         activateProfile(View.GONE);
 //        setExpandViewStatus(getExpandView());
         setViewVisibility(R.id.image_expand_more, View.GONE);
+        showAlarmPreference();
         _initUserInterface = true;
     }
 
@@ -591,14 +638,16 @@ public class ControlElements extends BaseActivity {
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
         boolean isExpandableView = false;;
         _speakEnabled = false;
-        if (tourDetails != null)
-        {
+        if (App.getTrack().isValidRecordedTrackFile()) {
+            // view shall be not available
+            _expandViewVisibility = View.GONE;
+        }
+        else if (tourDetails != null) {
             _place = inPlace;
             if (inPlace < 0) {
                 isExpandableView = _fileInfoAvailable || Log.isLoggedHTML();
                 _speakEnabled = _fileInfoAvailable && inExpand;
-            }
-            else {
+            } else {
                 TourDetails.AdditionalInfo info = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
                 _speakEnabled = !info.description.isEmpty();
                 isExpandableView = _speakEnabled ||
@@ -610,7 +659,7 @@ public class ControlElements extends BaseActivity {
                 // shall it be expanded?
                 if (inExpand)
                     // view shall be visible
-                    _expandViewVisibility = View.VISIBLE;
+                    _expandViewVisibility = VISIBLE;
                 else {
                     // view shall be visible
                     _expandViewVisibility = View.INVISIBLE;
@@ -619,11 +668,10 @@ public class ControlElements extends BaseActivity {
             else
                 // view shall be not available
                 _expandViewVisibility = View.GONE;
-
-            _updateExpandViewStatus = true;
-            _updateSpeakStatus = true;
-            _updateProfile = true;
         }
+        _updateExpandViewStatus = true;
+        _updateSpeakStatus = true;
+        _updateProfile = true;
 
         return isExpandableView;
     }
@@ -651,16 +699,26 @@ public class ControlElements extends BaseActivity {
      * Show the file info or HTML Log if available
      */
     public void showFileInfo() {
-        if (app.getTrack().isValidRecordedTrackFile()) {
-            _isViewExpanded = true;
-            _updateExpandView = true;
-            _additionalInfo = TrackTiming.estimate.getRecordedTrackFileInfo();
+        if (App.getTrack().isValidRecordedTrackFile()) {
+//            _isViewExpanded = true;
+//            _updateExpandView = true;
+//            _additionalInfo = TrackTiming.estimate.getRecordedTrackFileInfo();
+            setTitleText("Informationen zum aufgezeichneten Track", COLOR_MESSAGE);
+            if (TrackTiming.estimate != null)
+                webView.loadData(TrackTiming.estimate.getRecordedTrackFileInfo(),
+                               "text/html","utf-8");
+            profileAdapter.initPlot();
         } else {
             // update the expansion mode
             _isViewExpanded = showExpandViewStatus(-1, true);
             showAdditionalInfo(-1);
 
         }
+        _updateFileInfo = false;
+    }
+
+    public void updateFileInfo() {
+        _updateFileInfo = true;
     }
 
     /**
@@ -669,7 +727,7 @@ public class ControlElements extends BaseActivity {
     public void showAdditionalInfo(int inPlace) {
         if (tourDetails != null) {
             _additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
-            _updateExpandView = true;
+            _updateExpandView = !App.getTrack().isValidRecordedTrackFile();
         } else
             _additionalInfo = null;
     }

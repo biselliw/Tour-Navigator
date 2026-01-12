@@ -26,24 +26,6 @@ public class Segments extends BaseSegments {
         trackHasTimeStamps = false;
     }
 
-    /**
-     * set hiking parameters:
-     *
-     * @param inHorSpeed         horizontal part in [km/h]
-     * @param inVertSpeedClimb   ascending part in [km/h]
-     * @param inVertSpeedDescent descending part in [km/h]
-     * @param inMinHeightChange  min. required change of altitude
-     */
-    public void setHikingParameters(double inHorSpeed, double inVertSpeedClimb, double inVertSpeedDescent, double inMinHeightChange) {
-        if (inHorSpeed > 0)
-            _horSpeed = inHorSpeed;
-        if (inVertSpeedClimb > 0)
-            _vertSpeedClimb = inVertSpeedClimb;
-        if (inVertSpeedDescent > 0)
-            _vertSpeedDescent = inVertSpeedDescent;
-        if (inMinHeightChange > 0)
-            _minHeightChange = inMinHeightChange;
-    }
 }
 
 

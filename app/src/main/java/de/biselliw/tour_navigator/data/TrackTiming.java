@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.functions.GpxAltitudeSmoother;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-
-import org.w3c.dom.*;
 
 import static de.biselliw.tour_navigator.data.BaseSegments.baseSegments;
 
@@ -26,7 +27,8 @@ public class TrackTiming {
 
     private final TrackDetails _track;
 
-    public static EstimateParams estimate = null;
+    public static EstimateParams estimate = null, check = null;
+    private List<Segment> _segments = null;
 
     public TrackTiming (TrackDetails inTrack)
     {
@@ -39,6 +41,7 @@ public class TrackTiming {
      */
     public List<RecordAdapter.Record> recalculate()  {
         List<RecordAdapter.Record> recordList = null;
+        List<Segment> checkedSegments = null;
         int _numPoints = _track.getNumPoints();
         if (_numPoints <= 0) return null;
 
@@ -46,14 +49,50 @@ public class TrackTiming {
             android.util.Log.d(TAG, "recalculate(): " + _numPoints + " Trackpoints");
         }
 
+        // does the track only contain trackpoints?
         if (_track.isValidRecordedTrackFile()) {
+            // smooth all its altitudes
+            GpxAltitudeSmoother.smoothTrack(_track);
+
+            if (DEBUG) Log.i(TAG, "recalculate(): 1. calculate all segments of the recorded track");
             estimate = new EstimateParams();
-            List<Segment> _segments = estimate.calcSegments(_track);
-            estimate.estimate(_segments);
+            estimate.clearRecordedTrackFileInfo();
+            _segments = estimate.calcSegments(_track);
+            estimate.updateSegmentsTiming(_segments);
+
+            EstimateParams.EstimationResult estimateResult = estimate.estimateGradients(_segments);
+
+//            EstimateParams.EstimationResult estimateResult = estimate.estimateGradients(_segments);
+            estimate.addReport(estimate.getRecordedTrackFileInfo1());
+            check = estimate; // new EstimateParams();
+            check.trackHasTimeStamps = false;
+            if (estimateResult.successful)
+            {
+                estimate.addReport(estimate.getRecordedTrackFileInfo4());
+                if (DEBUG) Log.i(TAG, "recalculate(): 2. recalculate all segments without timestamps using estimated hiking parameters");
+                check.applyEstimatedHikingParametersFrom(estimateResult);
+                checkedSegments = _segments; // check.calcSegments(_track);
+                estimate.updateSegmentsTiming(_segments);
+                if (check.estimateAll(checkedSegments).successful) {
+                    check.addReport(check.getRecordedTrackFileInfo2());
+                }
+            }
+            else
+                estimate.addReport(estimate.getRecordedTrackFileInfo5());
+
+            checkedSegments = _segments;
+
+            if (DEBUG) Log.i(TAG, "recalculate(): 2. recalculate all segments using hiking parameters from app settings");
+            SettingsActivity.getHikingParameters(check);
+//            checkedSegments = check.calcSegments(_track);
+            check.updateSegmentsTiming(checkedSegments);
+            check.estimateAll(checkedSegments);
+            check.addReport(check.getRecordedTrackFileInfo3());
         }
         else {
             segments = new Segments();
-            List<Segment> _segments = segments.calcSegments(_track);
+            _segments = segments.calcSegments(_track);
+            segments.updateSegmentsTiming(_segments);
             if (!_segments.isEmpty()) {
                 int seg = 0;
                 Segment segment = _segments.get(seg);
@@ -113,12 +152,23 @@ public class TrackTiming {
         return recordList;
     }
 
-    public long getTotalBreakTime_min() { return segments.getTotalBreakTime_min(); }
-    public double getMinAltitude() { return baseSegments.getMinAltitude(); }
-    public double getMaxAltitude() { return baseSegments.getMaxAltitude(); }
-    public double getTotalDistance () { return baseSegments.getTotalDistance();}
-    public double getTotalClimb () { return segments.getTotalClimb(); }
-    public double getTotalDescent () { return segments.getTotalDescent(); }
-    public long getTotalSeconds () { return segments.getTotalSeconds(); }
+    public long getTotalBreakTime_min() { return (baseSegments == null ? 0 : segments.getTotalBreakTime_min()); }
+    public double getMinAltitude() { return (baseSegments == null ? 0.0 : baseSegments.getMinAltitude()); }
+    public double getMaxAltitude() { return (baseSegments == null ? 0.0 : baseSegments.getMaxAltitude()); }
+    public double getTotalDistance () { return (baseSegments == null ? 0.0 :  baseSegments.getTotalDistance());}
+    public double getTotalClimb () { return (baseSegments == null ? 0.0 : segments.getTotalClimb()); }
+    public double getTotalDescent () { return (baseSegments == null ? 0.0 : segments.getTotalDescent()); }
+    public long getTotalSeconds () { return (baseSegments == null ? 0 :  segments.getTotalSeconds()); }
+    public int getSegmentsCount() { return _segments.size(); }
+    public int getSegmentStart(int inIndex) {
+        if (inIndex < _segments.size())
+            return _segments.get(inIndex).getStartIndex();
+        else return 0;
+    }
+    public int getSegmentEnd(int inIndex) {
+        if (inIndex < _segments.size())
+            return _segments.get(inIndex).getEndIndex();
+        else return 0;
+    }
 }
 

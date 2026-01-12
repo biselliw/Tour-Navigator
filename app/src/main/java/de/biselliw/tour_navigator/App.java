@@ -194,6 +194,8 @@ public class App {
         List<RecordAdapter.Record> recordList = _track.recalculate();
         control.notifyDataSetChanged(recordList);
         control.updateGpxFile = true;
+        if (recordList == null)
+            control.updateFileInfo();
     }
 
 
