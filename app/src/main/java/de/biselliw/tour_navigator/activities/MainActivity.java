@@ -35,6 +35,7 @@ import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -105,7 +106,6 @@ public class MainActivity extends LocationActivity  implements
 
     Handler timerHandler = new Handler();
 
-    
 
     @Override
     /*
@@ -115,6 +115,13 @@ public class MainActivity extends LocationActivity  implements
         if (DEBUG) Log.i(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        webView = findViewById(R.id.web_view);
+//        webView.loadUrl("file:///android_asset/help-DE.html");
+//        view.setVisibility(VISIBLE);
+//        view.loadData("htmlStr","text/html","utf-8");
+        overridePendingTransition(0, 0);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Load preferences

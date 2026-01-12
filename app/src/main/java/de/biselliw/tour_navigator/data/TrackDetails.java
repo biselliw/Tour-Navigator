@@ -60,12 +60,6 @@ public class TrackDetails extends Track {
     private boolean _hasAltitude = false;
     private boolean _hasTimestamps = false;
 
-    /**
-     * Nearest distance of a track point to the specified Latitude and Longitude coordinates
-     */
-    private double _nearestDist_km = -1.0;
-
-
     TrackTiming _trackTiming = null;
     static DataPoint[] _waypoints;
     static int _numWaypoints;

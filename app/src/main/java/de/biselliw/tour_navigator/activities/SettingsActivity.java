@@ -17,40 +17,30 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.preference.EditTextPreference;
 import android.text.InputType;
 import android.text.format.Time;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
-import androidx.preference.SwitchPreference;
-import androidx.preference.SwitchPreferenceCompat;
-
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.EditTextPreference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
+
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-
-import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.BaseSegments;
-import de.biselliw.tour_navigator.data.Segments;
-import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.helpers.Log;
 
-import static android.app.ActionBar.DISPLAY_SHOW_CUSTOM;
-import static de.biselliw.tour_navigator.App.app;
+import static de.biselliw.tour_navigator.ui.ControlElements.setAlarmPreference;
 
 /**
  * Application settings
@@ -63,14 +53,14 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     /** default hiking speed parameter: horizontal part in [m/h] */
-    final static int DEF_HOR_SPEED = (int)(1000 * Segments.DEF_HOR_SPEED);
+    final static int DEF_HOR_SPEED = (int)(1000 * BaseSegments.DEF_HOR_SPEED);
     /** default hiking speed parameter: ascending part in [m/h] */
-    final static int DEF_VERT_SPEED_CLIMB = (int)(1000 * Segments.DEF_VERT_SPEED_CLIMB);
+    final static int DEF_SPEED_CLIMB = (int)(1000 * BaseSegments.DEF_SPEED_CLIMB);
     /** default hiking speed parameter: descending part in [m/h]; */
-    final static int DEF_VERT_SPEED_DESC = (int)(1000 * Segments.DEF_VERT_SPEED_DESC);
+    final static int DEF_SPEED_DESCENT = (int)(1000 * BaseSegments.DEF_SPEED_DESCENT);
 
-    static String[] keys = new String[]{"pref_hiking_par_horSpeed", "pref_hiking_par_vertSpeedClimb", "pref_hiking_par_vertSpeedDescent"};
-    static int[] defaults = new int[]{DEF_HOR_SPEED, DEF_VERT_SPEED_CLIMB, DEF_VERT_SPEED_DESC};
+    static String[] keys = new String[]{"pref_hiking_par_horSpeed", "pref_hiking_par_speedClimb", "pref_hiking_par_speedDescent"};
+    static int[] defaults = new int[]{DEF_HOR_SPEED, DEF_SPEED_CLIMB, DEF_SPEED_DESCENT};
     static boolean setDefaults = false;
 
     static boolean hikingParametersChanged = false;
@@ -239,16 +229,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * Returning false permanently disables the menu
-     * so no menu items or overflow icon will appear.
-     * /
-    @Override
-    public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        menu.close();
-        return false;
-    }
-
-    /**
      * store a boolean value in the settings
      * @param key key name
      * @param value value
@@ -294,12 +274,11 @@ public class SettingsActivity extends AppCompatActivity {
         return false;
     }
 
-
     static int getIntFromPref(String inKey, int inDefault) {
         int value = inDefault;
         try {
          // todo
-            value = Integer.parseInt(sharedPref.getString(inKey,""));;
+            value = Integer.parseInt(sharedPref.getString(inKey,""));
         }
         catch (Exception ignored) { }
         return value;
@@ -311,27 +290,28 @@ public class SettingsActivity extends AppCompatActivity {
     static public void getPreferences()
     {
         setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
+        setAlarmPreference(sharedPref.getBoolean("pref_hiking_par_alarm", true));
     }
 
     /**
      * get preferences for hiking times calculation
      */
-    static public void getHikingParameters(Segments inSegments)
+    static public void getHikingParameters(BaseSegments inSegments)
     {
         // hiking speed parameters
 
         // horizontal part in [km/h]
         int horSpeed = getIntFromPref(keys[0], DEF_HOR_SPEED);
         // ascending part in [km/h]
-        int vertSpeedClimb = getIntFromPref(keys[1], DEF_VERT_SPEED_CLIMB);
+        int vertSpeedClimb = getIntFromPref(keys[1], DEF_SPEED_CLIMB);
         // descending part in [km/h]
-        int vertSpeedDescent = getIntFromPref(keys[2], DEF_VERT_SPEED_DESC);
+        int vertSpeedDescent = getIntFromPref(keys[2], DEF_SPEED_DESCENT);
 
         setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
 
         // set hiking parameters
         inSegments.setHikingParameters(horSpeed / 1000.0,vertSpeedClimb / 1000.0,
-                vertSpeedDescent / 1000.0, Segments.DEF_MIN_HEIGHT_CHANGE);
+                vertSpeedDescent / 1000.0, BaseSegments.DEF_MIN_HEIGHT_CHANGE);
     }
 
 

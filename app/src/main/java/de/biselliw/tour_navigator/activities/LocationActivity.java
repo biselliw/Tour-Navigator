@@ -31,8 +31,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.speech.tts.TextToSpeech;
 import android.text.format.Time;
-import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
@@ -51,7 +49,6 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
-import static de.biselliw.tour_navigator.activities.SettingsActivity.sharedPref;
 import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_DELAY_MAX;
 import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_DELAY_MIN;
 import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MAX;
@@ -136,7 +133,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     int remainBreakTime_min = 0;
     long _endBreakTime = 0;
-    boolean raiseAlarm = true;
     int outOfTrackCount = 0;
     int alarmCount = 0;
     int alarmTtsCount = 0;
@@ -297,9 +293,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     @Override
     public void onResume() {
         super.onResume();
-        raiseAlarm = sharedPref.getBoolean("pref_hiking_par_alarm",true);
-        showAlarmPreference ();
-//        if (gpsSimulation != null) gpsSimulation.Reset(AppState.getGpxSimulationIndex());
     }
 
     @Override
@@ -1037,26 +1030,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             } else {
                 setLocationStatus(locationStatus.DESTINATION_REACHED);
             }
-        }
-    }
-
-    /**
-     * Show alarm setting (On/Off)
-     */
-    private void showAlarmPreference()
-    {
-        ImageView image_alarm_off = findViewById(R.id.image_alarm_off);
-        ImageView image_alarm_on  = findViewById(R.id.image_alarm_on);
-
-        if (raiseAlarm)
-        {
-            image_alarm_off.setVisibility(View.GONE);
-            image_alarm_on.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            image_alarm_off.setVisibility(View.VISIBLE);
-            image_alarm_on.setVisibility(View.GONE);
         }
     }
 

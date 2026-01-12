@@ -108,6 +108,22 @@
         android:textSize="16sp" />
 
     <LinearLayout
+        android:id="@+id/web_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="10"
+        android:orientation="vertical"
+        android:textColor="@color/black">
+
+        <WebView
+            android:id="@+id/web_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:layout_editor_absoluteX="1dp"
+            tools:layout_editor_absoluteY="1dp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/location_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -191,7 +207,7 @@
             android:textSize="16sp"
             android:verticalScrollbarPosition="right"
             android:visibility="visible"
-            tools:visibility="visible"/>
+            tools:visibility="visible" />
 
     </LinearLayout>
 
