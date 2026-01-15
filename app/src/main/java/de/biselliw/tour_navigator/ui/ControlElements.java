@@ -93,7 +93,7 @@ public class ControlElements extends BaseActivity {
     boolean _updateExpandView = false;
     boolean _updateFileInfo = false;
     boolean _updateWaypointType = false;
-    boolean _updateProfile = false;
+    boolean _initProfile = false, _updateProfile = false;
     boolean _rescalePlaceView = true;
 
 
@@ -169,6 +169,10 @@ public class ControlElements extends BaseActivity {
                     onShowAdditionalInfo(_additionalInfo, _isViewExpanded);
                 if (_updateWaypointType)
                     onShowWaypointType(_distanceToPlace, _additionalInfo);
+                if (_initProfile) {
+                    profileAdapter.initPlot();
+                    _initProfile = false;
+                }
                 if (_updateProfile)
                     onShowProfile();
                 if (_rescalePlaceView)
@@ -707,7 +711,7 @@ public class ControlElements extends BaseActivity {
             if (TrackTiming.estimate != null)
                 webView.loadData(TrackTiming.estimate.getRecordedTrackFileInfo(),
                                "text/html","utf-8");
-            profileAdapter.initPlot();
+//            profileAdapter.initPlot();
         } else {
             // update the expansion mode
             _isViewExpanded = showExpandViewStatus(-1, true);
@@ -772,6 +776,10 @@ public class ControlElements extends BaseActivity {
         else
             _distanceToPlace = new DecimalFormat("in #0 m: ").format((int)(inDistanceToPlace*100.0)*10);
         _updateWaypointType = true;
+    }
+
+    public void initProfile() {
+        _initProfile = true;
     }
 
     /**

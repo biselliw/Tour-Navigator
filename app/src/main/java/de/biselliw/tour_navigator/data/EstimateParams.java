@@ -35,7 +35,7 @@ public class EstimateParams extends BaseSegments {
     public static class EstimationResult {
         public final boolean successful;
         public final int segments;
-        public final double estHorSpeed, estVertSpeedClimb, estVertSpeedDescent;
+        public final double estHorSpeed, estSpeedClimb, estSpeedDescent;
         public final double rmse;
         public final double r2;
 
@@ -43,19 +43,19 @@ public class EstimateParams extends BaseSegments {
             this.successful = false;
             this.segments = 0;
             this.estHorSpeed = 0.0;
-            this.estVertSpeedClimb = 0.0;
-            this.estVertSpeedDescent = 0.0;
+            this.estSpeedClimb = 0.0;
+            this.estSpeedDescent = 0.0;
             this.rmse = 0;
             this.r2 = 0;
         }
 
-        public EstimationResult(boolean successful, int segments, double estHorSpeed, double estVertSpeedClimb, double estVertSpeedDescent,
+        public EstimationResult(boolean successful, int segments, double estHorSpeed, double estSpeedClimb, double estSpeedDescent,
                                 double rmse, double r2) {
             this.successful = successful;
             this.segments = segments;
             this.estHorSpeed = estHorSpeed;
-            this.estVertSpeedClimb = estVertSpeedClimb;
-            this.estVertSpeedDescent = estVertSpeedDescent;
+            this.estSpeedClimb = estSpeedClimb;
+            this.estSpeedDescent = estSpeedDescent;
             this.rmse = rmse;
             this.r2 = r2;
         }
@@ -64,8 +64,8 @@ public class EstimateParams extends BaseSegments {
             this.successful = fromOther.successful;
             this.segments = fromOther.segments;
             this.estHorSpeed = fromOther.estHorSpeed;
-            this.estVertSpeedClimb = fromOther.estVertSpeedClimb;
-            this.estVertSpeedDescent = fromOther.estVertSpeedDescent;
+            this.estSpeedClimb = fromOther.estSpeedClimb;
+            this.estSpeedDescent = fromOther.estSpeedDescent;
             this.rmse = fromOther.rmse;
             this.r2 = fromOther.r2;
         }
@@ -246,11 +246,15 @@ public class EstimateParams extends BaseSegments {
                             variation.result = estimateResult;
                             variation.gradientThresholdClimb = gradientThresholdClimb;
                             variation.gradientThresholdDesc = gradientThresholdDesc;
-                            if (estimateResult.rmse < min_rmse) {
-                                min_rmse = estimateResult.rmse;
-                                optVariant = variations.size();
+                            if ((estimateResult.estSpeedClimb < MAX_SPEED_CLIMB) &&
+                                    (estimateResult.estSpeedDescent < MAX_SPEED_DESCENT))
+                            {
+                                if (estimateResult.rmse < min_rmse) {
+                                    min_rmse = estimateResult.rmse;
+                                    optVariant = variations.size();
+                                }
+                                variations.add(variation);
                             }
-                            variations.add(variation);
                         }
                         gradientThresholdDesc++;
                     }
@@ -310,43 +314,10 @@ public class EstimateParams extends BaseSegments {
         }
     }
 
-    public Result estimate(double[] x, double[] y, double[] z, int n) {
-        double a, b;
-
-        double sumZdivX = 0.0;
-        double sumXX = 0.0;
-        double sumYY = 0.0;
-        double sumXY = 0.0;
-        double sumXZ = 0.0;
-        double sumYZ = 0.0;
-
-        for (int i = 0; i < n; i++) {
-            sumZdivX += z[i] / x[i];
-            sumXX += x[i] * x[i];
-            sumYY += y[i] * y[i];
-            sumXY += x[i] * y[i];
-            sumXZ += x[i] * z[i];
-            sumYZ += y[i] * z[i];
-        }
-
-        double det = sumXX * sumYY - sumXY * sumXY;
-
-        if (Math.abs(det) < 1e-12) {
-            // Determinant is zero; variables may be collinear
-            a = sumZdivX / n;
-            b = 0.0;
-        } else {
-            a = (sumYY * sumXZ - sumXY * sumYZ) / det;
-            b = (sumXX * sumYZ - sumXY * sumXZ) / det;
-        }
-
-        return new Result(a, b);
-    }
-
     public void applyEstimatedHikingParametersFrom(EstimationResult fromOther) {
         _horSpeed = fromOther.estHorSpeed;
-        _speedClimb = fromOther.estVertSpeedClimb;
-        _speedDescent = fromOther.estVertSpeedDescent;
+        _speedClimb = fromOther.estSpeedClimb;
+        _speedDescent = fromOther.estSpeedDescent;
 //        _minHeightChange = fromOther._minHeightChange;
     }
 
@@ -361,7 +332,7 @@ public class EstimateParams extends BaseSegments {
         return _report;
     }
 
-    public String getRecordedTrackFileInfo1() {
+    public String getRecordedTrackFileInfo_Start() {
         // calculate the distance between start and end point to determine whether the tour ends at its start
         DataPoint start = _track.getPoint(0), end = _track.getPoint(_track.getNumPoints() - 1);
         double radians = DataPoint.calculateRadiansBetween(start, end);
@@ -397,7 +368,7 @@ public class EstimateParams extends BaseSegments {
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Strecke: </td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(getTotalDistance()) + " km</td>\n" +
+                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistance_km) + " km</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td colspan=\"2\" align=\"right\">" + tourType + "</td>\n" +
                 "\t</tr>\n" +
@@ -406,10 +377,10 @@ public class EstimateParams extends BaseSegments {
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Dauer in Bewegung:</td>\n" +
-                "\t\t<td align=\"right\">" + formatIntToTime((int) ((getTotalSeconds() - _totalBreakTime_s) / 60L)) + "</td>\n" +
+                "\t\t<td align=\"right\">" + formatIntToTime((int) (getTotalSeconds() / 60 - summary.totalBreakTime_min)) + "</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>Pausen:</td>\n" +
-                "\t\t<td align=\"right\">" + formatIntToTime((int) (_totalBreakTime_s / 60L)) + "</td>\n" +
+                "\t\t<td align=\"right\">" + formatIntToTime((int) (summary.totalBreakTime_min)) + "</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td colspan=\"4\"><b>Höhenmeter</b>\n" +
@@ -417,31 +388,31 @@ public class EstimateParams extends BaseSegments {
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Aufstieg: </td>\n" +
-                "\t\t<td align=\"right\">" + (int) (getTotalClimb()) + " hm </td>\n" +
+                "\t\t<td align=\"right\">" + (int) (summary.sum_climb_m) + " hm </td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>Abstieg:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (-getTotalDescent()) + " hm</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (-summary.sum_descent_m) + " hm</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Distanz eben:</td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(getTotalDistance() - _totalDistanceClimb_km - _totalDistanceDescent_km) + " km</td>\n" +
+                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistance_km - summary.totalDistanceClimb_km - summary.totalDistanceDescent_km) + " km</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Distanz bergauf:</td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(_totalDistanceClimb_km) + " km</td>\n" +
+                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistanceClimb_km) + " km</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>Distanz bergab:</td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(_totalDistanceDescent_km) + " km</td>\n" +
+                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistanceDescent_km) + " km</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Höchster Punkt: </td>\n" +
-                "\t\t<td align=\"right\">" + (int) (_maxAltitude_m) + " m</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (BaseSegments.getMaxAltitude()) + " m</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>Tiefster Punkt:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (_minAltitude_m) + " m</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (BaseSegments.getMinAltitude()) + " m</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td colspan=\"5\"><b>Ermittelte Parameter zur Gehzeitberechnung</b><br>" +
@@ -449,7 +420,7 @@ public class EstimateParams extends BaseSegments {
         return description;
     }
 
-    public String getRecordedTrackFileInfo4() {
+    public String getRecordedTrackFileInfo_Success() {
             String description =
                 "\t</tr>\n" +
                 "\t<tr>\n" +
@@ -471,23 +442,23 @@ public class EstimateParams extends BaseSegments {
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>im Aufstieg:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (_estimationResult.estVertSpeedClimb * 100.0) * 10 + " hm/h</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (_estimationResult.estSpeedClimb * 100.0) * 10 + " hm/h</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>im Abstieg:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (_estimationResult.estVertSpeedDescent * 100.0) * 10 + " hm/h</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (_estimationResult.estSpeedDescent * 100.0) * 10 + " hm/h</td>\n" +
                 "\t</tr>\n";
         return description;
     }
 
-    public String getRecordedTrackFileInfo5() {
+    public String getRecordedTrackFileInfo_Failed() {
         String description =
                 "\t<tr>\n" +
-                        "\t\t<td colspan=\"5\"><b>es konnten keine Parameter ermittwlt werden!</b></td>\n" +
+                        "\t\t<td colspan=\"5\"><b>es konnten keine Parameter ermittelt werden!</b></td>\n" +
                         "\t</tr>\n";
 
         return description;
     }
-    public String getRecordedTrackFileInfo2() {
+    public String getRecordedTrackFileInfo_Prove(List<Segment> inSegments) {
         // calculate the distance between start and end point to determine whether the tour ends at its start
         String description =
                 "\t<tr>\n" +
@@ -501,14 +472,14 @@ public class EstimateParams extends BaseSegments {
                         "\t</tr>\n" +
                          */
                         "\t<tr>\n" +
-                        "\t\t<td>Dauer mit " + segments.size() + " Segmenten:</td>\n" +
-                        "\t\t<td align=\"right\">" + formatIntToTime((int) (calcTotalTimeFromSegments() / 60L)) + "</td>\n" +
+                        "\t\t<td>Dauer mit " + inSegments.size() + " Segmenten:</td>\n" +
+                        "\t\t<td align=\"right\">" + formatIntToTime((int) (calcTotalTimeFromSegments(inSegments) / 60L)) + "</td>\n" +
                         "\t</tr>\n";
 
         return description;
     }
 
-    public String getRecordedTrackFileInfo3() {
+    public String getRecordedTrackFileInfo_UsingSettings(List<Segment> inSegments) {
         // calculate the distance between start and end point to determine whether the tour ends at its start
         String description =
                 "\t<tr>\n" +
@@ -530,7 +501,7 @@ public class EstimateParams extends BaseSegments {
                         "\t\t<td align=\"right\">" + (int) (_speedDescent * 100.0) * 10 + " hm/h</td>\n" +
                         "\t</tr>\n" +
                         "\t<tr>\n" +
-                        getRecordedTrackFileInfo2() +
+                        getRecordedTrackFileInfo_Prove(inSegments) +
 
                         "</table></body></html>\n";
 

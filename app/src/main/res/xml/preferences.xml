@@ -9,15 +9,15 @@
             android:key="pref_hiking_par_horSpeed"
             android:title="@string/pref_hiking_par_horSpeed" />
         <EditTextPreference
-            android:id="@+id/pref_hiking_par_vertSpeedClimb"
-            android:key="pref_hiking_par_vertSpeedClimb"
+            android:id="@+id/pref_hiking_par_speedClimb"
+            android:key="pref_hiking_par_speedClimb"
             android:defaultValue="2"
-            android:title="@string/pref_hiking_par_vertSpeedClimb" />
+            android:title="@string/pref_hiking_par_speedClimb" />
         <EditTextPreference
-            android:id="@+id/pref_hiking_par_vertSpeedDescent"
-            android:key="pref_hiking_par_vertSpeedDescent"
+            android:id="@+id/pref_hiking_par_speedDescent"
+            android:key="pref_hiking_par_speedDescent"
             android:defaultValue="3"
-            android:title="@string/pref_hiking_par_vertSpeedDescent" />
+            android:title="@string/pref_hiking_par_speedDescent" />
     </PreferenceCategory>
 
     <PreferenceCategory

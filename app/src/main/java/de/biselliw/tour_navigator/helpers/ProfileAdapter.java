@@ -61,6 +61,7 @@ import android.graphics.Paint;
 import com.androidplot.Plot;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
+import com.androidplot.xy.LineAndPointRenderer;
 import com.androidplot.xy.RectRegion;
 import com.androidplot.xy.StepMode;
 import com.androidplot.xy.XYGraphWidget;
@@ -75,10 +76,15 @@ import java.util.Observer;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
+import de.biselliw.tour_navigator.data.BaseSegments;
+import de.biselliw.tour_navigator.data.Segment;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
+import static android.graphics.Paint.Style.FILL_AND_STROKE;
+import static android.graphics.Paint.Style.STROKE;
+import static de.biselliw.tour_navigator.data.TrackTiming.baseSegments;
 import static de.biselliw.tour_navigator.data.TrackTiming.trackTiming;
 
 public class ProfileAdapter {
@@ -90,6 +96,7 @@ public class ProfileAdapter {
     Number lastDistance = 0;
     double prevDistance;
     int prevIndex;
+    double startAltitude = 0.0;
     Number lastAltitude = 0;
     Track _track = null;
 
@@ -155,11 +162,20 @@ public class ProfileAdapter {
         dynamicPlot.addSeries(barSeries, cursorFormatter);
         dynamicPlot.getLegend().setVisible(false);
 
-        segmentFormatter = new LineAndPointFormatter(
-                Color.rgb(0, 0, 200), null, null, null);
-        segmentFormatter.getLinePaint().setStrokeJoin(Paint.Join.ROUND);
-        segmentFormatter.getLinePaint().setStrokeWidth(5);
-        dynamicPlot.addSeries(segmentSeries, segmentFormatter);
+        segmentFormatter =
+                new LineAndPointFormatter(
+                        Color.rgb(0, 0, 200),   // line color
+                        Color.rgb(0, 0, 200),   // vertex (point) color
+                        null,
+                        null);
+
+        /* --- Line --- */
+        Paint linePaint = segmentFormatter.getLinePaint();
+        linePaint.setStrokeWidth(6f);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setAntiAlias(true);
+
+        dynamicPlot.addSeries(segmentSeries, this.segmentFormatter);
 
         // hook up the plotUpdater to the data model:
         data.addObserver(plotUpdater);
@@ -266,17 +282,12 @@ public class ProfileAdapter {
                     if (numPoints == 0)
                         return 0;
                     else if (trackTiming != null) {
-                        int ptIndex;
+                        double distance;
                         if (index < trackTiming.getSegmentsCount())
-                            ptIndex = trackTiming.getSegmentStart(index);
+                            distance = trackTiming.getSegmentStartDistance(index);
                         else
-                            ptIndex = trackTiming.getSegmentEnd(index-1);
-                        if (_track != null) {
-                            DataPoint currPoint = _track.getPoint(ptIndex);
-                            if (currPoint != null) {
-                                return currPoint.getDistance();
-                            }
-                        }
+                            distance = trackTiming.getSegmentEndDistance(index-1);
+                        return distance;
                     }
                     break;
             }
@@ -321,17 +332,25 @@ public class ProfileAdapter {
                 case 2:
                     if (numPoints == 0)
                         return 0;
-                    else if (trackTiming != null) {
-                        int ptIndex;
-                        if (index < trackTiming.getSegmentsCount())
-                            ptIndex = trackTiming.getSegmentStart(index);
-                        else
-                            ptIndex = trackTiming.getSegmentEnd(index-1);
-                        if (_track != null) {
-                            DataPoint currPoint = _track.getPoint(ptIndex);
-                            if (currPoint != null) {
-                                return currPoint.getAltitude().getValue();
+                    else if (trackTiming != null && _track != null) {
+                        if (index == 0) {
+                            startAltitude = _track.getPoint(0).getAltitude().getValue();
+                            return startAltitude;
+                        }
+                        else {
+                            double alt = startAltitude;
+                            Segment segment;
+                            if (index < trackTiming.getSegmentsCount())
+                            {
+                                segment = trackTiming.getSegment(index);
+                                alt += segment.getStartAltitudeSum();
                             }
+                            else
+                            {
+                                segment = trackTiming.getSegment(index - 1);
+                                alt += segment.getEndAltitudeSum();
+                            }
+                            return alt;
                         }
                     }
                     break;
@@ -386,13 +405,14 @@ public class ProfileAdapter {
     public void initPlot() {
         numPoints = 0;
         TrackInfo trackInfo = _app.getTrackInfo();
-        if ((trackInfo != null) && (trackTiming != null)) {
+        clearXRange();
+        if (trackInfo != null)  {
             _track = trackInfo.getTrack();
             if (_track != null) {
                 numPoints = _track.getNumPoints();
                 // set the horizontal grid steps
                 if (numPoints > 0) {
-                    double totalDistance = trackTiming.getTotalDistance();
+                    double totalDistance = BaseSegments.summary.totalDistance_km;
                     if (totalDistance > 0.0) {
                         double domainStepValue = 2.5;
                         int domainSteps = (int) (totalDistance / domainStepValue);
@@ -409,12 +429,9 @@ public class ProfileAdapter {
 
                         // set the vertical grid steps
                         double rangeStepValue = 25.0;
-                        int minAltitude = 0;
-                        int maxAltitude = 1000;
-                        if (trackTiming != null) {
-                            minAltitude = (int) trackTiming.getMinAltitude();
-                            maxAltitude = (int) trackTiming.getMaxAltitude();
-                        }
+                        int minAltitude = (int) BaseSegments.getMinAltitude();
+                        int maxAltitude = (int) BaseSegments.getMaxAltitude();
+
                         int rangeAltitude = maxAltitude - minAltitude;
                         int rangeSteps = rangeAltitude / (int)rangeStepValue;
                         while (rangeSteps > 5) {
@@ -457,7 +474,7 @@ public class ProfileAdapter {
     {
         if (profileRegion != null)
             lineFormatter.removeRegion(profileRegion);
-        profileRegion = new RectRegion(minX, maxX, 0.0, (trackTiming != null ? trackTiming.getMaxAltitude() : 1000), "Short");
+        profileRegion = new RectRegion(minX, maxX, 0.0, BaseSegments.getMaxAltitude(), "Short");
         if (profileRegionFormatter == null)
             profileRegionFormatter = new XYRegionFormatter(Color.YELLOW);
 

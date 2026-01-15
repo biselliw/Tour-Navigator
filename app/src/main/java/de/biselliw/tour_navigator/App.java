@@ -196,6 +196,7 @@ public class App {
         control.updateGpxFile = true;
         if (recordList == null)
             control.updateFileInfo();
+        control.initProfile();
     }
 
 
