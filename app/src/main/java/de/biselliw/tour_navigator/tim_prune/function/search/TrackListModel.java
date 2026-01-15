@@ -4,10 +4,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
-// import javax.swing.table.AbstractTableModel;
-
-// import tim.prune.I18nManager;
-// import tim.prune.config.Config;
 import de.biselliw.tour_navigator.stubs.Config;
 import tim.prune.data.Unit;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
@@ -40,13 +36,6 @@ public class TrackListModel // extends AbstractTableModel
 	 */
 	public TrackListModel(String inColumn1Key, String inColumn2Key)
 	{
-        /*
-
-		_nameColLabel = I18nManager.getText(inColumn1Key);
-		if (inColumn2Key != null) {
-			_lengthColLabel = I18nManager.getText(inColumn2Key);
-		}
-         */
 		_numColumns = (_lengthColLabel != null?2:1);
 		_distanceFormatter.setMaximumFractionDigits(1);
 	}
