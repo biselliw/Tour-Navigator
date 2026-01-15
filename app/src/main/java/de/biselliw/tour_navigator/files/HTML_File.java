@@ -480,17 +480,17 @@ public class HTML_File {
                     html_buffer.append(res.getString(R.string.summary));
                     break;
                 case COL_CLIMB:
-                    html_buffer.append(roundToInt(trackTiming.getTotalClimb()));
+                    html_buffer.append(roundToInt(trackTiming.getSummarySegments().sum_climb_m));
                     break;
                 case COL_DESCENT:
-                    html_buffer.append(roundToInt(trackTiming.getTotalDescent()));
+                    html_buffer.append(roundToInt(trackTiming.getSummarySegments().sum_descent_m));
                     break;
                 case COL_DURATION:
-                    html_buffer.append(formatIntToTime((int) (trackTiming.getTotalSeconds() / 60L
-                    - trackTiming.getTotalBreakTime_min())));
+                    html_buffer.append(formatIntToTime((int) (trackTiming.getSummarySegments().totalSeconds / 60L
+                    - trackTiming.getSummarySegments().totalBreakTime_min)));
                     break;
                 case COL_PAUSE:
-                    html_buffer.append(formatIntToTime((int) trackTiming.getTotalBreakTime_min()));
+                    html_buffer.append(formatIntToTime((int) trackTiming.getSummarySegments().totalBreakTime_min));
                     break;
                 default:
                     html_buffer.append("&nbsp;");

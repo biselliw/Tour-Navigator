@@ -2,6 +2,8 @@ package de.biselliw.tour_navigator.data;
 
 import androidx.annotation.NonNull;
 
+import static de.biselliw.tour_navigator.data.BaseSegments.formatDouble;
+
 public class Segment {
 
     enum type {
@@ -26,6 +28,7 @@ public class Segment {
     double descent_m;
     int gradient;
     boolean steep;
+    double altitudeDiff;
     long totalSeconds, totalBreakTime_s;
 
     public Segment () {
@@ -65,9 +68,11 @@ public class Segment {
 
     @NonNull
     public String toString() {
-        return "Type: " + getSegmentType();
+        return "Type: " + getSegmentType() + "; altDiff = " + (int)(altitudeDiff+0.5) + "; speed: " + formatDouble(distance_km / (totalSeconds - totalBreakTime_s) *3600.0);
     }
 
     public int getStartIndex () { return startIndex; }
     public int getEndIndex () { return endIndex; }
+    public double getStartAltitudeSum () { return startClimb_m - startDescent_m; }
+    public double getEndAltitudeSum () { return startClimb_m - startDescent_m + climb_m - descent_m; }
 }

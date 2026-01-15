@@ -58,16 +58,18 @@ public class GpxExporter {
      * @author BiselliW
 	 */
 	public static int downloadData(OutputStreamWriter writer, TrackInfo inInfo) throws IOException {
-
-        GpxFileCreator = inInfo.getTrack().Creator;
-
         int result = 0;
-        try {
-            result = exportData(writer, inInfo);
-        } catch (IOException ignored) {
+
+        if (inInfo != null) {
+            GpxFileCreator = inInfo.getTrack().Creator;
+
+            try {
+                result = exportData(writer, inInfo);
+            } catch (IOException ignored) {
+            }
+            // close file
+            writer.close();
         }
-        // close file
-        writer.close();
         return result;
     }
 
@@ -82,6 +84,8 @@ public class GpxExporter {
 	 */
 	private static int exportData(OutputStreamWriter inWriter, TrackInfo inInfo) throws IOException
 	{
+        if (inInfo == null) return 0;
+
         try {
             // Write or copy headers
             inWriter.write(getXmlHeaderString(inWriter));
