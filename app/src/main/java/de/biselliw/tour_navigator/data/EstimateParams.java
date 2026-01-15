@@ -180,7 +180,6 @@ public class EstimateParams extends BaseSegments {
                         res.rmse, res.r2);
             } else
                 result = false;
-
         }
 
         return estimationResult;
@@ -302,16 +301,6 @@ public class EstimateParams extends BaseSegments {
 
     public void addReport(String inReport) {
         _report = _report + inReport;
-    }
-
-    public static class Result {
-        public final double a;
-        public final double b;
-
-        public Result(double a, double b) {
-            this.a = a;
-            this.b = b;
-        }
     }
 
     public void applyEstimatedHikingParametersFrom(EstimationResult fromOther) {
@@ -455,7 +444,6 @@ public class EstimateParams extends BaseSegments {
                 "\t<tr>\n" +
                         "\t\t<td colspan=\"5\"><b>es konnten keine Parameter ermittelt werden!</b></td>\n" +
                         "\t</tr>\n";
-
         return description;
     }
     public String getRecordedTrackFileInfo_Prove(List<Segment> inSegments) {
@@ -464,18 +452,10 @@ public class EstimateParams extends BaseSegments {
                 "\t<tr>\n" +
                         "\t\t<td colspan=\"5\"><b>Neuberechnung auf Basis dieser Parameter</b></td>\n" +
                         "\t</tr>\n" +
-                        /*
-                        "\t<tr>\n" +
-                        "\t\t<td>Dauer mit allen Trackpunkten:</td>\n" +
-                        "\t\t<td align=\"right\">" + formatIntToTime((int) (getTotalSeconds() / 60L)) + "</td>\n" +
-                        "\t</tr>\n" +
-                        "\t</tr>\n" +
-                         */
-                        "\t<tr>\n" +
+                         "\t<tr>\n" +
                         "\t\t<td>Dauer mit " + inSegments.size() + " Segmenten:</td>\n" +
                         "\t\t<td align=\"right\">" + formatIntToTime((int) (calcTotalTimeFromSegments(inSegments) / 60L)) + "</td>\n" +
                         "\t</tr>\n";
-
         return description;
     }
 
@@ -502,12 +482,9 @@ public class EstimateParams extends BaseSegments {
                         "\t</tr>\n" +
                         "\t<tr>\n" +
                         getRecordedTrackFileInfo_Prove(inSegments) +
-
                         "</table></body></html>\n";
-
         return description;
     }
-
 
     public String formatIntToTime(int inMinutes) {
         // separate minutes and hours

@@ -23,13 +23,6 @@ public class WikipediaDialog extends SearchResultDialog  {
     }
 
     /**
-     * @return name key
-     */
-    public String getNameKey() {
-        return "function.getwikipedia";
-    }
-
-    /**
      * @param inColNum index of column, 0 or 1
      * @return key for this column
      */
@@ -39,8 +32,8 @@ public class WikipediaDialog extends SearchResultDialog  {
         return "dialog.wikipedia.column.distance";
     }
 
-    void showSelected() {
-        SearchResult searchResult = _trackListModel.getTrack(getSelected());
+    void showSelected(int selected) {
+        SearchResult searchResult = _trackListModel.getTrack(selected);
         if (searchResult != null) {
 
             String url = "https://de.wikipedia.org/wiki/" + searchResult.getTrackName();

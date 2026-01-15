@@ -52,11 +52,13 @@ dependencies {
     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
     implementation 'com.google.android.gms:play-services-appsearch:16.0.1'
     implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
     def preference_version = '1.2.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.androidplot:androidplot-core:1.5.11'
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+	implementation 'androidx.recyclerview:recyclerview:1.4.0'
     // https://mvnrepository.com/artifact/androidx.preference/preference
     implementation("androidx.preference:preference:$preference_version") {
         exclude group: "androidx.fragment", module: "fragment-ktx"
