@@ -50,7 +50,8 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.ViewHolder> 
 
         holder.itemView.setOnLongClickListener(v -> {
             if (selectedPositions.contains(position)) {
-                selectedPositions.remove(position);
+                selectedPositions.remove((Integer) position);
+//                selectedPositions.remove(selectedPositions.indexOf(position));
             } else {
                 selectedPositions.add(position);
             }

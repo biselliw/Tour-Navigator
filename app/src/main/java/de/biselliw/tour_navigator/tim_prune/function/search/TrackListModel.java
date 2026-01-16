@@ -36,7 +36,7 @@ public class TrackListModel // extends AbstractTableModel
 	 */
 	public TrackListModel(String inColumn1Key, String inColumn2Key)
 	{
-		_numColumns = (_lengthColLabel != null?2:1);
+		_numColumns = (_lengthColLabel != null ? 2 : 1);
 		_distanceFormatter.setMaximumFractionDigits(1);
 	}
 

@@ -3,7 +3,9 @@ package de.biselliw.tour_navigator.dialogs;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.widget.TextView;
 
+import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.GetWikipediaFunction;
@@ -14,6 +16,11 @@ public class WikipediaDialog extends SearchResultDialog  {
 
     public WikipediaDialog(Context context, DataPoint inPoint) {
         super(context, inPoint);
+
+        TextView view = findViewById(R.id.search_title);
+        view.setText(context.getString(R.string.find_nearby_wikipedia));
+        view = findViewById(R.id.bt_show);
+        view.setText(context.getString(R.string.wikipedia_article_show));
 
         GetWikipediaFunction getWikipediaFunction = new GetWikipediaFunction((MainActivity) context, _trackListModel);
         getWikipediaFunction.getWikipedia(inPoint, lang);

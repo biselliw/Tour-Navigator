@@ -63,6 +63,7 @@ import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
+import de.biselliw.tour_navigator.dialogs.OSM_Dialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.dialogs.WikipediaDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
@@ -350,6 +351,9 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_find_nearby_wikipedia)
             /* find nearby Wikipedia articles */
             getNearbyWikipedia();
+        else if (id == R.id.itm_find_nearby_osm)
+            /* find nearby OSM POIs */
+            getNearbyOSM();
         else if (id == R.id.itm_delete_waypoint)
             /* Delete the current waypoint */
             deleteRoutePoint();
@@ -603,15 +607,29 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
-     * Delete the current route point from the track
+     * find nearby Wikipedia articles
      */
     public void getNearbyWikipedia() {
         int selected = recordAdapter.getPlace();
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-               WikipediaDialog wikipediaDialog = new WikipediaDialog(this, record.getTrackPoint());
-               wikipediaDialog.show();
+                WikipediaDialog wikipediaDialog = new WikipediaDialog(this, record.getTrackPoint());
+                wikipediaDialog.show();
+            }
+        }
+    }
+
+    /**
+     * find nearby OSM POIs
+     */
+    public void getNearbyOSM() {
+        int selected = recordAdapter.getPlace();
+        if (selected >= 0) {
+            RecordAdapter.Record record = recordAdapter.getItem(selected);
+            if (record != null) {
+                OSM_Dialog osmDialog = new OSM_Dialog(this, record.getTrackPoint());
+                osmDialog.show();
             }
         }
     }
