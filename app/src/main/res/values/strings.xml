@@ -66,6 +66,7 @@
     <string name="pause_time">Break Time</string>
     <string name="comment_waypoint">Comment Waypoint</string>
     <string name="find_nearby_wikipedia">Find nearby Wikipedia</string>
+    <string name="find_nearby_osm">Find nearby OSM POIs</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
     <string name="nav_google">Google-Navigate</string>
     <string name="action_set_new_start">Start from here</string>
@@ -209,10 +210,14 @@
     <!-- ### Wikipedia articles ###-->
     <string name="wikipedia_articles_nearby">Wikipedia articles nearby</string>
     <string name="wikipedia_articles_nonefound">No Wikipedia articles found nearby!</string>
-    <string name="wikipedia_article_already_loaded">No Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
 
     <string name="point_already_loaded">The track already contains the point!</string>
 
+    <!-- ### OSM POIs ###-->
+    <string name="osm_pois_nearby">OSM POIs nearby</string>
+    <string name="osm_pois_nonefound">No OSM POIs found nearby!</string>
+    <string name="osm_poi_show">Show POI</string>
+    <string name="osm_timeout">The server is probably too busy to handle your request</string>
 </resources>

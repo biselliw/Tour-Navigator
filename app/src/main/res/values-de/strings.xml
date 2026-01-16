@@ -57,6 +57,7 @@
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="find_nearby_wikipedia">Wikipediaartikel in der Nähe</string>
+    <string name="find_nearby_osm">Benachbarte OSM POIs</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
     <string name="action_set_new_start">Starte von hier</string>
@@ -178,6 +179,12 @@
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
 
-    <string name="point_already_loaded">The track already contains the point!</string>
+    <string name="point_already_loaded">Der Track enthält bereits diesen Punkt!</string>
+
+    <!-- ### OSM POIs ###-->
+    <string name="osm_pois_nearby">OSM POIs in der Nähe</string>
+    <string name="osm_pois_nonefound">Keine OSM POIs in der Nähe gefunden!</string>
+    <string name="osm_poi_show">POI zeigen</string>
+    <string name="osm_timeout">Der Server ist vermutlich gerade zu stark ausgelastet um die Anfrage zu bearbeiten!</string>
 
 </resources>

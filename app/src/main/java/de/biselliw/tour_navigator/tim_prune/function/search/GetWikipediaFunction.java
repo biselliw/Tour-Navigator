@@ -21,17 +21,17 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	/** Maximum number of results to get */
 	private static final int MAX_RESULTS = 20;
 	/** Maximum distance from point in km */
-	private static final int MAX_DISTANCE = 15;
-	/** Username to use for geonames queries */
-	private static final String GEONAMES_USERNAME = "gpsprune";
+	private static final int MAX_DISTANCE = 10;
+	private static final String GEONAMES_USERNAME = "tournavigator";
 
     private DataPoint dataPoint = null;
     String lang = "";
 
     BaseActivity _activity;
+
 	/**
 	 * Constructor
-	 * @param activity App object
+	 * @param activity
 	 */
 	public GetWikipediaFunction(BaseActivity activity, TrackListModel inTrackListModel) {
 		super(null, inTrackListModel);
@@ -78,32 +78,32 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	 */
 	private void submitSearch(double inLat, double inLon, String inLang)
 	{
-		// Example http://api.geonames.org/findNearbyWikipedia?lat=47&lng=9
-		String urlString = "https://secure.geonames.org/findNearbyWikipedia?lat=" +
-			inLat + "&lng=" + inLon + "&maxRows=" + MAX_RESULTS
-			+ "&radius=" + MAX_DISTANCE + "&lang=" + inLang
-			+ "&username=" + GEONAMES_USERNAME;
-		// Parse the returned XML with a special handler
+        // Example http://api.geonames.org/findNearbyWikipedia?lat=47&lng=9
+        String urlString = "https://secure.geonames.org/findNearbyWikipedia?lat=" +
+                inLat + "&lng=" + inLon + "&maxRows=" + MAX_RESULTS
+                + "&radius=" + MAX_DISTANCE + "&lang=" + inLang
+                + "&username=" + GEONAMES_USERNAME;
+        // Parse the returned XML with a special handler
         GetWikipediaXmlHandler xmlHandler = new GetWikipediaXmlHandler();
-		InputStream inStream = null;
+        InputStream inStream = null;
         _errorMessage = "";
 
-		try
-		{
-			URL url = new URL(urlString);
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			inStream = url.openStream();
-			saxParser.parse(inStream, xmlHandler);
-		}
-		catch (Exception e) {
-			_errorMessage = e.getClass().getName() + " - " + e.getMessage();
-		}
-		// Close stream and ignore errors
-		try {
-			inStream.close();
-		} catch (Exception ignored) {}
-		// Add track list to model
-		ArrayList<SearchResult> trackList = xmlHandler.getTrackList();
+        try
+        {
+            URL url = new URL(urlString);
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            inStream = url.openStream();
+            saxParser.parse(inStream, xmlHandler);
+        }
+        catch (Exception e) {
+            _errorMessage = e.getClass().getName() + " - " + e.getMessage();
+        }
+        // Close stream and ignore errors
+        try {
+            inStream.close();
+        } catch (Exception ignored) {}
+        // Add track list to model
+        ArrayList<SearchResult> trackList = xmlHandler.getTrackList();
 
         if (_trackListModel != null) {
             _trackListModel.addTracks(trackList, true);

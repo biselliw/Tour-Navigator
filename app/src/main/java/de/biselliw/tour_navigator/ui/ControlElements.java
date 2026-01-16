@@ -203,7 +203,8 @@ public class ControlElements extends BaseActivity {
                             (id == R.id.itm_set_new_start) ||
                             (id == R.id.itm_delete_waypoint) ||
                             (id == R.id.itm_delete_trackpoints) ||
-                            (id == R.id.itm_find_nearby_wikipedia))
+                            (id == R.id.itm_find_nearby_wikipedia) ||
+                            (id == R.id.itm_find_nearby_osm))
                 item.setEnabled(!_isViewExpanded && (_place >= 0));
             else
                 item.setVisible(false);

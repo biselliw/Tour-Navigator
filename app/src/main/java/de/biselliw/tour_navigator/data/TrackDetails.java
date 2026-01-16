@@ -400,7 +400,7 @@ public class TrackDetails extends Track {
      */
     public void interleaveWaypoints() {
         final List<String> protectedWaypointTypes = List.of(
-                "Wikipedia"
+                "Wikipedia", "OSM"
         );
         // Separate waypoints and find nearest track point
         _numWaypoints = 0;
@@ -418,8 +418,12 @@ public class TrackDetails extends Track {
             if (point.isWayPoint()) {
                 // find nearest track point
                 _waypoints[_numWaypoints] = point;
-                if (protectedWaypointTypes.contains(point.getWaypointType()))
-                    _waypoints[_numWaypoints].makeProtectedWaypoint();
+                for (int j = 0; j < protectedWaypointTypes.size(); j++) {
+                    if (point.getWaypointType().startsWith(protectedWaypointTypes.get(j))) {
+                        _waypoints[_numWaypoints].makeProtectedWaypoint();
+                        break;
+                    }
+                }
                 _waypoints[_numWaypoints].clearWayPointLink();
                 _pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 15.0E-7, point.isProtectedWayPoint());
                 _numWaypoints++;

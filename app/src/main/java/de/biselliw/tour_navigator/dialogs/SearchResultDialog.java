@@ -157,12 +157,13 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         _selectedPosition = position;
         _selectedPositions = selectedPositions;
         boolean foundUrl = false;
+        showStatus("");
+        setDescription("");
         if (selectedPositions.isEmpty())
         {
             // nothing selected
             _loadButton.setEnabled(false);
             _showButton.setEnabled(false);
-            setDescription("");
         }
         else {
             if (selectedPositions.size() == 1)
@@ -178,7 +179,6 @@ public abstract class SearchResultDialog extends FullScreenDialog {
             else {
                 _loadButton.setEnabled(true);
                 _showButton.setEnabled(false);
-                setDescription("");
             }
         }
     }
@@ -201,7 +201,12 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                     DataPoint point = new DataPoint(Latitude.make(lat), Longitude.make(lon));
                     point.setWaypointName(searchResult.getTrackName());
                     point.setFieldValue(Field.DESCRIPTION,searchResult.getDescription(),false);
-                    point.setFieldValue(Field.WAYPT_TYPE,_waypointType,false);
+                    String pointType = searchResult.getPointType();
+                    if (pointType.isEmpty())
+                        pointType = _waypointType;
+                    else
+                        pointType = _waypointType + ": " + pointType;
+                    point.setFieldValue(Field.WAYPT_TYPE,pointType,false);
                     if (_protectWaypoint)
                         point.makeProtectedWaypoint();
                     point.setFieldValue(Field.WAYPT_LINK,searchResult.getWebUrl(),false);
@@ -210,15 +215,15 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                         showErrorMessage(_context.getString(R.string.point_already_loaded));
                     else {
                         App.getTrack().appendPoint(point);
-                        App.app.recalculate();
-
-                        // Close the dialog
-                        _cancelled = true;
-                        dismiss();
                     }
                 }
             }
         }
+        App.app.recalculate();
+
+        // Close the dialog
+        _cancelled = true;
+        dismiss();
 	}
 
     abstract void showSelected(int selected);

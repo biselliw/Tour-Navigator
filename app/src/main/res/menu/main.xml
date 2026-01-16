@@ -21,6 +21,11 @@
             android:orderInCategory="1"
             android:title="@string/find_nearby_wikipedia"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/itm_find_nearby_osm"
+            android:orderInCategory="1"
+            android:title="@string/find_nearby_osm"
+            app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/nav_group_wpt_nav">

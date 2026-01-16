@@ -277,7 +277,6 @@ public class SettingsActivity extends AppCompatActivity {
     static int getIntFromPref(String inKey, int inDefault) {
         int value = inDefault;
         try {
-         // todo
             value = Integer.parseInt(sharedPref.getString(inKey,""));
         }
         catch (Exception ignored) { }
