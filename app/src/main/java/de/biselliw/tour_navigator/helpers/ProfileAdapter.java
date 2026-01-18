@@ -61,7 +61,6 @@ import android.graphics.Paint;
 import com.androidplot.Plot;
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.LineAndPointRenderer;
 import com.androidplot.xy.RectRegion;
 import com.androidplot.xy.StepMode;
 import com.androidplot.xy.XYGraphWidget;
@@ -76,16 +75,11 @@ import java.util.Observer;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.data.BaseSegments;
+import de.biselliw.tour_navigator.data.TrackDetails;
+import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.data.Segment;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
-
-import static android.graphics.Paint.Style.FILL_AND_STROKE;
-import static android.graphics.Paint.Style.STROKE;
-import static de.biselliw.tour_navigator.data.TrackTiming.baseSegments;
-import static de.biselliw.tour_navigator.data.TrackTiming.trackTiming;
 
 public class ProfileAdapter {
 
@@ -98,7 +92,7 @@ public class ProfileAdapter {
     int prevIndex;
     double startAltitude = 0.0;
     Number lastAltitude = 0;
-    Track _track = null;
+    TrackDetails _trackDetails = null;
 
     private XYPlot dynamicPlot;
     DynamicXYDatasource data;
@@ -133,6 +127,7 @@ public class ProfileAdapter {
         }
     }
 
+    final static int SERIES_ALTITUDES = 0, SERIES_CURSOR = 1, SERIES_SEGMENTS = 2;
     public void createPlot() {
         // get handles to our View defined in layout.xml:
         dynamicPlot = (XYPlot) _activity.findViewById(R.id.plot);
@@ -146,9 +141,9 @@ public class ProfileAdapter {
         data = new DynamicXYDatasource();
         bar = new DynamicXYDatasource();
 
-        AltitudeSeries altitudeSeries = new AltitudeSeries(data, 0, "");
-        AltitudeSeries barSeries = new AltitudeSeries(data, 1, "");
-        AltitudeSeries segmentSeries = new AltitudeSeries(data, 2, "");
+        AltitudeSeries altitudeSeries = new AltitudeSeries(data, SERIES_ALTITUDES, "");
+        AltitudeSeries barSeries = new AltitudeSeries(data, SERIES_CURSOR, "");
+        AltitudeSeries segmentSeries = new AltitudeSeries(data, SERIES_SEGMENTS, "");
 
         lineFormatter = new LineAndPointFormatter(
                 Color.rgb(0, 200, 0), null, null, null);
@@ -228,25 +223,27 @@ public class ProfileAdapter {
 
         int getItemCount(int series) {
             switch (series) {
-                case 0:
+                case SERIES_ALTITUDES:
                     if (numPoints == 0)
                         initPlot();
                     return numPoints;
-                case 2:
+                case SERIES_CURSOR:
+                    return numPoints;
+                case SERIES_SEGMENTS:
                     if (numPoints == 0)
                         return 0;
-                    else {
-                        if (trackTiming != null) {
-                            return trackTiming.getSegmentsCount() + 1;
-                        }
-                    }
+                    else
+                        if (_trackDetails != null)
+                            return _trackDetails.getSegmentsCount() + 1;
             }
             return 0;
         }
 
         Number getX(int series, int index) {
             switch (series) {
-                case 0: {
+                case SERIES_ALTITUDES:
+                case SERIES_CURSOR:
+                {
                     if (index >= numPoints) {
                         throw new IllegalArgumentException();
                     }
@@ -257,8 +254,8 @@ public class ProfileAdapter {
                         prevIndex = 0;
                     }
 
-                    if (_track != null) {
-                        DataPoint currPoint = _track.getPoint(index);
+                    if (_trackDetails != null) {
+                        DataPoint currPoint = _trackDetails.getPoint(index);
                         if ((currPoint != null) && !currPoint.isWayPoint()) {
                             double dist = currPoint.getDistance();
                             Number distance = dist;
@@ -278,15 +275,15 @@ public class ProfileAdapter {
                     }
                     return lastDistance;
                 }
-                case 2:
+                case SERIES_SEGMENTS:
                     if (numPoints == 0)
                         return 0;
-                    else if (trackTiming != null) {
+                    else if (_trackDetails != null) {
                         double distance;
-                        if (index < trackTiming.getSegmentsCount())
-                            distance = trackTiming.getSegmentStartDistance(index);
+                        if (index < _trackDetails.getSegmentsCount())
+                            distance = _trackDetails.getSegmentStartDistance(index);
                         else
-                            distance = trackTiming.getSegmentEndDistance(index-1);
+                            distance = _trackDetails.getSegmentEndDistance(index-1);
                         return distance;
                     }
                     break;
@@ -297,14 +294,14 @@ public class ProfileAdapter {
         Number getY(int series, int index) {
             int altitude = 0;
             switch (series) {
-                case 0:
-                case 1: {
+                case SERIES_ALTITUDES:
+                case SERIES_CURSOR: {
                     if (index >= numPoints) {
                         throw new IllegalArgumentException();
                     }
 
-                    if (_track != null) {
-                        DataPoint currPoint = _track.getPoint(index);
+                    if (_trackDetails != null) {
+                        DataPoint currPoint = _trackDetails.getPoint(index);
                         if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
                             altitude = (int) currPoint.getAltitude().getValue();
                             if (altitude > 0)
@@ -313,41 +310,37 @@ public class ProfileAdapter {
                     }
                     break;
                 }
-                case 2:
+                case SERIES_SEGMENTS:
                     break;
             }
             switch (series) {
-                case 0:
+                case SERIES_ALTITUDES:
                     return lastAltitude;
-                case 1:
+                case SERIES_CURSOR:
                     // draw cursor
                     if (index == _plotX) {
                         // show current altitude
                         String title = String.valueOf(altitude);
                         dynamicPlot.setTitle(title + " m");
-                        if (trackTiming != null)
-                            return trackTiming.getMaxAltitude();
+                        return TrackSegments.getMaxAltitude();
                     }
                     break;
-                case 2:
+                case SERIES_SEGMENTS:
                     if (numPoints == 0)
                         return 0;
-                    else if (trackTiming != null && _track != null) {
+                    else if (_trackDetails != null) {
                         if (index == 0) {
-                            startAltitude = _track.getPoint(0).getAltitude().getValue();
+                            startAltitude = _trackDetails.getPoint(0).getAltitude().getValue();
                             return startAltitude;
                         }
                         else {
                             double alt = startAltitude;
                             Segment segment;
-                            if (index < trackTiming.getSegmentsCount())
-                            {
-                                segment = trackTiming.getSegment(index);
+                            if (index < _trackDetails.getSegmentsCount()) {
+                                segment = _trackDetails.getSegment(index);
                                 alt += segment.getStartAltitudeSum();
-                            }
-                            else
-                            {
-                                segment = trackTiming.getSegment(index - 1);
+                            } else {
+                                segment = _trackDetails.getSegment(index - 1);
                                 alt += segment.getEndAltitudeSum();
                             }
                             return alt;
@@ -407,12 +400,12 @@ public class ProfileAdapter {
         TrackInfo trackInfo = _app.getTrackInfo();
         clearXRange();
         if (trackInfo != null)  {
-            _track = trackInfo.getTrack();
-            if (_track != null) {
-                numPoints = _track.getNumPoints();
+            _trackDetails = trackInfo.getTrack();
+            if (_trackDetails != null) {
+                numPoints = _trackDetails.getNumPoints();
                 // set the horizontal grid steps
                 if (numPoints > 0) {
-                    double totalDistance = BaseSegments.summary.totalDistance_km;
+                    double totalDistance = TrackSegments.summary.totalDistance_km;
                     if (totalDistance > 0.0) {
                         double domainStepValue = 2.5;
                         int domainSteps = (int) (totalDistance / domainStepValue);
@@ -429,8 +422,8 @@ public class ProfileAdapter {
 
                         // set the vertical grid steps
                         double rangeStepValue = 25.0;
-                        int minAltitude = (int) BaseSegments.getMinAltitude();
-                        int maxAltitude = (int) BaseSegments.getMaxAltitude();
+                        int minAltitude = (int) TrackSegments.getMinAltitude();
+                        int maxAltitude = (int) TrackSegments.getMaxAltitude();
 
                         int rangeAltitude = maxAltitude - minAltitude;
                         int rangeSteps = rangeAltitude / (int)rangeStepValue;
@@ -474,7 +467,7 @@ public class ProfileAdapter {
     {
         if (profileRegion != null)
             lineFormatter.removeRegion(profileRegion);
-        profileRegion = new RectRegion(minX, maxX, 0.0, BaseSegments.getMaxAltitude(), "Short");
+        profileRegion = new RectRegion(minX, maxX, 0.0, TrackSegments.getMaxAltitude(), "Short");
         if (profileRegionFormatter == null)
             profileRegionFormatter = new XYRegionFormatter(Color.YELLOW);
 
@@ -492,5 +485,4 @@ public class ProfileAdapter {
         if (dynamicPlot != null)
             dynamicPlot.redraw();
     }
-
 }

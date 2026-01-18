@@ -61,6 +61,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		_app = inApp;
 	}
 
+    public Thread _thread = null;
+    Thread.State _threadState;
 	/**
 	 * Reset the handler to ensure data cleared
 	 */
@@ -85,7 +87,9 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		reset();
 		_XML_stream = null;
 		// start new thread in case xml parsing is time-consuming
-		new Thread(this).start();
+        _thread = new Thread(this);
+        _thread.start();
+        _threadState = _thread.getState();
 	}
 
     /**
@@ -103,7 +107,10 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
         _XML_stream = null;
         reset();
         // start new thread in case xml parsing is time-consuming
-        new Thread(this).start();
+        new Thread(() -> {
+            // background work
+            run();
+        }).start();
     }
 
     /**
@@ -120,7 +127,9 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
         _XML_stream = inStream;
         reset();
         // Start new thread in case xml parsing is time-consuming
-        new Thread(this).start();
+        _thread = new Thread(this);
+        _thread.start();
+        _threadState = _thread.getState();
     }
 
     /**

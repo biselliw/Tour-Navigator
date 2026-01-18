@@ -69,7 +69,7 @@ public class BreakTimeDialog extends FullScreenDialog {
                     if (hour > 12) hour = 0;
                     int minute =timePicker.getCurrentMinute();
                     int break_min = hour*60 + minute;
-                   record.getTrackPoint().setWaypointDuration(break_min);
+                    record.getTrackPoint().setWaypointDuration(break_min);
 
                     /* update break time of current waypoint */
                     _recordAdapter.recordList.set(selected, record);

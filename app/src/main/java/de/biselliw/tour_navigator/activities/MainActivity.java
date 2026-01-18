@@ -118,9 +118,6 @@ public class MainActivity extends LocationActivity  implements
         setContentView(R.layout.activity_main);
 
         webView = findViewById(R.id.web_view);
-//        webView.loadUrl("file:///android_asset/help-DE.html");
-//        view.setVisibility(VISIBLE);
-//        view.loadData("htmlStr","text/html","utf-8");
         overridePendingTransition(0, 0);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -342,42 +339,53 @@ public class MainActivity extends LocationActivity  implements
         int id = item.getItemId();
         control.setTrackingStatus(false);
 
-        if (id == R.id.itm_pause_time)
-            /* Change the pause time of the current waypoint */
-            changePauseTime();
-        else if (id == R.id.itm_comment_waypoint)
-            /* comment the current waypoint */
-            commentRoutePoint();
-        else if (id == R.id.itm_find_nearby_wikipedia)
-            /* find nearby Wikipedia articles */
-            getNearbyWikipedia();
-        else if (id == R.id.itm_find_nearby_osm)
-            /* find nearby OSM POIs */
-            getNearbyOSM();
-        else if (id == R.id.itm_delete_waypoint)
-            /* Delete the current waypoint */
-            deleteRoutePoint();
-        else if (id == R.id.itm_delete_trackpoints)
-            /* Delete all following trackpoints */
-            deleteTrackPoints();
-        else if (id == R.id.itm_set_new_start) {
-            setNewStart();
-            super.app.Update();
+        switch (id) {
+            case R.id.itm_pause_time:
+                /* Change the pause time of the current waypoint */
+                changePauseTime();
+                break;
+            case R.id.itm_comment_waypoint:
+                /* comment the current waypoint */
+                commentRoutePoint();
+                break;
+            case R.id.itm_nav_waypoint:
+                /* Navigate to the waypoint */
+                navigateToRoutePoint();
+                break;
+            case R.id.itm_nav_google:
+                /* Navigate with Google */
+                navigateWithGoogle();
+                break;
+            case R.id.itm_find_nearby_wikipedia:
+                /* find nearby Wikipedia articles */
+                getNearbyWikipedia();
+                break;
+            case R.id.itm_find_nearby_osm:
+                /* find nearby OSM POIs */
+                getNearbyOSM();
+                break;
+            case R.id.itm_delete_waypoint:
+                /* Delete the current waypoint */
+                deleteRoutePoint();
+                break;
+            case R.id.itm_delete_trackpoints:
+                /* Delete all following trackpoints */
+                deleteTrackPoints();
+                break;
+            case R.id.itm_set_new_start:
+                setNewStart();
+                super.app.Update();
+                break;
+            case android.R.id.home:
+                /* Respond to the action bar's Up/Home button */
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        else if (id == R.id.itm_nav_waypoint)
-            /* Navigate to the waypoint */
-            navigateToRoutePoint();
-        else if (id == R.id.itm_nav_google)
-            /* Navigate with Google */
-            navigateWithGoogle();
-        else if (id == android.R.id.home) {
-            /* Respond to the action bar's Up/Home button */
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-        } else
-            return super.onOptionsItemSelected(item);
         clearErrorMessage();
 
         return true;
@@ -929,7 +937,8 @@ public class MainActivity extends LocationActivity  implements
      */
     public void OpenCachedFileGPX() {
         try {
-            File cacheDir = FileUtils.getDownloadsDir(); // todo getDocumentCacheDir(context);
+            android.content.Context context = getApplicationContext();
+            File cacheDir = FileUtils.getDocumentCacheDir(context); // FileUtils.getDownloadsDir();
             File file = new File (cacheDir, "TourNavigator.gpx");
 
             if(DEBUG) Log.d (TAG, "OpenCachedFileGPX():");

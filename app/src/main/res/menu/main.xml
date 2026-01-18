@@ -16,53 +16,56 @@
             android:orderInCategory="1"
             android:title="@string/comment_waypoint"
             app:showAsAction="never" />
-        <item
-            android:id="@+id/itm_find_nearby_wikipedia"
-            android:orderInCategory="1"
-            android:title="@string/find_nearby_wikipedia"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/itm_find_nearby_osm"
-            android:orderInCategory="1"
-            android:title="@string/find_nearby_osm"
-            app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/nav_group_wpt_nav">
         <item
             android:id="@+id/itm_nav_waypoint"
-            android:orderInCategory="1"
+            android:orderInCategory="2"
             android:title="@string/nav_waypoint"
             app:showAsAction="never" />
         <item
             android:id="@+id/itm_nav_google"
-            android:orderInCategory="1"
+            android:orderInCategory="2"
             android:title="@string/nav_google"
+            app:showAsAction="never" />
+    </group>
+
+    <group android:id="@+id/nav_group_search">
+        <item
+            android:id="@+id/itm_find_nearby_wikipedia"
+            android:orderInCategory="3"
+            android:title="@string/find_nearby_wikipedia"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/itm_find_nearby_osm"
+            android:orderInCategory="3"
+            android:title="@string/find_nearby_osm"
             app:showAsAction="never" />
     </group>
 
     <group android:id="@+id/nav_group_track_edit">
         <item
             android:id="@+id/itm_separator"
-            android:orderInCategory="2"
-            android:enabled="false"
+            android:orderInCategory="4"
+            android:enabled="true"
             android:icon="@null"
             android:title="_____________________________________________________________"
             app:showAsAction="never"
             android:layout_height="1dp"/>
         <item
             android:id="@+id/itm_set_new_start"
-            android:orderInCategory="3"
+            android:orderInCategory="4"
             android:title="@string/action_set_new_start"
             app:showAsAction="never" />
         <item
             android:id="@+id/itm_delete_waypoint"
-            android:orderInCategory="3"
+            android:orderInCategory="4"
             android:title="@string/delete_waypoint"
             app:showAsAction="never" />
         <item
             android:id="@+id/itm_delete_trackpoints"
-            android:orderInCategory="3"
+            android:orderInCategory="4"
             android:title="@string/delete_trackpoints"
             app:showAsAction="never" />
     </group>

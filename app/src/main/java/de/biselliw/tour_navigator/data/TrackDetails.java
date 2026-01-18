@@ -60,7 +60,7 @@ public class TrackDetails extends Track {
     private boolean _hasAltitude = false;
     private boolean _hasTimestamps = false;
 
-    TrackTiming _trackTiming = null;
+    private TrackTiming _trackTiming = null;
     static DataPoint[] _waypoints;
     static int _numWaypoints;
     static int[] _pointIndices;
@@ -706,7 +706,6 @@ public class TrackDetails extends Track {
         return _hasTimestamps;
     }
 
-
     /**
      * Delete all points
      *
@@ -727,6 +726,35 @@ public class TrackDetails extends Track {
 
     public boolean isValidRecordedTrackFile() {
         return hasAltitudes() && hasTimestamps();
+    }
+
+    public int getSegmentsCount() {
+        if (_trackTiming != null)
+            return _trackTiming.getSegmentsCount();
+        else
+            return 0;
+    }
+
+    public Segment getSegment(int inIndex) {
+        if (_trackTiming != null)
+            return _trackTiming.getSegment(inIndex);
+        else
+            return null;
+    }
+
+
+    public double getSegmentStartDistance(int inIndex) {
+        if (_trackTiming != null)
+            return _trackTiming.getSegmentStartDistance(inIndex);
+        else
+            return 0.0;
+    }
+
+    public double getSegmentEndDistance(int inIndex) {
+        if (_trackTiming != null)
+            return _trackTiming.getSegmentEndDistance(inIndex);
+        else
+            return 0.0;
     }
 }
 

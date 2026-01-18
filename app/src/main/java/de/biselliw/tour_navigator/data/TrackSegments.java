@@ -14,7 +14,7 @@ import tim.prune.data.Distance;
 /**
  * see tim.prune.data.AltitudeRange
  */
-public class BaseSegments {
+public class TrackSegments {
     // hiking speed parameters
     /**
      * TAG for log messages.
@@ -30,7 +30,7 @@ public class BaseSegments {
     private static final boolean FIX_ALTITUDE_JUMPS = false;
 
 
-    public static BaseSegments baseSegments = null;
+//    public static TrackSegments baseSegments = null;
     public final static double DEF_HOR_SPEED = 4.5;
     public final static double DEF_SPEED_CLIMB = 0.35;
     public final static double DEF_SPEED_DESCENT = 0.5;
@@ -137,7 +137,7 @@ public class BaseSegments {
      */
     public List<Segment> calcSegments(TrackDetails inTrack) {
         _track = inTrack;
-        baseSegments = this;
+//        baseSegments = this;
 
         clear ();
         double totalDistance_km = 0.0;
@@ -739,7 +739,7 @@ public class BaseSegments {
             _wiggleLimit = toleranceMetres;
     }
 
-    public void setHikingParametersFrom(BaseSegments fromOther) {
+    public void setHikingParametersFrom(TrackSegments fromOther) {
         _horSpeed = fromOther._horSpeed;
         _speedClimb = fromOther._speedClimb;
         _speedDescent = fromOther._speedDescent;

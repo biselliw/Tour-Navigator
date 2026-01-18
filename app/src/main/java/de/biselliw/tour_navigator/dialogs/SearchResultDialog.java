@@ -202,7 +202,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                     point.setWaypointName(searchResult.getTrackName());
                     point.setFieldValue(Field.DESCRIPTION,searchResult.getDescription(),false);
                     String pointType = searchResult.getPointType();
-                    if (pointType.isEmpty())
+                    if (pointType == null || pointType.isEmpty())
                         pointType = _waypointType;
                     else
                         pointType = _waypointType + ": " + pointType;

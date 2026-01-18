@@ -42,7 +42,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 2023 Walter Biselli
+Copyright (C) 2026 Walter Biselli
 
 The program uses:
 
@@ -50,7 +50,9 @@ The program uses:
 - sources from [SECUSO Privacy friendly app example](https://github.com/SecUSo/privacy-friendly-app-example) licensed under [GNU General Public License v2.0](http://www.gnu.org/licenses)
 - sources from [Nick Fellows (halfhp)](https://github.com/halfhp/androidplot) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 - sources from [coltoscosmin](https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-- Icons from [Google Material Design Icons](https://fonts.google.com/icons) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- icons from [Google Material Design Icons](https://fonts.google.com/icons) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+- web services from [GeoNames geographical database](https://www.geonames.org/) to access Wikipedia articles; licensed under a [Creative Commons Attribution 4.0 License[(https://creativecommons.org/licenses/by/4.0/)
+- web services from [Overpass API](https://overpass-api.de/) to access Open Street Map (OSM) data; licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence)
 
 
 

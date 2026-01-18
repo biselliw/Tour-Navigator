@@ -137,6 +137,7 @@
     <string name="pref_header_consent_parameters">Consents</string>
     <string name="consent">Consent</string>
     <string name="decline">Decline</string>
+    <string name="consent_internet">Access to Wikipedia articles and OSM POIs</string>
     <string name="consent_GoogleMaps">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
@@ -208,7 +209,6 @@
     <string name="profile">"Profile"</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_articles_nearby">Wikipedia articles nearby</string>
     <string name="wikipedia_articles_nonefound">No Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
@@ -216,7 +216,6 @@
     <string name="point_already_loaded">The track already contains the point!</string>
 
     <!-- ### OSM POIs ###-->
-    <string name="osm_pois_nearby">OSM POIs nearby</string>
     <string name="osm_pois_nonefound">No OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
     <string name="osm_timeout">The server is probably too busy to handle your request</string>

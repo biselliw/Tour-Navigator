@@ -1,17 +1,9 @@
 package de.biselliw.tour_navigator.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
-import de.biselliw.tour_navigator.helpers.Log;
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
-import tim.prune.data.Altitude;
-import tim.prune.data.Distance;
-
-public class Segments extends BaseSegments {
+public class Segments extends TrackSegments {
     /**
      * TAG for log messages.
      */

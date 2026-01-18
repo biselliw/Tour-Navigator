@@ -8,6 +8,9 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
+import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.functions.GpxAltitudeSmoother;
 import de.biselliw.tour_navigator.functions.LinearFit3D;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import tim.prune.data.Distance;
@@ -15,7 +18,7 @@ import tim.prune.data.Distance;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 import static tim.prune.data.Timestamp.Format.LOCALE;
 
-public class EstimateParams extends BaseSegments {
+public class EstimateParams extends TrackSegments {
 
     /**
      * TAG for log messages.
@@ -73,7 +76,7 @@ public class EstimateParams extends BaseSegments {
         @NonNull
         @Override
         public String toString() {
-            return "rmse = " + baseSegments.formatDouble(rmse) + "; r2 = " + baseSegments.formatDouble(r2);
+            return "rmse = " + formatDouble(rmse) + "; r2 = " + formatDouble(r2);
         }
     }
 
@@ -83,8 +86,41 @@ public class EstimateParams extends BaseSegments {
 
         @NonNull
         public String toString() {
-            return "rmse = " + baseSegments.formatDouble(result.rmse) + "; r2 = " + baseSegments.formatDouble(result.r2);
+            return "rmse = " + formatDouble(result.rmse) + "; r2 = " + formatDouble(result.r2);
         }
+    }
+
+    public List<Segment> recalculateRecordedTrack()  {
+        clearRecordedTrackFileInfo();
+        trackHasTimeStamps = true;
+        List<Segment> _segments = calcSegments(_track);
+        calcSegmentsValues(_segments);
+
+        if (DEBUG) de.biselliw.tour_navigator.helpers.Log.i(TAG, "recalculate(): 2. determine the best fitting parameters");
+        EstimateParams.EstimationResult estimateResult = estimateGradients(_segments);
+
+        addReport(getRecordedTrackFileInfo_Start());
+        trackHasTimeStamps = false;
+        if (estimateResult.successful)
+        {
+            addReport(getRecordedTrackFileInfo_Success());
+            if (DEBUG) de.biselliw.tour_navigator.helpers.Log.i(TAG, "recalculate(): 3. recalculate all segments without timestamps using estimated hiking parameters");
+            applyEstimatedHikingParametersFrom(estimateResult);
+            updateSegmentsValues(_segments);
+            // if (estimateAll(_segments).successful)
+            addReport(getRecordedTrackFileInfo_Prove(_segments));
+        }
+        else
+            addReport(getRecordedTrackFileInfo_Failed());
+
+        if (DEBUG) de.biselliw.tour_navigator.helpers.Log.i(TAG, "recalculate(): 3. recalculate all segments using hiking parameters from app settings");
+        SettingsActivity.getHikingParameters(this);
+        updateSegmentsValues(_segments);
+
+        // estimateAll(_segments);
+        addReport(getRecordedTrackFileInfo_UsingSettings(_segments));
+
+        return _segments;
     }
 
     EstimationResult estimateAll(List<Segment> inSegments) {
@@ -317,7 +353,7 @@ public class EstimateParams extends BaseSegments {
         _report = "";
     }
 
-    public String getRecordedTrackFileInfo() {
+    public static String getRecordedTrackFileInfo() {
         return _report;
     }
 
@@ -398,10 +434,10 @@ public class EstimateParams extends BaseSegments {
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>Höchster Punkt: </td>\n" +
-                "\t\t<td align=\"right\">" + (int) (BaseSegments.getMaxAltitude()) + " m</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (TrackSegments.getMaxAltitude()) + " m</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>Tiefster Punkt:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (BaseSegments.getMinAltitude()) + " m</td>\n" +
+                "\t\t<td align=\"right\">" + (int) (TrackSegments.getMinAltitude()) + " m</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td colspan=\"5\"><b>Ermittelte Parameter zur Gehzeitberechnung</b><br>" +
@@ -414,10 +450,10 @@ public class EstimateParams extends BaseSegments {
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td>RMSE:<br>(≈ 0 → exzellent): </td>\n" +
-                "\t\t<td align=\"right\">" + baseSegments.formatDouble(_estimationResult.rmse) + "</td>\n" +
+                "\t\t<td align=\"right\">" + formatDouble(_estimationResult.rmse) + "</td>\n" +
                 "\t\t<td>&nbsp;</td>\n" +
                 "\t\t<td>R²:<br>(1 → stark)</td>\n" +
-                "\t\t<td align=\"right\">" + baseSegments.formatDouble(_estimationResult.r2) + "</td>\n" +
+                "\t\t<td align=\"right\">" + formatDouble(_estimationResult.r2) + "</td>\n" +
                 "\t</tr>\n" +
                 "\t<tr>\n" +
                 "\t\t<td colspan=\"5\">Geschwindigkeiten</td>\n" +
