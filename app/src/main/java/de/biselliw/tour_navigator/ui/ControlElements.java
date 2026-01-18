@@ -47,6 +47,7 @@ import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.EstimateParams;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.files.HTML_File;
@@ -54,6 +55,8 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 
 import static android.view.View.VISIBLE;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentInternet;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
 
@@ -194,20 +197,35 @@ public class ControlElements extends BaseActivity {
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
-            if (
-                    (id == R.id.itm_pause_time) ||
-                            (id == R.id.itm_comment_waypoint) ||
-                            (id == R.id.itm_nav_waypoint) ||
-                            (id == R.id.itm_nav_google) ||
-                            (id == R.id.itm_separator) ||
-                            (id == R.id.itm_set_new_start) ||
-                            (id == R.id.itm_delete_waypoint) ||
-                            (id == R.id.itm_delete_trackpoints) ||
-                            (id == R.id.itm_find_nearby_wikipedia) ||
-                            (id == R.id.itm_find_nearby_osm))
-                item.setEnabled(!_isViewExpanded && (_place >= 0));
-            else
-                item.setVisible(false);
+            switch (id) {
+                case R.id.itm_pause_time:
+                case R.id.itm_comment_waypoint:
+                case R.id.itm_nav_waypoint:
+                    item.setEnabled(!_isViewExpanded && (_place >= 0));
+                    break;
+                case R.id.itm_nav_google:
+                    item.setEnabled(!_isViewExpanded && (_place >= 0));
+                    item.setVisible(getConsentGoogleMaps());
+                    break;
+                case R.id.itm_find_nearby_wikipedia:
+                case R.id.itm_find_nearby_osm:
+                    item.setEnabled(!_isViewExpanded && (_place >= 0));
+                    item.setVisible(getConsentInternet());
+                    break;
+                case R.id.itm_set_new_start:
+                    item.setEnabled(!_isViewExpanded && (_place >= 0));
+                    break;
+                case R.id.itm_delete_waypoint:
+                case R.id.itm_delete_trackpoints:
+                    item.setEnabled(!_isViewExpanded && (_place >= 0));
+                    break;
+                case R.id.itm_separator:
+                    item.setEnabled(true);
+                    item.setVisible(true);
+                    break;
+                default:
+                    item.setVisible(false);
+            }
         }
 
         return true;
@@ -705,14 +723,10 @@ public class ControlElements extends BaseActivity {
      */
     public void showFileInfo() {
         if (App.getTrack().isValidRecordedTrackFile()) {
-//            _isViewExpanded = true;
-//            _updateExpandView = true;
-//            _additionalInfo = TrackTiming.estimate.getRecordedTrackFileInfo();
+            // todo übersetzen: "Informationen zum aufgezeichneten Track"
             setTitleText("Informationen zum aufgezeichneten Track", COLOR_MESSAGE);
-            if (TrackTiming.estimate != null)
-                webView.loadData(TrackTiming.estimate.getRecordedTrackFileInfo(),
+            webView.loadData(EstimateParams.getRecordedTrackFileInfo(),
                                "text/html","utf-8");
-//            profileAdapter.initPlot();
         } else {
             // update the expansion mode
             _isViewExpanded = showExpandViewStatus(-1, true);

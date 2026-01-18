@@ -2,7 +2,7 @@ package de.biselliw.tour_navigator.data;
 
 import androidx.annotation.NonNull;
 
-import static de.biselliw.tour_navigator.data.BaseSegments.formatDouble;
+import static de.biselliw.tour_navigator.data.TrackSegments.formatDouble;
 
 public class Segment {
 

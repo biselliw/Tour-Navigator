@@ -36,11 +36,10 @@ import java.util.regex.Pattern;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static de.biselliw.tour_navigator.App.app;
-import static de.biselliw.tour_navigator.data.TrackTiming.trackTiming;
-
 
 public class HTML_File {
 
@@ -52,17 +51,7 @@ public class HTML_File {
     private final TourDetails details;
     final DecimalFormat decFormat = new DecimalFormat("#0.0");
 
-    final int COL_NR = 0;
-    final int COL_ARRIVE = 1;
-    final int COL_DISTANCE = 2;
-    final int COL_WPT_NAME = 3;
-    final int COL_HEIGHT = 4;
-    final int COL_DIST = 5;
-    final int COL_CLIMB = 6;
-    final int COL_DESCENT = 7;
-    final int COL_DURATION = 8;
-    final int COL_PAUSE = 9;
-    final int COL_COMMENT = 10;
+    final int COL_NR = 0, COL_ARRIVE = 1, COL_DISTANCE = 2, COL_WPT_NAME = 3, COL_HEIGHT = 4, COL_DIST = 5, COL_CLIMB = 6, COL_DESCENT = 7, COL_DURATION = 8, COL_PAUSE = 9, COL_COMMENT = 10;
     final int _colCount = COL_COMMENT + 1;
 
     private StringBuffer html_buffer;
@@ -90,7 +79,7 @@ public class HTML_File {
     public HTML_File(Context inContext, RecordAdapter inRecordAdapter) {
         res = inContext.getResources();
         recordAdapter = inRecordAdapter;
-        details = new TourDetails(inContext, app,inRecordAdapter);
+        details = TourDetails.details; // todo new TourDetails(inContext, app,inRecordAdapter);
         addInfo = details.getFileInfo();
     }
 
@@ -463,6 +452,7 @@ public class HTML_File {
      * write Time table footer
      */
     private void writeTimeTableFooter(boolean addLinks) {
+        TrackSegments.SummarySegments summary = TrackSegments.summary;
         html_buffer.append("<tr>");
         for (int col = 0; col < _colCount; col++) {
             /* text alignment */
@@ -480,17 +470,17 @@ public class HTML_File {
                     html_buffer.append(res.getString(R.string.summary));
                     break;
                 case COL_CLIMB:
-                    html_buffer.append(roundToInt(trackTiming.getSummarySegments().sum_climb_m));
+                    html_buffer.append(roundToInt(summary.sum_climb_m));
                     break;
                 case COL_DESCENT:
-                    html_buffer.append(roundToInt(trackTiming.getSummarySegments().sum_descent_m));
+                    html_buffer.append(roundToInt(summary.sum_descent_m));
                     break;
                 case COL_DURATION:
-                    html_buffer.append(formatIntToTime((int) (trackTiming.getSummarySegments().totalSeconds / 60L
-                    - trackTiming.getSummarySegments().totalBreakTime_min)));
+                    html_buffer.append(formatIntToTime((int) (summary.totalSeconds / 60L
+                    - summary.totalBreakTime_min)));
                     break;
                 case COL_PAUSE:
-                    html_buffer.append(formatIntToTime((int) trackTiming.getSummarySegments().totalBreakTime_min));
+                    html_buffer.append(formatIntToTime((int) summary.totalBreakTime_min));
                     break;
                 default:
                     html_buffer.append("&nbsp;");

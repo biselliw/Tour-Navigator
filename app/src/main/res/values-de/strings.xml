@@ -56,7 +56,7 @@
     <string name="pausing">"PAUSE: Weiter in "</string>
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
-    <string name="find_nearby_wikipedia">Wikipediaartikel in der Nähe</string>
+    <string name="find_nearby_wikipedia">Wikipedia-Artikel in der Nähe</string>
     <string name="find_nearby_osm">Benachbarte OSM POIs</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
@@ -64,10 +64,10 @@
     <string name="delete_waypoint">Wegpunkt entfernen</string>
     <string name="delete_trackpoints">Alle Punkte danach entfernen</string>
 
-    <!--###HELP###-->
+    <!--### HELP ###-->
     <string name="help">Hilfe</string>
 
-    <!--###ABOUT###-->
+    <!--### ABOUT ###-->
     <string name="about">Über</string>
     <string name="version_number">Version </string>
     <string name="about_author">Autoren: </string>
@@ -79,7 +79,7 @@
     <string name="title_add_licenses">Genutzte Lizenzen</string>
     <string name="used_licenses">Diese App nutzt lizensierte Inhalte folgender Entwickler:</string>
 
-    <!-- ###S ETTINGS ### -->
+    <!-- ### SETTINGS ### -->
     <string name="title_activity_settings">Einstellungen</string>
     <string name="pref_header_general">Allgemein</string>
     <string name="pref_header_hiking_parameters">Parameter zur Gehzeitberechnung</string>
@@ -93,6 +93,7 @@
     <string name="pref_header_consent_parameters">Zustimmungen</string>
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>
+    <string name="consent_internet">Zugang zu Wikipedia-Artikeln und OSM POIs</string>
     <string name="consent_GoogleMaps">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
         Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
         Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
@@ -174,7 +175,6 @@
     <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_articles_nearby">Wikipedia-Artikel in der Nähe</string>
     <string name="wikipedia_articles_nonefound">Keine Wikipedia-Artikel in der Nähe gefunden!</string>
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
@@ -182,7 +182,6 @@
     <string name="point_already_loaded">Der Track enthält bereits diesen Punkt!</string>
 
     <!-- ### OSM POIs ###-->
-    <string name="osm_pois_nearby">OSM POIs in der Nähe</string>
     <string name="osm_pois_nonefound">Keine OSM POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
     <string name="osm_timeout">Der Server ist vermutlich gerade zu stark ausgelastet um die Anfrage zu bearbeiten!</string>

@@ -22,7 +22,7 @@
 
     <PreferenceCategory
         android:title="@string/pref_header_alarm_parameters">
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:id="@+id/pref_hiking_par_alarm"
             android:key="pref_hiking_par_alarm"
             android:title="@string/pref_hiking_par_alarm"
@@ -32,12 +32,18 @@
 
     <PreferenceCategory
         android:title="@string/pref_header_consent_parameters">
-        <SwitchPreference
+        <SwitchPreferenceCompat
+            android:id="@+id/pref_consent_internet"
+            android:key="pref_consent_internet"
+            android:title="Internet"
+            android:summary="@string/consent_internet"
+            android:defaultValue="false"/>
+        <SwitchPreferenceCompat
             android:id="@+id/pref_consent_google_maps"
             android:key="pref_consent_google_maps"
             android:title="Google Maps"
             android:defaultValue="false"/>
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:id="@+id/pref_debug"
             android:key="pref_debug"
             android:title="Debug"

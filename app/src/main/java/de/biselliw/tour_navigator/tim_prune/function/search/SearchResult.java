@@ -34,7 +34,7 @@ public class SearchResult implements Comparable<SearchResult>
 	 */
 	public String getTrackName()
 	{
-		return _trackName;
+		return _trackName == null ? "" : _trackName;
 	}
 
 	/**
@@ -48,10 +48,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return type of point (for POIs)
 	 */
-	public String getPointType()
-	{
-		return _pointType;
-	}
+	public String getPointType() { return _pointType == null ? "" : _pointType;	}
 
 	/**
 	 * @param inDesc description
@@ -66,7 +63,7 @@ public class SearchResult implements Comparable<SearchResult>
 	 */
 	public String getDescription()
 	{
-		return _description;
+		return _description == null ? "" : _description;
 	}
 
 	/**
@@ -80,10 +77,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return web url
 	 */
-	public String getWebUrl()
-	{
-		return _webUrl;
-	}
+	public String getWebUrl() { return _webUrl == null ? "" : _webUrl; }
 
 	/**
 	 * @param inLength length of track
@@ -112,10 +106,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return download link
 	 */
-	public String getDownloadLink()
-	{
-		return _downloadLink;
-	}
+	public String getDownloadLink()	{ return _downloadLink == null ? "" : _downloadLink; }
 
 	/**
 	 * @param inLatitude latitude

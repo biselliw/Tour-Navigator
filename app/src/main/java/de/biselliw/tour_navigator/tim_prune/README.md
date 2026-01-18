@@ -13,7 +13,7 @@ On github you'll find all the sources:
 
 ## Sources used for Tour Navigator
 
-All source files below this folder were merged from GpsPrune version26.1 (October 2025 
+All source files below this folder were merged from GpsPrune version 26.1 (October 2025 
 and adapted to the needs of Tour Navigator
 
 ## License
@@ -23,7 +23,7 @@ GpsPrune is licensed under the GNU General Public License v2.0 (GPLv2):
 
 <a href="http://www.gnu.org/licenses/">GNU General Public License v2.0</a>
 
-Copyright (C) 2025 activityworkshop.net, Walter Biselli
+Copyright (C) 2026 activityworkshop.net, Walter Biselli
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

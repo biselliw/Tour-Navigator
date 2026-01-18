@@ -45,6 +45,7 @@ import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.LocationService;
 import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TourDetails;
+import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
@@ -54,9 +55,6 @@ import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_
 import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MAX;
 import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MIN;
 import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
-import static de.biselliw.tour_navigator.data.TrackTiming.baseSegments;
-import static de.biselliw.tour_navigator.data.TrackTiming.trackTiming;
-
 
 /**
  * Activity handling the timing of a tour
@@ -932,7 +930,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         if (point != null) {
             /* Show current distance since start and the remaining distance to destination */
             dist_from_start = point.getDistance();
-            double dist_to_destin = baseSegments.summary.totalDistance_km - dist_from_start;
+            double dist_to_destin = TrackSegments.summary.totalDistance_km - dist_from_start;
             showDistances(dist_from_start);
             recordAdapter.setDistance(dist_from_start);
 
@@ -1065,7 +1063,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         TextView distanceView = findViewById(R.id.track_distance);
         distanceView.setText(new DecimalFormat("#0.00 km").format(inDistance));
 
-        double dist_to_destin = baseSegments.summary.totalDistance_km - inDistance;
+        double dist_to_destin = TrackSegments.summary.totalDistance_km - inDistance;
         TextView dist_to_destinView = findViewById(R.id.track_dist_to_dest);
         dist_to_destinView.setText(new DecimalFormat("#0.0 km").format(dist_to_destin));
     }
