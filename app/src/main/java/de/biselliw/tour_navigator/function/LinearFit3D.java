@@ -1,22 +1,18 @@
-package de.biselliw.tour_navigator.functions;
+package de.biselliw.tour_navigator.function;
 
 import org.apache.commons.math3.linear.*;
 
 /**
- * solution for estimating parameters a,b,c in
- * t=ax+by+cz
+ * <p>solution for estimating parameters a,b,c in  t = ax + by + cz
  * using Apache Commons Math with a numerically stable QR decomposition, followed by validation and residual analysis
- * Validation and residual analysis Metrics included
+ * Validation and residual analysis Metrics included</p>
  *
- * Residuals:
- * RMSE (Root Mean Squared Error): measures absolute fit quality
- * R² (Coefficient of Determination): variance explained by the model
+ * Residuals:<ul>
+ * <li>RMSE (Root Mean Squared Error): measures absolute fit quality: RMSE ≈ 0 → excellent fit</li>
+ * <li>R² (Coefficient of Determination): variance explained by the model: R² close to 1 → strong explanatory power</li>
+ * </ul>
  *
- * How to interpret
- * RMSE ≈ 0 → excellent fit
- * R² close to 1 → strong explanatory power
- * Systematic patterns in residuals → model misspecification
- * Large RMSE with high R² → scale issues or outliers
+ * Systematic patterns in residuals → model misspecification; Large RMSE with high R² → scale issues or outliers
  */
 public class LinearFit3D {
 
@@ -39,14 +35,14 @@ public class LinearFit3D {
     public static Result estimate(
             double[] x, double[] y, double[] z, double[] t) {
 
-        int n = x.length;
-        if (y.length != n || z.length != n || t.length != n) {
+        int size = x.length;
+        if (y.length != size || z.length != size || t.length != size) {
             throw new IllegalArgumentException("All arrays must have same length");
         }
 
         // Design matrix X
-        double[][] data = new double[n][3];
-        for (int i = 0; i < n; i++) {
+        double[][] data = new double[size][3];
+        for (int i = 0; i < size; i++) {
             data[i][0] = x[i];
             data[i][1] = y[i];
             data[i][2] = z[i];
@@ -71,17 +67,16 @@ public class LinearFit3D {
 
         double rss = residuals.dotProduct(residuals);
 
-        double meanT = T.getL1Norm() / n;
+        double meanT = T.getL1Norm() / size;
         double tss = 0.0;
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < size; i++) {
             double d = t[i] - meanT;
             tss += d * d;
         }
 
-        double rmse = Math.sqrt(rss / n);
+        double rmse = Math.sqrt(rss / size);
         double r2 = 1.0 - rss / tss;
 
         return new Result(a, b, c, rmse, r2);
     }
-
 }

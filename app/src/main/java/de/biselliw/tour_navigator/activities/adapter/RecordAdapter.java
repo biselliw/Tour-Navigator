@@ -16,7 +16,7 @@ package de.biselliw.tour_navigator.activities.adapter;
     You should have received a copy of the GNU General Public License. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.app.Activity;
@@ -42,6 +42,7 @@ import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
+import static de.biselliw.tour_navigator.App.app;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezoneStr;
 import static de.biselliw.tour_navigator.ui.ControlElements.control;
@@ -159,11 +160,6 @@ public class RecordAdapter extends BaseAdapter {
         public double Sdescent;
         public long Sseconds;
 
-        public Record(DataPoint _trackPoint, int _trackPointIndex) {
-            trackPointIndex = _trackPointIndex;
-            trackPoint = _trackPoint;
-        }
-
         public Record(DataPoint _trackPoint, int _trackPointIndex, double _Sdistance, double _Sclimb, double _Sdescent, long _Sseconds) {
             trackPointIndex = _trackPointIndex;
             trackPoint = _trackPoint;
@@ -222,8 +218,6 @@ public class RecordAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         RecordViewHolder holder;
-
-     //   if (updating) return null;
 
         if (view == null) {
             LayoutInflater recordInflater = (LayoutInflater) _activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
@@ -486,6 +480,25 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
+     * Check if the list already contains a record with a data point
+     * @param inPoint object to compare
+     * @return true if the track already contains the point
+     * @author BiselliW
+     */
+    public boolean contains(DataPoint inPoint) {
+        for (int i = 0; i < recordList.size(); i++) {
+            DataPoint point = getItem(i).getTrackPoint();
+            if (point != null)
+                if (point.getLinkIndex() >= 0)
+                    point = app.getPoint(point.getLinkIndex());
+            if (point != null)
+                if (point.isDuplicate(inPoint))
+                    return true;
+        }
+        return false;
+    }
+
+    /**
      * add a record without updating the list view
      *
      * @param record record
@@ -534,7 +547,7 @@ public class RecordAdapter extends BaseAdapter {
         double distanceToPlace = 0.0;
         if (inPlace < 0) inPlace = 0;
         _initialPlace = inPlace;
-//        if (inPlace == 0) endIndex = 1;
+
         endPlace = inPlace;
         if (inUser)
             control.clearErrorMessage();

@@ -7,7 +7,7 @@
     <string name="app_description">Timetable of hiking tour</string>
     <string name="app_description2">Timetable of hiking tour</string>
     <string name="app_author">Author</string>
-    <string name="app_donate">created with Tour Navigator (©2026 Walter Biselli)</string>
+    <string name="app_donate">created with Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
     <string name="lang">en</string>
 
     <!-- Common LICENSE -->
@@ -24,11 +24,12 @@
     <string name="wait">Please wait ...</string>
     <string name="description">Description</string>
 
-    <!-- ###DRAWER###-->
+    <!-- ### DRAWER ###-->
     <string name="action_main">Main</string>
     <string name="action_open_gpx">Open GPX</string>
     <string name="action_file_info">Tour Info</string>
     <string name="action_reverse_route">Reverse route</string>
+    <string name="action_add_remote_waypoints">Add waypoints</string>
     <string name="action_start_time">Start Time</string>
     <string name="action_timetable">Time Table</string>
     <string name="action_download_gpx">Save as GPX</string>
@@ -41,12 +42,12 @@
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <!-- ###MAIN### -->
+    <!-- ### MAIN ### -->
     <string name="main_button_text">Full Width Button</string>
     <string name="main_button_disabled_text">Inactive Button</string>
     <string name="main_text_title"> - </string>
 
-    <!-- ###Activities at Status### -->
+    <!-- ### Activities at Status ### -->
     <string name="load_gpx_file">Please load a GPX file</string>
     <string name="set_start_time">Please set the start time</string>
     <string name="permit_location">Permission for GPS has been rejected before!</string>
@@ -62,7 +63,7 @@
     <string name="dest_failed">You failed the destination!</string>
     <string name="pausing">"BREAK: Continue in "</string>
 
-    <!-- ###Menu Items###-->
+    <!-- ### Menu Items ###-->
     <string name="pause_time">Break Time</string>
     <string name="comment_waypoint">Comment Waypoint</string>
     <string name="find_nearby_wikipedia">Find nearby Wikipedia</string>
@@ -73,10 +74,10 @@
     <string name="delete_waypoint">Remove Waypoint</string>
     <string name="delete_trackpoints">Remove all trackpoints to the end</string>
 
-    <!--###HELP###-->
+    <!--### HELP ###-->
     <string name="help">Help</string>
 
-    <!--###ABOUT###-->
+    <!--### ABOUT ###-->
     <string name="about">About</string>
     <string name="version_number">Version </string>
     <string name="about_author">Authors: </string>
@@ -123,7 +124,7 @@
         www.apache.org/licenses/LICENSE-2.0\n
     </string>
 
-    <!-- ###SETTINGS### -->
+    <!-- ### SETTINGS ### -->
     <string name="title_activity_settings">Settings</string>
     <string name="pref_header_general">General</string>
     <string name="pref_header_hiking_parameters">Hiking Parameters</string>
@@ -139,6 +140,7 @@
     <string name="decline">Decline</string>
     <string name="consent_internet">Access to Wikipedia articles and OSM POIs</string>
     <string name="consent_GoogleMaps">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
+    <string name="set_to_default">Set to default</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome on tour!</string>
@@ -186,8 +188,8 @@
     <string name="next_place">Next Place</string>
     <string name="altitude_m">Altitude<br>[m]</br></string>
     <string name="dist_km">Diff<br>[km]</br></string>
-    <string name="climb_m">Up<br>[m]</br></string>
-    <string name="descent_m">Down<br>[m]</br></string>
+    <string name="climb_m">Up<br>[hm]</br></string>
+    <string name="descent_m">Down<br>[hm]</br></string>
     <string name="duration">Duration</string>
     <string name="pause">Pause</string>
     <string name="pause_min">Pause<br>[min]</br></string>
@@ -200,23 +202,42 @@
     <string name="wpt_desc">Description</string>
     <string name="wpt_take_comment">Take It</string>
 
+    <string name="wpt_wikipedia">Wikipedia article</string>
+
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"turn right"</string>
     <string name="waypointDirLeftComb">"turn left"</string>
     <string name="waypointUpComb">"straight forward"</string>
     <string name="waypointFlagComb">"Trackpoint"</string>
 
+    <!-- Open Street Map waypoints -->
+    <string name="guidepost">guidepost</string>
+    <string name="bus_stop">osm_bus stop</string>
+    <string name="restaurant">restaurant</string>
+    <string name="bbq">bbq</string>
+    <string name="bench">bench</string>
     <string name="profile">"Profile"</string>
 
+    <!-- ### Search Results ###-->
+    <string name="btn_load">Load</string>
+    <string name="btn_show">Show</string>
+
     <!-- ### Wikipedia articles ###-->
+    <string name="wikipedia_title">Nearby Wikipedia Articles</string>
     <string name="wikipedia_articles_nonefound">No Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
 
     <string name="point_already_loaded">The track already contains the point!</string>
+    <string name="distance_from_track">from track</string>
 
     <!-- ### OSM POIs ###-->
+    <string name="osm_title">Nearby OSM POIs</string>
     <string name="osm_pois_nonefound">No OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
     <string name="osm_timeout">The server is probably too busy to handle your request</string>
+
+    <!-- ### Remote POIs ###-->
+    <string name="wpt_title">Waypoints out of track</string>
+
 </resources>

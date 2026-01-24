@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.data;
     If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -26,10 +26,13 @@ import android.content.res.Resources;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
+import de.biselliw.tour_navigator.tim_prune.function.search.GetWikipediaFunction;
+import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmFunction;
+import tim.prune.data.Distance;
 
 public class TourDetails {
 
@@ -72,28 +75,48 @@ public class TourDetails {
     }
 
     /**
-     * Interpret the Waypoint symbol provided by outdooractive GPX files
-     * @param symbol outdooractive specific waypoint symbol
-     * @return interpreted string
+     * Interpret the Waypoint symbol provided by outdooractive
+     * @param symbol specific waypoint symbol
+     * @return translated string
      */
     public String interpretWaypointSymbol(String symbol)
     {
-        if (res == null) return "";
-        switch (symbol) {
-            case "waypointDirRightComb":
-                symbol = res.getString(R.string.waypointDirRightComb);
-                break;
-            case "waypointDirLeftComb":
-                symbol = res.getString(R.string.waypointDirLeftComb);
-                break;
-            case "waypointUpComb":
-                symbol = res.getString(R.string.waypointUpComb);
-                break;
-            case "waypointFlagComb":
-                symbol = res.getString(R.string.waypointFlagComb);
-                break;
-        }
+        if (res != null)
+            switch (symbol) {
+                /* outdooractive types */
+                case "waypointDirRightComb":
+                    symbol = res.getString(R.string.waypointDirRightComb);
+                    break;
+                case "waypointDirLeftComb":
+                    symbol = res.getString(R.string.waypointDirLeftComb);
+                    break;
+                case "waypointUpComb":
+                    symbol = res.getString(R.string.waypointUpComb);
+                    break;
+                case "waypointFlagComb":
+                    symbol = res.getString(R.string.waypointFlagComb);
+                    break;
+            }
         return symbol;
+    }
+
+    /**
+     * Interpret the Waypoint type provided by the GPX file and OSM
+     * @param type specific waypoint type
+     * @return translated string
+     */
+    public String interpretWaypointType(String type)
+    {
+        if (type.equals(GetWikipediaFunction.WAYPOINT_TYPE)) {
+            Resources res = App.resources;
+            if (res != null)
+                return res.getString(R.string.wpt_wikipedia);
+        }
+        else if (type.startsWith(GetWaypointsFunction.WAYPOINT_TYPE))
+            return GetWaypointsFunction.interpretWaypointType(type);
+        else if (type.startsWith(SearchOsmFunction.WAYPOINT_TYPE))
+            return SearchOsmFunction.interpretWaypointSymbol(type);
+        return type;
     }
 
     /**
@@ -156,11 +179,21 @@ public class TourDetails {
 
                 if (info.description.isEmpty()) {
                     if (point.getLinkIndex() >= 0) {
-                        point = app.getPoint(point.getLinkIndex());
-                        if (point != null) {
-                            info.type = point.getWaypointType();
-                            info.description = point.getDescription();
-                            info.link = point.getWebLink();
+                        DataPoint linkedPoint = app.getPoint(point.getLinkIndex());
+                        if (linkedPoint != null) {
+                            info.type = linkedPoint.getWaypointType();
+                            if (linkedPoint.isProtectedWayPoint()) {
+                                // translate type
+                                info.type = interpretWaypointType(info.type);
+                                // calculate distance between track and waypoint
+                                double radians = DataPoint.calculateRadiansBetween(point,linkedPoint);
+                                double distance_km = Distance.convertRadiansToDistance(radians);
+                                // add distance to type
+                                if (distance_km > 0.1)
+                                    info.type += " (" + (int)(distance_km * 1000.0) + " m " + res.getString(R.string.distance_from_track) +")";
+                            }
+                            info.description = linkedPoint.getDescription();
+                            info.link = linkedPoint.getWebLink();
                         }
                     }
                 }
@@ -175,11 +208,6 @@ public class TourDetails {
 
                     if (!info.comment.isEmpty())
                         info.comment = info.symbol + ": " + info.comment;
-                        /*
-                        else if (!info.description.equals(""))
-                            info.comment = info.symbol + ": " + info.description;
-
-                         */
                     else
                         info.comment = info.symbol;
                 } else

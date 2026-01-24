@@ -1,10 +1,19 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
+import de.biselliw.tour_navigator.ui.ControlElements;
+import tim.prune.data.Distance;
+import tim.prune.data.Latitude;
+import tim.prune.data.Longitude;
+
 /**
  * Class to hold a search result from wikipedia or other online service
  */
 public class SearchResult implements Comparable<SearchResult>
 {
+    /** Data Point */
+    private DataPoint _dataPoint = null;
 	/** Track name or title */
 	private String _trackName = null;
 	/** Point type (for POIs) */
@@ -20,6 +29,13 @@ public class SearchResult implements Comparable<SearchResult>
 	/** Coordinates of point */
 	private String _latitude = null, _longitude = null;
 
+    public SearchResult() {
+
+    }
+
+    public void setDataPoint(DataPoint inDataPoint) { _dataPoint = inDataPoint; }
+
+    public DataPoint getDataPoint() { return _dataPoint; }
 
 	/**
 	 * @param inName name of track
@@ -152,4 +168,37 @@ public class SearchResult implements Comparable<SearchResult>
 		}
 		return getTrackName().compareTo(inOther.getTrackName());
 	}
+
+    /**
+     * Update single search result
+     */
+    public void update() {
+        if (_dataPoint == null)
+            try {
+                if (_latitude != null && _longitude != null) {
+                    _dataPoint = new DataPoint(Latitude.make(_latitude), Longitude.make(_longitude));
+                    _dataPoint.setWaypointName(getTrackName());
+                    _dataPoint.setFieldValue(Field.DESCRIPTION, getDescription(), false);
+                    _dataPoint.setFieldValue(Field.WAYPT_LINK, getWebUrl(), false);
+                    _dataPoint.makeProtectedWaypoint();
+                }
+            }
+        catch (Exception e)
+        {
+            _dataPoint = null;
+        }
+
+        if (_dataPoint != null)
+            _dataPoint.setFieldValue(Field.WAYPT_TYPE, _pointType, false);
+    }
+
+    /**
+     * Check if a point is already loaded
+     */
+    public boolean isDuplicate() {
+        if (ControlElements.recordAdapter != null)
+            return (ControlElements.recordAdapter.contains(_dataPoint));
+        else
+            return false;
+    }
 }

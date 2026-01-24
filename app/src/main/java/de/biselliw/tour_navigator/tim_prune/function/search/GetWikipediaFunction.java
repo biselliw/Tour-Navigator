@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -24,23 +25,22 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	private static final int MAX_DISTANCE = 10;
 	private static final String GEONAMES_USERNAME = "tournavigator";
 
-    private DataPoint dataPoint = null;
-    String lang = "";
+    public static final String WAYPOINT_TYPE = "Wikipedia";
 
-    BaseActivity _activity;
+    String lang = "";
 
 	/**
 	 * Constructor
-	 * @param activity
+     * @param inApp App object
 	 */
-	public GetWikipediaFunction(BaseActivity activity, TrackListModel inTrackListModel) {
-		super(null, inTrackListModel);
-        _activity = activity;
+	public GetWikipediaFunction(App inApp, TrackListModel inTrackListModel) {
+		super(inApp, inTrackListModel);
 	}
 
 	public void getWikipedia(DataPoint inPoint, String inLang)
     {
-        dataPoint = inPoint;
+        // Get coordinates from current point (if any)
+        getSearchCoordinates(inPoint);
         lang = inLang;
         new Thread(() -> {
             // background work
@@ -53,20 +53,15 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	 */
 	public void run()
 	{
-		// Get coordinates from current point (if any) or from centre of screen
-        if(dataPoint == null) return;
-        double lat = dataPoint.getLatitude().getDouble();
-        double lon = dataPoint.getLongitude().getDouble();
-
 		// For geonames, firstly try the local language
-        submitSearch(lat, lon, lang);
+        submitSearch(_searchLatitude, _searchLongitude, lang);
 
         // prohibit recursive search
-        dataPoint = null;
+//        dataPoint = null;
 
 		// Set status label according to error or "none found", leave blank if ok
 		if (_errorMessage.isEmpty() && _trackListModel.isEmpty()) {
-			_errorMessage = _activity.getString(R.string.wikipedia_articles_nonefound);
+			_errorMessage = resources.getString(R.string.wikipedia_articles_nonefound);
 		}
 	}
 
@@ -100,13 +95,23 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
         }
         // Close stream and ignore errors
         try {
+            assert inStream != null;
             inStream.close();
         } catch (Exception ignored) {}
+
         // Add track list to model
-        ArrayList<SearchResult> trackList = xmlHandler.getTrackList();
+//        ArrayList<SearchResult> trackList = xmlHandler.getTrackList();
+        ArrayList<SearchResult> reducedTrackList = new ArrayList<>();
 
         if (_trackListModel != null) {
-            _trackListModel.addTracks(trackList, true);
+            for (SearchResult searchResult : xmlHandler.getTrackList()) {
+                // Check if a point is already loaded
+                searchResult.setPointType(WAYPOINT_TYPE);
+                searchResult.update();
+//                if (!searchResult.isDuplicate())
+                reducedTrackList.add(searchResult);
+            }
+            _trackListModel.addTracks(reducedTrackList, true);
 
             // Show error message if any
             if (_trackListModel.isEmpty()) {

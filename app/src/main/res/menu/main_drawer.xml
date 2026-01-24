@@ -16,6 +16,10 @@
             android:icon="@drawable/swap_horiz"
             android:title="@string/action_reverse_route" />
         <item
+            android:id="@+id/nav_remote_waypoints"
+            android:icon="@drawable/signpost"
+            android:title="@string/action_add_remote_waypoints" />
+        <item
             android:id="@+id/nav_start_time"
             android:icon="@drawable/schedule"
             android:title="@string/action_start_time"/>

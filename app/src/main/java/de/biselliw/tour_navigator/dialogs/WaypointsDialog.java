@@ -24,24 +24,29 @@ import android.content.Context;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmFunction;
 
 /**
- * Search dialog to add waypoints provided by OSM
+ * Search dialog to add waypoints provided by the GPX file which are out of track
  */
-public class OSM_Dialog extends SearchResultDialog {
+public class WaypointsDialog extends SearchResultDialog  {
 
-    public OSM_Dialog(Context context, DataPoint inPoint) {
-        super(context, context.getString(R.string.osm_title), inPoint);
+    public WaypointsDialog(Context context, DataPoint inPoint) { super(context,
+            context.getString(R.string.wpt_title),
+            inPoint);
 
-        SearchOsmFunction searchOsmPoisFunction = new SearchOsmFunction(App.app, trackListModel);
-        searchOsmPoisFunction.getOSM(inPoint, lang);
-        searchFunction = searchOsmPoisFunction;
+        GetWaypointsFunction getWaypointsFunction = new GetWaypointsFunction(App.app, trackListModel);
+        getWaypointsFunction.getWaypoints(inPoint, lang);
+        searchFunction = getWaypointsFunction;
     }
 
-    @Override
-    protected String getColumnKey(int inColNum) {
+    /**
+     * @param inColNum index of column, 0 or 1
+     * @return key for this column
+     */
+    protected String getColumnKey(int inColNum)
+    {
         return "";
     }
-}
+};

@@ -17,17 +17,15 @@ package de.biselliw.tour_navigator.data;
     If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import tim.prune.data.Distance;
-import tim.prune.data.FieldList;
-import tim.prune.data.PointCreateOptions;
 
-import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 
@@ -35,6 +33,8 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.helpers.Log;
+
+import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
 
 
 /**
@@ -63,6 +63,8 @@ public class TrackDetails extends Track {
     private TrackTiming _trackTiming = null;
     static DataPoint[] _waypoints;
     static int _numWaypoints;
+    ArrayList<DataPoint> _wayPointsOutOfTrack = new ArrayList<>();
+
     static int[] _pointIndices;
 
 	/**
@@ -70,9 +72,9 @@ public class TrackDetails extends Track {
 	 */
     public List<RecordAdapter.Record> recalculate() {
         interleaveWaypoints();
-        _trackTiming = new TrackTiming(this);
+        _trackTiming = new TrackTiming();
         try {
-            return _trackTiming.recalculate();
+            return _trackTiming.recalculate(this);
         }
         catch (Exception e) {
             Log.e(TAG,"No records created yet");
@@ -190,7 +192,7 @@ public class TrackDetails extends Track {
      * @since BiselliW
      * - all coordinates in [km]
      */
-    public int getOutsidePointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMinDist, boolean inJustTrackPoints) {
+    private int getOutsidePointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMinDist, boolean inJustTrackPoints) {
 
         if (inStart < 0) inStart = 0;
         if (inStart > inEnd) return DataPoint.INVALID_INDEX;
@@ -263,70 +265,6 @@ public class TrackDetails extends Track {
 
 
     ////////////////////////////////////////
-    /**
-     * Load method, for initialising and reinitialising data
-     *
-     * @param inFieldArray array of Field objects describing fields
-     * @param inPointArray 2d object array containing data
-     * @param inOptions    load options such as units
-     * @implNote bugfix of outdooractive GPX tracks with GPX coordinates as track point names
-     * @author BiselliW
-     */
-    public void load(Field[] inFieldArray, Object[][] inPointArray, PointCreateOptions inOptions) {
-        if (DEBUG) Log.d(TAG, "Loaded");
-        if (inFieldArray == null || inPointArray == null) {
-            _numPoints = 0;
-            return;
-        }
-        // copy field list
-        _masterFieldList = new FieldList(inFieldArray);
-        // make DataPoint object from each point in inPointList
-        _dataPoints = new DataPoint[inPointArray.length];
-        int pointIndex = 0;
-        for (Object[] objects : inPointArray) {
-            // Convert to DataPoint objects
-            DataPoint point = new DataPoint((String[]) objects, _masterFieldList, inOptions);
-            if (point.isValid()) {
-                // bugfix of outdooractive GPX tracks with GPX coordinates as track point names
-                String _pointName = point.getWaypointName();
-                if (_pointName.length() > 6) {
-                    _pointName = _pointName.substring(0, 6);
-                    try {
-                        double lat = Double.parseDouble(_pointName);
-                        if ((lat >= 0) && point.getWaypointSymbol().isEmpty())
-                            // remove same name as in previous track point
-                            point.setWaypointName("");
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-                _dataPoints[pointIndex] = point;
-                pointIndex++;
-            }
-        }
-        _numPoints = pointIndex;
-        // Set first track point to be start of segment
-        DataPoint firstTrackPoint = getNextTrackPoint(0);
-        if (firstTrackPoint != null) {
-            firstTrackPoint.setSegmentStart(true);
-        }
-        // needs to be scaled
-        _scaled = false;
-    }
-
-
-    /**
-     * Load the track by transferring the contents from a loaded Track object
-     *
-     * @param inOther Track object containing loaded data
-     * @author BiselliW
-     */
-    public void load(TrackDetails inOther) {
-        _numPoints = inOther._numPoints;
-        _masterFieldList = inOther._masterFieldList;
-        _dataPoints = inOther._dataPoints;
-        // needs to be scaled
-        _scaled = false;
-    }
 
     /**
      * Reverse the specified range of points
@@ -368,7 +306,6 @@ public class TrackDetails extends Track {
         }
         // needs to be scaled again
         _scaled = false;
-// todo        UpdateMessageBroker.informSubscribers();
     }
 
     /**
@@ -391,7 +328,6 @@ public class TrackDetails extends Track {
 
         // needs to be scaled again
         _scaled = false;
-// todo        UpdateMessageBroker.informSubscribers();
     }
 
 
@@ -400,11 +336,12 @@ public class TrackDetails extends Track {
      */
     public void interleaveWaypoints() {
         final List<String> protectedWaypointTypes = List.of(
-                "Wikipedia", "OSM"
+                "Wikipedia", "OSM", "WPT"
         );
+        ArrayList<DataPoint> waypoints = new ArrayList<>();
+
         // Separate waypoints and find nearest track point
         _numWaypoints = 0;
-        _waypoints = new DataPoint[_numPoints];
         _pointIndices = new int[_numPoints];
         if (!_scaled) scalePoints();
         if (DEBUG) Log.d(TAG, "interleaveWaypoints()");
@@ -417,18 +354,26 @@ public class TrackDetails extends Track {
             // if point is a way point outside the track
             if (point.isWayPoint()) {
                 // find nearest track point
-                _waypoints[_numWaypoints] = point;
                 for (int j = 0; j < protectedWaypointTypes.size(); j++) {
                     if (point.getWaypointType().startsWith(protectedWaypointTypes.get(j))) {
-                        _waypoints[_numWaypoints].makeProtectedWaypoint();
+                        point.makeProtectedWaypoint();
                         break;
                     }
                 }
-                _waypoints[_numWaypoints].clearWayPointLink();
+                point.clearWayPointLink();
                 _pointIndices[_numWaypoints] = getNearestPointIndex(_xValues[i], _yValues[i], 15.0E-7, point.isProtectedWayPoint());
+                waypoints.add(point);
                 _numWaypoints++;
             }
         }
+
+        // convert list of waypoints to an array
+        _waypoints = new DataPoint[_numWaypoints];
+        for (int i = 0; i < _numWaypoints; i++) {
+            _waypoints[i] = waypoints.get(i);
+        }
+        waypoints.clear();
+
         // Exit if data not mixed
         if (_numWaypoints == _numPoints) return;
 
@@ -443,18 +388,27 @@ public class TrackDetails extends Track {
 
         // needs to be scaled again to recalc x, y
         _scaled = false;
-// todo        UpdateMessageBroker.informSubscribers();
     }
 
     /**
-     * Clone the array of DataPoints
-     *
-     * @return shallow copy of DataPoint objects
+     * find nearest track point for a way point
+     * @param wayPoint way point
+     * @return nearest track point / null
      */
-    public DataPoint[] cloneContents() {
-        DataPoint[] clone = new DataPoint[_numPoints];
-        System.arraycopy(_dataPoints, 0, clone, 0, _numPoints);
-        return clone;
+    public DataPoint getNearestTrackPoint(DataPoint wayPoint) {
+        DataPoint nearestTrackPoint = null;
+        int pointIndex = getPointIndex(wayPoint);
+        if (pointIndex >= 0) {
+            DataPoint point = _dataPoints[pointIndex];
+            // if point is a way point outside the track
+            if (point != null) {
+                // find nearest track point
+                int nearestPointIndex = getNearestPointIndex(_xValues[pointIndex], _yValues[pointIndex], 15.0E-7, true);
+                if (nearestPointIndex >= 0)
+                    nearestTrackPoint = _dataPoints[nearestPointIndex];
+            }
+        }
+        return nearestTrackPoint;
     }
 
     /**
@@ -528,32 +482,22 @@ public class TrackDetails extends Track {
                     }
                 } else {
                     // check for way points with this index
-                    boolean foundWP = false;
-                    int linkedTP = DataPoint.INVALID_INDEX;
                     for (int j = 0; j < _numWaypoints; j++) {
                         if ((_pointIndices[j] >= 0) && (_pointIndices[j] <= i)) {
                             /*  is this way point the nearest to the track point?
                              *  - link the track point to this way point */
                             if (_waypoints[j] != null) {
-                                if (!foundWP) {
-                                    foundWP = true;
-                                    linkedTP = copyIndex - 1;
-                                    dataCopy[linkedTP].makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
-                                    _pointIndices[j] = DataPoint.INVALID_INDEX;
-                                }
+                                int linkedTP = copyIndex - 1;
+                                dataCopy[linkedTP].makeRoutePoint(_waypoints[j].getWaypointName(), copyIndex);
+                                _pointIndices[j] = DataPoint.INVALID_INDEX;
                                 _waypoints[j].setLinkIndex(linkedTP);
-                                // else link the following track point to this way point
-
-                                  //  _pointIndices[j] = DataPoint.INVALID_INDEX;
-
                                 if (copyIndex < _numPoints) {
                                     dataCopy[copyIndex] = _waypoints[j];
                                     copyIndex++;
                                 }
                                 else
                                     copyIndex = 0;
-                                if (foundWP)
-                                    break;
+                                break;
                             }
                         }
                     }
@@ -562,16 +506,16 @@ public class TrackDetails extends Track {
         }
 
         // check for way points without index
+        _wayPointsOutOfTrack = new ArrayList<>();
         for (int j = 0; j < _numWaypoints; j++) {
-            if (_pointIndices[j] >= 0) {
-//            if (_pointIndices[j] != DataPoint.INVALID_INDEX) {
+            if (_pointIndices[j] >= OUT_OF_TRACK) {
                 dataCopy[copyIndex] = _waypoints[j];
+                _wayPointsOutOfTrack.add(_waypoints[j]);
                 copyIndex++;
             }
         }
         // Copy data back to track
         _dataPoints = dataCopy;
-
         _numPoints = copyIndex;
     }
 
@@ -724,6 +668,10 @@ public class TrackDetails extends Track {
         return hasAltitudes() && (hasWaypoints() || hasNamedTrackpoints());
     }
 
+    public ArrayList<DataPoint> getWayPointsOutOfTrack() {
+        return  _wayPointsOutOfTrack;
+    }
+
     public boolean isValidRecordedTrackFile() {
         return hasAltitudes() && hasTimestamps();
     }
@@ -742,7 +690,6 @@ public class TrackDetails extends Track {
             return null;
     }
 
-
     public double getSegmentStartDistance(int inIndex) {
         if (_trackTiming != null)
             return _trackTiming.getSegmentStartDistance(inIndex);
@@ -756,7 +703,17 @@ public class TrackDetails extends Track {
         else
             return 0.0;
     }
+    public double getSegmentStartElevation(int inIndex) {
+        if (_trackTiming != null)
+            return _trackTiming.getSegmentStartElevation(inIndex);
+        else
+            return 0.0;
+    }
+
+    public double getSegmentEndElevation(int inIndex) {
+        if (_trackTiming != null)
+            return _trackTiming.getSegmentEndElevation(inIndex);
+        else
+            return 0.0;
+    }
 }
-
-
-

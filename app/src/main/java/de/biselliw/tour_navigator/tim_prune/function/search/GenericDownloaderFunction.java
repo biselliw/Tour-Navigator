@@ -1,68 +1,55 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
+import android.content.res.Resources;
+
 import de.biselliw.tour_navigator.App;
+import de.biselliw.tour_navigator.data.TrackDetails;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 /**
  * Function to load track information from any source,
  * subclassed for special cases like wikipedia or OSM
  */
-public abstract class GenericDownloaderFunction /* extends GenericFunction */ implements Runnable
+public abstract class GenericDownloaderFunction implements Runnable
 {
-	/** error message */
+    public static Resources resources = App.resources;
+
+    /** error message */
 	protected String _errorMessage = null;
 
+    /** Coordinates to search for */
+    protected double _searchLatitude = 0.0, _searchLongitude = 0.0;
+
+    protected DataPoint dataPoint = null;
+
+    /** Reference to track */
+    public TrackDetails track;
+
     /** list model */
-    TrackListModel _trackListModel = null;
+    protected TrackListModel _trackListModel = null;
 
 	/**
 	 * Constructor
 	 * @param inApp App object
 	 */
 	public GenericDownloaderFunction(App inApp, TrackListModel inTrackListModel) {
-//		super(inApp);
+        track = App.getTrack();
         _trackListModel = inTrackListModel;
-
     }
-
-	/**
-	 * Begin the function
-	 */
-	public void begin()
-	{
-		/* Initialise dialog, show empty list
-		if (_dialog == null)
-		{
-			_dialog = new JDialog(_parentFrame, I18nManager.getText(getNameKey()), true);
-			_dialog.setLocationRelativeTo(_parentFrame);
-			_dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			// add closing listener
-			_dialog.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					_cancelled = true;
-				}
-			});
-			_dialog.getContentPane().add(makeDialogComponents());
-			_dialog.pack();
-		}
-		* /
-
-		// Clear list
-		_trackListModel.clear();
-		_loadButton.setEnabled(false);
-		_showButton.setEnabled(false);
-		_cancelled = false;
-		_descriptionBox.setText("");
-		_errorMessage = null;
-		// Start new thread to load list asynchronously
-		new Thread(this).start();
-
-		// Show dialog
-		_dialog.setVisible(true);
-
-		 */
-	}
 
     public String getErrorMessage() {
             return _errorMessage;
     }
+
+    /**
+     * Get coordinates from current point (if any)
+     * @param inPoint current point
+     */
+    protected void getSearchCoordinates(DataPoint inPoint) {
+        if (inPoint == null) return;
+        _searchLatitude  = inPoint.getLatitude().getDouble();
+        _searchLongitude = inPoint.getLongitude().getDouble();
+    }
+
+
 }

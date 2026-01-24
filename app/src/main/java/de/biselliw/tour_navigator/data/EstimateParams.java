@@ -1,7 +1,5 @@
 package de.biselliw.tour_navigator.data;
 
-import android.util.Log;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +7,12 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.functions.GpxAltitudeSmoother;
-import de.biselliw.tour_navigator.functions.LinearFit3D;
+import de.biselliw.tour_navigator.function.LinearFit3D;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.helpers.Log;
 import tim.prune.data.Distance;
 
+import static de.biselliw.tour_navigator.data.Segment.type.SEG_INVALID;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 import static tim.prune.data.Timestamp.Format.LOCALE;
 
@@ -39,6 +37,7 @@ public class EstimateParams extends TrackSegments {
         public final boolean successful;
         public final int segments;
         public final double estHorSpeed, estSpeedClimb, estSpeedDescent;
+        public final boolean fitsRanges;
         public final double rmse;
         public final double r2;
 
@@ -48,17 +47,19 @@ public class EstimateParams extends TrackSegments {
             this.estHorSpeed = 0.0;
             this.estSpeedClimb = 0.0;
             this.estSpeedDescent = 0.0;
+            this.fitsRanges = false;
             this.rmse = 0;
             this.r2 = 0;
         }
 
         public EstimationResult(boolean successful, int segments, double estHorSpeed, double estSpeedClimb, double estSpeedDescent,
-                                double rmse, double r2) {
+                                boolean fitsRanges, double rmse, double r2) {
             this.successful = successful;
             this.segments = segments;
             this.estHorSpeed = estHorSpeed;
             this.estSpeedClimb = estSpeedClimb;
             this.estSpeedDescent = estSpeedDescent;
+            this.fitsRanges = fitsRanges;
             this.rmse = rmse;
             this.r2 = r2;
         }
@@ -69,6 +70,7 @@ public class EstimateParams extends TrackSegments {
             this.estHorSpeed = fromOther.estHorSpeed;
             this.estSpeedClimb = fromOther.estSpeedClimb;
             this.estSpeedDescent = fromOther.estSpeedDescent;
+            this.fitsRanges = fromOther.fitsRanges;
             this.rmse = fromOther.rmse;
             this.r2 = fromOther.r2;
         }
@@ -90,13 +92,27 @@ public class EstimateParams extends TrackSegments {
         }
     }
 
-    public List<Segment> recalculateRecordedTrack()  {
+    /**
+     * Analyze a recorded track using different algorithms
+     * @param inTrack track
+     */
+    public List<Segment> analyseRecordedTrack(TrackDetails inTrack)  {
         clearRecordedTrackFileInfo();
+        if (inTrack == null) return null;
         trackHasTimeStamps = true;
-        List<Segment> _segments = calcSegments(_track);
-        calcSegmentsValues(_segments);
+        List<Segment> _segments;
 
-        if (DEBUG) de.biselliw.tour_navigator.helpers.Log.i(TAG, "recalculate(): 2. determine the best fitting parameters");
+        if (USE_PROFILE_ANALYSIS_FOR_RECORDED_TRACK == PROFILE_ANALYSIS_DEFAULT)
+            _segments = calcSegmentsByDefault(inTrack, true);
+        else if (USE_PROFILE_ANALYSIS_FOR_RECORDED_TRACK == PROFILE_ANALYSIS_RDP)
+            _segments = calcSegmentsByRDP(inTrack, true);
+        else
+            return null;
+
+        if (_segments != null)
+            calcSegmentsValues(inTrack,true, _segments);
+
+        if (DEBUG) Log.i(TAG, "recalculate(): 2. determine the best fitting parameters");
         EstimateParams.EstimationResult estimateResult = estimateGradients(_segments);
 
         addReport(getRecordedTrackFileInfo_Start());
@@ -104,18 +120,18 @@ public class EstimateParams extends TrackSegments {
         if (estimateResult.successful)
         {
             addReport(getRecordedTrackFileInfo_Success());
-            if (DEBUG) de.biselliw.tour_navigator.helpers.Log.i(TAG, "recalculate(): 3. recalculate all segments without timestamps using estimated hiking parameters");
+            if (DEBUG) Log.i(TAG, "recalculate(): 3. recalculate all segments without timestamps using estimated hiking parameters");
             applyEstimatedHikingParametersFrom(estimateResult);
-            updateSegmentsValues(_segments);
+            updateSegmentsValues(inTrack,true, _segments);
             // if (estimateAll(_segments).successful)
             addReport(getRecordedTrackFileInfo_Prove(_segments));
         }
         else
             addReport(getRecordedTrackFileInfo_Failed());
 
-        if (DEBUG) de.biselliw.tour_navigator.helpers.Log.i(TAG, "recalculate(): 3. recalculate all segments using hiking parameters from app settings");
+        if (DEBUG) Log.i(TAG, "recalculate(): 3. recalculate all segments using hiking parameters from app settings");
         SettingsActivity.getHikingParameters(this);
-        updateSegmentsValues(_segments);
+        updateSegmentsValues(inTrack, true, _segments);
 
         // estimateAll(_segments);
         addReport(getRecordedTrackFileInfo_UsingSettings(_segments));
@@ -129,64 +145,80 @@ public class EstimateParams extends TrackSegments {
         boolean result = size > 0;
         EstimationResult estimationResult = null;
         int segments = 0;
-        double estHorSpeed = 0.0, estVertSpeedClimb = 0.0, estVertSpeedDescent = 0.0;
+        double estHorSpeed = 0.0, estSpeedClimb = 0.0, estSpeedDescent = 0.0;
         if (result) {
             double[] x = new double[size];
             double[] y = new double[size];
             double[] z = new double[size];
             double[] t = new double[size];
             boolean distanceTooSmall = false, error = false;
+            Segment.type prevSegmentType = SEG_INVALID;
+            boolean useSegment = false;
 
             for (int i = 0; i < size; i++) {
                 Segment segment = inSegments.get(i);
-                boolean useSegment;
-//                if (segment.distance_km > 0.06)
-                {
-                    switch (segment.segmentType) {
-                        case SEG_FLAT:
-                            x[segments] = segment.distance_km;
-                            y[segments] = 0;
-                            z[segments] = 0;
-                            useSegment = true;
-                            break;
-                        case SEG_UP_MODERATE:
-                            x[segments] = segment.distance_km;
-                            y[segments] = segment.climb_m / 2.0;
-                            z[segments] = 0;
-                            useSegment = true;
-                            break;
-                        case SEG_UP_STEEP:
-                            x[segments] = segment.distance_km / 2.0;
-                            y[segments] = segment.climb_m;
-                            z[segments] = 0;
-                            useSegment = true;
-                            break;
-                        case SEG_DOWN_MODERATE:
-                            x[segments] = segment.distance_km;
-                            y[segments] = 0;
-                            z[segments] = segment.descent_m / 2.0;
-                            useSegment = true;
-                            break;
-                        case SEG_DOWN_STEEP:
-                            x[segments] = segment.distance_km / 2.0;
-                            y[segments] = 0;
-                            z[segments] = segment.descent_m;
-                            useSegment = true;
-                            break;
-                        default:
-                            useSegment = false;
-                    }
-                    if (useSegment) {
-                        t[segments] = segment.totalSeconds - segment.totalBreakTime_s;
-                        if (t[segments] <= 0)
-                            error = true;
-                        else
-                            segments++;
-                    }
-                } // else                    distanceTooSmall = true;
+                if (segment.segmentType != prevSegmentType && useSegment) {
+                    prevSegmentType = segment.segmentType;
+                    segments++;
+                    x[segments] = y[segments] = z[segments] = t[segments] = 0.0;
+                }
+                switch (segment.segmentType) {
+                    case SEG_FLAT:
+                        x[segments] += segment.deltaX;
+                        y[segments] = 0;
+                        z[segments] = 0;
+                        useSegment = true;
+                        break;
+                    case SEG_UP_MODERATE:
+                        x[segments] += segment.deltaX;
+                        y[segments] += segment.deltaY / 2.0;
+                        z[segments] = 0;
+                        useSegment = true;
+                        break;
+                    case SEG_UP_STEEP:
+                        x[segments] += segment.deltaX / 2.0;
+                        y[segments] += segment.deltaY;
+                        z[segments] = 0;
+                        useSegment = true;
+                        break;
+                    case SEG_DOWN_MODERATE:
+                        x[segments] += segment.deltaX;
+                        y[segments] = 0;
+                        z[segments] -= segment.deltaY / 2.0;
+                        useSegment = true;
+                        break;
+                    case SEG_DOWN_STEEP:
+                        x[segments] += segment.deltaX / 2.0;
+                        y[segments] = 0;
+                        z[segments] -= segment.deltaY;
+                        useSegment = true;
+                        break;
+                    default:
+                        useSegment = false;
+                }
+                if (useSegment) {
+                    t[segments] = segment.activeTime_s; // - segment.breakTime_s;
+                    if (t[segments] <= 0)
+                        error = true;
+                }
             }
+            if (useSegment)
+                segments++;
+
             if (segments > 1) {
-                LinearFit3D.Result res = LinearFit3D.estimate(x, y, z, t);
+                // copy arrays to new with fix size
+                double[] x1 = new double[segments];
+                double[] y1 = new double[segments];
+                double[] z1 = new double[segments];
+                double[] t1 = new double[segments];
+
+                for (int i = 0; i < segments; i++) {
+                    x1[i] = x[i];
+                    y1[i] = y[i];
+                    z1[i] = z[i];
+                    t1[i] = t[i];
+                }
+                LinearFit3D.Result res = LinearFit3D.estimate(x1, y1, z1, t1);
 
                 /* flat part in [km/h] */
                 if (res.a > 0) {
@@ -198,22 +230,27 @@ public class EstimateParams extends TrackSegments {
                 }
                 /* climbing part in [km/h] */
                 if (res.b > 0) {
-                    estVertSpeedClimb = 3.6 / res.b;
-                    if (DEBUG_this) Log.d(TAG, "vertSpeedClimb = " + formatDouble(estVertSpeedClimb) + " km/h");
+                    estSpeedClimb = 3.6 / res.b;
+                    if (DEBUG_this) Log.d(TAG, "vertSpeedClimb = " + formatDouble(estSpeedClimb) + " km/h");
                 } else {
                     if (DEBUG_this) Log.e(TAG, "vertSpeedClimb = NA");
                     result = false;
                 }
                 /* descending part in [km/h] */
                 if (res.c > 0) {
-                    estVertSpeedDescent = 3.6 / res.c;
-                    if (DEBUG_this) Log.d(TAG, "vertSpeedDescent = " + formatDouble(estVertSpeedDescent) + " km/h");
+                    estSpeedDescent = 3.6 / res.c;
+                    if (DEBUG_this) Log.d(TAG, "vertSpeedDescent = " + formatDouble(estSpeedDescent) + " km/h");
                 } else {
                     if (DEBUG_this) Log.e(TAG, "vertSpeedDescent = NA");
                     result = false;
                 }
-                estimationResult = new EstimationResult(result, segments, estHorSpeed, estVertSpeedClimb, estVertSpeedDescent,
-                        res.rmse, res.r2);
+                boolean fitsRanges =
+                        estHorSpeed >= MIN_HOR_SPEED && estHorSpeed <= MAX_HOR_SPEED &&
+                        estSpeedClimb >= MIN_SPEED_CLIMB && estSpeedClimb <= MAX_SPEED_CLIMB &&
+                        estSpeedDescent >= MIN_SPEED_DESCENT && estSpeedDescent <= MAX_SPEED_DESCENT;
+
+                estimationResult = new EstimationResult(result, segments, estHorSpeed, estSpeedClimb, estSpeedDescent,
+                        fitsRanges, res.rmse, res.r2);
             } else
                 result = false;
         }
@@ -229,7 +266,8 @@ public class EstimateParams extends TrackSegments {
     private final static int MIN_GRADIENT_THRESHOLD_DESCENT = (int)(MIN_SPEED_DESCENT / MAX_HOR_SPEED * 100.0);
     private final static int MAX_GRADIENT_THRESHOLD_DESCENT = (int)(MAX_SPEED_DESCENT / MIN_HOR_SPEED * 100.0);
 
-    public EstimationResult estimateGradients(List<Segment> inSegments) {
+    private EstimationResult estimateGradients(List<Segment> inSegments) {
+        if (inSegments == null) return null;
         // start values for min/max gradient calculation
         int minGradientThresholdClimb = MAX_GRADIENT_THRESHOLD_CLIMB,
                 maxGradientThresholdClimb = MIN_GRADIENT_THRESHOLD_CLIMB,
@@ -239,7 +277,13 @@ public class EstimateParams extends TrackSegments {
         EstimationResult estimateResult = null;
         List<EstimationVariation> variations = new ArrayList<>();
         boolean gradientsChanged = true;
-        double min_rmse = 999.99; int optVariant = -1;
+        /* resulting variant with opt. rmse value */
+        int variant_min_rmse = -1;
+        double min_rmse = 999.99;
+        /* resulting variant best fitting the hor. speed */
+        int variant_hor_speed = -1;
+        double min_dev_hor_speed = 999.99;
+        boolean skipped = false;
 
         boolean result = size > 0;
         if (result) {
@@ -247,15 +291,15 @@ public class EstimateParams extends TrackSegments {
             // calculate min/max gradient values of all segments
             for (int i = 0; i < inSegments.size(); i++) {
                 Segment segment = inSegments.get(i);
-                if (segment.climb_m > 0) {
+                if (segment.deltaY > 0) {
                     if (segment.gradient < minGradientThresholdClimb)
                         minGradientThresholdClimb = segment.gradient;
-                    else if (segment.gradient > maxGradientThresholdClimb)
+                    if (segment.gradient > maxGradientThresholdClimb)
                         maxGradientThresholdClimb = segment.gradient;
-                } else if (segment.descent_m > 0) {
+                } else {
                     if (segment.gradient < minGradientThresholdDesc)
                         minGradientThresholdDesc = segment.gradient;
-                    else if (segment.gradient > maxGradientThresholdDesc)
+                    if (segment.gradient > maxGradientThresholdDesc)
                         maxGradientThresholdDesc = segment.gradient;
                 }
             }
@@ -281,16 +325,30 @@ public class EstimateParams extends TrackSegments {
                             variation.result = estimateResult;
                             variation.gradientThresholdClimb = gradientThresholdClimb;
                             variation.gradientThresholdDesc = gradientThresholdDesc;
-                            if ((estimateResult.estSpeedClimb < MAX_SPEED_CLIMB) &&
-                                    (estimateResult.estSpeedDescent < MAX_SPEED_DESCENT))
-                            {
+
+                            if (estimateResult.fitsRanges) {
+                                /* find variant with opt. rmse value */
                                 if (estimateResult.rmse < min_rmse) {
                                     min_rmse = estimateResult.rmse;
-                                    optVariant = variations.size();
+                                    variant_min_rmse = variations.size();
                                 }
+
+                                /* find variant best fitting the hor. speed */
+                                double dev_hor_speed = estimateResult.estHorSpeed - DEF_HOR_SPEED;
+                                if (dev_hor_speed >= 0)
+                                    if (dev_hor_speed < min_dev_hor_speed) {
+                                        min_dev_hor_speed = dev_hor_speed;
+                                        variant_hor_speed = variations.size();
+                                    }
+
                                 variations.add(variation);
                             }
+                            else
+                                skipped = true;
                         }
+                        else
+                            skipped = true;
+
                         gradientThresholdDesc++;
                     }
                     else {
@@ -299,7 +357,7 @@ public class EstimateParams extends TrackSegments {
                         gradientThresholdDesc++;
                         for (int i = 0; i < inSegments.size(); i++) {
                             Segment segment = inSegments.get(i);
-                             if (segment.descent_m > 0) {
+                             if (segment.deltaY < 0) {
                                 if ((segment.gradient > gradientThresholdDesc) && (segment.gradient < _minGradientThresholdDesc))
                                     _minGradientThresholdDesc = segment.gradient;
                             }
@@ -309,19 +367,24 @@ public class EstimateParams extends TrackSegments {
                 }
                 // recalculate min gradient values of all climbing segments
                 int _minGradientThresholdClimb = maxGradientThresholdClimb+1;
+                gradientThresholdClimb++;
                 for (int i = 0; i < inSegments.size(); i++) {
                     Segment segment = inSegments.get(i);
-                    if (segment.climb_m > 0) {
+                    if (segment.deltaY > 0) {
                         if ((segment.gradient > gradientThresholdClimb) && (segment.gradient < _minGradientThresholdClimb))
                             _minGradientThresholdClimb = segment.gradient;
                     }
                 }
                 gradientThresholdClimb = _minGradientThresholdClimb;
-
             }
-            if (optVariant >= 0)
+
+            /* use the best fitting variant */
+            int opt_variant = variant_hor_speed;
+            if (opt_variant < 0)
+                opt_variant = variant_min_rmse;
+            if (opt_variant >= 0)
             {
-                EstimationVariation variation = variations.get(optVariant);
+                EstimationVariation variation = variations.get(opt_variant);
                 gradientThresholdClimb = variation.gradientThresholdClimb;
                 gradientThresholdDesc = variation.gradientThresholdDesc;
                 for (int i = 0; i < inSegments.size(); i++) {
@@ -343,7 +406,6 @@ public class EstimateParams extends TrackSegments {
         _horSpeed = fromOther.estHorSpeed;
         _speedClimb = fromOther.estSpeedClimb;
         _speedDescent = fromOther.estSpeedDescent;
-//        _minHeightChange = fromOther._minHeightChange;
     }
 
     /**
@@ -364,7 +426,7 @@ public class EstimateParams extends TrackSegments {
         double dist = Distance.convertRadiansToDistance(radians);
         String tourType = dist < 1.0 ? "Rundtour" : "Streckentour";
 
-        String warnTrackHasAltitudeJumps = trackHasAltitudeJumps ? "<br><b>Der Track weist Sprünge im Höhenprofil auf!</b>" : "";
+        String warnTrackHasAltitudeJumps = ""; // todo trackHasAltitudeJumps ? "<br><b>Der Track weist Sprünge im Höhenprofil auf!</b>" : "";
 
         String description = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
@@ -537,6 +599,38 @@ public class EstimateParams extends TrackSegments {
         return MessageFormat.format(
                 "  {0,number,00}:{1,number,00}",
                 arguments);
+    }
+
+    /**
+     * Calculate moderate/steep type of a segment depending on the gradient threshold
+     *
+     * @param inSegment segment
+     */
+    private void updateSegmentGradient(Segment inSegment) {
+        switch (inSegment.segmentType) {
+            case SEG_UP:
+            case SEG_UP_MODERATE:
+            case SEG_UP_STEEP:
+                if (inSegment.gradient <= gradientThresholdClimb)
+                    inSegment.segmentType = Segment.type.SEG_UP_MODERATE;
+                else
+                    inSegment.segmentType = Segment.type.SEG_UP_STEEP;
+                break;
+            case SEG_DOWN:
+            case SEG_DOWN_MODERATE:
+            case SEG_DOWN_STEEP:
+                if (inSegment.gradient <= gradientThresholdDesc)
+                    inSegment.segmentType = Segment.type.SEG_DOWN_MODERATE;
+                else
+                    inSegment.segmentType = Segment.type.SEG_DOWN_STEEP;
+                break;
+        }
+
+        if (DEBUG) {
+            Log.d(TAG, "gradient = " + inSegment.gradient);
+            double hor_speed = inSegment.deltaX / inSegment.activeTime_s * 3600.0;
+            Log.d(TAG, inSegment.getSegmentType() + ": speed = " + formatDouble(hor_speed) + " km/h");
+        }
     }
 }
 

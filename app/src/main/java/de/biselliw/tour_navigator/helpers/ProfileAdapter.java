@@ -22,7 +22,7 @@ package de.biselliw.tour_navigator.helpers;
  */
 
 /*
- * Copyright (C) 2025 Walter Biselli
+ * Copyright (C) 2026 Walter Biselli
  *
  *  This file is based on Privacy Friendly App Example:
  *
@@ -94,6 +94,7 @@ public class ProfileAdapter {
     Number lastAltitude = 0;
     TrackDetails _trackDetails = null;
 
+    private static final boolean SHOW_SERIES_SEGMENTS = true;
     private XYPlot dynamicPlot;
     DynamicXYDatasource data;
     DynamicXYDatasource bar;
@@ -141,36 +142,39 @@ public class ProfileAdapter {
         data = new DynamicXYDatasource();
         bar = new DynamicXYDatasource();
 
-        AltitudeSeries altitudeSeries = new AltitudeSeries(data, SERIES_ALTITUDES, "");
-        AltitudeSeries barSeries = new AltitudeSeries(data, SERIES_CURSOR, "");
-        AltitudeSeries segmentSeries = new AltitudeSeries(data, SERIES_SEGMENTS, "");
-
+        /* SERIES_ALTITUDES */
+        AltitudeSeries altitudeSeries = new AltitudeSeries(data,    SERIES_ALTITUDES, "");
         lineFormatter = new LineAndPointFormatter(
                 Color.rgb(0, 200, 0), null, null, null);
         lineFormatter.getLinePaint().setStrokeJoin(Paint.Join.ROUND);
         lineFormatter.getLinePaint().setStrokeWidth(10);
         dynamicPlot.addSeries(altitudeSeries, lineFormatter);
 
+        /* SERIES_CURSOR */
+        AltitudeSeries barSeries      = new AltitudeSeries(data,    SERIES_CURSOR, "");
         LineAndPointFormatter cursorFormatter = new LineAndPointFormatter(
                 Color.rgb(200, 0, 0), null, null, null);
         cursorFormatter.setLegendIconEnabled(false);
         dynamicPlot.addSeries(barSeries, cursorFormatter);
         dynamicPlot.getLegend().setVisible(false);
 
-        segmentFormatter =
-                new LineAndPointFormatter(
-                        Color.rgb(0, 0, 200),   // line color
-                        Color.rgb(0, 0, 200),   // vertex (point) color
-                        null,
-                        null);
+        if (SHOW_SERIES_SEGMENTS) {
+            AltitudeSeries segmentSeries = new AltitudeSeries(data, SERIES_SEGMENTS, "");
+            segmentFormatter =
+                    new LineAndPointFormatter(
+                            Color.rgb(0, 0, 200),   // line color
+                            Color.rgb(0, 0, 200),   // vertex (point) color
+                            null,
+                            null);
 
-        /* --- Line --- */
-        Paint linePaint = segmentFormatter.getLinePaint();
-        linePaint.setStrokeWidth(6f);
-        linePaint.setStrokeCap(Paint.Cap.ROUND);
-        linePaint.setAntiAlias(true);
+            /* --- Line --- */
+            Paint linePaint = segmentFormatter.getLinePaint();
+            linePaint.setStrokeWidth(6f);
+            linePaint.setStrokeCap(Paint.Cap.ROUND);
+            linePaint.setAntiAlias(true);
 
-        dynamicPlot.addSeries(segmentSeries, this.segmentFormatter);
+            dynamicPlot.addSeries(segmentSeries, this.segmentFormatter);
+        }
 
         // hook up the plotUpdater to the data model:
         data.addObserver(plotUpdater);
@@ -329,6 +333,13 @@ public class ProfileAdapter {
                     if (numPoints == 0)
                         return 0;
                     else if (_trackDetails != null) {
+                        double elevation;
+                        if (index < _trackDetails.getSegmentsCount())
+                            elevation = _trackDetails.getSegmentStartElevation(index);
+                        else
+                            elevation = _trackDetails.getSegmentEndElevation(index-1);
+                        return elevation;
+/*
                         if (index == 0) {
                             startAltitude = _trackDetails.getPoint(0).getAltitude().getValue();
                             return startAltitude;
@@ -345,6 +356,8 @@ public class ProfileAdapter {
                             }
                             return alt;
                         }
+
+ */
                     }
                     break;
             }

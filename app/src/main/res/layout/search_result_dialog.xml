@@ -78,19 +78,19 @@
         >
 
         <Button
-            android:id="@+id/bt_load"
+            android:id="@+id/btn_load"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/wpt_take_comment" />
+            android:text="@string/btn_load" />
         <Button
-            android:id="@+id/bt_show"
+            android:id="@+id/btn_show"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/wikipedia_article_show" />
+            android:text="@string/btn_show" />
         <Button
-            android:id="@+id/bt_cancel"
+            android:id="@+id/btn_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

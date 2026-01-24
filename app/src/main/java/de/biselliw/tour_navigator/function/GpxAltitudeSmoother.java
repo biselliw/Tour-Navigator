@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.functions;
+package de.biselliw.tour_navigator.function;
 
 import android.annotation.SuppressLint;
 
@@ -10,6 +10,13 @@ import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.Log;
 import tim.prune.data.UnitSetLibrary;
 
+/**
+ * class for smoothing GPX altitudes from GPX files:
+ * Gaussian smoothing (also called a <a href = "https://en.wikipedia.org/wiki/Gaussian_blur">Gaussian blur</a>)
+ * is a low-pass filtering technique used to reduce noise and fine-detail structure in signals or images.
+ * It works by convolving the data with a Gaussian function so that nearby values influence each other,
+ * with closer neighbors receiving more weight than distant ones.
+ */
 public class GpxAltitudeSmoother {
     /**
      * TAG for log messages.
@@ -30,7 +37,7 @@ public class GpxAltitudeSmoother {
 
     /**
      * smooth all altitudes of a track
-     * @param inTrack track with altitudes
+     * @param inTrack track with distances and altitudes but no way points
      */
     @SuppressLint("DefaultLocale")
     public static void smoothTrack(TrackDetails inTrack) {
@@ -63,7 +70,6 @@ public class GpxAltitudeSmoother {
         }
 
         for (int i = 0; i < numPoints; i++) {
-//            inTrack.getPoint(i).setDistance(distances[i]);
             inTrack.getPoint(i).setAltitude(String.valueOf(smoothed[i]), UnitSetLibrary.UNITS_METRES,false);
         }
     }

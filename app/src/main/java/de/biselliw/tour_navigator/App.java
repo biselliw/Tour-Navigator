@@ -15,7 +15,7 @@ package de.biselliw.tour_navigator;
     You should have received a copy of the GNU General Public LicenseIf not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 import android.content.res.Resources;
 import android.net.Uri;
@@ -76,7 +76,6 @@ public class App {
 
         // create empty track
         _track = new TrackDetails();
-//        _trackInfo = new TrackInfo(_track);
     }
 
     /**
@@ -148,12 +147,13 @@ public class App {
         {
             gpxFileValid = true;
         }
-        else if (getConsentDebug()) {
+        else // if (getConsentDebug())
             gpxFileValid = true;
-        }
+        /*
         else {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_waypoints));
         }
+*/
 
         if (gpxFileValid) {
             if (_track.getNumPoints() > 0) {
@@ -165,7 +165,7 @@ public class App {
         }
 
         if (gpxFileValid) {
-            if (!_track.hasWaypoints() && !_track.hasNamedTrackpoints())
+            if (!_track.hasWaypoints() && !_track.hasNamedTrackpoints() && _track.hasTimestamps())
             {
                 // GPS simulation can only be used after initial loading of a GPX file after opening
                 // the app
@@ -278,7 +278,5 @@ public class App {
     public double getNearestDistance() {
         return _track.getNearestDistance();
     }
-
-
 }
 

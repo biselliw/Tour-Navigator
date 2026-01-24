@@ -34,6 +34,7 @@ public class DataPoint
 	private final FieldList _fieldList;
 	/** Special fields for coordinates */
 	private Coordinate _latitude = null, _longitude = null;
+    /** Altitude */
 	private Altitude _altitude = null;
 
     // @todo use Speed
@@ -62,7 +63,8 @@ public class DataPoint
 	/** extensions:
 	 * @since 22.2.005
 	 */
-	public static final int INVALID_INDEX = -32000;
+	public static final int INVALID_INDEX = -32000, OUT_OF_TRACK = -1;
+    public static final double INVALID_VALUE = -9999.9999;
 	private String _routePointName = null;
 	private boolean _isWaypoint;
     private boolean _isProtectedWaypoint;
@@ -226,7 +228,6 @@ public class DataPoint
 		// Only these three fields are available
 		_fieldValues = new String[3];
 		_fieldList = getSharedLatLonFieldList();
-		// TODO: Check if either latitude or longitude is null - in which case do what?
 		_latitude = inLatitude;
 		_fieldValues[0] = inLatitude.toString();
 		_longitude = inLongitude;
@@ -461,14 +462,6 @@ public class DataPoint
 	}
 
 	/**
-	 * @return true if point has a waypoint name
-	 */
-	public boolean isWaypoint() {
-        if (_waypointName == null) return false;
-		return !_waypointName.isEmpty();
-	}
-
-	/**
 	 * @return true if point has been modified since loading
 	 */
 	public boolean isModified() {
@@ -478,6 +471,7 @@ public class DataPoint
 	/**
 	 * Compare two DataPoint objects to see if they are duplicates
 	 * @param inOther other object to compare
+     * @implNote biselliw: compare longitude/latitude using min. allowed difference
 	 * @return true if the points are equivalent
 	 */
 	public boolean isDuplicate(DataPoint inOther)
@@ -489,15 +483,19 @@ public class DataPoint
 			return false;
 		}
 		/* Make sure photo points aren't specified as duplicates
-		 * @todo use media
-		 * /
+		 *
 		if (_photo != null) return false;
 		*/
 		// Compare latitude and longitude
-		if (!_longitude.equals(inOther._longitude) || !_latitude.equals(inOther._latitude))
-		{
-			return false;
-		}
+        double diffLong = _longitude.getDouble() - inOther.getLongitude().getDouble();
+        if (Math.abs(diffLong) > 0.0001)
+            return false;
+        double diffLat = _latitude.getDouble() - inOther.getLatitude().getDouble();
+        if (Math.abs(diffLat) > 0.0001)
+            return false;
+
+//		if (!_longitude.equals(inOther._longitude) || !_latitude.equals(inOther._latitude)) return false;
+
 		// Note that conversion from decimal to dms can make non-identical points into duplicates
 		// Compare waypoint name (if any)
 		if (!isWaypoint()) {
@@ -710,6 +708,7 @@ public class DataPoint
 	@NonNull
     public String toString() {
         String type = _isWaypoint ? "WP " : "TP ";
+        if (_isProtectedWaypoint) type = "p" + type;
         String name = !getWaypointName().isEmpty() ? getWaypointName() :
                 (_routePointName != null) ? _routePointName : "";
         String lat = getLatitude() != null ? getLatitude().toString() : "null";
@@ -817,8 +816,15 @@ public class DataPoint
 		return !_isWaypoint && ((_waypointName != null) && !_waypointName.equals(""));
 	}
 
+    /**
+     * @return true if point has a waypoint name
+     */
+    public boolean isWaypoint() {
+        if (_waypointName == null) return false;
+        return !_waypointName.isEmpty();
+    }
 
-	/**
+    /**
 	 * @return true if point is a waypoint 
 	 * @author BiselliW
 	 * @since 22.2.006

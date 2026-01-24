@@ -1,10 +1,32 @@
 package de.biselliw.tour_navigator.dialogs;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
+
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
+import android.text.Html;
 import android.widget.Button;
 import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -13,115 +35,119 @@ import java.util.List;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-
 import de.biselliw.tour_navigator.activities.adapter.TableAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.function.search.GenericDownloaderFunction;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
-import tim.prune.data.Latitude;
-import tim.prune.data.Longitude;
+
+import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
 
 public abstract class SearchResultDialog extends FullScreenDialog {
-    private final SearchResultDialog dialog = this;
+    private final SearchResultDialog _dialog = this;
 
-    Context _context;
-    GenericDownloaderFunction _searchFunction = null;
+    protected Context context;
+    protected GenericDownloaderFunction searchFunction = null;
 
-    Handler timerHandler = new Handler();
+    private final Handler _timerHandler = new Handler();
 
     /** Status label */
-    protected TextView _statusLabel;
+    private final TextView _statusLabel;
 
     /** list model */
-    protected TrackListModel _trackListModel = null;
+    protected TrackListModel trackListModel = null;
     /** Description box */
     private TextView _descriptionBox = null;
-    int _selectedPosition;
     private List<Integer> _selectedPositions;
     /** Load button */
     private Button _loadButton = null;
      /** Show button */
     private Button _showButton = null;
     /** Cancelled flag */
-    protected boolean _cancelled = false;
+    protected boolean cancelled = false;
 
     /** language code used for search */
     protected String lang;
 
-    protected String _waypointType = "";
-    protected boolean _protectWaypoint = false;
+    /** data point to search for points around */
+    protected DataPoint dataPoint;
 
-    DataPoint _dataPoint;
-
-    public SearchResultDialog(Context context, DataPoint inPoint) {
-        super(context, R.layout.search_result_dialog);
-        _dataPoint = inPoint;
-        _context = context;
-        lang = context.getString(R.string.lang);
+    /**
+     * Basic dialog for searching POIs
+     * @param inContext context of the class
+     * @param inTitle dialog title
+     * @param inPoint data point to search for points around
+     */
+    public SearchResultDialog(Context inContext, String inTitle, DataPoint inPoint) {
+        super(inContext, R.layout.search_result_dialog);
+        dataPoint = inPoint;
+        context = inContext;
+        lang = inContext.getString(R.string.lang);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(_context));
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+        // dialog title
+        TextView view = findViewById(R.id.search_title);
+        view.setText(inTitle);
 
         // Status label
         _statusLabel = findViewById(R.id.statusLabel);
 
         // Main panel with track list
-        _trackListModel = new TrackListModel(getColumnKey(0), getColumnKey(1));
+        trackListModel = new TrackListModel(getColumnKey(0), getColumnKey(1));
 
+        // description view supporting basic HTML tags
         _descriptionBox = findViewById(R.id.desc_search_result_view);
+        _descriptionBox.setText("");
 
-        /* define OnClick event for changing the start time */
-        _loadButton = findViewById(R.id.bt_load);
-        _loadButton.setOnClickListener(v -> {
-            loadSelected(_selectedPositions);
-        });
+        /* define OnClick event to load the results into the track */
+        _loadButton = findViewById(R.id.btn_load);
+        _loadButton.setOnClickListener(v -> loadSelected(_selectedPositions));
+        _loadButton.setEnabled(false);
 
-        _showButton = findViewById(R.id.bt_show);
+        /* define OnClick event to show the selected result */
+        _showButton = findViewById(R.id.btn_show);
         _showButton.setOnClickListener(v -> showSelected(_selectedPositions.get(0)));
+        _showButton.setEnabled(false);
 
-        Button cancelButton = findViewById(R.id.bt_cancel);
+        /* define OnClick event to cancel the dialog */
+        Button cancelButton = findViewById(R.id.btn_cancel);
         cancelButton.setOnClickListener(v -> {
-            _cancelled = true;
+            cancelled = true;
             dismiss();
         });
+        cancelled = false;
 
         // Clear list
-        _trackListModel.clear();
-
-        _loadButton.setEnabled(false);
-        _showButton.setEnabled(false);
-        _cancelled = false;
-
-        _descriptionBox.setText("");
+        trackListModel.clear();
 
         /* Install a timer to handle all activities */
         Runnable timerRunnable = new Runnable() {
             @Override
             public void run() {
-                if (_trackListModel.changed) {
-                    if (_searchFunction.getErrorMessage().isEmpty()) {
+                if (trackListModel.changed) {
+                    if (searchFunction.getErrorMessage().isEmpty()) {
                         showStatus("");
 
                         List<String[]> data = new ArrayList<>();
-                        for (int i = 0; i < _trackListModel.getRowCount(); i++) {
-                            data.add(new String[]{_trackListModel.getValueAt(i,0).toString(),
-                                            _trackListModel.getValueAt(i,1).toString()});
+                        for (int i = 0; i < trackListModel.getRowCount(); i++) {
+                            data.add(new String[]{trackListModel.getValueAt(i,0).toString(),
+                                            trackListModel.getValueAt(i,1).toString()});
                         }
 
-                        TableAdapter adapter = new TableAdapter(dialog, data);
+                        TableAdapter adapter = new TableAdapter(_dialog, data);
                         RecyclerView recyclerView = findViewById(R.id.recyclerView);
                         recyclerView.setAdapter(adapter);
                     }
                     else
-                        showErrorMessage(_searchFunction.getErrorMessage());
-                    _trackListModel.changed = false;
+                        showErrorMessage(searchFunction.getErrorMessage());
+                    trackListModel.changed = false;
                 }
-                timerHandler.postDelayed(this, 100);
+                _timerHandler.postDelayed(this, 100);
             }
         };
-        timerHandler.postDelayed(timerRunnable, 100);
+        _timerHandler.postDelayed(timerRunnable, 100);
     }
 
     protected void showStatus(String inStatus) {
@@ -142,11 +168,16 @@ public abstract class SearchResultDialog extends FullScreenDialog {
 
     /**
      * Set the description in the box
-     * @param inDesc description to set, or null for no description
+     * @param inDescription description to set, or null for no description
      */
-    public void setDescription(String inDesc)
+    public void setDescription(String inDescription)
     {
-        _descriptionBox.setText(inDesc);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            _descriptionBox.setText(Html.fromHtml(inDescription, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            _descriptionBox.setText(Html.fromHtml(inDescription));
+        }
+        _descriptionBox.scrollTo(0, 0);
     }
 
     /**
@@ -154,7 +185,6 @@ public abstract class SearchResultDialog extends FullScreenDialog {
      * @param selectedPositions list of selected positions
      */
     public void notifySelectionChanged(int position, List<Integer> selectedPositions) {
-        _selectedPosition = position;
         _selectedPositions = selectedPositions;
         boolean foundUrl = false;
         showStatus("");
@@ -168,13 +198,14 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         else {
             if (selectedPositions.size() == 1)
             {
-                SearchResult searchResult = _trackListModel.getTrack(selectedPositions.get(0));
+                // single row selected
+                SearchResult searchResult = trackListModel.getTrack(selectedPositions.get(0));
                 if (searchResult != null) {
-                    foundUrl = searchResult.getWebUrl() != null;
+                    foundUrl = !searchResult.getWebUrl().isEmpty();
                 }
                 _loadButton.setEnabled(true);
                 _showButton.setEnabled(foundUrl);
-                setDescription(_trackListModel.getTrack(_selectedPosition).getDescription());
+                setDescription(trackListModel.getTrack(position).getDescription());
             }
             else {
                 _loadButton.setEnabled(true);
@@ -183,48 +214,41 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         }
     }
 
-
     /**
-     * Load the selected point
+     * Load the selected point(s)
      */
     protected void loadSelected(List<Integer> selectedPositions)
     {
         for (int i = 0; i < selectedPositions.size(); i++) {
             int selected = selectedPositions.get(i);
             // Find the row selected in the table and get the corresponding coords
-            SearchResult searchResult = _trackListModel.getTrack(selected);
+            SearchResult searchResult = trackListModel.getTrack(selected);
             if (searchResult != null) {
-                String lat = searchResult.getLatitude();
-                String lon = searchResult.getLongitude();
-                if (lat != null && lon != null)
-                {
-                    DataPoint point = new DataPoint(Latitude.make(lat), Longitude.make(lon));
-                    point.setWaypointName(searchResult.getTrackName());
-                    point.setFieldValue(Field.DESCRIPTION,searchResult.getDescription(),false);
-                    String pointType = searchResult.getPointType();
-                    if (pointType == null || pointType.isEmpty())
-                        pointType = _waypointType;
-                    else
-                        pointType = _waypointType + ": " + pointType;
-                    point.setFieldValue(Field.WAYPT_TYPE,pointType,false);
-                    if (_protectWaypoint)
-                        point.makeProtectedWaypoint();
-                    point.setFieldValue(Field.WAYPT_LINK,searchResult.getWebUrl(),false);
-                    // Check if the track already contains the point
-                    if (App.getTrack().contains(point))
-                        showErrorMessage(_context.getString(R.string.point_already_loaded));
-                    else {
-                        App.getTrack().appendPoint(point);
-                    }
+                DataPoint point = searchResult.getDataPoint();
+                if (point != null) {
+                    point.makeProtectedWaypoint();
+                    // add a new waypoint to the track
+                    if (point.getLinkIndex() != OUT_OF_TRACK)
+                        searchFunction.track.appendPoint(point);
                 }
             }
         }
         App.app.recalculate();
 
         // Close the dialog
-        _cancelled = true;
+        cancelled = true;
         dismiss();
 	}
 
-    abstract void showSelected(int selected);
+    /**
+     * Show the selected point in the web browser
+     */
+    void showSelected(int selected) {
+        SearchResult searchResult = trackListModel.getTrack(selected);
+        if (searchResult != null) {
+            String url = searchResult.getWebUrl();
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            context.startActivity(Intent.createChooser(intent, "Open with"));
+        }
+    }
 }

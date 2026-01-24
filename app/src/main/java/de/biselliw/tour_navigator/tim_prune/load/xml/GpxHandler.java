@@ -233,7 +233,9 @@ public class GpxHandler extends XmlHandler {
         } else if (tag.equals("link")) {
 			_link.setValue(attributes.getValue("href"));
 		}
-		else if (tag.equals("break")) {
+
+        // @implNote BiselliW: private extension to handle break times
+        else if (tag.equals("break")) {
 			_currentTag = _duration;
 		}		
 		else if (tag.equals("trkseg")) {
@@ -272,8 +274,8 @@ public class GpxHandler extends XmlHandler {
             _currentTag = new GpxTag();
         }
 
-        /** @implNote BiselliW
-         * todo check initialisation of current tag */
+        /* @implNote BiselliW
+         * check initialisation of current tag */
         if (_currentTag != null) {
             _currentTag.clear();
         }

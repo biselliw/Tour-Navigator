@@ -69,6 +69,7 @@ public class ControlElements extends BaseActivity {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    // todo Do not place Android context classes in static fields (static reference to ControlElements which has field webView pointing to WebView); this is a memory lea
     public static ControlElements control = null;
     public App app = null;
     public MainActivity main = null;
@@ -80,7 +81,7 @@ public class ControlElements extends BaseActivity {
     private LocationActivity la = null;
     protected TourDetails tourDetails = null;
 
-    public RecordAdapter recordAdapter = null;
+    public static RecordAdapter recordAdapter = null;
 
     public TextToSpeech tts;
 
@@ -151,6 +152,9 @@ public class ControlElements extends BaseActivity {
                     onPrepareNavigationMenu(mNavigationView.getMenu());
                     _initUserInterface = false;
                 }
+                else // todo fix onPrepareNavigationMenu(
+                    onPrepareNavigationMenu(mNavigationView.getMenu());
+
                 if (_setupUserInterface) {
                     // Enable a group of navigation items
                     onPrepareNavigationMenu(mNavigationView.getMenu());
@@ -197,35 +201,23 @@ public class ControlElements extends BaseActivity {
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
-            switch (id) {
-                case R.id.itm_pause_time:
-                case R.id.itm_comment_waypoint:
-                case R.id.itm_nav_waypoint:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    break;
-                case R.id.itm_nav_google:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    item.setVisible(getConsentGoogleMaps());
-                    break;
-                case R.id.itm_find_nearby_wikipedia:
-                case R.id.itm_find_nearby_osm:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    item.setVisible(getConsentInternet());
-                    break;
-                case R.id.itm_set_new_start:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    break;
-                case R.id.itm_delete_waypoint:
-                case R.id.itm_delete_trackpoints:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    break;
-                case R.id.itm_separator:
-                    item.setEnabled(true);
-                    item.setVisible(true);
-                    break;
-                default:
-                    item.setVisible(false);
-            }
+            if ((id == R.id.itm_pause_time) || (id == R.id.itm_comment_waypoint) || (id == R.id.itm_nav_waypoint))
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+            else if (id == R.id.itm_nav_google) {
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+                item.setVisible(getConsentGoogleMaps());
+            } else if ((id == R.id.itm_find_nearby_wikipedia) || (id == R.id.itm_find_nearby_osm)) {
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+                item.setVisible(getConsentInternet());
+            } else if (id == R.id.itm_set_new_start)
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+            else if ((id == R.id.itm_delete_waypoint) || (id == R.id.itm_delete_trackpoints))
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+            else if (id == R.id.itm_separator) {
+                item.setEnabled(true);
+                item.setVisible(true);
+            } else
+                item.setVisible(false);
         }
 
         return true;
@@ -238,20 +230,22 @@ public class ControlElements extends BaseActivity {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
             if (id == R.id.nav_file_info)
-                item.setEnabled(
-                        Log.isLoggedHTML() ||
-                                (!_initUserInterface && _fileInfoAvailable) ||
-                                app.getTrack().isValidRecordedTrackFile()
+                item.setEnabled(Log.isLoggedHTML() ||
+                    (!_initUserInterface && _fileInfoAvailable) ||
+                    app.getTrack().isValidRecordedTrackFile()
                 );
             else if (
                     (id == R.id.nav_reverse_route) ||
-                            (id == R.id.nav_start_time) ||
-                            (id == R.id.nav_download_html) ||
-                            (id == R.id.nav_timetable))
+                    (id == R.id.nav_start_time) ||
+                    (id == R.id.nav_download_html)
+                    )
                 item.setEnabled(!_initUserInterface && gpxFileValid);
-            else if
-                    (id == R.id.nav_download_gpx)
+            else if (id == R.id.nav_timetable)
+                item.setEnabled(!_initUserInterface && app.getTrack().hasAltitudes());
+            else if (id == R.id.nav_download_gpx)
                 item.setEnabled(!_initUserInterface && gpxFileValid || app.getTrack().isValidRecordedTrackFile());
+            else if (id == R.id.nav_remote_waypoints)
+                item.setVisible(!App.getTrack().getWayPointsOutOfTrack().isEmpty());
             else
                 item.setVisible(true);
         }
@@ -522,8 +516,7 @@ public class ControlElements extends BaseActivity {
                 String swvLink = HTML_File.getSwvLink(link);
                 if (!swvLink.isEmpty())
                 {
-                    link = link + "\n" + // this.getResources().getString(R.string.tour_link_swv) + ":\n" +
-                        swvLink;
+                    link = link + "\n" + swvLink;
                 }
                 linkView.setText(link);
             }
@@ -579,7 +572,6 @@ public class ControlElements extends BaseActivity {
         setTrackingStatus(false);
 
         activateProfile(View.GONE);
-//        setExpandViewStatus(getExpandView());
         setViewVisibility(R.id.image_expand_more, View.GONE);
         showAlarmPreference();
         _initUserInterface = true;
@@ -618,7 +610,7 @@ public class ControlElements extends BaseActivity {
      * @param inTracking true if the GPS provider shall controls the tracking
      */
     public void setTrackingStatus(boolean inTracking) {
-        clearErrorMessage();
+//        clearErrorMessage();
         if (!inTracking)
             stopService(new Intent(this, LocationService.class));
         else {
@@ -694,7 +686,7 @@ public class ControlElements extends BaseActivity {
         }
         _updateExpandViewStatus = true;
         _updateSpeakStatus = true;
-        _updateProfile = true;
+//        _updateProfile = true;
 
         return isExpandableView;
     }

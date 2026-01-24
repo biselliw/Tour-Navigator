@@ -12,7 +12,7 @@ import static de.biselliw.tour_navigator.activities.SettingsActivity.consentGoog
 
 public class AcceptGoogleMapsPolicyDialog extends FullScreenDialog {
 
-    public AcceptGoogleMapsPolicyDialog(Context context, AppCompatActivity activity) {
+    public AcceptGoogleMapsPolicyDialog(AppCompatActivity activity) {
         super(activity, R.layout.consent_google_maps);
 
         /* define OnClick events for declining / accepting the policy */
@@ -30,7 +30,6 @@ public class AcceptGoogleMapsPolicyDialog extends FullScreenDialog {
             public void onClick(View v) {
                 consentGoogleMaps(true);
                 dismiss();
-//                activity.runGoogleMaps();
             }
         });
     }

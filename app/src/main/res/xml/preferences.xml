@@ -4,9 +4,9 @@
     <PreferenceCategory
         android:title="@string/pref_header_hiking_parameters">
         <EditTextPreference
-            android:dialogTitle="@string/pref_hiking_par_horSpeed"
             android:id="@+id/pref_hiking_par_horSpeed"
             android:key="pref_hiking_par_horSpeed"
+            android:defaultValue="1"
             android:title="@string/pref_hiking_par_horSpeed" />
         <EditTextPreference
             android:id="@+id/pref_hiking_par_speedClimb"

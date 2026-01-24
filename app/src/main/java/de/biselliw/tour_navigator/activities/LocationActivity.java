@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.Manifest;
@@ -649,7 +649,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     }
                     else
                         control.setTrackingStatus(false);
-                    if (!app.getTrack().isValidRecordedTrackFile())
+                    if (app.getTrack().isValid()) // !app.getTrack().isValidRecordedTrackFile())
                         setLocationStatus(locationStatus.WAIT_USER_START);
                     break;
                 }

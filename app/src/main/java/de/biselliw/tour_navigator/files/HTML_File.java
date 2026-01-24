@@ -16,7 +16,7 @@ package de.biselliw.tour_navigator.files;
     You should have received a copy of the GNU General Public License. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -38,8 +38,6 @@ import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-
-import static de.biselliw.tour_navigator.App.app;
 
 public class HTML_File {
 
@@ -79,7 +77,7 @@ public class HTML_File {
     public HTML_File(Context inContext, RecordAdapter inRecordAdapter) {
         res = inContext.getResources();
         recordAdapter = inRecordAdapter;
-        details = TourDetails.details; // todo new TourDetails(inContext, app,inRecordAdapter);
+        details = TourDetails.details;
         addInfo = details.getFileInfo();
     }
 
@@ -104,7 +102,7 @@ public class HTML_File {
         return html_buffer;
     }
 
-    /*
+    /**
      *  Save HTML file
      */
     public void SaveFileHTML(OutputStream _xmlStream) {

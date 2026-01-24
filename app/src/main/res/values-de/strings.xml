@@ -6,7 +6,7 @@
     <string name="app_description">Tour Navigator ist eine quelloffene App, die sich auf Privatsphäre und Sicherheit konzentriert.</string>
     <string name="app_description2">Es werden nur diejenigen Rechte benötigt, welche die App für die beschriebene Funktionalität erfordert.</string>
     <string name="app_author">Autor</string>
-    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli)</string>
+    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
     <string name="lang">de</string>
 
     <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>
@@ -18,11 +18,12 @@
     <string name="wait">In Bearbeitung ...</string>
     <string name="description">Beschreibung</string>
 
-    <!-- ###DRAWER###-->
+    <!-- ### DRAWER ###-->
     <string name="action_main">Hauptmenü</string>
     <string name="action_open_gpx">GPX-File öffnen</string>
     <string name="action_file_info">Infos zur Tour</string>
     <string name="action_reverse_route">Route umkehren</string>
+    <string name="action_add_remote_waypoints">Wegpunkte hinzufügen</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_download_gpx">Speichern als GPX</string>
@@ -57,7 +58,7 @@
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="find_nearby_wikipedia">Wikipedia-Artikel in der Nähe</string>
-    <string name="find_nearby_osm">Benachbarte OSM POIs</string>
+    <string name="find_nearby_osm">OSM POIs in der Nähe</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
     <string name="action_set_new_start">Starte von hier</string>
@@ -99,6 +100,7 @@
         Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
         Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://privacy.google.com/businesses/gdprcontrollerterms/ und https://privacy.google.com/businesses/gdprcontrollerterms/sccs/.\n
         Mehr Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Google: https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy?hl=de.\nDas Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework“ (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll.\nJedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/s/participant-search/participant-detail?contact=true&amp;id=a2zt000000001L5AAI&amp;status=Active </string>
+    <string name="set_to_default">Auf Standardwert gesetzt</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Auf zum Wandern!</string>
@@ -149,8 +151,8 @@
     <string name="next_place">Nächster Ort</string>
     <string name="altitude_m">Höhe [m]</string>
     <string name="dist_km">Diff [km]</string>
-    <string name="climb_m">Auf [m]</string>
-    <string name="descent_m">Ab [m]</string>
+    <string name="climb_m">Auf [hm]</string>
+    <string name="descent_m">Ab [hm]</string>
     <string name="duration">Dauer</string>
     <string name="pause">Pause</string>
     <string name="pause_min">Pause<br>[min]</br></string>
@@ -163,27 +165,45 @@
     <string name="wpt_desc">Beschreibung</string>
     <string name="wpt_take_comment">Übernehmen</string>
 
+    <string name="wpt_wikipedia">Wikipedia-Artikel</string>
+
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"rechts abbiegen"</string>
     <string name="waypointDirLeftComb">"links abbiegen"</string>
     <string name="waypointUpComb">"geradeaus"</string>
     <string name="waypointFlagComb">"Trackpunkt"</string>
 
+    <!-- Open Street Map waypoints -->
+    <string name="guidepost">Wegweiser</string>
+    <string name="bus_stop">Bushaltestelle</string>
+    <string name="restaurant">Restaurant</string>
+    <string name="bbq">Grillplatz</string>
+    <string name="bench">Parkbank</string>
+
     <string name="profile">"Höhenprofil"</string>
     <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
     <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
     <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
+    <!-- ### Search Results ###-->
+    <string name="btn_load">Laden</string>
+    <string name="btn_show">Anzeigen</string>
+
     <!-- ### Wikipedia articles ###-->
+    <string name="wikipedia_title">Wikipedia-Artikel in der Nähe</string>
     <string name="wikipedia_articles_nonefound">Keine Wikipedia-Artikel in der Nähe gefunden!</string>
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
 
     <string name="point_already_loaded">Der Track enthält bereits diesen Punkt!</string>
+    <string name="distance_from_track">vom Track entfernt</string>
 
     <!-- ### OSM POIs ###-->
+    <string name="osm_title">OSM POIs in der Nähe</string>
     <string name="osm_pois_nonefound">Keine OSM POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
     <string name="osm_timeout">Der Server ist vermutlich gerade zu stark ausgelastet um die Anfrage zu bearbeiten!</string>
 
+    <!-- ### Remote POIs ###-->
+    <string name="wpt_title">Wegpunkte ausserhalb des Tracks</string>
 </resources>

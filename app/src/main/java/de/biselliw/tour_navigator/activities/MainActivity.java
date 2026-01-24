@@ -16,7 +16,7 @@ package de.biselliw.tour_navigator.activities;
     You should have received a copy of the GNU General Public LicenseIf not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.app.Activity;
@@ -35,7 +35,6 @@ import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -65,6 +64,7 @@ import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
 import de.biselliw.tour_navigator.dialogs.OSM_Dialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
+import de.biselliw.tour_navigator.dialogs.WaypointsDialog;
 import de.biselliw.tour_navigator.dialogs.WikipediaDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
@@ -80,7 +80,7 @@ import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
 
 /**
- * @since 26.1
+ *
  */
 public class MainActivity extends LocationActivity  implements
         NavigationView.OnNavigationItemSelectedListener {
@@ -99,6 +99,8 @@ public class MainActivity extends LocationActivity  implements
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    public static ArrayList<MainActivity.Parameter> hikingParameters;
+
     int REQUEST_OPEN_GPX = 222;
 
     SharedPreferences sharedPref = null;
@@ -107,6 +109,32 @@ public class MainActivity extends LocationActivity  implements
 
     Handler timerHandler = new Handler();
 
+    /**
+     * class for hiking parameters used for walking time calculation
+     */
+    public static class Parameter {
+        /** key for preference setting */
+        public final String key;
+        /** minimum, maximum, default values [m/h] */
+        public final int minValue, mavValue, defaultValue;
+
+        public Parameter (String key, int minValue, int mavValue, int defaultValue) {
+            this.key = key;
+            this.minValue = minValue;
+            this.mavValue = mavValue;
+            this.defaultValue = defaultValue;
+        }
+    }
+
+    /**
+     * Define hiking parameters for walking time calculation
+     */
+    private static void defineHikingParameters () {
+        hikingParameters = new ArrayList<>();
+        hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4500));
+        hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_speedClimb", 100, 1000, 350));
+        hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
+    }
 
     @Override
     /*
@@ -136,6 +164,7 @@ public class MainActivity extends LocationActivity  implements
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
         SettingsActivity.getPreferences();
+        defineHikingParameters();
 
         // todo check Instantiation of utility class 'GpxExporter'
         gpxExporter = new GpxExporter();
@@ -312,6 +341,7 @@ public class MainActivity extends LocationActivity  implements
         super.onBackPressed();
     }
 
+
     /**
      * Initialize the contents of the Activity's standard options menu
      * @param menu options menu
@@ -339,59 +369,51 @@ public class MainActivity extends LocationActivity  implements
         int id = item.getItemId();
         control.setTrackingStatus(false);
 
-        switch (id) {
-            case R.id.itm_pause_time:
-                /* Change the pause time of the current waypoint */
-                changePauseTime();
-                break;
-            case R.id.itm_comment_waypoint:
-                /* comment the current waypoint */
-                commentRoutePoint();
-                break;
-            case R.id.itm_nav_waypoint:
-                /* Navigate to the waypoint */
-                navigateToRoutePoint();
-                break;
-            case R.id.itm_nav_google:
-                /* Navigate with Google */
-                navigateWithGoogle();
-                break;
-            case R.id.itm_find_nearby_wikipedia:
-                /* find nearby Wikipedia articles */
-                getNearbyWikipedia();
-                break;
-            case R.id.itm_find_nearby_osm:
-                /* find nearby OSM POIs */
-                getNearbyOSM();
-                break;
-            case R.id.itm_delete_waypoint:
-                /* Delete the current waypoint */
-                deleteRoutePoint();
-                break;
-            case R.id.itm_delete_trackpoints:
-                /* Delete all following trackpoints */
-                deleteTrackPoints();
-                break;
-            case R.id.itm_set_new_start:
-                setNewStart();
-                super.app.Update();
-                break;
-            case android.R.id.home:
-                /* Respond to the action bar's Up/Home button */
-                Intent intent = new Intent(this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-                break;
-            default:
-                return super.onOptionsItemSelected(item);
+        // Resource IDs will be non-final by default in Android Gradle Plugin version 8.0, avoid using them in switch case statements
+        if (id == R.id.itm_pause_time)
+            /* Change the pause time of the current waypoint */
+            changePauseTime();
+        else if (id == R.id.itm_comment_waypoint)
+            /* comment the current waypoint */
+            commentRoutePoint();
+        else if (id == R.id.itm_nav_waypoint)
+            /* Navigate to the waypoint */
+            navigateToRoutePoint();
+        else if (id == R.id.itm_nav_google)
+            /* Navigate with Google */
+            navigateWithGoogle();
+        else if (id == R.id.itm_find_nearby_wikipedia)
+            /* find nearby Wikipedia articles */
+            getNearbyWikipedia();
+        else if (id == R.id.itm_find_nearby_osm)
+            /* find nearby OSM POIs */
+            getNearbyOSM();
+        else if (id == R.id.itm_delete_waypoint)
+            /* Delete the current waypoint */
+            deleteRoutePoint();
+        else if (id == R.id.itm_delete_trackpoints)
+            /* Delete all following trackpoints */
+            deleteTrackPoints();
+        else if (id == R.id.itm_set_new_start) {
+            setNewStart();
+            super.app.Update();
         }
+        else if (id == android.R.id.home) {
+            /* Respond to the action bar's Up/Home button */
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+        else
+            return super.onOptionsItemSelected(item);
+
         clearErrorMessage();
 
         return true;
     }
 
-    /*
+    /**
      *  Call back function to handle activity results
      */
     public synchronized void onActivityResult(final int requestCode, int resultCode, final Intent data) {
@@ -419,7 +441,14 @@ public class MainActivity extends LocationActivity  implements
         if (id == R.id.nav_file_info) {
             control.showFileInfo();
             return true;
-        } else if (id == R.id.nav_start_time) {
+        }
+        else if (id == R.id.nav_remote_waypoints)
+        {
+            WaypointsDialog waypointsDialog = new WaypointsDialog(this, null);
+            waypointsDialog.show();
+            return true;
+        }
+        else if (id == R.id.nav_start_time) {
             /* Change the start time of the tour */
             changeStartTime();
             return true;
@@ -580,18 +609,6 @@ public class MainActivity extends LocationActivity  implements
                         app.Update();
                     }
                 }
-//                recordAdapter.recordList.remove(selected);
-//                recordAdapter.notifyDataSetChanged();
-/*
-                Track track = App.getTrack();
-                if (track != null) {
-                    if ((record.trackPointIndex >= 0) && (record.trackPointIndex < track.getNumPoints())) {
-                        track.deletePoint(record.trackPointIndex);
-                        app.Update();
-                    }
-                }
-
- */
             }
         }
     }
@@ -692,6 +709,11 @@ public class MainActivity extends LocationActivity  implements
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
                 DataPoint point = record.getTrackPoint();
+                if (point != null)
+                    // is the track point linked to a way point?
+                    if (point.getLinkIndex() >= 0)
+                        // take it
+                        point = App.getTrack().getPoint(point.getLinkIndex());
                 if (point != null) {
                     String queryParameter = "geo:" + formatLatitude(point) + "," + formatLongitude(point);
                     /* Navigate e.g. with DB Navigator */
@@ -714,7 +736,7 @@ public class MainActivity extends LocationActivity  implements
                 if (getConsentGoogleMaps())
                     runGoogleMaps();
                 else {
-                    AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(MainActivity.this, this);
+                    AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(this);
                     acceptDialog.show();
                 }
             }
@@ -773,10 +795,7 @@ public class MainActivity extends LocationActivity  implements
 
         if (id == R.id.nav_open_gpx)
             OpenFileGPX();
-        else if (id == R.id.nav_start_time) {
-            /* Change the start time of the tour */
-            changeStartTime();
-        } else if (id == R.id.nav_reverse_route)
+        else if (id == R.id.nav_reverse_route)
             App.getTrack().reverseRoute();
         else if (id == R.id.nav_download_gpx)
             registerActivityResultLauncherCreateDocumentGPX();

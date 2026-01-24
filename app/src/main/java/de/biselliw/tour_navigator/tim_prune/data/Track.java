@@ -16,6 +16,8 @@ import tim.prune.data.FieldList;
 import de.biselliw.tour_navigator.stubs.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.gui.MapUtils.MapUtils;
 
+import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
+
 /**
  * Class to hold all track information,
  * including track points and waypoints
@@ -438,7 +440,7 @@ public class Track {
 	 * @param inY y coordinate
 	 * @param inMaxDist maximum distance from selected coordinates
 	 * @param inIsProtectedWayPoint true if waypoints should be used always
-	 * @return index of nearest point or -1 if not found
+	 * @return index of nearest point or OUT_OF_TRACK if not found
 	 */
 	public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inIsProtectedWayPoint)
 	{
@@ -469,7 +471,7 @@ public class Track {
 		// Check whether it's within required distance
         if (!inIsProtectedWayPoint)
 		    if (nearestDist > inMaxDist && inMaxDist > 0.0) {
-			    return -1;
+			    return OUT_OF_TRACK;
 		    }
 		return nearestPoint;
 	}

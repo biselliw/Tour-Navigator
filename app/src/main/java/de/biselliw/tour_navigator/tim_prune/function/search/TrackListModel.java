@@ -6,7 +6,6 @@ import java.util.Collections;
 
 import de.biselliw.tour_navigator.stubs.Config;
 import tim.prune.data.Unit;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 
 /**
  * Model for list of tracks from a search result (eg geonames, overpass)

@@ -17,16 +17,14 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.annotation.SuppressLint;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.webkit.WebView;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import androidx.appcompat.app.ActionBar;
