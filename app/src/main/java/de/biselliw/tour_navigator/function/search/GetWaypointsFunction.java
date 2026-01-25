@@ -26,11 +26,12 @@ public class GetWaypointsFunction extends GenericDownloaderFunction
         super(inApp, inTrackListModel);
     }
 
-    public void getWaypoints(DataPoint inPoint, String inLang) {
+    public String getWaypoints(DataPoint inPoint, String inLang) {
         if (track != null) {
             // background work
             new Thread(this).start();
         }
+        return WAYPOINT_TYPE;
     }
 
     @Override

@@ -14,6 +14,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 import de.biselliw.tour_navigator.App;
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.stubs.Config;
 import tim.prune.data.Distance;
@@ -24,10 +25,17 @@ import tim.prune.data.Unit;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 /**
- * Function to load nearby point information from OSM
+ * Function to load nearby point information from OSM using the <a href="overpass-api.de">Overpass-API</a>
  */
 public class SearchOsmFunction extends GenericDownloaderFunction
 {
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "SearchOsmFunction";
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
     public static final String WAYPOINT_TYPE = "OSM";
 
 	/** Maximum distance from point in m */
@@ -44,7 +52,7 @@ public class SearchOsmFunction extends GenericDownloaderFunction
 		super(inApp, inTrackListModel);
 	}
 
-    public void getOSM(DataPoint inPoint, String inLang)
+    public String getOSM(DataPoint inPoint, String inLang)
     {
         // Get coordinates from current point (if any)
         getSearchCoordinates(inPoint);
@@ -52,6 +60,7 @@ public class SearchOsmFunction extends GenericDownloaderFunction
             // background work
             run();
         }).start();
+        return WAYPOINT_TYPE;
     }
 
 	/**
@@ -73,61 +82,72 @@ public class SearchOsmFunction extends GenericDownloaderFunction
 	 * @param inLat latitude
 	 * @param inLon longitude
 	 */
-	private void submitSearch(double inLat, double inLon)
-	{
-		String coords = "around:" + MAX_DISTANCE + "," + inLat + "," + inLon;
-		String urlString = "https://overpass-api.de/api/interpreter?data=("
-			+ "node(" + coords + ")[\"amenity\"=\"restaurant\"];"
-            + "node(" + coords + ")[\"amenity\"=\"bbq\"];"
-            + "node(" + coords + ")[\"amenity\"=\"bench\"];"
-            + "node(" + coords + ")[\"amenity\"=\"drinking_water\"];"
-            + "node(" + coords + ")[\"amenity\"=\"water_point\"];"
-            + "node(" + coords + ")[\"amenity\"=\"shelter\"];"
-            + "node(" + coords + ")[\"amenity\"=\"toilets\"];"
-            + "node(" + coords + ")[\"information\"=\"guidepost\"][\"hiking\"=\"yes\"];"
-			+ "node(" + coords + ")[\"railway\"][\"name\"];"
-			+ "node(" + coords + ")[\"highway\"][\"name\"];"
-			+ ");out%20qt;";
-		// Parse the returned XML with a special handler
-		SearchOsmPoisXmlHandler xmlHandler = new SearchOsmPoisXmlHandler();
+	private void submitSearch(double inLat, double inLon) {
+        String coords = "around:" + MAX_DISTANCE + "," + inLat + "," + inLon;
+        String urlString = "https://overpass-api.de/api/interpreter?data=("
+                + "node(" + coords + ")[\"amenity\"=\"restaurant\"];"
+                + "node(" + coords + ")[\"amenity\"=\"bbq\"];"
+                + "node(" + coords + ")[\"amenity\"=\"bench\"];"
+                + "node(" + coords + ")[\"amenity\"=\"drinking_water\"];"
+                + "node(" + coords + ")[\"amenity\"=\"water_point\"];"
+                + "node(" + coords + ")[\"amenity\"=\"shelter\"];"
+                + "node(" + coords + ")[\"amenity\"=\"toilets\"];"
+                + "node(" + coords + ")[\"information\"=\"guidepost\"][\"hiking\"=\"yes\"];"
+                + "node(" + coords + ")[\"railway\"][\"name\"];"
+                + "node(" + coords + ")[\"highway\"][\"name\"];"
+                + ");out%20qt;";
+        // Parse the returned XML with a special handler
+        SearchOsmPoisXmlHandler xmlHandler = new SearchOsmPoisXmlHandler();
         _errorMessage = "";
 
-        try
-		{
-			URL url = new URL(urlString);
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-			try (InputStream inStream = url.openStream()) {
-				saxParser.parse(inStream, xmlHandler);
-			} catch (Exception e) {
-				_errorMessage = resources.getString(R.string.osm_timeout); // e.getClass().getName() + " - " + e.getMessage();
-                _trackListModel.changed = true;
-                return;
-			}
-		} catch (MalformedURLException | SAXException | ParserConfigurationException ignored) {
-		}
+        if (!_DEBUG)
+            try {
+                URL url = new URL(urlString);
+                SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+                try (InputStream inStream = url.openStream()) {
+                    saxParser.parse(inStream, xmlHandler);
+                } catch (Exception e) {
+                    _errorMessage = resources.getString(R.string.osm_timeout); // e.getClass().getName() + " - " + e.getMessage();
+                    _trackListModel.changed = true;
+                    return;
+                }
+            } catch (MalformedURLException | SAXException | ParserConfigurationException ignored) {
+            }
 
 		// Calculate distances for each returned point
 		DataPoint searchPoint = new DataPoint(Latitude.make(_searchLatitude),
 			Longitude.make(_searchLongitude));
 		Unit distUnit = Config.getUnitSet().getDistanceUnit();
-		for (SearchResult searchResult : xmlHandler.getPointList())
-		{
-            // Update single search result
+        ArrayList<SearchResult> reducedTrackList = new ArrayList<>();
+
+        if (_DEBUG) {
+            SearchResult searchResult = new SearchResult();
+            searchResult.setTrackName("Demo");
+            searchResult.setLatitude("48.2488458");
+            searchResult.setLongitude("8.2112455");
+            searchResult.setPointType("guidepost");
             searchResult.update();
-/*
-			DataPoint foundPoint = new DataPoint(Latitude.make(searchResult.getLatitude()),
-				Longitude.make(searchResult.getLongitude()));
- */
-			double dist = DataPoint.calculateRadiansBetween(searchPoint, searchResult.getDataPoint());
-			searchResult.setLength(Distance.convertRadiansToDistance(dist, distUnit));
+            reducedTrackList.add(searchResult);
+        }
+        else {
+            for (SearchResult searchResult : xmlHandler.getPointList())
+            {
+                // Update single search result
+                searchResult.update();
+                double dist = DataPoint.calculateRadiansBetween(searchPoint, searchResult.getDataPoint());
+                searchResult.setLength(Distance.convertRadiansToDistance(dist, distUnit));
 
-            searchResult.setPointType(translateTag(searchResult.getPointType()));
-		}
+                searchResult.setPointType(translateTag(searchResult.getPointType() ));
+                if (!searchResult.isDuplicate())
+                    reducedTrackList.add(searchResult);
+            }
+            // TODO: maybe limit number of results using MAX_RESULTS
+            // Add track list to model
+            if (reducedTrackList.isEmpty())
+                _errorMessage = resources.getString(R.string.osm_pois_nonefound);
+        }
 
-		// TODO: maybe limit number of results using MAX_RESULTS
-		// Add track list to model
-		ArrayList<SearchResult> pointList = xmlHandler.getPointList();
-		_trackListModel.addTracks(pointList, true);
+		_trackListModel.addTracks(reducedTrackList, true);
 		_trackListModel.setShowPointTypes(true);
 	}
 
@@ -146,7 +166,7 @@ public class SearchOsmFunction extends GenericDownloaderFunction
         }
     }
 
-    private static String translateTag(String symbol) {
+    public static String translateTag(String symbol) {
         for (int i = 0; i < symbols.length; i++)
             if (symbols[i].equals(symbol)) {
                 return resources.getString(ids[i]);

@@ -30,7 +30,6 @@ public class EstimateParams extends TrackSegments {
     private static String _report = "";
 
     public EstimateParams() {
-        trackHasTimeStamps = true;
     }
 
     public static class EstimationResult {
@@ -99,7 +98,6 @@ public class EstimateParams extends TrackSegments {
     public List<Segment> analyseRecordedTrack(TrackDetails inTrack)  {
         clearRecordedTrackFileInfo();
         if (inTrack == null) return null;
-        trackHasTimeStamps = true;
         List<Segment> _segments;
 
         if (USE_PROFILE_ANALYSIS_FOR_RECORDED_TRACK == PROFILE_ANALYSIS_DEFAULT)
@@ -116,13 +114,13 @@ public class EstimateParams extends TrackSegments {
         EstimateParams.EstimationResult estimateResult = estimateGradients(_segments);
 
         addReport(getRecordedTrackFileInfo_Start());
-        trackHasTimeStamps = false;
+// todo        trackHasTimeStamps = false;
         if (estimateResult.successful)
         {
             addReport(getRecordedTrackFileInfo_Success());
             if (DEBUG) Log.i(TAG, "recalculate(): 3. recalculate all segments without timestamps using estimated hiking parameters");
             applyEstimatedHikingParametersFrom(estimateResult);
-            updateSegmentsValues(inTrack,true, _segments);
+            updateSegmentsValues(inTrack,false, _segments);
             // if (estimateAll(_segments).successful)
             addReport(getRecordedTrackFileInfo_Prove(_segments));
         }

@@ -116,7 +116,7 @@ public class TourDetails {
             return GetWaypointsFunction.interpretWaypointType(type);
         else if (type.startsWith(SearchOsmFunction.WAYPOINT_TYPE))
             return SearchOsmFunction.interpretWaypointSymbol(type);
-        return type;
+        return SearchOsmFunction.translateTag(type);
     }
 
     /**

@@ -723,6 +723,7 @@ public class DataPoint
 	 * @author BiselliW
 	 * @since 22.2.005
 	*/
+    @NonNull
 	public String getComment()
 	{
 		if (_comment == null) return "";
@@ -743,6 +744,7 @@ public class DataPoint
 	 * @author BiselliW
 	 * @since 22.2.005
 	*/
+    @NonNull
 	public String getDescription()
 	{
 		if (_description == null) return "";
@@ -764,6 +766,7 @@ public class DataPoint
 	 * @author BiselliW
 	 * @since 22.2.005
 	*/
+    @NonNull
 	public String getWebLink()
 	{
 		if (_webLink == null) return "";
@@ -862,6 +865,7 @@ public class DataPoint
 	 * @see #makeRoutePoint(String, int)
 	 * @since 22.2.006
 	*/
+    @NonNull
 	public String getRoutePointName()
 	{
 		if (_isWaypoint) return "";
@@ -901,7 +905,8 @@ public class DataPoint
 	 * @return waypoint symbol, if any
 	 * @author BiselliW
 	*/
-	public String getWaypointSymbol()
+    @NonNull
+    public String getWaypointSymbol()
 	{
 		if (_symbol == null) return "";
 		return _symbol;
@@ -922,6 +927,7 @@ public class DataPoint
 	 * @return waypoint type, if any
 	 * @author BiselliW
 	 */
+    @NonNull
 	public String getWaypointType()
 	{
 		if (_wptType == null) return "";

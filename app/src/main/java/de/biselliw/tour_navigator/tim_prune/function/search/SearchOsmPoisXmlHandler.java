@@ -72,7 +72,6 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
 		{
 			// end of the entry
 			if (_currPoint.getTrackName() != null && !_currPoint.getTrackName().equals("")) {
-                _currPoint.setDescription("<![CDATA[" + _currPoint.getDescription() + "]]");
                 _pointList.add(_currPoint);
             }
 		}

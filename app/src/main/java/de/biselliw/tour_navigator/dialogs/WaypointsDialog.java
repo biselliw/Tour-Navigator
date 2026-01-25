@@ -37,14 +37,17 @@ public class WaypointsDialog extends SearchResultDialog  {
             inPoint);
 
         GetWaypointsFunction getWaypointsFunction = new GetWaypointsFunction(App.app, trackListModel);
-        getWaypointsFunction.getWaypoints(inPoint, lang);
+        prefixWaypointType = getWaypointsFunction.getWaypoints(inPoint, lang);
         searchFunction = getWaypointsFunction;
     }
 
     /**
+     * Get keys for column titles
      * @param inColNum index of column, 0 or 1
      * @return key for this column
+     * @implNote: not used
      */
+    @Override
     protected String getColumnKey(int inColNum)
     {
         return "";

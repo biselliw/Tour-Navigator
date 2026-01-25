@@ -53,7 +53,6 @@ public class TrackTiming {
         List<RecordAdapter.Record> recordList = null;
         TrackSegments _trackSegments = new TrackSegments();
         SettingsActivity.getHikingParameters(_trackSegments);
-        _trackSegments.trackHasTimeStamps = false;
         double sumClimb_m = 0, sumDescent_m = 0;
 
         if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_DEFAULT){

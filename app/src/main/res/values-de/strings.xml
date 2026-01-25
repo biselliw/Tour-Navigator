@@ -191,7 +191,7 @@
 
     <!-- ### Wikipedia articles ###-->
     <string name="wikipedia_title">Wikipedia-Artikel in der Nähe</string>
-    <string name="wikipedia_articles_nonefound">Keine Wikipedia-Artikel in der Nähe gefunden!</string>
+    <string name="wikipedia_articles_nonefound">Keine (weiteren) Wikipedia-Artikel in der Nähe gefunden!</string>
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
 
@@ -200,7 +200,7 @@
 
     <!-- ### OSM POIs ###-->
     <string name="osm_title">OSM POIs in der Nähe</string>
-    <string name="osm_pois_nonefound">Keine OSM POIs in der Nähe gefunden!</string>
+    <string name="osm_pois_nonefound">Keine weiteren OSM POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
     <string name="osm_timeout">Der Server ist vermutlich gerade zu stark ausgelastet um die Anfrage zu bearbeiten!</string>
 

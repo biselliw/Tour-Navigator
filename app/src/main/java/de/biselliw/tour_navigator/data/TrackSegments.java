@@ -69,7 +69,7 @@ public class TrackSegments {
     protected double _speedDescent = DEF_SPEED_DESCENT;
     protected int gradientThresholdDesc = (int) (DEF_GRADIENT_THRESHOLD_DESC);
     protected TrackDetails _track = null;
-    protected boolean trackHasTimeStamps = false;
+    private boolean trackHasTimeStamps = false;
     private static double _minAltitude_m, _maxAltitude_m;
 
     public static SummarySegments summary = new SummarySegments();
@@ -272,8 +272,9 @@ public class TrackSegments {
         for (int ptIndex = inStart; ptIndex <= inEnd; ptIndex++) {
             currPoint = inTrack.getPoint(ptIndex);
             if ((currPoint != null) && (!currPoint.isWayPoint())) {
-                if (inTrackHasTimeStamps) {
-                    if (prevPoint != null) {
+//                if (inTrackHasTimeStamps) {
+                if (currPoint.hasTimestamp()) {
+                    if (prevPoint != null && prevPoint.hasTimestamp()) {
                         // Calculate the distance to the previous trackpoint
                         double distance_km = currPoint.getDistance() - prevPoint.getDistance();
                         // Calculate the time difference to the previous trackpoint

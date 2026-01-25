@@ -9,7 +9,6 @@ import javax.xml.parsers.SAXParserFactory;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaXmlHandler;
 
@@ -37,7 +36,7 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 		super(inApp, inTrackListModel);
 	}
 
-	public void getWikipedia(DataPoint inPoint, String inLang)
+	public String getWikipedia(DataPoint inPoint, String inLang)
     {
         // Get coordinates from current point (if any)
         getSearchCoordinates(inPoint);
@@ -46,6 +45,7 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
             // background work
             run();
         }).start();
+        return WAYPOINT_TYPE;
     }
 
 	/**
@@ -55,9 +55,6 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	{
 		// For geonames, firstly try the local language
         submitSearch(_searchLatitude, _searchLongitude, lang);
-
-        // prohibit recursive search
-//        dataPoint = null;
 
 		// Set status label according to error or "none found", leave blank if ok
 		if (_errorMessage.isEmpty() && _trackListModel.isEmpty()) {
@@ -73,7 +70,6 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	 */
 	private void submitSearch(double inLat, double inLon, String inLang)
 	{
-        // Example http://api.geonames.org/findNearbyWikipedia?lat=47&lng=9
         String urlString = "https://secure.geonames.org/findNearbyWikipedia?lat=" +
                 inLat + "&lng=" + inLon + "&maxRows=" + MAX_RESULTS
                 + "&radius=" + MAX_DISTANCE + "&lang=" + inLang
@@ -100,27 +96,23 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
         } catch (Exception ignored) {}
 
         // Add track list to model
-//        ArrayList<SearchResult> trackList = xmlHandler.getTrackList();
         ArrayList<SearchResult> reducedTrackList = new ArrayList<>();
 
         if (_trackListModel != null) {
+            // Show error message from parsing if any
+            String error = xmlHandler.getErrorMessage();
+            if (error != null && !error.isEmpty()) {
+                //	_app.showErrorMessageNoLookup(getNameKey(), error);
+                _errorMessage = error;
+            }
+
             for (SearchResult searchResult : xmlHandler.getTrackList()) {
-                // Check if a point is already loaded
-                searchResult.setPointType(WAYPOINT_TYPE);
                 searchResult.update();
-//                if (!searchResult.isDuplicate())
-                reducedTrackList.add(searchResult);
+                // Check if a point is already loaded
+                if (!searchResult.isDuplicate())
+                    reducedTrackList.add(searchResult);
             }
             _trackListModel.addTracks(reducedTrackList, true);
-
-            // Show error message if any
-            if (_trackListModel.isEmpty()) {
-                String error = xmlHandler.getErrorMessage();
-                if (error != null && !error.equals("")) {
-                    //	_app.showErrorMessageNoLookup(getNameKey(), error);
-                    _errorMessage = error;
-                }
-            }
         }
     }
 }

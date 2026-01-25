@@ -99,6 +99,9 @@ public class MainActivity extends LocationActivity  implements
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    /**
+     * hiking parameters used for walking time calculation
+     */
     public static ArrayList<MainActivity.Parameter> hikingParameters;
 
     int REQUEST_OPEN_GPX = 222;
@@ -163,8 +166,8 @@ public class MainActivity extends LocationActivity  implements
         /* create a table of waypoints */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
-        SettingsActivity.getPreferences();
         defineHikingParameters();
+        SettingsActivity.getPreferences();
 
         // todo check Instantiation of utility class 'GpxExporter'
         gpxExporter = new GpxExporter();

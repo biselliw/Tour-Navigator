@@ -196,7 +196,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         // set default value on first time launch
         ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
-        if (hikingParameters != null) {
+        if (sharedPref != null && hikingParameters != null) {
             String def = sharedPref.getString(hikingParameters.get(0).key, "");
             if (def.isEmpty()) {
                 // set default preferences for hiking times calculation
@@ -248,24 +248,39 @@ public class SettingsActivity extends AppCompatActivity {
 
     /**
      * store a boolean value in the settings
-     * @param key key name
-     * @param value value
+     * @param inKey key name
+     * @param inValue value
      */
-    private static void setBoolean(String key, boolean value) {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
+    private static void setBooleanPref(String inKey, boolean inValue) {
+        if (sharedPref != null) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(inKey, inValue);
+            editor.apply();
+        }
     }
 
     /**
-     * store an integer value in the settings
-     * @param key key name
-     * @param value value
+     * Get a boolean value from settings
+     * @param inKey key name
+     * @param inDefault default value
      */
-    private static void setInt(String key, int value) {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(key, value);
-        editor.apply();
+     public static boolean getBooleanPref(String inKey, boolean inDefault) {
+        if (sharedPref != null)
+            return sharedPref.getBoolean(inKey,inDefault);
+        else
+            return inDefault;
+    }
+    /**
+     * store an integer value in the settings
+     * @param inKey key name
+     * @param inValue value
+     */
+    private static void setIntPref(String inKey, int inValue) {
+        if (sharedPref != null) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(inKey, inValue);
+            editor.apply();
+        }
     }
 
 /*
@@ -293,10 +308,12 @@ public class SettingsActivity extends AppCompatActivity {
 
     static public int getIntFromPref(String inKey, int inDefault) {
         int value = inDefault;
-        try {
-            value = Integer.parseInt(sharedPref.getString(inKey,""));
+        if (sharedPref != null) {
+            try {
+                value = Integer.parseInt(sharedPref.getString(inKey, ""));
+            } catch (Exception ignored) {
+            }
         }
-        catch (Exception ignored) { }
         return value;
     }
 
@@ -305,12 +322,15 @@ public class SettingsActivity extends AppCompatActivity {
      */
     static public void getPreferences()
     {
-        setWritingEnabled (sharedPref.getBoolean("pref_debug", false));
-        setAlarmPreference(sharedPref.getBoolean("pref_hiking_par_alarm", true));
+        if (sharedPref != null) {
+            setWritingEnabled(sharedPref.getBoolean("pref_debug", false));
+            setAlarmPreference(sharedPref.getBoolean("pref_hiking_par_alarm", true));
+        }
     }
 
     /**
      * get preferences for hiking times calculation
+     * @param inSegments
      */
     static public void getHikingParameters(TrackSegments inSegments)
     {
@@ -337,16 +357,17 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static boolean isFirstTimeLaunch() {
-        return sharedPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+        return getBooleanPref(IS_FIRST_TIME_LAUNCH, true);
     }
 
     public static void setFirstTimeLaunch(boolean isFirstTime) {
-        setBoolean(IS_FIRST_TIME_LAUNCH, isFirstTime);
+        setBooleanPref(IS_FIRST_TIME_LAUNCH, isFirstTime);
     }
 
     public static long getStartTime() {
         Time time = new Time();
-        time.set(sharedPref.getLong("StartTime", 0L));
+        if (sharedPref != null)
+            time.set(sharedPref.getLong("StartTime", 0L));
         int hour = time.hour;
         int min = time.minute;
         time.setToNow();
@@ -354,33 +375,30 @@ public class SettingsActivity extends AppCompatActivity {
         return time.toMillis(true);
     }
 
-    public static void setStartTime(long value) {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong("StartTime", value);
-        editor.apply(); // editor.commit();
+    public static void setStartTime(long inValue) {
+        if (sharedPref != null) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putLong("StartTime", inValue);
+            editor.apply(); // editor.commit();
+        }
     }
 
     /**
      * Preferences for use of Internet
      */
     public static boolean getConsentInternet() {
-        if (settingsFragment != null && settingsFragment.pref_consent_internet != null)
-            return settingsFragment.pref_consent_internet.isChecked();
-        return false;
+        return getBooleanPref("pref_consent_internet", false);
     }
 
     /**
      * Preferences for use of Google Maps
      */
     public static boolean getConsentGoogleMaps() {
-        if (settingsFragment != null && settingsFragment.pref_consent_google_maps != null)
-            return settingsFragment.pref_consent_google_maps.isChecked();
-        return false;
+        return getBooleanPref("pref_consent_google_maps", false);
     }
 
-    public static void consentGoogleMaps(boolean value) {
-        if (settingsFragment != null && settingsFragment.pref_consent_google_maps != null)
-            settingsFragment.pref_consent_google_maps.setChecked(value);
+    public static void consentGoogleMaps(boolean inValue) {
+        setBooleanPref("pref_consent_google_maps", inValue);
     }
 
     /**
@@ -403,7 +421,7 @@ public class SettingsActivity extends AppCompatActivity {
         return value;
     }
 
-    public static void setProfileViewVisibility(int value) {
-        setInt("ProfileViewVisibility", value);
+    public static void setProfileViewVisibility(int inValue) {
+        setIntPref("ProfileViewVisibility", inValue);
     }
 }

@@ -1,9 +1,9 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
+import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.ui.ControlElements;
-import tim.prune.data.Distance;
 import tim.prune.data.Latitude;
 import tim.prune.data.Longitude;
 
@@ -48,6 +48,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return track name
 	 */
+    @NonNull
 	public String getTrackName()
 	{
 		return _trackName == null ? "" : _trackName;
@@ -64,6 +65,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return type of point (for POIs)
 	 */
+    @NonNull
 	public String getPointType() { return _pointType == null ? "" : _pointType;	}
 
 	/**
@@ -77,6 +79,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return track description
 	 */
+    @NonNull
 	public String getDescription()
 	{
 		return _description == null ? "" : _description;
@@ -93,6 +96,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return web url
 	 */
+    @NonNull
 	public String getWebUrl() { return _webUrl == null ? "" : _webUrl; }
 
 	/**
@@ -122,6 +126,7 @@ public class SearchResult implements Comparable<SearchResult>
 	/**
 	 * @return download link
 	 */
+    @NonNull
 	public String getDownloadLink()	{ return _downloadLink == null ? "" : _downloadLink; }
 
 	/**

@@ -91,7 +91,7 @@ public class ProfileAdapter {
     double prevDistance;
     int prevIndex;
     double startAltitude = 0.0;
-    Number lastAltitude = 0;
+    double lastAltitude = 0.0;
     TrackDetails _trackDetails = null;
 
     private static final boolean SHOW_SERIES_SEGMENTS = true;
@@ -300,20 +300,24 @@ public class ProfileAdapter {
             switch (series) {
                 case SERIES_ALTITUDES:
                 case SERIES_CURSOR: {
-                    if (index >= numPoints) {
+                    if (index == 0)
+                        lastAltitude = -999.99;
+                    else if (index >= numPoints)
                         throw new IllegalArgumentException();
-                    }
 
-                    if (_trackDetails != null) {
-                        DataPoint currPoint = _trackDetails.getPoint(index);
-                        if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
-                            altitude = (int) currPoint.getAltitude().getValue();
-                            if (altitude > 0)
-                                lastAltitude = altitude;
-                        }
+                    if (_trackDetails != null)
+                            for (int i = index; i <= (lastAltitude < 0.0 ? numPoints - 1 : index); i++) {
+                                DataPoint currPoint = _trackDetails.getPoint(i);
+                                if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
+                                    altitude = (int) currPoint.getAltitude().getValue();
+                                    if (altitude > 0) {
+                                        lastAltitude = altitude;
+                                        break;
+                                    }
+                                }
+                            }
                     }
                     break;
-                }
                 case SERIES_SEGMENTS:
                     break;
             }

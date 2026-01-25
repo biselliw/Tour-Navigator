@@ -36,12 +36,19 @@ public class OSM_Dialog extends SearchResultDialog {
         super(context, context.getString(R.string.osm_title), inPoint);
 
         SearchOsmFunction searchOsmPoisFunction = new SearchOsmFunction(App.app, trackListModel);
-        searchOsmPoisFunction.getOSM(inPoint, lang);
+        prefixWaypointType = searchOsmPoisFunction.getOSM(inPoint, lang);
         searchFunction = searchOsmPoisFunction;
     }
 
+    /**
+     * Get keys for column titles
+     * @param inColNum index of column, 0 or 1
+     * @return key for this column
+     * @implNote: not used
+     */
     @Override
-    protected String getColumnKey(int inColNum) {
+    protected String getColumnKey(int inColNum)
+    {
         return "";
     }
 }

@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.ui;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.Intent;
@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,7 +50,6 @@ import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.EstimateParams;
 import de.biselliw.tour_navigator.data.TourDetails;
-import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
@@ -85,21 +85,12 @@ public class ControlElements extends BaseActivity {
 
     public TextToSpeech tts;
 
-    boolean _initUserInterface = false;
-    boolean _setupUserInterface = false;
-    boolean _updateTrackingStatus = false;
+    boolean _initUserInterface = false, _setupUserInterface = false, _updateTrackingStatus = false;
     protected static boolean raiseAlarm = true;
 
-    boolean _updateGpsStatus = false;
-    boolean _updateExpandViewStatus = false;
-    boolean _updateSpeakStatus = false;
-    boolean _updateErrorMessage = false;
-    boolean _updateExpandView = false;
-    boolean _updateFileInfo = false;
-    boolean _updateWaypointType = false;
-    boolean _initProfile = false, _updateProfile = false;
-    boolean _rescalePlaceView = true;
-
+    boolean _updateGpsStatus = false, _updateExpandViewStatus = false, _updateSpeakStatus = false,
+            _updateErrorMessage = false, _updateExpandView = false, _updateFileInfo = false, _updateWaypointType = false,
+            _initProfile = false, _updateProfile = false, _rescalePlaceView = true;
 
     public static boolean _isViewExpanded = false;
     private static boolean _fileInfoAvailable = false;
@@ -362,9 +353,9 @@ public class ControlElements extends BaseActivity {
         }
 
         if (!_speakEnabled) {
-            if (tts.isSpeaking()){
+            if (tts.isSpeaking())
                 stopSpeaking();
-            }
+
             image_text_to_speech.setVisibility(View.GONE);
             image_voice_selection_off.setVisibility(View.GONE);
         }
@@ -495,29 +486,27 @@ public class ControlElements extends BaseActivity {
                 // && (!Log.isWritingEnabled() || !isErrorMessage())
          ){
             if (inViewExpanded) {
-                if (!isErrorMessage()) {
+                if (!isErrorMessage())
                     setTitleText(inAdditionalInfo.title,COLOR_MESSAGE);
-                }
 
                 TextView commentView = findViewById(R.id.comment_view);
                 commentView.setText(inAdditionalInfo.comment);
 
                 TextView descriptionView = findViewById(R.id.description_view);
                 String html = inAdditionalInfo.description;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
-                } else {
-                    descriptionView.setText(Html.fromHtml(html));
-                }
+                Spanned fromHTML;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
+                    fromHTML = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+                else
+                    fromHTML = Html.fromHtml(html);
+                descriptionView.setText(fromHTML);
                 descriptionView.scrollTo(0, 0);
 
                 TextView linkView = findViewById(R.id.link_view);
                 String link = inAdditionalInfo.link;
                 String swvLink = HTML_File.getSwvLink(link);
                 if (!swvLink.isEmpty())
-                {
                     link = link + "\n" + swvLink;
-                }
                 linkView.setText(link);
             }
         }
@@ -528,9 +517,8 @@ public class ControlElements extends BaseActivity {
         location_content.setVisibility(inViewExpanded ? View.GONE : VISIBLE);
         description_content.setVisibility(inViewExpanded ? VISIBLE : View.GONE);
 
-        if (!inViewExpanded) {
+        if (!inViewExpanded)
             la.requestStatusUpdate();
-        }
     }
 
     /**
@@ -541,14 +529,12 @@ public class ControlElements extends BaseActivity {
     private void onShowWaypointType(String inDistanceToPlace, TourDetails.AdditionalInfo inAdditionalInfo) {
         _updateWaypointType = false;
         String comment = inDistanceToPlace;
-        if (inAdditionalInfo != null) {
+        if (inAdditionalInfo != null)
             comment = comment + inAdditionalInfo.comment;
-        }
 
         TextView commentView = findViewById(R.id.comment_view);
         commentView.setText(comment);
     }
-
 
     private int getViewWidth(int id) {
         TextView view = findViewById(id);
@@ -686,7 +672,6 @@ public class ControlElements extends BaseActivity {
         }
         _updateExpandViewStatus = true;
         _updateSpeakStatus = true;
-//        _updateProfile = true;
 
         return isExpandableView;
     }

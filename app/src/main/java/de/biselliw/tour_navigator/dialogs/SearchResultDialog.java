@@ -37,11 +37,16 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.TableAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.function.search.GenericDownloaderFunction;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
+
+/**
+ * Search dialog to add items to the track
+ */
 
 public abstract class SearchResultDialog extends FullScreenDialog {
     private final SearchResultDialog _dialog = this;
@@ -68,6 +73,9 @@ public abstract class SearchResultDialog extends FullScreenDialog {
 
     /** language code used for search */
     protected String lang;
+
+    /** prefix for waypoint types (needed for GPX file) */
+    protected String prefixWaypointType;
 
     /** data point to search for points around */
     protected DataPoint dataPoint;
@@ -161,8 +169,10 @@ public abstract class SearchResultDialog extends FullScreenDialog {
     }
 
     /**
+     * Get keys for column titles
      * @param inColNum index of column, 0 or 1
      * @return key for this column
+     * @implNote: not used
      */
     protected abstract String getColumnKey(int inColNum);
 
@@ -227,6 +237,14 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                 DataPoint point = searchResult.getDataPoint();
                 if (point != null) {
                     point.makeProtectedWaypoint();
+                    if (prefixWaypointType != null) {
+                        String waypointType = point.getWaypointType();
+                        if (waypointType.isEmpty())
+                            waypointType = prefixWaypointType;
+                        else
+                            waypointType = prefixWaypointType + ": " + waypointType;
+                        point.setFieldValue(Field.WAYPT_TYPE, waypointType, false);
+                    }
                     // add a new waypoint to the track
                     if (point.getLinkIndex() != OUT_OF_TRACK)
                         searchFunction.track.appendPoint(point);

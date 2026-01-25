@@ -224,7 +224,7 @@
 
     <!-- ### Wikipedia articles ###-->
     <string name="wikipedia_title">Nearby Wikipedia Articles</string>
-    <string name="wikipedia_articles_nonefound">No Wikipedia articles found nearby!</string>
+    <string name="wikipedia_articles_nonefound">No (further) Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
 
@@ -233,7 +233,7 @@
 
     <!-- ### OSM POIs ###-->
     <string name="osm_title">Nearby OSM POIs</string>
-    <string name="osm_pois_nonefound">No OSM POIs found nearby!</string>
+    <string name="osm_pois_nonefound">No further OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
     <string name="osm_timeout">The server is probably too busy to handle your request</string>
 

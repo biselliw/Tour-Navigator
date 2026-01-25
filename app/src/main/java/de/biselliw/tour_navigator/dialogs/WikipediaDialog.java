@@ -16,19 +16,20 @@ public class WikipediaDialog extends SearchResultDialog  {
         super(context, context.getString(R.string.wikipedia_title), inPoint);
 
         GetWikipediaFunction getWikipediaFunction = new GetWikipediaFunction(App.app, trackListModel);
-        getWikipediaFunction.getWikipedia(inPoint, lang);
+        prefixWaypointType = getWikipediaFunction.getWikipedia(inPoint, lang);
         searchFunction = getWikipediaFunction;
     }
 
     /**
+     * Get keys for column titles
      * @param inColNum index of column, 0 or 1
      * @return key for this column
+     * @implNote: not used
      */
+    @Override
     protected String getColumnKey(int inColNum)
     {
-        if (inColNum == 0) return "dialog.wikipedia.column.name";
-        return "dialog.wikipedia.column.distance";
+        return "";
     }
-
 };
 
