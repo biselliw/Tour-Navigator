@@ -20,7 +20,7 @@ package de.biselliw.tour_navigator.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -32,19 +32,21 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 
 /**
- * Class structure taken from tutorial at http://www.androidhive.info/2016/05/android-build-intro-slider-app/
+ * Class structure taken from tutorial created by
  *
  * @author Karola Marky, Christopher Beckmann
  * @version 20161214
+ * no longer public
  */
-public class TutorialActivity extends AppCompatActivity {
+public class TutorialActivity extends BaseActivity {
 
     private ViewPager viewPager;
     private MyViewPagerAdapter myViewPagerAdapter;
@@ -53,7 +55,6 @@ public class TutorialActivity extends AppCompatActivity {
     private Button btnSkip, btnNext;
 
     // layouts of all welcome sliders
-    // add few more layouts if you want
     private int[] layouts = new int[]{
             R.layout.tutorial_slide1,
             R.layout.tutorial_slide2,
@@ -70,14 +71,12 @@ public class TutorialActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tutorial);
 
         // Making notification bar transparent
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
-        btnSkip = (Button) findViewById(R.id.btn_skip);
-        btnNext = (Button) findViewById(R.id.btn_next);
+        viewPager = findViewById(R.id.view_pager);
+        dotsLayout = findViewById(R.id.layoutDots);
+        btnSkip = findViewById(R.id.btn_skip);
+        btnNext = findViewById(R.id.btn_next);
 
         // adding bottom dots
         addBottomDots(0);

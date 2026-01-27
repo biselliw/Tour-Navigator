@@ -115,7 +115,7 @@ public class TrackTiming {
                     if (_segments.size() > ++seg) {
                         segment_startClimb_m += segment_climb_m;
                         segment_startDescent_m += segment_descent_m;
-                        sumStartSeconds += segment.activeTime_s + segSumBreakTime_min;
+                        sumStartSeconds += segment.activeTime_s + segSumBreakTime_min * 60;
                         segment = _segments.get(seg);
                         segSumBreakTime_min = 0;
                     } //else

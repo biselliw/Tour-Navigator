@@ -1,24 +1,15 @@
-<!DOCTYPE html>
-<html lang="de">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Tour Navigator – Hilfe Mobil</title>
-    <style>
-        body { font-family: sans-serif; padding: 1em; line-height: 1.55; }
-        details { margin: 1em 0; border: 1px solid #ccc; border-radius: 8px; padding: .7em; }
-        summary { font-weight: bold; cursor: pointer; }
-        img { max-width: 100%; height: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: .4em; vertical-align: top; }
-        hr { margin: 1em 0; }
-    </style>
+
 </head>
 <body>
 <h1>Tour Navigator – Hilfe</h1>
 
 
-<details open><summary>Übersicht</summary>
+<details open><summary><h1>Übersicht</h1></summary>
     <h2>Was macht die App Tour Navigator?</h2>
     <p>
         Die privatsphäre-freundliche App "Tour Navigator" hilft dir dabei, jede Wanderung vorab perfekt zu planen und unterwegs entspannt zu genießen.<br>
@@ -31,10 +22,9 @@
         GPX-Dateien sind der Standard für Touren und geografische Daten. Sie enthalten den genauen Verlauf einer Route, inklusive Höhenangaben und – idealerweise – benannten Wegpunkten.
     </p>
     <p>
-        Du kannst GPX-Dateien bequem über Tourenportale erhalten, z. B. von
-        <a href="https://www.outdooractive.com/de/">Outdooractive</a> oder dem
-        <a href="https://www.schwarzwaldverein-tourenportal.de/">Schwarzwaldverein</a>.
-        Je besser die Datei vorbereitet ist, desto exakter arbeitet Tour Navigator.
+        Du kannst GPX-Dateien bequem über Tourenportale erhalten, z. B. von Outdooractive (www.outdooractive.com)</a> oder dem
+        Schwarzwaldverein (www.schwarzwaldverein-tourenportal.de).
+        Je besser die Datei vorbereitet ist, desto besser arbeitet Tour Navigator.
     </p>
     <p><b>Tipp:</b> Besonders einfach gelingt es mit dem
         <a href="https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal">Tourenplaner des Schwarzwaldvereins</a>.
@@ -47,7 +37,7 @@
         Tour Navigator arbeitet mit der bewährten DIN 33466 – der offiziellen Grundlage für verlässliche Wanderzeitberechnung.
         Die Formel berücksichtigt Geschwindigkeit, Steigung und Gefälle und liefert ein realistisches Zeitmodell.
     </p>
-    <details><summary>Details der Wanderzeitberechnung</summary>
+    <details><summary><h3>Details der Gehzeitberechnung</h3></summary>
     <p>Sie geht davon aus, dass ein durchschnittlicher Wanderer eine
         ebene Strecke von vier Kilometern in einer Stunde zurücklegt. In einer Stunde schafft er einen direkten Aufstieg von 300 Höhenmetern, in der gleichen Zeit
         einen Abstieg von 500 Höhenmetern. Bei gemischten Teilstrecken mit horizontalen und vertikalen Anteilen werden zunächst alle Zeiten für sich berechnet.
@@ -56,6 +46,7 @@
     <p>Beispiel: eine Wegstrecke besteht aus einem ebenen Anteil von 1 km Länge und einem Aufstieg von 300 Hm. Für den horizontalen
         Anteil ergibt sich eine Gehzeit von 15 min, für den vertikalen Teil 60 min. Die Summe aus längerem Anteil (60 min) + Hälfte des kürzeren (15 min) ergibt
         somit eine Gesamtzeit von 67,5 min.</p>
+        <p>Weitere Infos zur <a href="https://de.wikipedia.org/wiki/Marschzeitberechnung">Marschzeitberechnung</a> auf Wikipedia.</p>
     </details>
     <p>Um die berechneten Gehzeiten an deine individuelle Leistung anzupassen, kannst Du die drei Parameter für die Formel in den Einstellungen der
         App ändern. Diese werden permanent gespeichert.</p>
@@ -98,7 +89,6 @@
     <p>
         Tour Navigator ist 100 % privatsphäre-freundlich:
         Es werden keinerlei persönliche oder GPX-Trackdaten gespeichert oder weitergegeben.
-        Eine Sicherungskopie der aktuellen GPX-Datei mit allen deinen Änderungen ist als TourNavigator.gpx im internen Ordner Download verfügbar.
     </p>
 
     <h2>Welche Berechtigungen braucht die App?</h2>
@@ -109,14 +99,14 @@
         <li>Zugriff auf die genaue GPS-Position – ausschließlich zur Navigation und Zeitplanung.</li>
     </ul>
     <p>
-        Über das Kontextmenü zu einzelnen Wegpunkten kannst du zusätzliche Informationen über das Internet abrufen (sofern verfügbar), wie z.B. Wikipedia-Artikel oder Punkte aus der Open Street Map Datenbank.
+        Über das Kontextmenü zu einzelnen Wegpunkten kannst du zusätzliche Informationen über das Internet abrufen (sofern verfügbar), wie z.B. Wikipedia-Artikel oder Punkte aus der OpenStreetMap Datenbank.
         Nur dafür benötigt die App die Berechtigung zum Zugriff auf das Internet.
     </p>
 </details>
 
-<details><summary>Bedienungsanleitung</summary>
+<details><summary><h1>Bedienungsanleitung</h1></summary>
     Die Bedienung der App erfolgt über diese Menüs:
-    <details><summary>Hauptmenü</summary>
+    <details><summary><h2>Hauptmenü</h2></summary>
         Im Hauptmenü stehen diese globalen Funktionen zur Verfügung:
         <table style="width: 100%">
             <tr>
@@ -135,13 +125,18 @@
                     Über den Menüpunkt <a href="#start_from_here">"Starte von hier"</a> lässt sich sogar der Startpunkt ändern.</td>
             </tr>
             <tr>
-                <td width=55"><img src="img/signpost.png" alt=""/></td>
-                <td>Damit kannst du Wegpunkte aus dem GPX-File hinzufügen, die ausserhalb des Tracks liegen und daher nicht berücksichtigt würden.</td>
+                <td width=55"><img src="img/signpost.jpg" alt=""/></td>
+                <td>Damit kannst du Wegpunkte hinzufügen ...
+                <ul>
+                    <li>vom GPX-File: POIs, die ausserhalb des Tracks liegen und daher nicht berücksichtigt würden.</li>
+                    <li>aus OpenStreetMap: alle Wegweiser der Datenbank die entlang des Tracks liegen. Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast!</li>
+                </ul>
+                </td>
             </tr>
             <tr>
                 <td width=55"><img src="img/schedule.png" alt=""/></td>
                 <td>Damit legst du die Startzeit der Tour fest. Sie wird für die Berechnung der Wegzeiten benötigt.
-                    Über den Menüpunkt <a href="#pause_time">"Pausenzeit"</a> kannst du zudem für jeden Wegpunkt eine Pausenzeit vorgeben.</td>
+                    Über den Menüpunkt <a href="#break_time">"Pausenzeit"</a> kannst du zudem für jeden Wegpunkt eine Pausenzeit vorgeben.</td>
             </tr>
             <tr>
                 <td width=55"><img src="img/table_rows.png" alt=""/></td>
@@ -179,12 +174,12 @@
         </table>
     </details>
 
-    <details><summary>Kontextmenü</summary>
+    <details><summary><h2>Kontextmenü</h2></summary>
         <p>Abhängig vom ausgewählten Punkt der Tour stehen diese Funktionen zur Verfügung:</p>
 
         <table style="width: 100%">
             <tr>
-                <td valign="top"><a name="pause_time"></a>Pausenzeit</td>
+                <td valign="top"><a name="break_time"></a>Pausenzeit</td>
                 <td>Für jeden Wegpunkt kannst du eine individuelle Pausenzeit festlegen die im zeitlichen Ablaufplan berücksichtigt wird.</td>
             </tr>
             <tr>
@@ -193,12 +188,14 @@
             </tr>
             <tr>
                 <td valign="top">Wikipedia-Artikel in der Nähe</td>
-                <td>Georeferenzierte Wikipedia-Artikel im Umkreis von 10 km um den Wegpunkt werden tabellarisch aufgelistet. Du kannst ihren Inhalt über die Wikipedia app anzeigen und ausgewählte Punkte der Route hinzufügen.</td>
+                <td>Georeferenzierte Wikipedia-Artikel im Umkreis von 10 km um den Wegpunkt werden tabellarisch aufgelistet. Du kannst ihren Inhalt über die Wikipedia app anzeigen und ausgewählte Punkte der Route hinzufügen.
+                    Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast!</td>
             </tr>
             <tr>
                 <td valign="top">OSM POIs in der Nähe</td>
-                <td>Open Street Map Punkte (Knoten) im Umkreis von 500 m um den Wegpunkt werden tabellarisch aufgelistet. Du kannst die Details der Knoten in einem Web-Browser anzeigen und ausgewählte Punkte der Route hinzufügen.<br>
-                Die Datenbankabfrage beschränkt sich auf eine Auswahl von Knotentypen. Der Server ist regelmässig überlastet und liefert dann keine Ergebnisse!</td>
+                <td>OpenStreetMap Punkte (Knoten) im Umkreis von 500 m um den Wegpunkt werden tabellarisch aufgelistet. Du kannst die Details der Knoten in einem Web-Browser anzeigen und ausgewählte Punkte der Route hinzufügen.
+                Die Datenbankabfrage beschränkt sich auf eine Auswahl von Knotentypen. Der Server ist regelmässig überlastet und liefert dann keine Ergebnisse!
+                    Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast!</td>
             </tr>
             <tr>
                 <td valign="top"><a name="navigate"></a>Zum Wegpunkt navigieren</td>
@@ -213,8 +210,9 @@
                 <td valign="top"><a name="Google_Navigation"></a>Google-Navigation</td>
                 <td>Bei jedem Wegpunkt kannst du dessen Geo-Koordinaten an Google Maps weiterleiten um eine Route von deinem aktuellen Standort
                     zum gewählten Wegpunkt mit verschiedenen Verkehrsmitteln zu generieren oder einfach nur die Karte zu studieren.
-                    Vorab musst du die angezeigte Datenschutzrichtlinie von Google lesen und ihr einmalig zustimmen. Dies wird in den Einstellungen der App gespeichert.
-                    Wie "privatsphärefreundlich" Google deine Daten verarbeitet liegt dann allein in Deiner Verantwortung!
+                    Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast und die angezeigte Datenschutzrichtlinie
+                    von Google gelesen und ihr einmalig zugestimmt hast. Dies wird in den Einstellungen der App gespeichert.
+                    Wie "privatsphärefreundlich" Google deine Daten verarbeitet liegt dann allein in deiner Verantwortung!
                 </td>
             </tr>
             <tr>
@@ -239,9 +237,9 @@
         </table>
     </details>
 
-    <details><summary>Bedien- und Statuselemente in der Fußzeile</summary>
+    <details><summary><h2>Bedien- und Statuselemente in der Fußzeile</h2></summary>
         Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bereit:
-        <details><summary>Bedienelemente</summary>
+        <details><summary><h3>Bedienelemente</h3></summary>
             <table style="width: 100%">
                 <tr>
                     <td width=55"><img src="img/file_open.jpg" alt=""/></td>
@@ -264,11 +262,11 @@
                     <td>Zeigt weniger Informationen zum Punkt an</td>
                 </tr>
                 <tr>
-                    <td><img src="img/text_to_speech.png" alt=""/></td>
+                    <td><img src="img/text_to_speech.jpg" alt=""/></td>
                     <td>Liest die Informationen vor</td>
                 </tr>
                 <tr>
-                    <td><img src="img/voice_selection_off.png" alt=""/></td>
+                    <td><img src="img/voice_selection_off.jpg" alt=""/></td>
                     <td>Stoppt die Sprachausgabe</td>
                 </tr>
                 <tr>
@@ -281,7 +279,7 @@
             </table>
         </details>
 
-        <details><summary>Statussymbole</summary>
+        <details><summary><h3>Statussymbole</h3></summary>
             <table style="width: 100%">
                 <tr>
                     <td width=55"><img src="img/alarm_on.jpg" alt=""/></td>

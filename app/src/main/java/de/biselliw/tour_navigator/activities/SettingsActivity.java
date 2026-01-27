@@ -30,15 +30,16 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
-
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.helpers.Log;
@@ -49,11 +50,16 @@ import static de.biselliw.tour_navigator.ui.ControlElements.setAlarmPreference;
  * Application settings
  * @see <a href="https://developer.android.com/reference/androidx/preference/package-summary">AndroidX Preference Library</a>
  */
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
+    // SettingsActivity
+    // └─ activity_settings.xml
+    //     └─ FrameLayout (settings_container)
+    //         └─ SettingsFragment (PreferenceFragmentCompat)
+    //             └─ preferences.xml
     static Resources _resources = null;
     static AppCompatActivity activity;
     static SharedPreferences sharedPref = null;
-    private static SettingsFragment settingsFragment = null;
+    private static SettingsFragment _settingsFragment = null;
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     static boolean hikingParametersChanged = false;
@@ -96,14 +102,13 @@ public class SettingsActivity extends AppCompatActivity {
                             value = Integer.parseInt(stringValue);
                         } catch (Exception ignored) {
                         }
-                        //preference.setDefaultValue(defValue);
+                        hikingParametersChanged = true;
                         if ((value < minValue) || (value > maxValue)) {
                             /* Apply default value */
                             stringValue = String.valueOf(defaultValue);
                             textPref.setText(stringValue);
                             return false; // Reject empty input
                         }
-                        hikingParametersChanged = true;
                         return true; // Accept and persist value
                     });
 
@@ -178,20 +183,17 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupActionBar();
-
-        overridePendingTransition(0, 0);
+        setContentView(R.layout.activity_settings);
 
         activity = this;
         _resources = getResources();
 
-        setContentView(R.layout.activity_settings);
         if (savedInstanceState == null) {
-            settingsFragment = new SettingsFragment();
+            _settingsFragment = new SettingsFragment();
             getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings_container, settingsFragment)
-                .commit();
+                    .beginTransaction()
+                    .replace(R.id.settings_container, _settingsFragment)
+                    .commit();
         }
 
         // set default value on first time launch
@@ -210,11 +212,28 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+    }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        finish(); // entspricht systemkonformer Back-Navigation
+        return true;
+    }
+
+    @Override
+
     public void onBackPressed() {
-        updatePreferences();
-        super.onBackPressed();
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+
     }
 
 
@@ -229,36 +248,6 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-/*
- * --------------------------------------------------------------------------------------------
- * Private methods
- * --------------------------------------------------------------------------------------------
- */
-
-    /**
-     * Setup the {@link android.app.ActionBar}
-     */
-    private void setupActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            // show the user that selecting home will return one level up
-            actionBar.show();
-        }
-    }
-
-    /**
-     * store a boolean value in the settings
-     * @param inKey key name
-     * @param inValue value
-     */
-    private static void setBooleanPref(String inKey, boolean inValue) {
-        if (sharedPref != null) {
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putBoolean(inKey, inValue);
-            editor.apply();
-        }
-    }
-
     /**
      * Get a boolean value from settings
      * @param inKey key name
@@ -270,6 +259,7 @@ public class SettingsActivity extends AppCompatActivity {
         else
             return inDefault;
     }
+
     /**
      * store an integer value in the settings
      * @param inKey key name
@@ -289,38 +279,15 @@ public class SettingsActivity extends AppCompatActivity {
  * --------------------------------------------------------------------------------------------
  */
 
-    /**
-     * update preferences for hiking times calculation if they were changed
-     */
-    static public boolean updatePreferences() {
-        if (hikingParametersChanged) {
-            getPreferences();
-            hikingParametersChanged = false;
-            App.app.recalculate();
-            App.app.Update();
-            return true;
-        }
-        if (!getConsentDebug())
-            Log.clearHTML();
-
-        return false;
-    }
-
-    static public int getIntFromPref(String inKey, int inDefault) {
-        int value = inDefault;
-        if (sharedPref != null) {
-            try {
-                value = Integer.parseInt(sharedPref.getString(inKey, ""));
-            } catch (Exception ignored) {
-            }
-        }
-        return value;
+    public static void setSharedPreferences(SharedPreferences inSharedPref)
+    {
+        sharedPref = inSharedPref;
     }
 
     /**
      * get preferences
      */
-    static public void getPreferences()
+    public static void getPreferences()
     {
         if (sharedPref != null) {
             setWritingEnabled(sharedPref.getBoolean("pref_debug", false));
@@ -332,7 +299,7 @@ public class SettingsActivity extends AppCompatActivity {
      * get preferences for hiking times calculation
      * @param inSegments
      */
-    static public void getHikingParameters(TrackSegments inSegments)
+    public static void getHikingParameters(TrackSegments inSegments)
     {
         ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
         if (hikingParameters != null) {
@@ -349,11 +316,6 @@ public class SettingsActivity extends AppCompatActivity {
             inSegments.setHikingParameters(horSpeed / 1000.0, vertSpeedClimb / 1000.0,
                     vertSpeedDescent / 1000.0);
         }
-    }
-
-    public static void setSharedPreferences(SharedPreferences inSharedPref)
-    {
-        sharedPref = inSharedPref;
     }
 
     public static boolean isFirstTimeLaunch() {
@@ -398,7 +360,10 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public static void consentGoogleMaps(boolean inValue) {
-        setBooleanPref("pref_consent_google_maps", inValue);
+        if (_settingsFragment == null)
+            setBooleanPref("pref_consent_google_maps", inValue);
+        else
+            _settingsFragment.pref_consent_google_maps.setChecked(inValue);
     }
 
     /**
@@ -406,10 +371,6 @@ public class SettingsActivity extends AppCompatActivity {
      */
     public static boolean getConsentDebug() {
         return sharedPref.getBoolean("pref_debug", false);
-    }
-
-    private static void setWritingEnabled (boolean isEnabled) {
-        Log.setWritingEnabled (isEnabled, "Tour Navigator ");
     }
 
     /**
@@ -424,4 +385,56 @@ public class SettingsActivity extends AppCompatActivity {
     public static void setProfileViewVisibility(int inValue) {
         setIntPref("ProfileViewVisibility", inValue);
     }
+
+    /*
+     * --------------------------------------------------------------------------------------------
+     * Private methods
+     * --------------------------------------------------------------------------------------------
+     */
+
+    /**
+     * update preferences for hiking times calculation if they were changed
+     */
+    static private boolean updatePreferences() {
+        if (hikingParametersChanged) {
+            getPreferences();
+            hikingParametersChanged = false;
+            App.app.recalculate();
+            App.app.Update();
+            return true;
+        }
+        if (!getConsentDebug())
+            Log.clearHTML();
+
+        return false;
+    }
+
+    /**
+     * store a boolean value in the settings
+     * @param inKey key name
+     * @param inValue value
+     */
+    private static void setBooleanPref(String inKey, boolean inValue) {
+        if (sharedPref != null) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putBoolean(inKey, inValue);
+            editor.apply();
+        }
+    }
+
+    private static int getIntFromPref(String inKey, int inDefault) {
+        int value = inDefault;
+        if (sharedPref != null) {
+            try {
+                value = Integer.parseInt(sharedPref.getString(inKey, ""));
+            } catch (Exception ignored) {
+            }
+        }
+        return value;
+    }
+
+    private static void setWritingEnabled (boolean isEnabled) {
+        Log.setWritingEnabled (isEnabled, "Tour Navigator ");
+    }
+
 }

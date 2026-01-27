@@ -29,15 +29,17 @@ package de.biselliw.tour_navigator.activities.helper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
 import de.biselliw.tour_navigator.BuildConfig;
@@ -57,7 +59,7 @@ public class BaseActivity extends AppCompatActivity {
     public final int MAIN_CONTENT_FADEOUT_DURATION = 150;
     public static final int MAIN_CONTENT_FADEIN_DURATION = 250;
 
-    protected Toolbar mToolbar;
+    protected MaterialToolbar mToolbar;
 
     // Navigation drawer:
     protected DrawerLayout mDrawerLayout;
@@ -69,8 +71,6 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         mHandler = new Handler();
-
-        overridePendingTransition(0, 0);
     }
 
     @Override
@@ -91,25 +91,46 @@ public class BaseActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        View mainContent;
-        mToolbar = findViewById(R.id.toolbar);
+        // first: check for toolbar without drawer
+        MaterialToolbar mToolbar_min = findViewById(R.id.toolbar_min);
+        if (mToolbar_min != null) {
+            mToolbar = mToolbar_min;
+        }
+        else {
+            // alternative: check for toolbar with drawer
+            mToolbar = findViewById(R.id.toolbar);
+        }
         if (getSupportActionBar() == null)
+            // show back arrow in the toolbar
             setSupportActionBar(mToolbar);
-        mDrawerLayout = findViewById(R.id.drawer_layout);
-        mainContent = findViewById(R.id.main_content);
-        mNavigationView = findViewById(R.id.nav_view);
 
-        if (mDrawerLayout != null) {
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            mDrawerLayout.addDrawerListener(toggle);
-            toggle.syncState();
+        if (mToolbar_min != null) {
+            // show back arrow in the toolbar
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+            }
+        }
+        else {
+            mDrawerLayout = findViewById(R.id.drawer_layout);
+            if (mDrawerLayout != null) {
+                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                        this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                mDrawerLayout.addDrawerListener(toggle);
+                toggle.syncState();
+            }
         }
 
+        View mainContent = findViewById(R.id.main_content);
+        mNavigationView = findViewById(R.id.nav_view);
         if (mainContent != null) {
             mainContent.setAlpha(0);
             mainContent.animate().alpha(1).setDuration(MAIN_CONTENT_FADEIN_DURATION);
         }
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+        overridePendingTransition(0, 0);
     }
 
     @Override
@@ -135,6 +156,16 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Respond to the action bar's Up/Home button
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:id="@+id/nav_group_main"
-        android:checkableBehavior="all">
+    <group android:id="@+id/nav_group_main">
         <item
             android:id="@+id/nav_open_gpx"
             android:icon="@drawable/file_open"
@@ -16,9 +15,22 @@
             android:icon="@drawable/swap_horiz"
             android:title="@string/action_reverse_route" />
         <item
-            android:id="@+id/nav_remote_waypoints"
+            android:id="@+id/nav_add_waypoints"
             android:icon="@drawable/signpost"
-            android:title="@string/action_add_remote_waypoints" />
+            android:title="@string/action_add_waypoints">
+        <menu>
+            <item
+                android:id="@+id/nav_remote_waypoints"
+                android:title="@string/action_add_remote_waypoints">
+            </item>
+            <item
+                android:id="@+id/nav_osm_guideposts"
+                android:title="@string/action_osm_guideposts">
+            </item>
+        </menu>
+
+        </item>
+
         <item
             android:id="@+id/nav_start_time"
             android:icon="@drawable/schedule"

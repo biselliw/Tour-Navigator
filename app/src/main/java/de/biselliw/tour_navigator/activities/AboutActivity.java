@@ -17,17 +17,15 @@ package de.biselliw.tour_navigator.activities;
     along with FairEmail. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2022 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.core.widget.NestedScrollView;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
@@ -35,27 +33,21 @@ import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 
 public class AboutActivity extends BaseActivity {
 
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "HelpActivity";
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        ActionBar ab = getSupportActionBar();
-        if(ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-        }
-
-        View mainContent = findViewById(R.id.main_content);
-        if (mainContent != null) {
-            mainContent.setAlpha(0);
-            mainContent.animate().alpha(1).setDuration(BaseActivity.MAIN_CONTENT_FADEIN_DURATION);
-        }
-
-        overridePendingTransition(0, 0);
         TextView view = findViewById(R.id.tvVersion);
         String version = getString(R.string.version_number) + " " + BuildConfig.BUILD_TYPE + " " + BuildConfig.VERSION_NAME;
         view.setText(version);
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -70,6 +62,7 @@ public class AboutActivity extends BaseActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        ScrollView view  = findViewById(R.id.svLicense);
+        NestedScrollView view  = findViewById(R.id.content_scroll);
         view.scrollTo(0,0);
-    }}
+    }
+}

@@ -42,6 +42,8 @@ import de.biselliw.tour_navigator.tim_prune.function.search.GenericDownloaderFun
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 
+import static android.view.View.GONE;
+import static androidx.constraintlayout.widget.ConstraintSet.VISIBLE;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
 
 /**
@@ -65,9 +67,9 @@ public abstract class SearchResultDialog extends FullScreenDialog {
     private TextView _descriptionBox = null;
     private List<Integer> _selectedPositions;
     /** Load button */
-    private Button _loadButton = null;
+    protected Button loadButton = null, loadButtonAll = null;
      /** Show button */
-    private Button _showButton = null;
+    protected Button showButton = null;
     /** Cancelled flag */
     protected boolean cancelled = false;
 
@@ -110,14 +112,21 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         _descriptionBox.setText("");
 
         /* define OnClick event to load the results into the track */
-        _loadButton = findViewById(R.id.btn_load);
-        _loadButton.setOnClickListener(v -> loadSelected(_selectedPositions));
-        _loadButton.setEnabled(false);
+        loadButton = findViewById(R.id.btn_load);
+        loadButton.setOnClickListener(v -> loadSelected(_selectedPositions));
+        loadButton.setEnabled(false);
+
+        /* define OnClick event to load all results into the track */
+        loadButtonAll = findViewById(R.id.btn_load_all);
+        loadButtonAll.setOnClickListener(v -> loadAll());
+        loadButtonAll.setVisibility(GONE);
+        loadButtonAll.setEnabled(false);
 
         /* define OnClick event to show the selected result */
-        _showButton = findViewById(R.id.btn_show);
-        _showButton.setOnClickListener(v -> showSelected(_selectedPositions.get(0)));
-        _showButton.setEnabled(false);
+        showButton = findViewById(R.id.btn_show);
+        showButton.setOnClickListener(v -> showSelected(_selectedPositions.get(0)));
+        showButton.setVisibility(VISIBLE);
+        showButton.setEnabled(false);
 
         /* define OnClick event to cancel the dialog */
         Button cancelButton = findViewById(R.id.btn_cancel);
@@ -151,6 +160,8 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                     else
                         showErrorMessage(searchFunction.getErrorMessage());
                     trackListModel.changed = false;
+                    if (loadButtonAll.getVisibility() == VISIBLE)
+                        loadButtonAll.setEnabled(true);
                 }
                 _timerHandler.postDelayed(this, 100);
             }
@@ -202,8 +213,9 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         if (selectedPositions.isEmpty())
         {
             // nothing selected
-            _loadButton.setEnabled(false);
-            _showButton.setEnabled(false);
+            loadButton.setEnabled(false);
+            loadButtonAll.setEnabled(false);
+            showButton.setEnabled(false);
         }
         else {
             if (selectedPositions.size() == 1)
@@ -213,13 +225,15 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                 if (searchResult != null) {
                     foundUrl = !searchResult.getWebUrl().isEmpty();
                 }
-                _loadButton.setEnabled(true);
-                _showButton.setEnabled(foundUrl);
+                loadButton.setEnabled(true);
+                loadButtonAll.setEnabled(true);
+                showButton.setEnabled(foundUrl);
                 setDescription(trackListModel.getTrack(position).getDescription());
             }
             else {
-                _loadButton.setEnabled(true);
-                _showButton.setEnabled(false);
+                loadButton.setEnabled(true);
+                loadButtonAll.setEnabled(true);
+                showButton.setEnabled(false);
             }
         }
     }
@@ -232,24 +246,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         for (int i = 0; i < selectedPositions.size(); i++) {
             int selected = selectedPositions.get(i);
             // Find the row selected in the table and get the corresponding coords
-            SearchResult searchResult = trackListModel.getTrack(selected);
-            if (searchResult != null) {
-                DataPoint point = searchResult.getDataPoint();
-                if (point != null) {
-                    point.makeProtectedWaypoint();
-                    if (prefixWaypointType != null) {
-                        String waypointType = point.getWaypointType();
-                        if (waypointType.isEmpty())
-                            waypointType = prefixWaypointType;
-                        else
-                            waypointType = prefixWaypointType + ": " + waypointType;
-                        point.setFieldValue(Field.WAYPT_TYPE, waypointType, false);
-                    }
-                    // add a new waypoint to the track
-                    if (point.getLinkIndex() != OUT_OF_TRACK)
-                        searchFunction.track.appendPoint(point);
-                }
-            }
+            loadItem(trackListModel.getTrack(selected));
         }
         App.app.recalculate();
 
@@ -257,6 +254,45 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         cancelled = true;
         dismiss();
 	}
+
+    /**
+     * Load all points
+     */
+    protected void loadAll()
+    {
+        for (int i = 0; i < trackListModel.getRowCount(); i++) {
+            loadItem(trackListModel.getTrack(i));
+        }
+        App.app.recalculate();
+
+        // Close the dialog
+        cancelled = true;
+        dismiss();
+    }
+
+    /**
+     * Load the selected point
+     */
+    protected void loadItem(SearchResult searchResult)
+    {
+        if (searchResult != null) {
+            DataPoint point = searchResult.getDataPoint();
+            if (point != null) {
+                point.makeProtectedWaypoint();
+                if (prefixWaypointType != null) {
+                    String waypointType = point.getWaypointType();
+                    if (waypointType.isEmpty())
+                        waypointType = prefixWaypointType;
+                    else
+                        waypointType = prefixWaypointType + ": " + waypointType;
+                    point.setFieldValue(Field.WAYPT_TYPE, waypointType, false);
+                }
+                // add a new waypoint to the track
+                if (point.getLinkIndex() != OUT_OF_TRACK)
+                    searchFunction.track.appendPoint(point);
+            }
+        }
+    }
 
     /**
      * Show the selected point in the web browser

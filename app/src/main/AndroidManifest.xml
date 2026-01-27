@@ -60,8 +60,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-            android:exported="true"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -102,9 +101,7 @@
             android:exported="false" />
         <activity
             android:name=".activities.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:parentActivityName=".activities.MainActivity" 			
-            android:exported="false" />
+            android:label="@string/title_activity_settings"/>
         <activity
             android:name=".activities.CommentActivity"
             android:label="@string/comment_waypoint"

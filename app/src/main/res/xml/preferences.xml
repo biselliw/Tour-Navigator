@@ -1,7 +1,7 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory
+<PreferenceCategory
         android:title="@string/pref_header_hiking_parameters">
         <EditTextPreference
             android:id="@+id/pref_hiking_par_horSpeed"

@@ -36,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.File;
@@ -52,7 +53,10 @@ import java.util.ArrayList;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
@@ -63,6 +67,7 @@ import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
 import de.biselliw.tour_navigator.dialogs.OSM_Dialog;
+import de.biselliw.tour_navigator.dialogs.OSM_GuidePostsDialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.dialogs.WaypointsDialog;
 import de.biselliw.tour_navigator.dialogs.WikipediaDialog;
@@ -148,10 +153,48 @@ public class MainActivity extends LocationActivity  implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+
+        setSupportActionBar(toolbar);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this,
+                drawerLayout,
+                toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+        );
+
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+
         webView = findViewById(R.id.web_view);
         overridePendingTransition(0, 0);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+/*
+        MaterialButton mb = findViewById(R.id.toggleButton)
+                .setOnClickListener {
+            val currentMode = resources.configuration.uiMode and
+            Configuration.UI_MODE_NIGHT_MASK
+
+            val newMode = if (currentMode ==
+                    Configuration.UI_MODE_NIGHT_YES) {
+                AppCompatDelegate.MODE_NIGHT_NO
+            } else {
+                AppCompatDelegate.MODE_NIGHT_YES
+            }
+
+            AppCompatDelegate.setDefaultNightMode(newMode)
+        }
+*/
+
+        AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        );
+
 
         // Load preferences
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -240,8 +283,6 @@ public class MainActivity extends LocationActivity  implements
                 FileUtils.clearAppCache(this);
             }
         }
-
-
     }
 
     @Override
@@ -438,7 +479,8 @@ public class MainActivity extends LocationActivity  implements
         // Handle navigation view item clicks here.
         final int id = item.getItemId();
 
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        if (mDrawerLayout != null)
+            mDrawerLayout.closeDrawer(GravityCompat.START);
 
         // return if we are not going to another page
         if (id == R.id.nav_file_info) {
@@ -449,6 +491,13 @@ public class MainActivity extends LocationActivity  implements
         {
             WaypointsDialog waypointsDialog = new WaypointsDialog(this, null);
             waypointsDialog.show();
+            return true;
+        }
+        else if (id == R.id.nav_osm_guideposts)
+        {
+            // find OSM guideposts along the track
+            OSM_GuidePostsDialog guidePostsDialog = new OSM_GuidePostsDialog(this);
+            guidePostsDialog.show();
             return true;
         }
         else if (id == R.id.nav_start_time) {

@@ -468,12 +468,12 @@ public class Track {
 		} catch (ArrayIndexOutOfBoundsException obe) {
 			return -1; // probably moving the mouse while data is changing
 		}
-		// Check whether it's within required distance
+        // Check whether it's within required distance
         if (!inIsProtectedWayPoint)
-		    if (nearestDist > inMaxDist && inMaxDist > 0.0) {
-			    return OUT_OF_TRACK;
-		    }
-		return nearestPoint;
+            if (nearestDist > inMaxDist && inMaxDist > 0.0)
+                return OUT_OF_TRACK;
+
+        return nearestPoint;
 	}
 
 	/**

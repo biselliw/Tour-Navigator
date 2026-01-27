@@ -1,13 +1,9 @@
 <com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/toolbar"
+    android:id="@+id/toolbar_min"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:title="@string/app_name"
-    app:navigationIcon="@drawable/ic_menu"
     app:titleTextColor="?attr/colorOnSurface"
     app:background="?attr/colorSurface"
-
-    tools:menu="@menu/main"
     />

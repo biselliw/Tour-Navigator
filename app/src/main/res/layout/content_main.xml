@@ -181,7 +181,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="3dip"
-                android:background="#ff0000" />
+                android:background="?attr/colorSurface" />
         </TableLayout>
 
         <ListView
@@ -270,7 +270,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="3dip"
-            android:background="#ff0000" />
+            android:background="?attr/colorSurface" />
     </LinearLayout>
 
     <LinearLayout
@@ -354,7 +354,7 @@
         <View
             android:layout_width="1dip"
             android:layout_height="match_parent"
-            android:background="#000000" />
+            android:background="?attr/colorSurface" />
 
         <ImageView
             android:id="@+id/image_alarm_off"

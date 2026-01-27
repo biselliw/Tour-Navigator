@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="colorText">#FFFFFFFF</color>
+    <color name="colorBackground">#FF000000</color>
 
-    <color name="colorText">#FF000000</color>
+    <color name="md_theme_primary">#D0BCFF</color>
+    <color name="md_theme_onPrimary">#381E72</color>
 
-    <color name="md_theme_primary">#6750A4</color>
-    <color name="md_theme_onPrimary">#FFFFFF</color>
+    <color name="md_theme_background">#D0BCFF</color>
+    <color name="md_theme_onBackground">#E6E1E5</color>
 
-    <color name="md_theme_background">#FFFBFE</color>
-    <color name="md_theme_onBackground">#1C1B1F</color>
+    <color name="md_theme_surface">#1E1E1E</color>
+    <color name="md_theme_onSurface">#E6E1E5</color>
 
-    <color name="md_theme_surface">#FFFFFF</color>
-    <color name="md_theme_onSurface">#1C1B1F</color>
-
-
-    <color name="colorBackground">#FFFFFF</color>
     <color name="color_background">#FFFFFF</color>
     <color name="color_on_background">#1C1B1F</color>
 
@@ -41,8 +39,8 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
 
-   <!-- ### TutorialActivity ### -->
-   <!-- dots inactive colors -->
+    <!-- ### TutorialActivity ### -->
+    <!-- dots inactive colors -->
     <color name="dot_dark_screen">#026499</color>
 
     <!-- dots active colors -->

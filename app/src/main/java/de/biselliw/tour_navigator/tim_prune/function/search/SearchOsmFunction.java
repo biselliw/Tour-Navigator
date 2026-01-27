@@ -102,6 +102,9 @@ public class SearchOsmFunction extends GenericDownloaderFunction
 
         if (!_DEBUG)
             try {
+//                String coords = "nwr(48.210416666666674,8.208166666666667,48.25688888888889,8.251416666666666)";
+//                String urlString = "https://overpass-api.de/api/interpreter?data=("
+
                 URL url = new URL(urlString);
                 SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
                 try (InputStream inStream = url.openStream()) {

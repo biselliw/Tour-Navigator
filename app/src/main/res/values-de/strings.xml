@@ -23,7 +23,9 @@
     <string name="action_open_gpx">GPX-File öffnen</string>
     <string name="action_file_info">Infos zur Tour</string>
     <string name="action_reverse_route">Route umkehren</string>
-    <string name="action_add_remote_waypoints">Wegpunkte hinzufügen</string>
+    <string name="action_add_waypoints">Wegpunkte hinzufügen</string>
+    <string name="action_add_remote_waypoints">- vom GPX File</string>
+    <string name="action_osm_guideposts">- OpenStreetMap Wegweiser</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_download_gpx">Speichern als GPX</string>
@@ -58,7 +60,7 @@
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="find_nearby_wikipedia">Wikipedia-Artikel in der Nähe</string>
-    <string name="find_nearby_osm">OSM POIs in der Nähe</string>
+    <string name="find_nearby_osm">OpenStreetMap POIs in der Nähe</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
     <string name="action_set_new_start">Starte von hier</string>
@@ -94,7 +96,7 @@
     <string name="pref_header_consent_parameters">Zustimmungen</string>
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>
-    <string name="consent_internet">Zugang zu Wikipedia-Artikeln und OSM POIs</string>
+    <string name="consent_internet">Zugang zu Wikipedia-Artikeln und OpenStreetMap POIs</string>
     <string name="consent_GoogleMaps">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
         Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
         Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
@@ -187,6 +189,7 @@
 
     <!-- ### Search Results ###-->
     <string name="btn_load">Laden</string>
+    <string name="btn_load_all">Lade alle</string>
     <string name="btn_show">Anzeigen</string>
 
     <!-- ### Wikipedia articles ###-->
@@ -199,10 +202,10 @@
     <string name="distance_from_track">vom Track entfernt</string>
 
     <!-- ### OSM POIs ###-->
-    <string name="osm_title">OSM POIs in der Nähe</string>
-    <string name="osm_pois_nonefound">Keine weiteren OSM POIs in der Nähe gefunden!</string>
+    <string name="osm_title">OpenStreetMap POIs in der Nähe</string>
+    <string name="osm_pois_nonefound">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
-    <string name="osm_timeout">Der Server ist vermutlich gerade zu stark ausgelastet um die Anfrage zu bearbeiten!</string>
+    <string name="osm_timeout">Der Server ist vermutlich überlastet um die Anfrage zu bearbeiten!</string>
 
     <!-- ### Remote POIs ###-->
     <string name="wpt_title">Wegpunkte ausserhalb des Tracks</string>

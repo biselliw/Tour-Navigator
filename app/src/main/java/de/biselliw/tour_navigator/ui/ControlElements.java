@@ -28,6 +28,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -235,8 +236,21 @@ public class ControlElements extends BaseActivity {
                 item.setEnabled(!_initUserInterface && app.getTrack().hasAltitudes());
             else if (id == R.id.nav_download_gpx)
                 item.setEnabled(!_initUserInterface && gpxFileValid || app.getTrack().isValidRecordedTrackFile());
-            else if (id == R.id.nav_remote_waypoints)
-                item.setVisible(!App.getTrack().getWayPointsOutOfTrack().isEmpty());
+            else if (id == R.id.nav_add_waypoints) {
+                if (item.hasSubMenu()) {
+                    SubMenu subMenu = item.getSubMenu();
+                    if (subMenu != null) {
+                        MenuItem mitem = subMenu.findItem(R.id.nav_remote_waypoints);
+                        if (mitem != null)
+                            mitem.setVisible(!App.getTrack().getWayPointsOutOfTrack().isEmpty());
+                        mitem = subMenu.findItem(R.id.nav_osm_guideposts);
+                        if (mitem != null)
+                            mitem.setVisible(!_initUserInterface && gpxFileValid && getConsentInternet());
+                    }
+                }
+            }
+            else if (id == R.id.nav_osm_guideposts)
+                item.setVisible(getConsentInternet());
             else
                 item.setVisible(true);
         }
