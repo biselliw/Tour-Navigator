@@ -44,8 +44,8 @@ public class SearchOsmGuidePostsFunction extends GenericDownloaderFunction
 
     public static final String WAYPOINT_TYPE = "OSM";
 
-    /** Maximum distance between track and point in m */
-    private static final int MAX_DISTANCE = 50;
+    /** Maximum distance between track and point in km */
+    private static final double MAX_DISTANCE = 0.05;
 
     /**
 	 * Constructor
@@ -140,11 +140,14 @@ public class SearchOsmGuidePostsFunction extends GenericDownloaderFunction
                         DataPoint trackPoint = track.getPoint(i);
                         if (trackPoint != null && !trackPoint.isWaypoint()) {
                             double dist = DataPoint.calculateRadiansBetween(searchPoint, trackPoint);
-                            double distance = Distance.convertRadiansToDistance(dist, distUnit);
-                            if (distance < MAX_DISTANCE) {
-                                searchResult.setPointType(translateTag(searchResult.getPointType()));
-                                reducedTrackList.add(searchResult);
-                                break;
+                            if (dist > 0.0) {
+                                double distance = Distance.convertRadiansToDistance(dist, distUnit);
+                                if (distance < MAX_DISTANCE) {
+                                    searchResult.setPointType(translateTag(searchResult.getPointType()));
+                                    searchResult.setLength(distance);
+                                    reducedTrackList.add(searchResult);
+                                    break;
+                                }
                             }
                         }
                     }

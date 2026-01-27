@@ -160,8 +160,8 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                     else
                         showErrorMessage(searchFunction.getErrorMessage());
                     trackListModel.changed = false;
-                    if (loadButtonAll.getVisibility() == VISIBLE)
-                        loadButtonAll.setEnabled(true);
+//                    if (loadButtonAll.getVisibility() == VISIBLE)
+                    loadButtonAll.setEnabled(!trackListModel.isEmpty());
                 }
                 _timerHandler.postDelayed(this, 100);
             }

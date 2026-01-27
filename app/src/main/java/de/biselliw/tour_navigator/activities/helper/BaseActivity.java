@@ -27,6 +27,7 @@
 package de.biselliw.tour_navigator.activities.helper;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -66,11 +67,20 @@ public class BaseActivity extends AppCompatActivity {
     protected NavigationView mNavigationView;
     protected Handler mHandler;
 
+    protected boolean isDark = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mHandler = new Handler();
+
+        if (_DEBUG) {
+            // query night mode
+            int nightMode = getResources().getConfiguration().uiMode
+                    & Configuration.UI_MODE_NIGHT_MASK;
+            isDark = nightMode == Configuration.UI_MODE_NIGHT_YES;
+        }
     }
 
     @Override

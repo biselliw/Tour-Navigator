@@ -1,12 +1,12 @@
 <resources>
     <!-- Common MANIFEST -->
     <string name="app_name">Tour Navigator</string>
+    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
     <string name="app_short_description">Ablaufplan einer Tour</string>
 
     <string name="app_description">Tour Navigator ist eine quelloffene App, die sich auf Privatsphäre und Sicherheit konzentriert.</string>
     <string name="app_description2">Es werden nur diejenigen Rechte benötigt, welche die App für die beschriebene Funktionalität erfordert.</string>
     <string name="app_author">Autor</string>
-    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
     <string name="lang">de</string>
 
     <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>

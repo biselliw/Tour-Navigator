@@ -57,8 +57,11 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
                 _currPoint.setDownloadLink(value);
             }
             else if (key.equals("ele") || key.equals("tourism")) {}
-            else
+            else {
+                if (key.equals("wikimedia_commons"))
+                    value = "https://commons.wikimedia.org/wiki/" + value.replace(" ","_");
                 _currPoint.setDescription(_currPoint.getDescription() + "<p>" + key + ": " + value + "</p>");
+            }
         }
 	}
 
