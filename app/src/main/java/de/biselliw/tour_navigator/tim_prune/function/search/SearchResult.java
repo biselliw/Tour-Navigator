@@ -197,13 +197,4 @@ public class SearchResult implements Comparable<SearchResult>
             _dataPoint.setFieldValue(Field.WAYPT_TYPE, _pointType, false);
     }
 
-    /**
-     * Check if a point is already loaded
-     */
-    public boolean isDuplicate() {
-        if (ControlElements.recordAdapter != null)
-            return (ControlElements.recordAdapter.contains(_dataPoint));
-        else
-            return false;
-    }
 }

@@ -100,6 +100,7 @@ public class GpsSimulator {
             location.setLongitude(dataPoint.getLongitude().getDouble());
             location.setLatitude(dataPoint.getLatitude().getDouble());
             location.setTime(dataPoint.getTimestamp().getMilliseconds(timeZone));
+            location.setAccuracy(5);
             return location;
         }
         else

@@ -33,9 +33,11 @@ abstract public class FullScreenDialog extends Dialog {
         // required to make the dialog use the full screen width
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = getWindow();
-        lp.copyFrom(window.getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.horizontalMargin = 40;
-        window.setAttributes(lp);
+        if (window != null) {
+            lp.copyFrom(window.getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.horizontalMargin = 40;
+            window.setAttributes(lp);
+        }
     }
 }

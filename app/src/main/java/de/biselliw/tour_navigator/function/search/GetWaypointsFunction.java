@@ -2,28 +2,27 @@ package de.biselliw.tour_navigator.function.search;
 
 import java.util.ArrayList;
 
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.stubs.Config;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.search.GenericDownloaderFunction;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
+import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Distance;
 import tim.prune.data.Unit;
 
 /**
  * Function to load waypoints provided by the GPX file which are out of track
  */
-public class GetWaypointsFunction extends GenericDownloaderFunction
+public class GetWaypointsFunction extends GenericSearchFunction
 {
     public static final String WAYPOINT_TYPE = "WPT";
 
     /**
      * Constructor
-     * @param inApp App object
+     * @param inActivity parent activity
      */
-    public GetWaypointsFunction(App inApp, TrackListModel inTrackListModel) {
-        super(inApp, inTrackListModel);
+    public GetWaypointsFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
+        super(inActivity, inTrackListModel);
     }
 
     public String getWaypoints(DataPoint inPoint, String inLang) {

@@ -17,9 +17,8 @@ import androidx.annotation.NonNull;
 
 import de.biselliw.tour_navigator.BuildConfig;
 
-import static androidx.core.content.ContextCompat.getSystemService;
 import static de.biselliw.tour_navigator.files.FileUtils.getDownloadsDir;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
+
 
 /// class for sending log output.
 /// @link <a href="https://developer.android.com/reference/android/util/Log">https://developer.android.com</a>
@@ -28,7 +27,7 @@ public final class Log {
     private static String _prefix = "";
     private static FileWriter _writer = null;
 
-    private static String _HTML_String = "";
+    private static String _debugHTML = "";
     /**
      * Enable writing to log file
      * @param enabled true if writing is enabled
@@ -168,7 +167,7 @@ public final class Log {
             String _msg = "E " + tag + " - " + msg;
 //            control.showErrorMessage(_msg);
             Write(_msg);
-            addHTML(tag, "<b> E " + msg+ "</b>");
+            addDebugHTML(tag, "<b> E " + msg+ "</b>");
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg);
@@ -190,10 +189,10 @@ public final class Log {
                 + " called by "
                 + Arrays.toString(tr.getStackTrace());
         if (_writing_enabled) {
-            addHTML("<red> E " + _msg + "</red>");
+            addDebugHTML("<red> E " + _msg + "</red>");
 
             Write(_msg);
-            control.showErrorMessage(_msg);
+// todo            ControlElements.showErrorMessage(_msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg, tr);
@@ -211,7 +210,7 @@ public final class Log {
     public static int w(java.lang.String tag, java.lang.String msg) {
         String _msg = "W " + tag + " - " + msg;
         if (_writing_enabled) {
-            addHTML(_msg);
+            addDebugHTML(_msg);
             Write(_msg);
         }
         if (BuildConfig.DEBUG) {
@@ -220,23 +219,23 @@ public final class Log {
         return 0;
     }
 
-    public static void clearHTML () { _HTML_String = ""; }
-    public static void addHTML (java.lang.String msg) {
-        _HTML_String = _HTML_String + msg + "<br>";
+    public static void clearDebugHTML() { _debugHTML = ""; }
+    public static void addDebugHTML(java.lang.String msg) {
+        _debugHTML = _debugHTML + msg + "<br>";
     }
-    public static void addHTML (java.lang.String tag, java.lang.String msg) {
-        _HTML_String = _HTML_String + tag + ": " + msg + "<br>";
+    public static void addDebugHTML(java.lang.String tag, java.lang.String msg) {
+        _debugHTML = _debugHTML + tag + ": " + msg + "<br>";
     }
 
-    public static String getHTML () { return getHTML(""); }
-    public static boolean isLoggedHTML () { // return false;
-        return !_HTML_String.isEmpty();
+    public static String getDebugHTML() { return getDebugHTML(""); }
+    public static boolean isLoggedDebugHTML() { // return false;
+        return !_debugHTML.isEmpty();
     }
-    public static String getHTML (java.lang.String title)
+    public static String getDebugHTML(java.lang.String title)
     {
         String msg = "";
         if (!title.isEmpty()) msg = "<b>" + title + "</b><br>";
-        return msg + _HTML_String;
+        return msg + _debugHTML;
     }
 
 

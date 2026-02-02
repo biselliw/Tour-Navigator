@@ -14,7 +14,7 @@ package de.biselliw.tour_navigator.activities;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
     Copyright 2026 Walter Biselli (BiselliW)

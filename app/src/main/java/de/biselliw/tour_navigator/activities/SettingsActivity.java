@@ -14,15 +14,15 @@ package de.biselliw.tour_navigator.activities;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.text.format.Time;
 import android.view.MenuItem;
@@ -30,7 +30,6 @@ import android.view.View;
 
 import java.util.ArrayList;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.EditTextPreference;
@@ -56,10 +55,12 @@ public class SettingsActivity extends BaseActivity {
     //     └─ FrameLayout (settings_container)
     //         └─ SettingsFragment (PreferenceFragmentCompat)
     //             └─ preferences.xml
-    static Resources _resources = null;
-    static AppCompatActivity activity;
-    static SharedPreferences sharedPref = null;
-    private static SettingsFragment _settingsFragment = null;
+    static SettingsActivity sa;
+    private SharedPreferences _sharedPref = null;
+    private SettingsFragment _settingsFragment = null;
+    private static boolean _consentGoogleMaps = false;
+    private static boolean _updateGooglePrefs = false;
+
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     static boolean hikingParametersChanged = false;
@@ -72,7 +73,7 @@ public class SettingsActivity extends BaseActivity {
 
         private class IntPreference {
             EditTextPreference textPref;
-            public String key = "";
+            public String key;
             public int defaultValue, minValue, maxValue;
 
             public IntPreference(MainActivity.Parameter inParameter) {
@@ -123,7 +124,7 @@ public class SettingsActivity extends BaseActivity {
                         //preference.setDefaultValue(defValue);
                         if (value == defaultValue)
                             /* Apply default value */
-                            stringValue = _resources.getString(R.string.set_to_default) + ": " + defaultValue;
+                            stringValue = App.resources.getString(R.string.set_to_default) + ": " + defaultValue;
                         return stringValue;
                     });
                 }
@@ -154,7 +155,7 @@ public class SettingsActivity extends BaseActivity {
                     boolean enabled = (Boolean) newValue;
                     if (enabled) {
                         if (pref_consent_internet != null && pref_consent_internet.isChecked()) {
-                            AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(activity);
+                            AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(App.app.tempSettings); // App.app.getMain());
                             acceptDialog.show();
                         }
                         else
@@ -184,9 +185,8 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-
-        activity = this;
-        _resources = getResources();
+        // needed for Google Maps policy dialog to avoid memory leakages
+        App.app.tempSettings = this;
 
         if (savedInstanceState == null) {
             _settingsFragment = new SettingsFragment();
@@ -198,11 +198,13 @@ public class SettingsActivity extends BaseActivity {
 
         // set default value on first time launch
         ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
-        if (sharedPref != null && hikingParameters != null) {
-            String def = sharedPref.getString(hikingParameters.get(0).key, "");
+        _sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (_sharedPref != null && hikingParameters != null) {
+            String def = _sharedPref.getString(hikingParameters.get(0).key, "");
             if (def.isEmpty()) {
                 // set default preferences for hiking times calculation
-                SharedPreferences.Editor editor = sharedPref.edit();
+                SharedPreferences.Editor editor = _sharedPref.edit();
                 for (int i = 0; i < hikingParameters.size(); i++) {
                     editor.putString(hikingParameters.get(i).key,
                             String.valueOf(hikingParameters.get(i).defaultValue));
@@ -210,17 +212,36 @@ public class SettingsActivity extends BaseActivity {
                 editor.apply();
             }
         }
+
+        /* Install a timer to handle all activities */
+        Runnable timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (_updateGooglePrefs) {
+                    _updateGooglePrefs = false;
+                    if (_settingsFragment != null)
+                        _settingsFragment.pref_consent_google_maps.setChecked(_consentGoogleMaps);
+                }
+                mHandler.postDelayed(this, 100);
+            }
+        };
+        mHandler.postDelayed(timerRunnable, 200);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        App.app.tempSettings = null;
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        finish(); // entspricht systemkonformer Back-Navigation
+        finish();
         return true;
     }
 
@@ -228,20 +249,17 @@ public class SettingsActivity extends BaseActivity {
 
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START))
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        else
             super.onBackPressed();
-        }
-
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Respond to the action bar's Up/Home button
         if (item.getItemId() == android.R.id.home) {
-            updatePreferences();
+            updatePreferences(_sharedPref);
             finish();
             return true;
         }
@@ -254,23 +272,12 @@ public class SettingsActivity extends BaseActivity {
      * @param inDefault default value
      */
      public static boolean getBooleanPref(String inKey, boolean inDefault) {
-        if (sharedPref != null)
+         SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
+
+         if (sharedPref != null)
             return sharedPref.getBoolean(inKey,inDefault);
         else
             return inDefault;
-    }
-
-    /**
-     * store an integer value in the settings
-     * @param inKey key name
-     * @param inValue value
-     */
-    private static void setIntPref(String inKey, int inValue) {
-        if (sharedPref != null) {
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(inKey, inValue);
-            editor.apply();
-        }
     }
 
 /*
@@ -278,16 +285,10 @@ public class SettingsActivity extends BaseActivity {
  * Public methods
  * --------------------------------------------------------------------------------------------
  */
-
-    public static void setSharedPreferences(SharedPreferences inSharedPref)
-    {
-        sharedPref = inSharedPref;
-    }
-
     /**
      * get preferences
      */
-    public static void getPreferences()
+    public static void getPreferences(SharedPreferences sharedPref)
     {
         if (sharedPref != null) {
             setWritingEnabled(sharedPref.getBoolean("pref_debug", false));
@@ -297,20 +298,21 @@ public class SettingsActivity extends BaseActivity {
 
     /**
      * get preferences for hiking times calculation
-     * @param inSegments
+     * @param inSegments target for parameters
      */
     public static void getHikingParameters(TrackSegments inSegments)
     {
         ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
-        if (hikingParameters != null) {
+        SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
+        if (hikingParameters != null && sharedPref != null) {
             // hiking speed parameters
 
             // horizontal part in [km/h]
-            int horSpeed = getIntFromPref(hikingParameters.get(0).key, hikingParameters.get(0).defaultValue);
+            int horSpeed = getIntFromPref(sharedPref, hikingParameters.get(0).key, hikingParameters.get(0).defaultValue);
             // ascending part in [km/h]
-            int vertSpeedClimb = getIntFromPref(hikingParameters.get(1).key, hikingParameters.get(1).defaultValue);
+            int vertSpeedClimb = getIntFromPref(sharedPref, hikingParameters.get(1).key, hikingParameters.get(1).defaultValue);
             // descending part in [km/h]
-            int vertSpeedDescent = getIntFromPref(hikingParameters.get(2).key, hikingParameters.get(2).defaultValue);
+            int vertSpeedDescent = getIntFromPref(sharedPref, hikingParameters.get(2).key, hikingParameters.get(2).defaultValue);
 
             // set hiking parameters
             inSegments.setHikingParameters(horSpeed / 1000.0, vertSpeedClimb / 1000.0,
@@ -323,10 +325,10 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static void setFirstTimeLaunch(boolean isFirstTime) {
-        setBooleanPref(IS_FIRST_TIME_LAUNCH, isFirstTime);
+        setBooleanPref(App.app.getDefaultSharedPreferences(), IS_FIRST_TIME_LAUNCH, isFirstTime);
     }
 
-    public static long getStartTime() {
+    public static long getStartTime(SharedPreferences sharedPref) {
         Time time = new Time();
         if (sharedPref != null)
             time.set(sharedPref.getLong("StartTime", 0L));
@@ -338,6 +340,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static void setStartTime(long inValue) {
+        SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
         if (sharedPref != null) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putLong("StartTime", inValue);
@@ -360,8 +363,15 @@ public class SettingsActivity extends BaseActivity {
     }
 
     public static void consentGoogleMaps(boolean inValue) {
+        _consentGoogleMaps = inValue;
+        _updateGooglePrefs = true;
+//        if (_settingsFragment == null)
+//            setBooleanPref(App.app.getDefaultSharedPreferences(),"pref_consent_google_maps", inValue);
+    }
+
+    public void _consentGoogleMaps(boolean inValue) {
         if (_settingsFragment == null)
-            setBooleanPref("pref_consent_google_maps", inValue);
+            setBooleanPref(App.app.getDefaultSharedPreferences(),"pref_consent_google_maps", inValue);
         else
             _settingsFragment.pref_consent_google_maps.setChecked(inValue);
     }
@@ -369,21 +379,21 @@ public class SettingsActivity extends BaseActivity {
     /**
      * Preferences for writing Debug infos to Download dir
      */
-    public static boolean getConsentDebug() {
+    public static boolean getConsentDebug(SharedPreferences sharedPref) {
         return sharedPref.getBoolean("pref_debug", false);
     }
 
     /**
      * Shared Preferences to restore application after shut down
      */
-    public static int getProfileViewVisibility() {
+    public static int getProfileViewVisibility(SharedPreferences sharedPref) {
         int value = sharedPref.getInt("ProfileViewVisibility", View.VISIBLE);
         if (value == View.GONE) value = View.VISIBLE;
         return value;
     }
 
-    public static void setProfileViewVisibility(int inValue) {
-        setIntPref("ProfileViewVisibility", inValue);
+    public static void setProfileViewVisibility(SharedPreferences sharedPref, int inValue) {
+        setIntPref(sharedPref,"ProfileViewVisibility", inValue);
     }
 
     /*
@@ -395,18 +405,15 @@ public class SettingsActivity extends BaseActivity {
     /**
      * update preferences for hiking times calculation if they were changed
      */
-    static private boolean updatePreferences() {
+    static private void updatePreferences(SharedPreferences sharedPref) {
         if (hikingParametersChanged) {
-            getPreferences();
+            getPreferences(sharedPref);
             hikingParametersChanged = false;
             App.app.recalculate();
             App.app.Update();
-            return true;
         }
-        if (!getConsentDebug())
-            Log.clearHTML();
-
-        return false;
+        if (!getConsentDebug(sharedPref))
+            Log.clearDebugHTML();
     }
 
     /**
@@ -414,7 +421,7 @@ public class SettingsActivity extends BaseActivity {
      * @param inKey key name
      * @param inValue value
      */
-    private static void setBooleanPref(String inKey, boolean inValue) {
+    private static void setBooleanPref(SharedPreferences sharedPref, String inKey, boolean inValue) {
         if (sharedPref != null) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putBoolean(inKey, inValue);
@@ -422,7 +429,7 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
-    private static int getIntFromPref(String inKey, int inDefault) {
+    private static int getIntFromPref(SharedPreferences sharedPref, String inKey, int inDefault) {
         int value = inDefault;
         if (sharedPref != null) {
             try {
@@ -433,8 +440,20 @@ public class SettingsActivity extends BaseActivity {
         return value;
     }
 
+    /**
+     * store an integer value in the settings
+     * @param inKey key name
+     * @param inValue value
+     */
+    private static void setIntPref(SharedPreferences sharedPref, String inKey, int inValue) {
+        if (sharedPref != null) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(inKey, inValue);
+            editor.apply();
+        }
+    }
+
     private static void setWritingEnabled (boolean isEnabled) {
         Log.setWritingEnabled (isEnabled, "Tour Navigator ");
     }
-
 }

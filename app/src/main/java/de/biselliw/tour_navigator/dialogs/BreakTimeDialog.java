@@ -14,10 +14,10 @@ package de.biselliw.tour_navigator.dialogs;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -41,7 +41,7 @@ public class BreakTimeDialog extends FullScreenDialog {
     public App _app;
 
     public BreakTimeDialog(Context context, RecordAdapter recordAdapter, App app) {
-        super(context, R.layout.break_time_dialog);
+        super(context, R.layout.dialog_break_time);
 
         /* load time picker with current start time */
         _recordAdapter = recordAdapter;
@@ -73,11 +73,18 @@ public class BreakTimeDialog extends FullScreenDialog {
 
                     /* update break time of current waypoint */
                     _recordAdapter.recordList.set(selected, record);
+                    _app.updateRecords();
+                    _recordAdapter.notifyDataSetChanged();
 
                     /* update time stamps of remaining waypoints */
-                    _app.Update();
+//                    _app.Update();
                     dismiss();
                 }
+            });
+            /* define OnClick event to cancel the dialog */
+            Button cancelButton = findViewById(R.id.btn_cancel);
+            cancelButton.setOnClickListener(v -> {
+                dismiss();
             });
         }
         dismiss();

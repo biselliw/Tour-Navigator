@@ -228,13 +228,14 @@
     <string name="profile">"Profile"</string>
 
     <!-- ### Search Results ###-->
+    <string name="server_not_found">The server is currently not reachable or cannot handle your request</string>
     <string name="btn_load">Load</string>
     <string name="btn_load_all">Load all</string>
     <string name="btn_show">Show</string>
 
     <!-- ### Wikipedia articles ###-->
     <string name="wikipedia_title">Nearby Wikipedia Articles</string>
-    <string name="wikipedia_articles_nonefound">No (further) Wikipedia articles found nearby!</string>
+    <string name="wikipedia_articles_none_found">No (further) Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
 
@@ -243,9 +244,8 @@
 
     <!-- ### OSM POIs ###-->
     <string name="osm_title">Nearby OSM POIs</string>
-    <string name="osm_pois_nonefound">No further OSM POIs found nearby!</string>
+    <string name="osm_pois_none_found">No further OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
-    <string name="osm_timeout">The server is probably too busy to handle your request</string>
 
     <!-- ### Remote POIs ###-->
     <string name="wpt_title">Waypoints out of track</string>

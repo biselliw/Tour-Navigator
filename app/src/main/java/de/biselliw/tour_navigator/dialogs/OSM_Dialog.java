@@ -26,16 +26,17 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmFunction;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**
  * Search dialog to add waypoints provided by OSM
  */
 public class OSM_Dialog extends SearchResultDialog {
 
-    public OSM_Dialog(Context context, DataPoint inPoint) {
-        super(context, context.getString(R.string.osm_title), inPoint);
+    public OSM_Dialog(ControlElements inActivity, DataPoint inPoint) {
+        super(inActivity, inActivity.getString(R.string.osm_title), inPoint);
 
-        SearchOsmFunction searchOsmPoisFunction = new SearchOsmFunction(App.app, trackListModel);
+        SearchOsmFunction searchOsmPoisFunction = new SearchOsmFunction(inActivity, trackListModel);
         prefixWaypointType = searchOsmPoisFunction.getOSM(inPoint, lang);
         searchFunction = searchOsmPoisFunction;
     }

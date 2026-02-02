@@ -1,0 +1,43 @@
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/profile_plot_card"
+    android:layout_width="match_parent"
+    android:layout_height="280dp"
+    android:layout_marginTop="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="1dp"
+    app:cardBackgroundColor="?attr/colorSurface"
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutline">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Titel -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/profile_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/profile"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            android:textColor="?attr/colorOnSurface"
+            android:paddingBottom="8dp" />
+
+        <!-- Plot -->
+        <com.androidplot.xy.XYPlot
+            android:id="@+id/plot"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            app:rangeTitle="@string/altitude_m"
+            app:title=""
+            app:lineLabelRotationBottom="-45"
+            app:lineLabels="left|bottom" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

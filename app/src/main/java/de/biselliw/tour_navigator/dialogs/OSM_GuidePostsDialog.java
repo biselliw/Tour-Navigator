@@ -26,6 +26,7 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.function.search.SearchOsmGuidePostsFunction;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
 import static androidx.constraintlayout.widget.ConstraintSet.VISIBLE;
@@ -35,12 +36,12 @@ import static androidx.constraintlayout.widget.ConstraintSet.VISIBLE;
  */
 public class OSM_GuidePostsDialog extends SearchResultDialog {
 
-    public OSM_GuidePostsDialog(Context context) {
-        super(context, context.getString(R.string.osm_title), null);
+    public OSM_GuidePostsDialog(ControlElements inActivity) {
+        super(inActivity, inActivity.getString(R.string.osm_title), null);
         loadButtonAll.setVisibility(VISIBLE);
         showButton.setVisibility(GONE);
 
-        SearchOsmGuidePostsFunction searchOsmGuidePosts = new SearchOsmGuidePostsFunction(App.app, trackListModel);
+        SearchOsmGuidePostsFunction searchOsmGuidePosts = new SearchOsmGuidePostsFunction(inActivity, trackListModel);
         prefixWaypointType = searchOsmGuidePosts.getOsmGuidePosts();
         searchFunction = searchOsmGuidePosts;
     }

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorText">#FFFFFFFF</color>
-    <color name="colorBackground">#FF000000</color>
-
     <color name="md_theme_primary">#D0BCFF</color>
     <color name="md_theme_onPrimary">#381E72</color>
 
@@ -12,7 +9,26 @@
     <color name="md_theme_surface">#1E1E1E</color>
     <color name="md_theme_onSurface">#E6E1E5</color>
 
-    <color name="color_background">#FFFFFF</color>
+    <!-- MyApp -->
+    <color name="toolbar">@color/black</color>
+    <color name="toolbarTitle">@color/white</color>
+    <color name="colorText">#FFFFFFFF</color>
+    <color name="tracking">#AA317335</color>
+    <color name="approaching">#FF8000</color>
+
+
+    <color name="COLOR_BG_SELECTED">@color/middleblue</color>
+    <color name="COLOR_BG_RECORD">@color/grey</color>
+
+    <!-- don't show the presumable arrival time -->
+    <color name="COLOR_NONE">#AA000000</color>
+    <!-- text colors depending on the current delay -->
+    <color name="COLOR_DELAY_NONE">#AA0000ff</color>
+    <color name="COLOR_DELAY_MIN">#AA008000</color>
+    <color name="COLOR_DELAY_MAX">#AAB71C1C</color>
+
+    <color name="colorBackground">#0274B2</color>
+    <color name="color_background">#0274B2</color>
     <color name="color_on_background">#1C1B1F</color>
 
 

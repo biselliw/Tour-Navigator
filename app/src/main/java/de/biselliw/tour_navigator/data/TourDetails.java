@@ -130,11 +130,14 @@ public class TourDetails {
         info.comment = "";
         info.title = "";
         info.description = "";
+// todo        info.trackDescription = "";
         info.link = "";
         SourceInfo sourceInfo = App.getSourceInfo();
         if (sourceInfo != null) {
             info.title = sourceInfo.getFileTitle();
-            info.description = sourceInfo.getFileDescription();
+            info.description = sourceInfo.getTrackDescription();;
+            if (info.description.isEmpty())
+                info.description = sourceInfo.getFileDescription();
             info.author = sourceInfo.getAuthor();
             info.link = sourceInfo.getMetaLink();
         }
@@ -150,7 +153,7 @@ public class TourDetails {
         /* provide info from HTML error log*/
         info.comment     = "";
         info.title       = "Error Log";
-        info.description = Log.getHTML();
+        info.description = Log.getDebugHTML();
         info.link        = "";
         return info;
     }
@@ -239,6 +242,7 @@ public class TourDetails {
         public String title = "";
         public String comment = "";
         public String description = "";
+// todo        public String trackDescription = "";
         public String type;
         public String author = "";
         public String symbol;

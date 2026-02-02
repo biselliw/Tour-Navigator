@@ -6,8 +6,9 @@
     android:layout_height="?attr/actionBarSize"
     android:title="@string/app_name"
     app:navigationIcon="@drawable/ic_menu"
-    app:titleTextColor="?attr/colorOnSurface"
-    app:background="?attr/colorSurface"
+    app:titleTextColor="@color/toolbarTitle"
+    app:background="@color/black"
+    android:background="@color/toolbar"
 
     tools:menu="@menu/main"
     />

@@ -1,5 +1,8 @@
 package de.biselliw.tour_navigator.data;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;

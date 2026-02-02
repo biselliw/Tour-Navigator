@@ -11,6 +11,7 @@ import tim.prune.data.ExtensionInfo;
  * Class to hold the source of the point data, including the original file
  * and file type, and references to each of the point objects
  * @since 26.1
+ * @implNote: extended by track description
  */
 public class SourceInfo
 {
@@ -28,6 +29,9 @@ public class SourceInfo
 	private String _fileDescription = null;
 	/** Extension info, if any */
 	private ExtensionInfo _extensionInfo = null;
+
+    /** Track description, if any */
+    private String _trackDescription = null;
 	/** Number of points */
 	private int _numPoints = 0;
 
@@ -38,6 +42,7 @@ public class SourceInfo
 
 	/** author parsed from tag <metadata><author><name> */
 	private String _author = "";
+    /** Time from parsed GPX tag <metadata><time> */
 	private String _metaTime = "";
 	private String _link = "";
 
@@ -87,7 +92,14 @@ public class SourceInfo
 		_fileDescription = inDesc;
 	}
 
-	public void setExtensionInfo(ExtensionInfo inInfo) {
+    /**
+     * @param inDesc description of track, eg from <trk><desc> tag in gpx
+     */
+    public void setTrackDescription(String inDesc) {
+        _trackDescription = inDesc;
+    }
+
+    public void setExtensionInfo(ExtensionInfo inInfo) {
 		_extensionInfo = inInfo;
 	}
 
@@ -135,7 +147,14 @@ public class SourceInfo
 		return _fileDescription;
 	}
 
-	/**
+    /**
+     * @return description of track
+     */
+    public String getTrackDescription() {
+        return _trackDescription;
+    }
+
+    /**
 	 * @param inNumPoints the number of points loaded from this source
 	 */
 	public void setNumPoints(int inNumPoints) {
@@ -177,7 +196,7 @@ public class SourceInfo
 	}
 
 	/**
-	 * @return meta time
+	 * @return Time from parsed GPX tag <metadata><time>
 	 * @author BiselliW
 	 * @since 22.2.006
 	 */
@@ -220,4 +239,17 @@ public class SourceInfo
     {
          _author = inAuthor;
     }
+
+    /**
+     * set Time
+     * @param inTime Time from parsed GPX tag <metadata><time>
+     * @author BiselliW
+     * @since 22.2.006
+     */
+    public void setMetaTime(String inTime)
+    {
+        _metaTime = inTime;
+    }
+
+
 }

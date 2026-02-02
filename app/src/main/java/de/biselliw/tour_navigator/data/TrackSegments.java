@@ -181,7 +181,7 @@ public class TrackSegments {
                     segment.activeTime_s = end.getTimestamp().getSecondsSince(start.getTimestamp()) - segment.breakTime_s;
                 else
                     segment.activeTime_s = 0;
-                if (segment.activeTime_s <= 0)
+                if (segment.activeTime_s < 0)
                     segment.activeTime_s = 0;
             }
             else

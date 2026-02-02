@@ -7,7 +7,7 @@
         android:checkableBehavior="none">
 
         <item
-            android:id="@+id/itm_pause_time"
+            android:id="@+id/itm_break_time"
             android:orderInCategory="1"
             android:title="@string/pause_time"
             app:showAsAction="never" />
@@ -59,7 +59,7 @@
             android:title="@string/action_set_new_start"
             app:showAsAction="never" />
         <item
-            android:id="@+id/itm_delete_waypoint"
+            android:id="@+id/itm_delete_routepoint"
             android:orderInCategory="4"
             android:title="@string/delete_waypoint"
             app:showAsAction="never" />

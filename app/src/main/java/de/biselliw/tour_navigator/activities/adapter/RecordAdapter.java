@@ -35,6 +35,7 @@ import java.util.List;
 
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.helpers.Log;
@@ -45,8 +46,6 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import static de.biselliw.tour_navigator.App.app;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezoneStr;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
-import static de.biselliw.tour_navigator.ui.ControlElements._isViewExpanded;
 
 /**
  * class to handle all records of the timetable
@@ -67,17 +66,17 @@ public class RecordAdapter extends BaseAdapter {
     public static final int DELAY_MAX = 8;
 
     /**
-     * Color Codes
+     * resource IDs for colors
      */
-    private static final int COLOR_BG_SELECTED = 0xFFB3DBFB;
-    private static final int COLOR_BG_RECORD = 0xFFFFFFFF;
+    private static final int COLOR_BG_SELECTED = R.color.COLOR_BG_SELECTED;
+    private static final int COLOR_BG_RECORD = R.color.COLOR_BG_RECORD;
 
     /* don't show the presumable arrival time */
-    private static final int COLOR_NONE = 0xAA000000;
+    private static final int COLOR_NONE = R.color.COLOR_NONE;
     /* text colors depending on the current delay */
-    private static final int COLOR_DELAY_NONE = 0xAA0000ff;
-    public static final int COLOR_DELAY_MIN = 0xAA008000;
-    public static final int COLOR_DELAY_MAX = 0xAAB71C1C;
+    private static final int COLOR_DELAY_NONE = R.color.COLOR_DELAY_NONE;
+    public static final int COLOR_DELAY_MIN = R.color.COLOR_DELAY_MIN;
+    public static final int COLOR_DELAY_MAX = R.color.COLOR_DELAY_MAX;
 
     private LocationActivity _activity;
     private ProfileAdapter _profileAdapter;
@@ -137,7 +136,6 @@ public class RecordAdapter extends BaseAdapter {
 
         recordsView = activity.findViewById(R.id.records_view);
         recordsView.setAdapter(this);
-
 
         // Create a Listener for this list view of places
         recordsView.setOnItemClickListener((adapter, v, inPlace, arg3) ->
@@ -238,10 +236,8 @@ public class RecordAdapter extends BaseAdapter {
             DataPoint point = record.trackPoint;
             if (point != null) {
                 /* Mark selected row */
-                if (i == _selected)
-                    view.setBackgroundColor(COLOR_BG_SELECTED);
-                else
-                    view.setBackgroundColor(COLOR_BG_RECORD);
+                int bgColor = (i == _selected) ? COLOR_BG_SELECTED : COLOR_BG_RECORD;
+                view.setBackgroundColor(get_Color(bgColor)); // 0x14d0d0d0); // todo get_Color(bgColor));
 
                 /* get the formatted arrival time */
                 String time = getPlannedArriveTime(point);
@@ -327,13 +323,14 @@ public class RecordAdapter extends BaseAdapter {
             }
         }
         track_arrive.setText("");
+        notifyDataSetChanged();
     }
 
     /**
      *
      * @return the selected record / null
      */
-    public Record getCurrentItem() {
+    private Record getCurrentItem() {
         if (_selected >= 0)
             return recordList.get(_selected);
         else
@@ -399,7 +396,7 @@ public class RecordAdapter extends BaseAdapter {
      * @param inPoint waypoint data
      * @return formatted time string
      */
-    public String getPlannedArriveTime(DataPoint inPoint) {
+    private String getPlannedArriveTime(DataPoint inPoint) {
         long _t = _startTime.toMillis(true) + inPoint.getTime() * 1000L;
         calender.setTimeInMillis(_t);
         return timeFormat.format(calender.getTime());
@@ -457,7 +454,7 @@ public class RecordAdapter extends BaseAdapter {
             inView.setTextColor(getTextColorDelay());
         } else {
             /* don't show the presumable arrival time */
-            inView.setTextColor(COLOR_NONE);
+            inView.setTextColor(get_Color(COLOR_NONE));
             if (inShowPlanned) {
                 /* get the formatted planned arrival time */
                 sTime = getPlannedArriveTime(inPoint);
@@ -470,13 +467,12 @@ public class RecordAdapter extends BaseAdapter {
      * @return the text color code depending on the current delay
      */
     public int getTextColorDelay() {
-        if (_delay_min >= DELAY_MAX) {
-            return COLOR_DELAY_MAX;
-        } else if (_delay_min > 0) {
-            return COLOR_DELAY_MIN;
-        } else {
-            return COLOR_DELAY_NONE;
-        }
+        if (_delay_min >= DELAY_MAX)
+            return get_Color(COLOR_DELAY_MAX);
+        else if (_delay_min > 0)
+            return get_Color(COLOR_DELAY_MIN);
+        else
+            return get_Color(COLOR_DELAY_NONE);
     }
 
     /**
@@ -550,7 +546,7 @@ public class RecordAdapter extends BaseAdapter {
 
         endPlace = inPlace;
         if (inUser)
-            control.clearErrorMessage();
+            _activity.clearErrorMessage();
 
         if (showPlace(inPlace)) {
             /* Set relative position in the seek bar */
@@ -564,15 +560,15 @@ public class RecordAdapter extends BaseAdapter {
             /* Scroll to the place in the list */
             setPlace(inPlace);
 
-            if (!_isViewExpanded) {
+            if (!_activity.isViewExpanded()) {
                 if (!inUser)
                     recordsView.smoothScrollToPosition(inPlace);
                 else
-                    control.updateTrackingStatus();
+                    _activity.updateTrackingStatus();
             }
 
             if (inUser) {
-                _activity.setStartGpsIndex(control.app.getPointIndex(point));
+                _activity.setStartGpsIndex(point.getIndex());
                 if (inPlace == 0) {
                     _activity.resetLocationStatus();
                 }
@@ -605,12 +601,12 @@ public class RecordAdapter extends BaseAdapter {
         }
 
         // Set the distance to the next place
-        control.setDistanceToPlace(distanceToPlace);
+        _activity.setDistanceToPlace(distanceToPlace);
 
         if (inPlace != lastPlace)
         {
-            control.showExpandViewStatus(inPlace, _isViewExpanded);
-            control.showAdditionalInfo(inPlace);
+            _activity.showExpandViewStatus(inPlace, _activity.isViewExpanded());
+            _activity.showAdditionalInfo(inPlace);
             notifyDataSetChanged();
             recordsView.smoothScrollToPosition(inPlace);
         }
@@ -683,4 +679,15 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     public void resetEndPlace() {  endPlace = 0; }
+
+    private int get_Color(int resID) {
+        int color = 0xAA000000;
+        try {
+            color = _activity.getColor(resID);
+        } catch (Exception e) {
+            Log.e(TAG, "color resource not found: " + resID);
+        }
+        return color;
+    }
+
 }

@@ -20,11 +20,11 @@
 
     <!-- ### DRAWER ###-->
     <string name="action_main">Hauptmenü</string>
-    <string name="action_open_gpx">GPX-File öffnen</string>
+    <string name="action_open_gpx">GPX-Datei öffnen</string>
     <string name="action_file_info">Infos zur Tour</string>
     <string name="action_reverse_route">Route umkehren</string>
     <string name="action_add_waypoints">Wegpunkte hinzufügen</string>
-    <string name="action_add_remote_waypoints">- vom GPX File</string>
+    <string name="action_add_remote_waypoints">- von der GPX-Datei</string>
     <string name="action_osm_guideposts">- OpenStreetMap Wegweiser</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_timetable">Wegzeittabelle</string>
@@ -188,13 +188,14 @@
     <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
     <!-- ### Search Results ###-->
+    <string name="server_not_found">Der Server ist gerade nicht erreichbar oder kann die Anfrage nicht bearbeiten!</string>
     <string name="btn_load">Laden</string>
     <string name="btn_load_all">Lade alle</string>
     <string name="btn_show">Anzeigen</string>
 
     <!-- ### Wikipedia articles ###-->
     <string name="wikipedia_title">Wikipedia-Artikel in der Nähe</string>
-    <string name="wikipedia_articles_nonefound">Keine (weiteren) Wikipedia-Artikel in der Nähe gefunden!</string>
+    <string name="wikipedia_articles_none_found">Keine (weiteren) Wikipedia-Artikel in der Nähe gefunden!</string>
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
 
@@ -203,9 +204,8 @@
 
     <!-- ### OSM POIs ###-->
     <string name="osm_title">OpenStreetMap POIs in der Nähe</string>
-    <string name="osm_pois_nonefound">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
+    <string name="osm_pois_none_found">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
-    <string name="osm_timeout">Der Server ist vermutlich überlastet um die Anfrage zu bearbeiten!</string>
 
     <!-- ### Remote POIs ###-->
     <string name="wpt_title">Wegpunkte ausserhalb des Tracks</string>

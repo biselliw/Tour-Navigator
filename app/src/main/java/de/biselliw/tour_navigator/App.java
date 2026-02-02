@@ -17,13 +17,16 @@ package de.biselliw.tour_navigator;
 
     Copyright 2026 Walter Biselli (BiselliW)
 */
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.List;
 
 import de.biselliw.tour_navigator.activities.MainActivity;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TrackDetails;
@@ -33,11 +36,11 @@ import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentDebug;
 import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
+
 
 /**
  * @author BiselliW
@@ -47,10 +50,10 @@ public class App {
      * TAG for log messages.
      */
     static final String TAG = "App";
-    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    static public Resources resources = null;
+    public static Resources resources = null; // todo make resources non static
 
     public static Uri gpxUri = null;
 
@@ -66,7 +69,8 @@ public class App {
     private final MainActivity _main;
 
     public static App app = null;
-
+    /** needed for Google Maps policy dialog */
+    public SettingsActivity tempSettings;
 
 
     public App(MainActivity main)  {
@@ -76,6 +80,14 @@ public class App {
 
         // create empty track
         _track = new TrackDetails();
+    }
+
+    public MainActivity getMain() { return _main; }
+    public SharedPreferences getDefaultSharedPreferences()
+    {
+        if (_main != null)
+            return PreferenceManager.getDefaultSharedPreferences(_main);
+        return null;
     }
 
     /**
@@ -97,6 +109,18 @@ public class App {
      */
     public void informUriFileLoadComplete() {
         if (DEBUG) Log.i(TAG, "informUriFileLoadComplete");
+
+        _sourceInfo = _refSourceInfo; _refSourceInfo = null;
+
+        /* Check whether loaded array can be properly parsed into a Track */
+        // delete all points of the current track
+        _track = new TrackDetails();
+        _trackInfo = new TrackInfo(_track);
+        _track.deleteAllPoints();
+
+        // append loaded points of the track
+//        _trackInfo.clearFileInfo();
+        _track.appendRange(_refPointList); _refPointList = null;
 
         Track loadedTrack = _track;
         if (loadedTrack.getNumPoints() > 0) {
@@ -128,20 +152,20 @@ public class App {
         // delete all points of the current track
         _track = new TrackDetails();
         _trackInfo = new TrackInfo(_track);
-        _track.deleteAllPoints();
+//        _track.deleteAllPoints();
 
         // append loaded points of the track
-        _trackInfo.clearFileInfo();
+//        _trackInfo.clearFileInfo();
         _track.appendRange(_refPointList); _refPointList = null;
 
         if (_track.getNumPoints() <= 0) {
-            control.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
+            _main.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
         }
         else if (!_track.hasTrackPoints()) {
-            control.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
+            _main.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
         }
         else if (!_track.hasAltitudes()) {
-            control.showErrorMessage(_main.getString(R.string.gpx_error_no_altitudes));
+            _main.showErrorMessage(_main.getString(R.string.gpx_error_no_altitudes));
         }
         else if (_track.isValid())// if (loadedTrack.hasWaypoints())
         {
@@ -171,7 +195,7 @@ public class App {
                 // the app
                 if (gpsSimulation == null)
                 {
-                    control.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
+                    _main.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
                     // remember the uri of the loaded file in case of automatic reload
                     AppState.setGpxSimulationUri(gpxUri);
                     gpsSimulation = new GpsSimulator(_track);
@@ -192,11 +216,11 @@ public class App {
      */
     public void recalculate() {
         List<RecordAdapter.Record> recordList = _track.recalculate();
-        control.notifyDataSetChanged(recordList);
-        control.updateGpxFile = true;
+        _main.notifyDataSetChanged(recordList);
+        ControlElements.updateGpxFile = true;
         if (recordList == null)
-            control.updateFileInfo();
-        control.initProfile();
+            ControlElements.updateFileInfo();
+        ControlElements.initProfile();
     }
 
 
@@ -211,7 +235,11 @@ public class App {
         if (numPoints > 0) {
             recalculate();
         }
-//        _recordAdapter.notifyDataSetChanged();
+    }
+
+    public void updateRecords() {
+        if (_track == null) return;
+        _main.notifyDataSetChanged(_track.updateRecords());
     }
 
     public static SourceInfo getSourceInfo() {
@@ -240,13 +268,16 @@ public class App {
     }
 
     /**
-     * Search for the given Point in the track and return the index
+     * Search for the given point in the track and return its index
      * @param inPoint Point to look for
-     * @return index of Point, if any or -1 if not found
-     */
+     * @return index of Point, if any or DataPoint.INVALID_INDEX if not found
+     * /
     public int getPointIndex(DataPoint inPoint) {
-        return _track.getPointIndex(inPoint);
-    }
+        if (_track != null)
+            return _track.getPointIndex(inPoint);
+        else
+            // not found
+            return DataPoint.INVALID_INDEX;    }
 
     /**
      * Find the nearest track point to the specified Latitude and Longitude coordinates

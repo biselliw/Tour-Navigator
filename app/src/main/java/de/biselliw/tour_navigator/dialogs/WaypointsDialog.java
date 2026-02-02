@@ -20,23 +20,20 @@ package de.biselliw.tour_navigator.dialogs;
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
-import android.content.Context;
-
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**
  * Search dialog to add waypoints provided by the GPX file which are out of track
  */
 public class WaypointsDialog extends SearchResultDialog  {
 
-    public WaypointsDialog(Context context, DataPoint inPoint) { super(context,
-            context.getString(R.string.wpt_title),
-            inPoint);
+    public WaypointsDialog(ControlElements inActivity, DataPoint inPoint) {
+        super(inActivity, inActivity.getString(R.string.wpt_title),inPoint);
 
-        GetWaypointsFunction getWaypointsFunction = new GetWaypointsFunction(App.app, trackListModel);
+        GetWaypointsFunction getWaypointsFunction = new GetWaypointsFunction(inActivity, trackListModel);
         prefixWaypointType = getWaypointsFunction.getWaypoints(inPoint, lang);
         searchFunction = getWaypointsFunction;
     }

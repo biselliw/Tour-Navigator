@@ -1,7 +1,5 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
-import android.content.res.Resources;
-
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,7 +14,10 @@ import org.xml.sax.SAXException;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.stubs.Config;
+import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Distance;
 import tim.prune.data.Latitude;
 import tim.prune.data.Longitude;
@@ -27,13 +28,13 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 /**
  * Function to load nearby point information from OSM using the <a href="overpass-api.de">Overpass-API</a>
  */
-public class SearchOsmFunction extends GenericDownloaderFunction
+public class SearchOsmFunction extends GenericSearchFunction
 {
     /**
      * TAG for log messages.
      */
     static final String TAG = "SearchOsmFunction";
-    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = false; // Set to true to enable debugging / logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     public static final String WAYPOINT_TYPE = "OSM";
@@ -46,10 +47,10 @@ public class SearchOsmFunction extends GenericDownloaderFunction
 
     /**
 	 * Constructor
-     * @param inApp App object
+     * @param inActivity parent activity
 	 */
-	public SearchOsmFunction(App inApp, TrackListModel inTrackListModel) {
-		super(inApp, inTrackListModel);
+	public SearchOsmFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
+		super(inActivity, inTrackListModel);
 	}
 
     public String getOSM(DataPoint inPoint, String inLang)
@@ -73,7 +74,7 @@ public class SearchOsmFunction extends GenericDownloaderFunction
 
         // Set status label according to error or "none found", leave blank if ok
         if (_errorMessage == null && _trackListModel.isEmpty()) {
-            _errorMessage = resources.getString(R.string.osm_pois_nonefound);
+            _errorMessage = App.resources.getString(R.string.osm_pois_none_found);
         }
 	}
 
@@ -110,7 +111,8 @@ public class SearchOsmFunction extends GenericDownloaderFunction
                 try (InputStream inStream = url.openStream()) {
                     saxParser.parse(inStream, xmlHandler);
                 } catch (Exception e) {
-                    _errorMessage = resources.getString(R.string.osm_timeout); // e.getClass().getName() + " - " + e.getMessage();
+                    Log.e(TAG,"submitSearch(); " + e.getClass().getName() + " - " + e.getMessage());
+                    _errorMessage = App.resources.getString(R.string.server_not_found); // e.getClass().getName() + " - " + e.getMessage();
                     _trackListModel.changed = true;
                     return;
                 }
@@ -126,28 +128,29 @@ public class SearchOsmFunction extends GenericDownloaderFunction
         if (_DEBUG) {
             SearchResult searchResult = new SearchResult();
             searchResult.setTrackName("Demo");
-            searchResult.setLatitude("48.2488458");
+            searchResult.setLatitude("47.734074");
             searchResult.setLongitude("8.2112455");
             searchResult.setPointType("guidepost");
             searchResult.update();
             reducedTrackList.add(searchResult);
         }
         else {
-            for (SearchResult searchResult : xmlHandler.getPointList())
-            {
-                // Update single search result
-                searchResult.update();
-                double dist = DataPoint.calculateRadiansBetween(searchPoint, searchResult.getDataPoint());
-                searchResult.setLength(Distance.convertRadiansToDistance(dist, distUnit));
+            if (xmlHandler.getPointList() != null)
+                for (SearchResult searchResult : xmlHandler.getPointList())
+                {
+                    // Update single search result
+                    searchResult.update();
+                    double dist = DataPoint.calculateRadiansBetween(searchPoint, searchResult.getDataPoint());
+                    searchResult.setLength(Distance.convertRadiansToDistance(dist, distUnit));
 
-                searchResult.setPointType(translateTag(searchResult.getPointType() ));
-                if (!searchResult.isDuplicate())
-                    reducedTrackList.add(searchResult);
-            }
-            // TODO: maybe limit number of results using MAX_RESULTS
+                    searchResult.setPointType(translateTag(searchResult.getPointType() ));
+                    if (!searchResultIsDuplicate(searchResult))
+                        reducedTrackList.add(searchResult);
+                }
+
             // Add track list to model
             if (reducedTrackList.isEmpty())
-                _errorMessage = resources.getString(R.string.osm_pois_nonefound);
+                _errorMessage = App.resources.getString(R.string.osm_pois_none_found);
         }
 
 		_trackListModel.addTracks(reducedTrackList, true);
@@ -172,7 +175,7 @@ public class SearchOsmFunction extends GenericDownloaderFunction
     public static String translateTag(String symbol) {
         for (int i = 0; i < symbols.length; i++)
             if (symbols[i].equals(symbol)) {
-                return resources.getString(ids[i]);
+                return App.resources.getString(ids[i]);
             }
         return symbol;
     }

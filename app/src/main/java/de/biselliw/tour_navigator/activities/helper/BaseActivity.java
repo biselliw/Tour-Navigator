@@ -45,6 +45,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.helpers.Log;
 
 public class BaseActivity extends AppCompatActivity {
@@ -197,6 +198,13 @@ public class BaseActivity extends AppCompatActivity {
             Log.d(TAG, debugStr);
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mHandler.removeCallbacksAndMessages(null);
     }
 
 }

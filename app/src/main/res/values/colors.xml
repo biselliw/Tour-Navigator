@@ -1,17 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorText">#FF000000</color>
-
+    <!-- Light -->
     <color name="md_theme_primary">#6750A4</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
+
+    <color name="md_theme_secondary">#625B71</color>
+
+    <color name="md_theme_surface">#FFFBFE</color>
+    <color name="md_theme_onSurface">#1C1B1F</color>
+
+    <color name="md_theme_surfaceVariant">#E7E0EC</color>
+    <color name="md_theme_onSurfaceVariant">#49454F</color>
+
+    <color name="md_theme_outline">#79747E</color>
+
+    <!-- Dark -->
+    <color name="md_theme_primary_dark">#D0BCFF</color>
+    <color name="md_theme_onPrimary_dark">#381E72</color>
+
+    <color name="md_theme_surface_dark">#1C1B1F</color>
+    <color name="md_theme_onSurface_dark">#E6E1E5</color>
+
+    <color name="md_theme_outline_dark">#938F99</color>
 
     <color name="md_theme_background">#FFFBFE</color>
     <color name="md_theme_onBackground">#1C1B1F</color>
 
-    <color name="md_theme_surface">#FFFFFF</color>
-    <color name="md_theme_onSurface">#1C1B1F</color>
+    <!-- MyApp -->
+    <color name="toolbar">@color/colorPrimary</color>
+    <color name="toolbarTitle">@color/white</color>
+    <color name="colorText">#FF000000</color>
+    <color name="tracking">#AA317335</color>
+    <color name="approaching">#FF8000</color>
 
+    <color name="COLOR_BG_SELECTED">@color/middleblue</color>
+    <color name="COLOR_BG_RECORD">@color/white</color>
+
+    <!-- don't show the presumable arrival time -->
+    <color name="COLOR_NONE">#AA000000</color>
+    <!-- text colors depending on the current delay -->
+    <color name="COLOR_DELAY_NONE">#AA0000ff</color>
+    <color name="COLOR_DELAY_MIN">#AA008000</color>
+    <color name="COLOR_DELAY_MAX">#AAB71C1C</color>
 
     <color name="colorBackground">#FFFFFF</color>
     <color name="color_background">#FFFFFF</color>

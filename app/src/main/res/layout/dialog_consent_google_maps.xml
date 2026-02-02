@@ -48,21 +48,16 @@
 
             <Button
                 android:id="@+id/bt_decline_GoogleMaps"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="48dip"
                 android:layout_weight="1"
-                android:text="@string/decline"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:text="@string/decline"/>
             <Button
                 android:id="@+id/bt_consent_GoogleMaps"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="48dip"
                 android:layout_weight="1"
-                android:text="@string/consent"
-                android:layout_marginStart="20dp"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:text="@string/consent"/>
         </LinearLayout>
     </LinearLayout>
 

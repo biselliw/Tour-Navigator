@@ -14,7 +14,7 @@ package de.biselliw.tour_navigator.dialogs;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
     Copyright 2026 Walter Biselli (BiselliW)
@@ -46,7 +46,7 @@ public class StartTimeDialog extends FullScreenDialog {
      * @param recordAdapter adapter for the timetable records
      */
     public StartTimeDialog(Context context, RecordAdapter recordAdapter) {
-        super(context, R.layout.starttime_dialog);
+        super(context, R.layout.dialog_starttime);
 
         /* load time picker with current start time */
         _recordAdapter = recordAdapter;
@@ -73,6 +73,11 @@ public class StartTimeDialog extends FullScreenDialog {
                 ((MainActivity)_context).notifyStartTimeChanged(time);
                 dismiss();
             }
+        });
+        /* define OnClick event to cancel the dialog */
+        Button cancelButton = findViewById(R.id.btn_cancel);
+        cancelButton.setOnClickListener(v -> {
+            dismiss();
         });
     }
 }

@@ -8,16 +8,26 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import de.biselliw.tour_navigator.App;
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaXmlHandler;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**
  * Function to load nearby point information from Wikipedia
  * according to the currently viewed area
  */
-public class GetWikipediaFunction extends GenericDownloaderFunction
+public class GetWikipediaFunction extends GenericSearchFunction
 {
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "GetWikipediaFunction";
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 	/** Maximum number of results to get */
 	private static final int MAX_RESULTS = 20;
 	/** Maximum distance from point in km */
@@ -30,10 +40,10 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 
 	/**
 	 * Constructor
-     * @param inApp App object
+     * @param inActivity parent activity
 	 */
-	public GetWikipediaFunction(App inApp, TrackListModel inTrackListModel) {
-		super(inApp, inTrackListModel);
+	public GetWikipediaFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
+		super(inActivity, inTrackListModel);
 	}
 
 	public String getWikipedia(DataPoint inPoint, String inLang)
@@ -58,7 +68,7 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 
 		// Set status label according to error or "none found", leave blank if ok
 		if (_errorMessage.isEmpty() && _trackListModel.isEmpty()) {
-			_errorMessage = resources.getString(R.string.wikipedia_articles_nonefound);
+			_errorMessage = App.resources.getString(R.string.wikipedia_articles_none_found);
 		}
 	}
 
@@ -87,11 +97,11 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
             saxParser.parse(inStream, xmlHandler);
         }
         catch (Exception e) {
-            _errorMessage = e.getClass().getName() + " - " + e.getMessage();
+            Log.e(TAG,"submitSearch: " + e.getClass().getName() + " - " + e.getMessage());
+            _errorMessage = App.resources.getString(R.string.server_not_found);
         }
         // Close stream and ignore errors
         try {
-            assert inStream != null;
             inStream.close();
         } catch (Exception ignored) {}
 
@@ -106,12 +116,13 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
                 _errorMessage = error;
             }
 
-            for (SearchResult searchResult : xmlHandler.getTrackList()) {
-                searchResult.update();
-                // Check if a point is already loaded
-                if (!searchResult.isDuplicate())
-                    reducedTrackList.add(searchResult);
-            }
+            if (xmlHandler.getTrackList() != null)
+                for (SearchResult searchResult : xmlHandler.getTrackList()) {
+                    searchResult.update();
+                    // Check if a point is already loaded
+                    if (!searchResultIsDuplicate(searchResult))
+                        reducedTrackList.add(searchResult);
+                }
             _trackListModel.addTracks(reducedTrackList, true);
         }
     }

@@ -67,6 +67,7 @@ import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYRegionFormatter;
 import com.androidplot.xy.XYSeries;
+import com.google.android.material.color.MaterialColors;
 
 import java.text.DecimalFormat;
 import java.util.Observable;
@@ -77,7 +78,6 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
-import de.biselliw.tour_navigator.data.Segment;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
@@ -130,9 +130,38 @@ public class ProfileAdapter {
 
     final static int SERIES_ALTITUDES = 0, SERIES_CURSOR = 1, SERIES_SEGMENTS = 2;
     public void createPlot() {
-        // get handles to our View defined in layout.xml:
-        dynamicPlot = (XYPlot) _activity.findViewById(R.id.plot);
+        /**
+         * @todo Material3 conform:
+         * val surface = MaterialColors.getColor(plot, R.attr.plotSurfaceColor)
+         * val grid = MaterialColors.getColor(plot, R.attr.plotGridLineColor)
+         * val text = MaterialColors.getColor(plot, R.attr.plotTextColor)
+         *
+         * plot.graph.backgroundPaint.color = surface
+         * plot.graph.gridBackgroundPaint.color = surface
+         * plot.graph.domainGridLinePaint.color = grid
+         * plot.graph.rangeGridLinePaint.color = grid
+         * plot.title.labelPaint.color = text
+         */
 
+        // get handles to our View defined in layout.xml:
+        dynamicPlot = _activity.findViewById(R.id.plot);
+        if (dynamicPlot != null) {
+/*
+            int surface = MaterialColors.getColor(dynamicPlot, R.attr.plotSurfaceColor);
+            // todo Unable to start activity ComponentInfo{de.biselliw.tour_navigator/de.biselliw.tour_navigator.activities.MainActivity}:
+                java.lang.IllegalArgumentException: com.androidplot.xy.XYPlot requires a value for the de.biselliw.tour_navigator:attr/plotSurfaceColor attribute
+                to be set in your app theme. You can either set the attribute in your theme or update your theme to inherit from Theme.MaterialComponents (or a descendant).
+            int grid = MaterialColors.getColor(dynamicPlot, R.attr.plotGridLineColor);
+            int text = MaterialColors.getColor(dynamicPlot, R.attr.plotTextColor);
+
+            dynamicPlot.getGraph().getBackgroundPaint().setColor(surface);
+            dynamicPlot.getGraph().getGridBackgroundPaint().setColor(surface);
+            dynamicPlot.getGraph().getDomainGridLinePaint().setColor(grid);
+            dynamicPlot.getGraph().getRangeGridLinePaint().setColor(grid);
+//            dynamicPlot.getGraph().labelPaint.color = text;
+
+ */
+        }
         MyPlotUpdater plotUpdater = new MyPlotUpdater(dynamicPlot);
 
         // only display whole numbers in domain labels

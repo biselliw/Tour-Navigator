@@ -20,13 +20,16 @@ package de.biselliw.tour_navigator.dialogs;
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.Html;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -38,12 +41,13 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.adapter.TableAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.tim_prune.function.search.GenericDownloaderFunction;
+import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
-import static androidx.constraintlayout.widget.ConstraintSet.VISIBLE;
+import static androidx.core.content.ContextCompat.getColor;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
 
 /**
@@ -54,7 +58,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
     private final SearchResultDialog _dialog = this;
 
     protected Context context;
-    protected GenericDownloaderFunction searchFunction = null;
+    protected GenericSearchFunction searchFunction = null;
 
     private final Handler _timerHandler = new Handler();
 
@@ -84,18 +88,18 @@ public abstract class SearchResultDialog extends FullScreenDialog {
 
     /**
      * Basic dialog for searching POIs
-     * @param inContext context of the class
+     * @param inActivity context of the class
      * @param inTitle dialog title
      * @param inPoint data point to search for points around
      */
-    public SearchResultDialog(Context inContext, String inTitle, DataPoint inPoint) {
-        super(inContext, R.layout.search_result_dialog);
+    public SearchResultDialog(ControlElements inActivity, String inTitle, DataPoint inPoint) {
+        super(inActivity, R.layout.dialog_search_result);
         dataPoint = inPoint;
-        context = inContext;
-        lang = inContext.getString(R.string.lang);
+        context = inActivity;
+        lang = inActivity.getString(R.string.lang);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setLayoutManager(new LinearLayoutManager(inActivity));
 
         // dialog title
         TextView view = findViewById(R.id.search_title);
@@ -125,7 +129,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         /* define OnClick event to show the selected result */
         showButton = findViewById(R.id.btn_show);
         showButton.setOnClickListener(v -> showSelected(_selectedPositions.get(0)));
-        showButton.setVisibility(VISIBLE);
+        showButton.setVisibility(View.VISIBLE);
         showButton.setEnabled(false);
 
         /* define OnClick event to cancel the dialog */
@@ -171,12 +175,12 @@ public abstract class SearchResultDialog extends FullScreenDialog {
 
     protected void showStatus(String inStatus) {
         _statusLabel.setText(inStatus);
-        _statusLabel.setTextColor(R.color.black);
+        _statusLabel.setTextColor(getColor(context, R.color.black));
     }
 
     protected void showErrorMessage(String inErrorMessage) {
         _statusLabel.setText(inErrorMessage);
-        _statusLabel.setTextColor(R.color.red);
+        _statusLabel.setTextColor(getColor(context, R.color.red));
     }
 
     /**
@@ -248,7 +252,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
             // Find the row selected in the table and get the corresponding coords
             loadItem(trackListModel.getTrack(selected));
         }
-        App.app.recalculate();
+        App.app.updateRecords();
 
         // Close the dialog
         cancelled = true;
@@ -263,7 +267,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         for (int i = 0; i < trackListModel.getRowCount(); i++) {
             loadItem(trackListModel.getTrack(i));
         }
-        App.app.recalculate();
+        App.app.updateRecords();
 
         // Close the dialog
         cancelled = true;
@@ -288,8 +292,9 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                     point.setFieldValue(Field.WAYPT_TYPE, waypointType, false);
                 }
                 // add a new waypoint to the track
-                if (point.getLinkIndex() != OUT_OF_TRACK)
+                if (point.getIndex() <= 0)
                     searchFunction.track.appendPoint(point);
+                searchFunction.track.linkWaypoint(point);
             }
         }
     }

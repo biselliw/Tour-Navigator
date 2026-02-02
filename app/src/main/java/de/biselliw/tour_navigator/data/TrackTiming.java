@@ -43,28 +43,34 @@ public class TrackTiming {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-        private List<Segment> _segments = null;
+    private TrackDetails _track;
+
+    private List<Segment> _segments = null;
 
 
     /**
      * Recalculate all track points
      */
     private List<RecordAdapter.Record> analysePlannedTour(TrackDetails inTrack) {
-        List<RecordAdapter.Record> recordList = null;
+        _track = inTrack;
         TrackSegments _trackSegments = new TrackSegments();
         SettingsActivity.getHikingParameters(_trackSegments);
-        double sumClimb_m = 0, sumDescent_m = 0;
 
-        if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_DEFAULT){
+        if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_DEFAULT) {
             _segments = _trackSegments.calcSegmentsByDefault(inTrack, false);
-            _trackSegments.calcSegmentsValues(inTrack,false, _segments);
-        }
-        else if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == SEGMENTED_LEAST_SQUARES) {
+            _trackSegments.calcSegmentsValues(inTrack, false, _segments);
+        } else if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == SEGMENTED_LEAST_SQUARES) {
             _segments = _trackSegments.calcSegmentsByLeastSquares(inTrack, false);
-            _trackSegments.calcSegmentsValues(inTrack,false, _segments);
-        }
-        else if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_RDP)
+            _trackSegments.calcSegmentsValues(inTrack, false, _segments);
+        } else if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_RDP)
             _segments = _trackSegments.calcSegmentsByRDP(inTrack, false);
+
+        return updateRecords();
+    }
+
+    public List<RecordAdapter.Record> updateRecords() {
+        List<RecordAdapter.Record> recordList = null;
+        double sumClimb_m = 0, sumDescent_m = 0;
 
         if (!_segments.isEmpty()) {
             int seg = 0;
@@ -76,8 +82,8 @@ public class TrackTiming {
             long sumStartSeconds = 0L, sumSeconds = 0L;
             double segment_startClimb_m = 0.0, segment_startDescent_m = 0.0;
             int breakTime_min = 0, segSumBreakTime_min = 0;
-            for (int ptIndex = 0; ptIndex <= inTrack.getNumPoints()  - 1; ptIndex++) {
-                DataPoint currPoint = inTrack.getPoint(ptIndex);
+            for (int ptIndex = 0; ptIndex <= _track.getNumPoints()  - 1; ptIndex++) {
+                DataPoint currPoint = _track.getPoint(ptIndex);
 
                 double segment_climb_m = (segment.deltaY > 0) ? segment.deltaY : 0;
                 double segment_descent_m = (segment.deltaY < 0) ? -segment.deltaY : 0;

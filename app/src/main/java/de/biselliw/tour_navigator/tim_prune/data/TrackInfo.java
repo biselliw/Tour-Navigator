@@ -52,4 +52,18 @@ public class TrackInfo
 	}
 
 
+	public void markPointForDeletion(int inIndex) {
+		markPointForDeletion(inIndex, true);
+	}
+
+	public void markPointForDeletion(int inIndex, boolean inDelete) {
+		markPointForDeletion(inIndex, inDelete, false);
+	}
+
+	public void markPointForDeletion(int inIndex, boolean inDelete, boolean inSegmentBreak)
+	{
+
+
+	}
+
 }

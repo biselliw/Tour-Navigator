@@ -21,10 +21,10 @@ import org.xml.sax.helpers.DefaultHandler;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
+import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.load.FileToBeLoaded;
 import de.biselliw.tour_navigator.tim_prune.load.FileTypeLoader;
 import de.biselliw.tour_navigator.helpers.Log;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
  * Class for handling loading of Xml files, and passing the
@@ -49,7 +49,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 
 	/** TAG for log messages. */
 	static final String TAG = "XmlFileLoader";
-	private static final boolean _DEBUG = false; // Set to true to enable logging
+	private static final boolean _DEBUG = true; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
 	/**
@@ -171,8 +171,11 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                 SourceInfo sourceInfo = new SourceInfo(_fileLock.getFile(), _handler.getFileType(),
                         _handler.getFileVersion());
                 sourceInfo.setFileTitle(_handler.getFileTitle());
-                sourceInfo.setAuthor((_handler.getAuthor()));
+                sourceInfo.setAuthor(_handler.getAuthor());
+                sourceInfo.setMetaTime(_handler.getMetaTime());
+                // todo distinguish between file and track description
                 sourceInfo.setFileDescription(_handler.getFileDescription());
+                sourceInfo.setTrackDescription(_handler.getTrackDescription());
                 sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
                 sourceInfo.setLink(_handler.getLink());
 
@@ -218,9 +221,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 			}
 			catch (Exception e)
 			{
-               if (DEBUG) {
                   if (_parsedXmlStream) {
-                        Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
+                        if (DEBUG) Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
                         success = true;
                     } else {
                         Log.e(TAG, "SAXParser Exception: " + e.getMessage());
@@ -236,9 +238,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                             Log.d(TAG, "SAXParser Exception terminates XML file loading");
 
                     }
-                }
                 // Show error message
-                control.showErrorMessage(e.toString()); // .getMessage());
+                // todo ControlElements.showErrorMessage(e.toString()); // .getMessage());
             }
         }
 		return success;

@@ -6,16 +6,17 @@ import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.GetWikipediaFunction;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**
  * Search dialog to add Wikipedia articles to the track
  */
 public class WikipediaDialog extends SearchResultDialog  {
 
-    public WikipediaDialog(Context context, DataPoint inPoint) {
-        super(context, context.getString(R.string.wikipedia_title), inPoint);
+    public WikipediaDialog(ControlElements inActivity, DataPoint inPoint) {
+        super(inActivity, inActivity.getString(R.string.wikipedia_title), inPoint);
 
-        GetWikipediaFunction getWikipediaFunction = new GetWikipediaFunction(App.app, trackListModel);
+        GetWikipediaFunction getWikipediaFunction = new GetWikipediaFunction(inActivity, trackListModel);
         prefixWaypointType = getWikipediaFunction.getWikipedia(inPoint, lang);
         searchFunction = getWikipediaFunction;
     }

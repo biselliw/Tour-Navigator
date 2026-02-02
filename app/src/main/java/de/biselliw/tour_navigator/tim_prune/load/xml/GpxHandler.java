@@ -92,7 +92,8 @@ public class GpxHandler extends XmlHandler {
     private boolean _isTrackPoint = false;
 
     private int _trackNum = -1;
-    private final GpxTag _fileTitle = new GpxTag(), _fileDescription = new GpxTag();
+    private final GpxTag _fileTitle = new GpxTag(),
+            _fileDescription = new GpxTag(), _trackDescription = new GpxTag();
     private final GpxTag _pointName = new GpxTag(), _trackName = new GpxTag();
     private final GpxTag _elevation = new GpxTag(), _time = new GpxTag();
     private final GpxTag _type = new GpxTag(), _description = new GpxTag();
@@ -166,7 +167,7 @@ public class GpxHandler extends XmlHandler {
         else if (tag.equals("wpt") || tag.equals("trkpt") || tag.equals("rtept"))
 		{
             _insideMetaData = false;
-			_insidePoint = true;
+            _insidePoint = true;
 			_insideWaypoint = tag.equals("wpt");
             _isTrackPoint = tag.equals("trkpt");
 			resetCurrentValues();
@@ -218,7 +219,11 @@ public class GpxHandler extends XmlHandler {
 				_currentTag = _description;
 			}
 			else {
-				_currentTag = _fileDescription;
+                // distinguish between file and track description
+                if (_insideMetaData)
+				    _currentTag = _fileDescription;
+                else
+                    _currentTag = _trackDescription;
 			}
 		}
 		else if (tag.equals("cmt")) {
@@ -520,7 +525,7 @@ public class GpxHandler extends XmlHandler {
         addCurrentValue(Field.WAYPT_DUR, _duration.getValue()); // break
 
         // Field.WAYPT_FLAG
-        addCurrentValue(Field.WAYPT_FLAG, !_isTrackPoint ? "1" : "0");
+        addCurrentValue(Field.WAYPT_FLAG, _insideWaypoint ? "1" : "0");
         addCurrentValue(Field.WAYPT_LINK, _link.getValue());
 
 		_pointList.add(getCurrentValues());
@@ -574,8 +579,17 @@ public class GpxHandler extends XmlHandler {
      * @implNote BiselliW remove <br> inserted by checkCharacters()
 	 */
 	public String getFileDescription() {
+        // todo distinguish between file and track description
 		return _fileDescription.getValue().replace("<br>","\r");
 	}
+
+    /**
+     * @return track description
+     * @implNote BiselliW added to distinguish between file and track description
+     */
+    public String getTrackDescription() {
+        return _trackDescription.getValue();
+    }
 
 	@Override
 	public ExtensionInfo getExtensionInfo() {
@@ -591,4 +605,6 @@ public class GpxHandler extends XmlHandler {
     }
 
     public String getAuthor() { return metaAuthor; }
+    public String getMetaTime() { return metaTime; }
+    public void setMetaTime(String time) { metaTime = time; }
 }

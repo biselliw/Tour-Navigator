@@ -14,10 +14,10 @@ package de.biselliw.tour_navigator;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.Manifest;
@@ -52,12 +52,8 @@ import com.google.android.gms.location.SettingsClient;
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.helpers.Log;
 
-import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 public class LocationService extends Service {
-
-    public static LocationActivity locationActivity = null;
     private static final String CHANNEL_ID = "location_channel";
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
@@ -100,12 +96,12 @@ public class LocationService extends Service {
             settingsClient.checkLocationSettings(settingsRequest)
                     .addOnSuccessListener(locationSettingsResponse -> {
                         // Location settings are enabled and meet requirements
-                        locationActivity.setGpsStatus (LocationActivity.gpsStatus.WAIT_FOR_GPS_FIX);
+                        LocationActivity.setGpsStatus (LocationActivity.gpsStatus.WAIT_FOR_GPS_FIX);
                     })
                     .addOnFailureListener(e -> {
                         if (e instanceof ResolvableApiException) {
                             // Location is OFF or does not meet requirements
-                            locationActivity.setGpsStatus (LocationActivity.gpsStatus.PROVIDER_DISABLED);
+                            LocationActivity.setGpsStatus (LocationActivity.gpsStatus.PROVIDER_DISABLED);
                         }
                     });
         }
@@ -138,9 +134,9 @@ public class LocationService extends Service {
         // use system clock instead of GPS device time
         Time CurrentTime = new Time();
         CurrentTime.setToNow();
-
+/*
         if (gpsSimulation != null) {
-            if (control.isTracking()) {
+            if (ControlElements.isTracking()) {
                 location = gpsSimulation.getLocation();
                 if (location == null) return;
                 Log.w("GPS", "location from simulation");
@@ -150,12 +146,15 @@ public class LocationService extends Service {
                 return;
             }
         }
-
+*/
+        /*
         // finally handle the real/simulated geo location in the user activity
         float accuracy = 0; if (location.hasAccuracy()) {
             accuracy = location.getAccuracy();
         }
-        locationActivity.handleGpsData(CurrentTime,location.getLatitude(),location.getLongitude(), accuracy);
+*/
+        LocationActivity.setLocation(location);
+        //        locationActivity.handleGpsData(CurrentTime,location.getLatitude(),location.getLongitude(), accuracy);
     }
 
     /**

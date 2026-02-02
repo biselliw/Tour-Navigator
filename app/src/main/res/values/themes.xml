@@ -1,16 +1,40 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.TourNavigator" parent="Theme.Material3.DayNight.NoActionBar">
+<resources>
 
-        <!-- Material Color Roles -->
+    <style name="Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Status -->
+        <item name="colorSuccess">#4CAF50</item>
+        <item name="colorWarning">#FFC107</item>
+        <item name="colorErrorMuted">#CF6679</item>
+
+        <!-- Icons -->
+        <item name="iconActiveColor">?attr/colorPrimary</item>
+        <item name="iconInactiveColor">?attr/colorOnSurfaceVariant</item>
+
+        <!-- NO Material Dynamic Color ! -->
+
+        <!-- Brand (Fallback) -->
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorSecondary">@color/md_theme_secondary</item>
 
- 
-        <item name="colorOnBackground">@color/md_theme_onBackground</item>
-
+        <!-- Surfaces -->
         <item name="colorSurface">@color/md_theme_surface</item>
         <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
 
+        <!-- Outline -->
+        <item name="colorOutline">@color/md_theme_outline</item>
+
+        <!-- Status / Nav Bar -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+
+        <!-- Typography -->
+        <item name="textAppearanceBodyMedium">
+            @style/TextAppearance.Material3.BodyMedium
+        </item>
     </style>
+
 </resources>
