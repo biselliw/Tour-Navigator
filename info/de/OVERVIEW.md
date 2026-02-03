@@ -26,3 +26,31 @@ Der Track enthält bereits Wegpunkte und ein Höhenprofil
 ![](img/Tour_003.png)
 Wichtig: das Häkchen setzen, damit die Wegpunkte in die GPX-Datei übernommen werden. Das funktioniert 
 nur in der Web-App - nicht in Android oder IOS Apps
+
+![](img/Tour-Navigator_001.png)
+Nach dem Laden der GPX-Datei in die App "Tour Navigator" zeigt diese alle Informationen der Tour -
+wenn diese von Outdooractive stammt auch mit dem Link zum Tourenportal des Schwarzwaldvereins
+
+![](img/Tour-Navigator_002.png)
+Die Berechnung der Gehzeit erfolgt über individuell einstellbare Parameter
+
+<details><summary><h3>Details der Gehzeitberechnung</h3></summary>
+Tour Navigator arbeitet mit der bewährten **DIN 33466** – der offiziellen Grundlage für verlässliche Wanderzeitberechnung.  
+Die Formel berücksichtigt Geschwindigkeit, Steigung und Gefälle und liefert ein realistisches Zeitmodell.
+
+
+Sie geht davon aus, dass ein durchschnittlicher Wanderer:
+
+- 4 km ebene Strecke pro Stunde zurücklegt
+- 300 Höhenmeter Aufstieg pro Stunde bewältigt
+- 500 Höhenmeter Abstieg pro Stunde bewältigt
+
+Bei gemischten Teilstrecken werden horizontale und vertikale Zeiten separat berechnet.  
+Als Gehzeit gilt: **längerer Zeitanteil + Hälfte des kürzeren Anteils**.
+
+**Beispiel:**  
+1 km eben (15 min) + 300 Hm Aufstieg (60 min)  
+→ 60 min + 7,5 min = **67,5 min Gesamtzeit**
+
+Weitere Infos zur [Marschzeitberechnung auf Wikipedia](https://de.wikipedia.org/wiki/Marschzeitberechnung).
+</details>
