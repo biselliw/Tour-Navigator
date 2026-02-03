@@ -1,9 +1,8 @@
-## Was macht die App Tour Navigator?
+## Voraussetzungen für die Nutzung App Tour Navigator
 
-Die privatsphäre-freundliche App **Tour Navigator** hilft dir dabei, jede Wanderung vorab perfekt zu planen und unterwegs entspannt zu genießen.  
-Die App erstellt aus einer vorhandenen GPX-Datei einen übersichtlichen Zeitplan – mit realistischen Gehzeiten, Zwischenzeiten und einem klar strukturierten Ablauf, genau so wie es sich ein Tourenguide für einen optimalen Wandertag wünscht.
-
-GPX-Dateien sind der Standard für Touren und geografische Daten. Sie enthalten den genauen Verlauf einer Route, inklusive Höhenangaben und – idealerweise – benannten Wegpunkten.
+Die App Tour Navigator benötigt eine GPX-Datei mit Geo-Koordinaten und Höhenwerten der geplanten Route,
+dazu idealerweise Wegpunkte für Zwischenstopps.
+GPX-Dateien sind der Standard für Touren und geografische Daten.
 
 Du kannst GPX-Dateien bequem über Tourenportale erhalten, z. B.:
 
@@ -24,6 +23,8 @@ Der Track enthält bereits Wegpunkte und ein Höhenprofil
 ![](img/Tour_003.png)
 Wichtig: das Häkchen setzen, damit die Wegpunkte in die GPX-Datei übernommen werden. Das funktioniert 
 nur in der Web-App - nicht in Android oder IOS Apps
+
+## Was macht die App Tour Navigator?
 
 ![](img/Tour-Navigator_001.png)
 Nach dem Laden der GPX-Datei in die App "Tour Navigator" zeigt diese alle Informationen der Tour -
