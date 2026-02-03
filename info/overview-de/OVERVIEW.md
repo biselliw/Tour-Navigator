@@ -116,17 +116,17 @@ Die Bedienung der App erfolgt über diese Menüs:
 <details><summary><h2>Kontextmenü</h2></summary>
 
 
-| Funktion | Beschreibung |
-|--------|--------------|
-| Pausenzeit | Individuelle Pausenzeit je Wegpunkt |
-| Wegpunkt kommentieren | Kommentar in Wegzeittabelle |
-| Wikipedia-Artikel | Artikel im Umkreis von 10 km |
-| OSM-POIs | OpenStreetMap-POIs im Umkreis von 500 m |
-| Zum Wegpunkt navigieren | Übergabe an externe Karten-Apps |
-| Google-Navigation | Navigation mit Google Maps |
-| | ### Nicht rückgängig zu machen |
-| **Starte von hier** | |
-| **Wegpunkt entfernen** | |
+| Funktion                         | Beschreibung |
+|----------------------------------|--------------|
+| Pausenzeit                       | Individuelle Pausenzeit je Wegpunkt |
+| Wegpunkt kommentieren            | Kommentar in Wegzeittabelle |
+| Wikipedia-Artikel                | Artikel im Umkreis von 10 km |
+| OSM-POIs                         | OpenStreetMap-POIs im Umkreis von 500 m |
+| Zum Wegpunkt navigieren          | Übergabe an externe Karten-Apps |
+| Google-Navigation                | Navigation mit Google Maps |
+| Nicht rückgängig zu machen:      |
+| **Starte von hier**              | |
+| **Wegpunkt entfernen**           | |
 | **Alle Punkte danach entfernen** | |
 
 </details>
