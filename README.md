@@ -1,6 +1,6 @@
 # Tour Navigator
 
-![](info/img/Tour-Navigator_002.png)
+![](info/img/Tour-Navigator.png)
 
 
 Tour Navigator is a Privacy Friendly Android App which presents hikers a timetable of a planned 
