@@ -38,3 +38,5 @@ Tour Navigator berechnet bewusst **keine Alternativrouten**, sondern führt dich
 - [Übersicht](OVERVIEW.md)
 - [Bedienung](OPERATION.md)
 - [Download](DOWNLOAD.md)
+
+![](../img/arrow_back.png)Zurück
