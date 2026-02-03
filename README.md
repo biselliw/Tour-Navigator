@@ -1,5 +1,7 @@
-![](info/img/Tour-Navigator_002.png)
 # Tour Navigator
+
+![](info/img/Tour-Navigator_002.png)
+
 
 Tour Navigator is a Privacy Friendly Android App which presents hikers a timetable of a planned 
 tour based on a GPX route containing wayponts.
