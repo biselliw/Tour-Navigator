@@ -81,4 +81,5 @@ Für interessante Wegpunkte (POIs) enthält die GPX-Datei bereits zusätzliche I
 
 ![](img/Tour-Navigator_011.png)
 Mit dem richtigen Zeitplan wird die Tour für alle zu einem Genuss!
+
 [![](../img/arrow_back.png)Zurück](README.md)

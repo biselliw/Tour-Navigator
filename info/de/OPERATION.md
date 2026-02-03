@@ -17,6 +17,8 @@ Die Bedienung der App erfolgt über diese Menüs:
 | ![](../../app/src/main/assets/img/help.png)                                | Hilfe anzeigen |
 | ![](../../app/src/main/assets/img/info.png)                                | Copyright-Informationen |
 
+[![](../img/arrow_left.png)Zurück](#)
+
 </details>
 
 <details><summary><h2>Kontextmenü</h2></summary>
@@ -35,6 +37,7 @@ Abhängig vom ausgewählten Punkt der Tour stehen diese Funktionen zur Verfügun
 | **Wegpunkt entfernen**           |                                          |
 | **Alle Punkte danach entfernen** |                                          |
 
+[![](../img/arrow_left.png)Zurück](#)
 </details>
 
 <details><summary><h2>Bedien- und Statuselemente in der Fußzeile</h2></summary>
@@ -52,6 +55,7 @@ Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bere
 | ![](../../app/src/main/assets/img/show_chart.jpg) | Höhenprofil anzeigen |
 | ![](../../app/src/main/assets/img/open_in_full.jpg) | Höhenprofil ausblenden |
 
+[![](../img/arrow_left.png.png)Zurück](#)
 </details>
 
 <details><summary><h3>Statussymbole</h3></summary>
@@ -66,6 +70,8 @@ Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bere
 | ![](../../app/src/main/assets/img/sync_problem.jpg) | Ungenaue Positionsdaten |
 | ![](../../app/src/main/assets/img/location_on.png) | GPS-Fix vorhanden |
 
+[![](../img/arrow_left.png)Zurück](#)
 </details>
 </details>
+
 [![](../img/arrow_back.png)Zurück](README.md)
