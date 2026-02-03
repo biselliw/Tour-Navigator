@@ -1,4 +1,20 @@
-## Echtzeit-Navigation
+## Tour Navigator - die privatsphäre-freundliche App
+
+### Was macht die App privatsphäre-freundlich?
+Es werden **keine persönlichen Daten** und **keine GPX-Tracks** gespeichert oder weitergegeben.
+
+### Welche Berechtigungen braucht die App?
+
+Erforderlich ist nur:
+
+- Zugriff auf die **genaue GPS-Position** (Navigation & Zeitplanung)
+
+Optional (nur bei Nutzung entsprechender und zuvor vom Nutzer freigegebener Funktionen):
+
+- Internetzugriff für Wikipedia-Artikel und OpenStreetMap-POIs
+- Routenplanung mit Google Maps
+
+### Echtzeit-Navigation
 
 Während der Tour begleitet dich die App in Echtzeit:
 
@@ -8,24 +24,11 @@ Während der Tour begleitet dich die App in Echtzeit:
 
 Voraussetzung ist eine aktivierte GPS-Lokalisierung mit genauen Positionsdaten.
 
-## Was macht die App nicht?
+### Was macht die App nicht?
 
 Tour Navigator berechnet bewusst **keine Alternativrouten**, sondern führt zuverlässig entlang des geplanten Tracks.
 
-## Was macht die App privatsphäre-freundlich?
-
-Es werden **keine persönlichen Daten** und **keine GPX-Tracks** gespeichert oder weitergegeben.
-
-## Welche Berechtigungen braucht die App?
-
-Erforderlich ist nur:
-
-- Zugriff auf die **genaue GPS-Position** (Navigation & Zeitplanung)
-
-Optional (nur bei Nutzung entsprechender Funktionen):
-
-- Internetzugriff für Wikipedia-Artikel und OpenStreetMap-POIs
-
+## Funktionsumfang der App
 
 - [Übersicht](OVERVIEW.md)
 - [Bedienung](OPERATION.md)

@@ -70,14 +70,7 @@ Aus allen Daten ermittelt die App eine Wegzeittabelle, die mit ergänzenden Deta
 Wer mit dem Auto zum Startpunkt anreist, kann - nach eigener Freigabe - Google Maps zur Navigation nutzen
 
 ![](img/Tour-Navigator_008.png)
-Während der Tour begleitet dich die App in Echtzeit:
-
-- Anzeige der nächsten Wegpunkte
-- Kontrolle des Zeitplans
-- Warnung bei Verlassen der Route (optional per Sprachausgabe)
-  Tour Navigator berechnet bewusst **keine Alternativrouten**, sondern führt zuverlässig entlang des geplanten Tracks.
-
-Voraussetzung ist eine aktivierte GPS-Lokalisierung mit genauen Positionsdaten.
+Während der Tour begleitet dich die App in Echtzeit
 
 ![](img/Tour-Navigator_009.png)
 Die Geo-Koordinaten jedes einzelnen Wegpunktes lassen sich an geeignete Apps übermitteln, um sie z.B. auf LocusMaps zusammen mit dem Track auf einer Karte anzuzeigen 
