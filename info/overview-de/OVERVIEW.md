@@ -91,9 +91,9 @@ Optional (nur bei Nutzung entsprechender Funktionen):
 </details>
 
 <details><summary><h1>Bedienungsanleitung</h1></summary>
-    Die Bedienung der App erfolgt über diese Menüs:
-<summary><h2>Hauptmenü</h2></summary>
-
+Die Bedienung der App erfolgt über diese Menüs:
+<details><summary><h2>Hauptmenü</h2></summary>
+Im Hauptmenü stehen diese globalen Funktionen zur Verfügung:
 | Symbol                                           | Funktion |
 |--------------------------------------------------|----------|
 | ![](../../app/src/main/assets/img/file_open.jpg) | Öffnet eine GPX-Datei |
@@ -128,9 +128,11 @@ Optional (nur bei Nutzung entsprechender Funktionen):
 - **Wegpunkt entfernen**
 - **Alle Punkte danach entfernen**
 
-## Fußzeile
+</details>
 
-### Bedienelemente
+<details><summary><h2>Bedien- und Statuselemente in der Fußzeile</h2></summary>
+Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bereit:
+<details><summary><h3>Bedienelemente</h3></summary>
 
 | Symbol | Funktion |
 |------|----------|
@@ -143,7 +145,9 @@ Optional (nur bei Nutzung entsprechender Funktionen):
 | ![](../../app/src/main/assets/img/show_chart.jpg) | Höhenprofil anzeigen |
 | ![](../../app/src/main/assets/img/open_in_full.jpg) | Höhenprofil ausblenden |
 
-### Statussymbole
+</details>
+
+<details><summary><h3>Statussymbole</h3></summary>
 
 | Symbol | Bedeutung |
 |------|-----------|
@@ -153,7 +157,10 @@ Optional (nur bei Nutzung entsprechender Funktionen):
 | ![](../../app/src/main/assets/img/satellite.jpg) | Standortdienste deaktiviert |
 | ![](../../app/src/main/assets/img/location_off.png) | GPS aktiv – kein Fix |
 | ![](../../app/src/main/assets/img/sync_problem.jpg) | Ungenaue Positionsdaten |
-        </details>
-    </details>
-</details>
 | ![](../../app/src/main/assets/img/location_on.png) | GPS-Fix vorhanden |
+
+
+</details>
+</details>
+</details>
+
