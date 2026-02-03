@@ -58,3 +58,13 @@ Wenn der Track zu wenig Wegpunkte enthält, können diese aus der freien OpenStr
 
 ![](img/Tour-Navigator_004.png)
 Auch georeferenzierte Wikipedia-Artikel lassen sich so verlinken und über die Wikipedia-App anzeigen
+
+![](img/Tour-Navigator_005.png)
+Für die individuelle Zeitplanung der Tour wird der Startzeitpunkt eingegeben. 
+Zu jedem Wegpunkt kann eine Pausenzeit mit Bemerkung eingegeben werden. 
+
+![](img/Tour-Navigator_006.png)
+Aus allen Daten ermittelt die App eine Wegzeittabelle, die mit ergänzenden Details als HTML-Datei zur weiteren Bearbeitung exportiert werden kann
+
+![](img/Tour-Navigator_007.png)
+Wer mit dem Auto zum Startpunkt anreist, kann - nach eigener Freigabe - Google Maps zur Navigation nutzen
