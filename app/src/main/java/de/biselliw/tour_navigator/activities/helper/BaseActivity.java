@@ -1,29 +1,22 @@
 /*
- * Copyright (C) 2022 Walter Biselli
- *
- * Hiking Navigator App (the "Software") is free software:
- *
- * Licensed under the GNU General Public License along with this (the "License")
- * either version 3 of the License, or any later version.
- * GNU General Public License is published by the Free Software Foundation,
- *
- * The Software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * You can redistribute the Software and/or modify it under the terms of the License
- *
- * See the GNU General Public License for more details.
- * You should have received a copy of the License along with the Software.
- * If not, you may obtain a copy of the License at
- *
- *      http://www.gnu.org/licenses
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public LicenseIf not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
+
 package de.biselliw.tour_navigator.activities.helper;
 
 import android.content.Intent;
@@ -45,7 +38,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.helpers.Log;
 
 public class BaseActivity extends AppCompatActivity {

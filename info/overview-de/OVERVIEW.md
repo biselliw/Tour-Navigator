@@ -18,7 +18,6 @@ Je besser die Datei vorbereitet ist, desto besser arbeitet Tour Navigator.
 
 **Tipp:** Besonders einfach gelingt es mit dem [Tourenplaner des Schwarzwaldvereins](https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal).
 
-
 ## Wie funktioniert die Gehzeitberechnung?
 
 Tour Navigator arbeitet mit der bewährten **DIN 33466** – der offiziellen Grundlage für verlässliche Wanderzeitberechnung.  
@@ -92,15 +91,13 @@ Die Bedienung der App erfolgt über diese Menüs:
 
 <details><summary><h2>Hauptmenü</h2></summary>
 
-
-
 | Symbol                                           | Funktion |
 |--------------------------------------------------|----------|
 | ![](../../app/src/main/assets/img/file_open.jpg) | Öffnet eine GPX-Datei |
 | ![](../../app/src/main/assets/img/description.png)                         | Zeigt Titel, Beschreibung und Web-Link der Tour |
-| ![](../../app/src/main/assets/img/swap_horiz.png)                          | Kehrt die Richtung der Tour um / Startpunkt ändern |
+| ![](../../app/src/main/assets/img/swap_horiz.png)                          | Kehrt die Richtung der Tour um |
 | ![](../../app/src/main/assets/img/signpost.jpg)                            | Wegpunkte aus GPX oder OpenStreetMap hinzufügen |
-| ![](../../app/src/main/assets/img/schedule.png)                            | Startzeit festlegen / Pausenzeiten definieren |
+| ![](../../app/src/main/assets/img/schedule.png)                            | Startzeit festlegen |
 | ![](../../app/src/main/assets/img/table_rows.png)                          | Wegzeittabelle anzeigen |
 | ![](../../app/src/main/assets/img/file_save.png)                           | Erweiterte GPX-Datei exportieren |
 | ![](../../app/src/main/assets/img/html.png)                                | Wegzeittabelle als HTML exportieren |
@@ -108,26 +105,22 @@ Die Bedienung der App erfolgt über diese Menüs:
 | ![](../../app/src/main/assets/img/help.png)                                | Hilfe anzeigen |
 | ![](../../app/src/main/assets/img/info.png)                                | Copyright-Informationen |
 
-
 </details>
-
-
 
 <details><summary><h2>Kontextmenü</h2></summary>
 
-
-| Funktion                         | Beschreibung |
-|----------------------------------|--------------|
-| Pausenzeit                       | Individuelle Pausenzeit je Wegpunkt |
-| Wegpunkt kommentieren            | Kommentar in Wegzeittabelle |
-| Wikipedia-Artikel                | Artikel im Umkreis von 10 km |
-| OSM-POIs                         | OpenStreetMap-POIs im Umkreis von 500 m |
-| Zum Wegpunkt navigieren          | Übergabe an externe Karten-Apps |
-| Google-Navigation                | Navigation mit Google Maps |
+| Funktion                         | Beschreibung                             |
+|----------------------------------|------------------------------------------|
+| Pausenzeit                       | Individuelle Pausenzeit je Wegpunkt      |
+| Wegpunkt kommentieren            | Kommentar in Wegzeittabelle              |
+| Wikipedia-Artikel                | Artikel im Umkreis von 10 km hinzufügen  |
+| OSM-POIs                         | OpenStreetMap-POIs im Umkreis von 500 m hinzufügen |
+| Zum Wegpunkt navigieren          | Übergabe an externe Karten-Apps          |
+| Google-Navigation                | Navigation mit Google Maps               |
 | Nicht rückgängig zu machen:      |
-| **Starte von hier**              | |
-| **Wegpunkt entfernen**           | |
-| **Alle Punkte danach entfernen** | |
+| **Starte von hier**              |                                          |
+| **Wegpunkt entfernen**           |                                          |
+| **Alle Punkte danach entfernen** |                                          |
 
 </details>
 
@@ -159,7 +152,6 @@ Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bere
 | ![](../../app/src/main/assets/img/location_off.png) | GPS aktiv – kein Fix |
 | ![](../../app/src/main/assets/img/sync_problem.jpg) | Ungenaue Positionsdaten |
 | ![](../../app/src/main/assets/img/location_on.png) | GPS-Fix vorhanden |
-
 
 </details>
 </details>

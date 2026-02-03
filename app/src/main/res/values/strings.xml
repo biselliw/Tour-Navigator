@@ -100,8 +100,7 @@
         https://github.com/activityworkshop/GpsPrune\n
         Licensed under GNU General Public License v2.0.\n
         </li>
-            <li>
-        <b>Forschungsgruppe SECUSO</b>\n
+            <li><b>Forschungsgruppe SECUSO</b>\n
         (Security • Usability • Society)\n
         Karlsruher Institut für Technologie (KIT):\n
         Privacy Friendly Apps:\n
@@ -109,26 +108,35 @@
         https://github.com/secuso\n
         Licensed under GNU General Public License v3.\n
         </li>
-            <li>
-        <b>Nick Fellows (halfhp)</b>\n
+            <li><b>Nick Fellows (halfhp)</b>\n
         androidplot: Charts and plots for Android\n
         https://github.com/halfhp/androidplot\n
         Licensed under Apache License Version 2.0\n
         www.apache.org/licenses/LICENSE-2.0\n
         </li>
-            <li>
-        <b>coltoscosmin</b>\n
+            <li><b>coltoscosmin</b>\n
         FileUtils:\n
         https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java\n
         Copyright © 2018 OpenIntents.org
         Licensed under Apache License v2.0\n
         www.apache.org/licenses/LICENSE-2.0\n
         </li>
-            <li>
-        <b>Google Design Material Icons</b>\n
+            <li><b>Google Design Material Icons</b>\n
         https://fonts.google.com/icons\n
         Licensed under Apache License Version 2.0\n
-        www.apache.org/licenses/LICENSE-2.0
+        www.apache.org/licenses/LICENSE-2.0\n
+        </li>
+        <li><b>GeoNames geographical database</b>\n
+            web services to access Wikipedia articles\n
+            www.geonames.org\n
+            Licensed under a Creative Commons Attribution 4.0 License\n
+            https://creativecommons.org/licenses/by/4.0\n
+        </li>
+        <li><b>Overpass API</b>\n
+            web services to access Open Street Map (OSM) data\n
+            https://overpass-api.de\n
+            Licensed under Open Database License, "ODbL" 1.0\n
+            https://osmfoundation.org/wiki/Licence
         </li>
         </ul>
     </string>

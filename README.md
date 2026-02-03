@@ -2,23 +2,27 @@
   <img src="doc/screenshots/main.jpg" alt=""/>
 </div>
 
-# Tour-Navigator
-Timetable of a hiking tour
+# Tour Navigator
 
-Tour Navigator is a Privacy Friendly App for Android which presents hikers a timetable of a planned GPX route containing wayponts.
+Tour Navigator is a Privacy Friendly Android App which presents hikers a timetable of a planned 
+tour based on a GPX route containing wayponts.
 
-It's development is based on
-- Privacy Friendly Apps developed by the Technical University of Darmstadt: a group of Android applications which are optimized regarding privacy. Further information can be found on https://secuso.org/pfa
-
-- GpsPrune is a map-based application for viewing, editing and converting coordinate data from GPS systems. Further information and Java runnables can be found on  https://gpsprune.activityworkshop.net .
+It's development is primary based on GpsPrune - a map-based application for viewing, editing and 
+converting coordinate data from GPS systems. Further information and Java runnables can be found on
+https://gpsprune.activityworkshop.net.
 
 ## Motivation
 
-This application has been developed to be used for hiking. 
+This application has been developed for tour guides.
+
+Details are presented here:
+
+- ![English](info/overview-en/img/uk_flag.png) [Overview](info/overview-en/README.md)
+- ![Deutsch](info/overview-en/img/uk_flag.png) [Übersicht](info/overview-de/README.md)
 
 ## Download and more Information
 
-You can freely download the Android app from [GitHub](https://github.com/biselliw/HikingNavigatorApp/app/build/outputs/apk/debug/HikingNavigatorApp-debug-v1.0.apk)
+You can freely download the Android app here from [GitHub](/app/release/TourNavigator.apk)
 
 Further development requires Android Studio, we recommend to use at least version 3.1.1
  
