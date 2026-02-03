@@ -68,3 +68,18 @@ Aus allen Daten ermittelt die App eine Wegzeittabelle, die mit ergänzenden Deta
 
 ![](img/Tour-Navigator_007.png)
 Wer mit dem Auto zum Startpunkt anreist, kann - nach eigener Freigabe - Google Maps zur Navigation nutzen
+
+![](img/Tour-Navigator_008.png)
+Jetzt kann die Tour starten! Bei aktivierter GPS-Verbindung prüft die App ob die vorgegebenen Zeiten 
+eingehalten werden und errechnet die voraussichtlichen Ankunftszeiten für alle Wegpunkte. Zudem kann 
+ein Höhenprofil eingeblendet werden in dem die aktuelle Position und der Bereich zwischen zwei Wegpunkten 
+markiert sind.
+
+![](img/Tour-Navigator_009.png)
+Die Geo-Koordinaten jedes einzelnen Wegpunktes lassen sich an geeignete Apps übermitteln, um sie z.B. auf LocusMaps zusammen mit dem Track auf einer Karte anzuzeigen 
+
+![](img/Tour-Navigator_010.png)
+Für interessante Wegpunkte (POIs) enthält die GPX-Datei bereits zusätzliche Informationen, die sich auch vorlesen lassen. Links führen zu externen Inhalten.
+
+![](img/Tour-Navigator_011.png)
+Mit dem richtigen Zeitplan wird die Tour für alle zu einem Genuss!
