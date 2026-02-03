@@ -1,4 +1,4 @@
-<details><summary><h1>Bedienungsanleitung</h1></summary>
+<summary><h1>Bedienungsanleitung</h1></summary>
 Die Bedienung der App erfolgt über diese Menüs:
 
 <details><summary><h2>Hauptmenü</h2></summary>
@@ -20,6 +20,7 @@ Die Bedienung der App erfolgt über diese Menüs:
 </details>
 
 <details><summary><h2>Kontextmenü</h2></summary>
+Abhängig vom ausgewählten Punkt der Tour stehen diese Funktionen zur Verfügung:
 
 | Funktion                         | Beschreibung                             |
 |----------------------------------|------------------------------------------|
@@ -67,5 +68,3 @@ Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bere
 
 </details>
 </details>
-</details>
-

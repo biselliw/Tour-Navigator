@@ -14,7 +14,7 @@ Erforderlich ist nur:
 
 - Zugriff auf die **genaue GPS-Position** (Navigation & Zeitplanung)
 
-Optional (nur bei Nutzung entsprechender und zuvor vom Nutzer freigegebener Funktionen):
+Optional (nur bei Nutzung entsprechender und zuvor von dir freigegebener Funktionen):
 
 - Internetzugriff für Wikipedia-Artikel und OpenStreetMap-POIs
 - Routenplanung mit Google Maps
@@ -31,7 +31,7 @@ Voraussetzung ist eine aktivierte GPS-Lokalisierung mit genauen Positionsdaten.
 
 ### Was macht die App nicht?
 
-Tour Navigator berechnet bewusst **keine Alternativrouten**, sondern führt zuverlässig entlang des geplanten Tracks.
+Tour Navigator berechnet bewusst **keine Alternativrouten**, sondern führt dich zuverlässig entlang des geplanten Tracks.
 
 ## Funktionsumfang der App
 

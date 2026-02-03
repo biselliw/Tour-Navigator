@@ -22,13 +22,13 @@ Der Track enthält bereits Wegpunkte und ein Höhenprofil
 
 ![](img/Tour_003.png)
 Wichtig: das Häkchen setzen, damit die Wegpunkte in die GPX-Datei übernommen werden. Das funktioniert 
-nur in der Web-App - nicht in Android oder IOS Apps
+nur im Web-Browser - nicht in Android oder IOS Apps
 
 ## Was macht die App Tour Navigator?
 
 ![](img/Tour-Navigator_001.png)
 Nach dem Laden der GPX-Datei in die App "Tour Navigator" zeigt diese alle Informationen der Tour -
-wenn diese von Outdooractive stammt auch mit dem Link zum Tourenportal des Schwarzwaldvereins
+wenn diese von Outdooractive stammt, auch mit dem Link zum Tourenportal des Schwarzwaldvereins
 
 ![](img/Tour-Navigator_002.png)
 Die Berechnung der Gehzeit erfolgt über individuell einstellbare Parameter
