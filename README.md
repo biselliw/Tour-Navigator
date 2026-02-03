@@ -17,8 +17,8 @@ This application has been developed for tour guides.
 
 Details are presented here:
 
-- ![English](info/overview-en/img/flag-en.png) [Overview](info/overview-en/README.md)
-- ![Deutsch](info/overview-de/img/flag-de.png) [Übersicht](info/overview-de/README.md)
+- ![English](info/img/flag-en.png) [Overview](info/README.md)
+- ![Deutsch](info/de/img/flag-de.png) [Übersicht](info/de/README.md)
 
 ## Download and more Information
 
