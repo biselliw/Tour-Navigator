@@ -16,10 +16,8 @@ Du kannst GPX-Dateien bequem über Tourenportale erhalten, z. B.:
 
 Je besser die Datei vorbereitet ist, desto besser arbeitet Tour Navigator.
 
-**Tipp:** Besonders einfach gelingt es mit dem  
-[Tourenplaner des Schwarzwaldvereins](https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal).
+**Tipp:** Besonders einfach gelingt es mit dem [Tourenplaner des Schwarzwaldvereins](https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal).
 
-**Achtung:** Viele GPX-Dateien enthalten keine benannten Punkte – solche Dateien funktionieren nicht mit dieser App.
 
 ## Wie funktioniert die Gehzeitberechnung?
 
@@ -42,8 +40,7 @@ Als Gehzeit gilt: **längerer Zeitanteil + Hälfte des kürzeren Anteils**.
 1 km eben (15 min) + 300 Hm Aufstieg (60 min)  
 → 60 min + 7,5 min = **67,5 min Gesamtzeit**
 
-Weitere Infos zur  
-[Marschzeitberechnung auf Wikipedia](https://de.wikipedia.org/wiki/Marschzeitberechnung).
+Weitere Infos zur [Marschzeitberechnung auf Wikipedia](https://de.wikipedia.org/wiki/Marschzeitberechnung).
 </details>
 
 Die drei Parameter der Formel kannst du in den Einstellungen der App an deine individuelle Leistung anpassen. Sie werden dauerhaft gespeichert.
@@ -95,7 +92,6 @@ Die Bedienung der App erfolgt über diese Menüs:
 
 <details><summary><h2>Hauptmenü</h2></summary>
 
-Im Hauptmenü stehen diese globalen Funktionen zur Verfügung:
 
 
 | Symbol                                           | Funktion |
@@ -128,12 +124,10 @@ Im Hauptmenü stehen diese globalen Funktionen zur Verfügung:
 | OSM-POIs | OpenStreetMap-POIs im Umkreis von 500 m |
 | Zum Wegpunkt navigieren | Übergabe an externe Karten-Apps |
 | Google-Navigation | Navigation mit Google Maps |
-
-### Nicht rückgängig zu machen
-
-- **Starte von hier**
-- **Wegpunkt entfernen**
-- **Alle Punkte danach entfernen**
+| | ### Nicht rückgängig zu machen |
+| **Starte von hier** | |
+| **Wegpunkt entfernen** | |
+| **Alle Punkte danach entfernen** | |
 
 </details>
 
