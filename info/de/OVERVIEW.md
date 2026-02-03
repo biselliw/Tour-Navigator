@@ -22,3 +22,7 @@ Im Tourenportal des Schwarzwaldvereins befinden sich bereits hunderte von Touren
 
 ![](img/Tour_002.png)
 Der Track enthält bereits Wegpunkte und ein Höhenprofil
+
+![](img/Tour_003.png)
+Wichtig: das Häkchen setzen, damit die Wegpunkte in die GPX-Datei übernommen werden. Das funktioniert 
+nur in der Web-App - nicht in Android oder IOS Apps
