@@ -5,7 +5,7 @@ Die App Tour Navigator ist nicht im Google PlayStore verfügbar, kann aber hier 
 Dabei ist folgender Ablauf zu beachten:
 
 - beim Klick auf die Datei **TourNavigator.apk** erscheint zunächst die Fehlermeldung ![](../img/view_raw.png)
-- um die App herunterzuladen, musst du auf ["View raw"](DOWNLOAD.md) klicken und den Zielordner für die ausführbare Datei wählen 
+- um die App herunterzuladen, musst du auf ["View raw"](../../app/release/TourNavigator.apk) klicken und den Zielordner für die ausführbare Datei wählen 
 - beim Klick auf die Datei **TourNavigator.apk** wird das Android-Betriebssystem zunächst die Installation blockieren,
   z.B. mit dieser Meldung „Aus Sicherheitsgründen darf dein Smartphone keine Apps aus dieser Quelle installieren.“
 - tippe dazu auf „Einstellungen“

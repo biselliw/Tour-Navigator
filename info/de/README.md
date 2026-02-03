@@ -1,6 +1,6 @@
 ## Tour Navigator - die privatsphäre-freundliche Wander-App
 
-## Was macht die App Tour Navigator?
+### Was macht die App Tour Navigator?
 
 Sie hilft dir dabei, jede Wanderung vorab perfekt zu planen und unterwegs entspannt zu genießen.  
 Die App erstellt aus einer vorhandenen GPX-Datei einen übersichtlichen Zeitplan – mit realistischen Gehzeiten, Zwischenzeiten und einem klar strukturierten Ablauf, genau so wie es sich ein Tourenguide für einen optimalen Wandertag wünscht.
