@@ -3,8 +3,6 @@
 Die privatsphäre-freundliche App **Tour Navigator** hilft dir dabei, jede Wanderung vorab perfekt zu planen und unterwegs entspannt zu genießen.  
 Die App erstellt aus einer vorhandenen GPX-Datei einen übersichtlichen Zeitplan – mit realistischen Gehzeiten, Zwischenzeiten und einem klar strukturierten Ablauf, genau so wie es sich ein Tourenguide für einen optimalen Wandertag wünscht.
 
-## Was beinhaltet die GPX-Datei?
-
 GPX-Dateien sind der Standard für Touren und geografische Daten. Sie enthalten den genauen Verlauf einer Route, inklusive Höhenangaben und – idealerweise – benannten Wegpunkten.
 
 Du kannst GPX-Dateien bequem über Tourenportale erhalten, z. B.:
@@ -54,3 +52,9 @@ Als Gehzeit gilt: **längerer Zeitanteil + Hälfte des kürzeren Anteils**.
 
 Weitere Infos zur [Marschzeitberechnung auf Wikipedia](https://de.wikipedia.org/wiki/Marschzeitberechnung).
 </details>
+
+![](img/Tour-Navigator_003.png)
+Wenn der Track zu wenig Wegpunkte enthält, können diese aus der freien OpenStreetMap-Datenbank hinzugefügt werden
+
+![](img/Tour-Navigator_004.png)
+Auch georeferenzierte Wikipedia-Artikel lassen sich so verlinken und über die Wikipedia-App anzeigen
