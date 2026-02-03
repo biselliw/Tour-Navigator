@@ -17,5 +17,8 @@ Je besser die Datei vorbereitet ist, desto besser arbeitet Tour Navigator.
 **Tipp:** Besonders einfach gelingt es mit dem [Tourenplaner des Schwarzwaldvereins](https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal).
 
 ![](img/Tour_001.png)
-Im Tourenportal des Schwarzwaldvereins befinden sich bereits hunderte von Tourenvorschlägen, die direkt übernommen werden können
+Im Tourenportal des Schwarzwaldvereins befinden sich bereits hunderte von Tourenvorschlägen, die direkt 
+übernommen werden können
 
+![](img/Tour_002.png)
+Der Track enthält bereits Wegpunkte und ein Höhenprofil
