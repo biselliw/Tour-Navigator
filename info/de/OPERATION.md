@@ -68,3 +68,4 @@ Die Fußzeile stellt die wichtigsten Schaltflächen und Statusinformationen bere
 
 </details>
 </details>
+[![](../img/arrow_back.png)Zurück](README.md)
