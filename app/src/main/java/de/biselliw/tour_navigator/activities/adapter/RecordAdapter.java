@@ -92,6 +92,7 @@ public class RecordAdapter extends BaseAdapter {
     private int _selected = -1;
     private int _initialPlace = -1;
     private int lastPlace = -1;
+    private String _debufLastPlace = "";
     private int endPlace = 0;
 
     /**
@@ -644,6 +645,10 @@ public class RecordAdapter extends BaseAdapter {
             }
         }
         track_place.setText(place);
+        if (DEBUG) {
+            if (!place.equals(_debufLastPlace)) Log.i(TAG,"showPlace: " + place);
+            _debufLastPlace = place;
+        }
         return (inPlace >= 0);
     }
 

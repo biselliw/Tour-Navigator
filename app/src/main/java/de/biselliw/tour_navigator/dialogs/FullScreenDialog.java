@@ -19,14 +19,18 @@ package de.biselliw.tour_navigator.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.appcompat.app.AppCompatDialog;
+import de.biselliw.tour_navigator.R;
 
 
 abstract public class FullScreenDialog extends Dialog {
 
     public FullScreenDialog(Context context, int layoutId) {
-        super(context);
+        super(context); //, R.style.Theme_App_FullScreenDialog);
 
         setContentView(layoutId);
 

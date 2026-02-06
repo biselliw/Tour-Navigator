@@ -12,6 +12,9 @@
     <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>
     <string name="title_license">Quelloffene Lizenz</string>
 
+    <string name="notify_gps_active">Tour Navigator greift im Hintergrund auf deinen Standort zu</string>
+    <string name="notify_gps_reason">Der genaue Standort wird nur für die Kontrolle des Zeitplans der Tour benötigt</string>
+
     <!-- Common UI strings -->
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
@@ -43,7 +46,7 @@
     <!-- ###Activities at Status### -->
     <string name="load_gpx_file">Lade eine GPX Datei</string>
     <string name="set_start_time">Setze die Startzeit</string>
-    <string name="permit_location">Berechtigung für GPS-Position wurde verweigert</string>
+    <string name="permit_location">Erteile die Berechtigung für die genaue GPS-Position in den App-Einstellungen</string>
     <string name="activate_gps">Aktiviere GPS auf dem Gerät</string>
     <string name="wait_for_gps_fix">Warten auf GPS fix</string>
     <string name="gps_fix_lost">Kein GPS fix</string>

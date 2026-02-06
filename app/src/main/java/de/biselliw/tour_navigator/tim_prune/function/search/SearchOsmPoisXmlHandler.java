@@ -50,16 +50,20 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
 			if (key.equals("name")) {
 				_currPoint.setTrackName(value);
 			}
-			else if (key.equals("amenity") || key.equals("information") || key.equals("highway") || key.equals("railway")) {
-				_currPoint.setPointType(value);
+			else if (key.equals("amenity") || key.equals("information") || key.equals("tourism")
+                    || key.equals("highway") || key.equals("railway")) {
+                if (_currPoint.getPointType().isEmpty())
+				    _currPoint.setPointType(value);
 			}
             else if (key.equals("website")) {
                 _currPoint.setDownloadLink(value);
             }
-            else if (key.equals("ele") || key.equals("tourism")) {}
+            else if (key.equals("ele")) {}
             else {
                 if (key.equals("wikimedia_commons"))
                     value = "https://commons.wikimedia.org/wiki/" + value.replace(" ","_");
+                if (key.startsWith("wikipedia"))
+                    value = "https://de.wikipedia.org/wiki/" + value.replace(" ","_");
                 _currPoint.setDescription(_currPoint.getDescription() + "<p>" + key + ": " + value + "</p>");
             }
         }

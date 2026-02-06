@@ -123,7 +123,7 @@ public class TrackDetails extends Track {
      */
     public int getNearestTrackpointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMaxDist) {
         // init index of the nearest track point to the specified Latitude and Longitude coordinates
-        int nearestIndex = INVALID_INDEX;
+        int nearestIndex = INVALID_INDEX, index_min_h2 = INVALID_INDEX;
         min_h2 = -1.0;
         if (inStart < 0) inStart = 0;
         if (inEnd >= _numPoints - 1) inEnd = _numPoints - 1;
@@ -152,13 +152,15 @@ public class TrackDetails extends Track {
                         double h2 = a * a / (2 + 2 * cb * cb);
 
                         if ((h2 < min_h2) || (min_h2 < 0)) {
-                            min_h2 = h2;
                             if ((x >= 0) && (x <= c)) {
                                 nearestIndex = first;
-                                if (min_h2 < low_h2) {
+                                if (h2 < low_h2) {
+                                    min_h2 = h2;
                                     return nearestIndex;
                                 }
                             }
+                            index_min_h2 = first;
+                            min_h2 = h2;
                         }
                         break;
                     } else
@@ -179,7 +181,13 @@ public class TrackDetails extends Track {
             else
                 return -nearestIndex;
         else
-            return INVALID_INDEX;
+            if (index_min_h2 >= 0)
+                if (min_h2 <= max_h2)
+                    return index_min_h2;
+                else
+                    return -index_min_h2;
+            else
+                return INVALID_INDEX;
     }
 
     /**

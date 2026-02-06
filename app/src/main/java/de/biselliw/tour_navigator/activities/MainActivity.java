@@ -225,7 +225,7 @@ public class MainActivity extends LocationActivity  implements
                     timerRunnableIsRunning = true;
                     main_runner();
                     timerRunnableIsRunning = false;
-                    timerHandler.postDelayed(this, _timerPeriod_ms);
+                    timerHandler.postDelayed(this, timerPeriod_ms);
                 }
             }
         };

@@ -10,6 +10,9 @@
     <string name="app_author">Author</string>
     <string name="lang">en</string>
 
+    <string name="notify_gps_active">Tour Navigator accesses your location in background</string>
+    <string name="notify_gps_reason">The fine location is only required for tracking the time table of the tour</string>
+
     <!-- Common LICENSE -->
     <string name="title_eula">End-user license agreement</string>
     <string name="app_eula" translatable="false">THIS SOFTWARE IS PROVIDED BY THE AUTHOR \'\'AS IS\'\' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -52,7 +55,7 @@
     <!-- ### Activities at Status ### -->
     <string name="load_gpx_file">Please load a GPX file</string>
     <string name="set_start_time">Please set the start time</string>
-    <string name="permit_location">Permission for GPS has been rejected before!</string>
+    <string name="permit_location">Please permit GPS fine location in app settings</string>
     <string name="activate_gps">Please activate GPS</string>
     <string name="wait_for_gps_fix">Waiting for GPS fix</string>
     <string name="gps_fix_lost">No GPS fix</string>

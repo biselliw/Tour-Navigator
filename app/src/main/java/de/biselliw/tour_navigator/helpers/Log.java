@@ -1,6 +1,25 @@
 package de.biselliw.tour_navigator.helpers;
-import android.app.ActivityManager;
-import android.content.Context;
+
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
+
 import android.os.Build;
 import android.text.format.Time;
 
@@ -19,9 +38,10 @@ import de.biselliw.tour_navigator.BuildConfig;
 
 import static de.biselliw.tour_navigator.files.FileUtils.getDownloadsDir;
 
-
-/// class for sending log output.
-/// @link <a href="https://developer.android.com/reference/android/util/Log">https://developer.android.com</a>
+/**
+ * class for sending log output
+ * @link <a href="https://developer.android.com/reference/android/util/Log">https://developer.android.com</a>
+ */
 public final class Log {
     private static boolean _writing_enabled = false;
     private static String _prefix = "";
@@ -39,7 +59,6 @@ public final class Log {
         if (!enabled)
             Close ();
     }
-    public static boolean isWritingEnabled() { return _writing_enabled; }
 
     /**
      * Create a log file
@@ -82,10 +101,12 @@ public final class Log {
 
     /**
      * Write to log file
+     * @param tag  String: Used to identify the source of a log message.
+     * @param type Log type: "D", "I", "W", "E"
      * @param msg string to log
      * @return 1 if successful
      */
-    private static int Write (String msg)
+    private static int Write (String tag, String type, String msg)
     {
         int result = 0;
         if (CreateLogFile () )
@@ -103,7 +124,7 @@ public final class Log {
                     date_time = sdf.format(calender.getTime());
                 }
 
-                _writer.write (date_time + msg + "\r\n");
+                _writer.write (date_time + "\t" + tag + "\t" + type + "\t"+ msg + "\r\n");
                 _writer.flush();
                 result = 1;
             } catch (Exception e) {
@@ -132,7 +153,7 @@ public final class Log {
      */
     public static int d(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled)
-            Write("D " + tag + " - " + msg);
+            Write(tag,"D", msg);
         if (BuildConfig.DEBUG) {
             return android.util.Log.d(tag, msg);
         }
@@ -148,7 +169,7 @@ public final class Log {
      */
     public static int i(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled)
-            Write("I " + tag + " - " + msg);
+            Write(tag, "I", msg);
         if (BuildConfig.DEBUG) {
             return android.util.Log.i(tag, msg);
         }
@@ -164,10 +185,8 @@ public final class Log {
      */
     public static int e(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled) {
-            String _msg = "E " + tag + " - " + msg;
-//            control.showErrorMessage(_msg);
-            Write(_msg);
-            addDebugHTML(tag, "<b> E " + msg+ "</b>");
+            Write(tag, "E", msg);
+            addDebugHTML(tag, "E", msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg);
@@ -184,15 +203,11 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int e(java.lang.String tag, java.lang.String msg, @NonNull Throwable tr) {
-        String _msg = "E " + tag + " - " + msg + ": "
-                + tr.toString()
-                + " called by "
-                + Arrays.toString(tr.getStackTrace());
+        msg = msg + ": " + tr
+                + " called by " + Arrays.toString(tr.getStackTrace());
         if (_writing_enabled) {
-            addDebugHTML("<red> E " + _msg + "</red>");
-
-            Write(_msg);
-// todo            ControlElements.showErrorMessage(_msg);
+            addDebugHTML(tag, "E", msg);
+            Write(tag, "E", msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg, tr);
@@ -208,10 +223,9 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int w(java.lang.String tag, java.lang.String msg) {
-        String _msg = "W " + tag + " - " + msg;
         if (_writing_enabled) {
-            addDebugHTML(_msg);
-            Write(_msg);
+            addDebugHTML(tag, "W", msg);
+            Write(tag,"W", msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.w(tag, msg);
@@ -220,11 +234,19 @@ public final class Log {
     }
 
     public static void clearDebugHTML() { _debugHTML = ""; }
-    public static void addDebugHTML(java.lang.String msg) {
-        _debugHTML = _debugHTML + msg + "<br>";
-    }
-    public static void addDebugHTML(java.lang.String tag, java.lang.String msg) {
-        _debugHTML = _debugHTML + tag + ": " + msg + "<br>";
+
+    /**
+     * Add log to HTML string
+     * @param tag  String: Used to identify the source of a log message.
+     * @param type Log type: "D", "I", "W", "E"
+     * @param msg string to log
+     */
+    private static void addDebugHTML (String tag, String type, String msg) {
+        if (type.equals("E"))
+            msg = "<red>E " + msg + "</red>";
+        else
+            msg = type + " " + msg;
+        _debugHTML = _debugHTML + tag + " " + msg + "<br>";
     }
 
     public static String getDebugHTML() { return getDebugHTML(""); }
@@ -236,40 +258,6 @@ public final class Log {
         String msg = "";
         if (!title.isEmpty()) msg = "<b>" + title + "</b><br>";
         return msg + _debugHTML;
-    }
-
-
-    private static long available = 0;   // free RAM
-    private static long total = 0;       // total RAM
-    private static boolean low = false;     // if Android is in "Low Memory"-Mode
-    private static ActivityManager.MemoryInfo memInfo = null;
-    private static ActivityManager activityManager = null;
-
-    private static String mem_log = "";
-
-    /**
-     * Return general information about the memory state of the system.
-     *
-     * @return
-     */
-    public static void getMemoryInfo() {
-        memInfo = new ActivityManager.MemoryInfo();
-        activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-   }
-
-    private static Object getSystemService(String activityService) {
-        activityManager.getMemoryInfo(memInfo);
-
-        long MB = 1024 * 1024;
-        available = memInfo.availMem / MB;       // free RAM (MB)
-        long total = memInfo.totalMem / MB;      // total RAM
-        boolean low = memInfo.lowMemory;    // if Android is in "Low Memory"-Mode
-
-        mem_log = "available RAM : " + available + "MB / " + total + "MB " +
-                (low ? "low Memory-Mode" : "");
-
-        d ("", mem_log);
-        return null;
     }
 }
 

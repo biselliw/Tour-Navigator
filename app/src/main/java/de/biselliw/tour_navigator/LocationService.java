@@ -25,7 +25,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.IntentSender;
 import android.location.Location;
 import android.os.Build;
 import android.os.IBinder;
@@ -52,18 +51,43 @@ import com.google.android.gms.location.SettingsClient;
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.helpers.Log;
 
-
+/**
+ * service class for Fused Location Provider running in background
+ * @since 1.6
+ */
 public class LocationService extends Service {
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "LocationService";
+    private static final boolean _DEBUG = true; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
     private static final String CHANNEL_ID = "location_channel";
+    public static final String ACTION_LOCATION_UPDATE = "LOCATION_UPDATE";
+
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
+    private LocationRequest locationRequest;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        boolean allPermissionsGranted = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        if (!allPermissionsGranted) {
+            if (DEBUG) Log.w(TAG,"foreground service for Fused Location Provider could not be started: no GPS permission");
+            stopSelf();
+            return;
+        }
+
         createNotificationChannel();
         startForeground(1, buildNotification());
+        Log.i(TAG,"foreground service started for Fused Location Provider");
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -72,53 +96,14 @@ public class LocationService extends Service {
                 Priority.PRIORITY_HIGH_ACCURACY,
                 1000
         ).setMinUpdateDistanceMeters(0)
-                .build();
-
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            stopSelf();
-            return;
-        }
-        else {
-            // Build a LocationSettingsRequest
-            LocationSettingsRequest settingsRequest =
-                    new LocationSettingsRequest.Builder()
-                            .addLocationRequest(locationRequest)
-                            .setAlwaysShow(false)
-                            .build();
-
-            /* Check Location Settings */
-            SettingsClient settingsClient =
-                    LocationServices.getSettingsClient(this);
-
-            settingsClient.checkLocationSettings(settingsRequest)
-                    .addOnSuccessListener(locationSettingsResponse -> {
-                        // Location settings are enabled and meet requirements
-                        LocationActivity.setGpsStatus (LocationActivity.gpsStatus.WAIT_FOR_GPS_FIX);
-                    })
-                    .addOnFailureListener(e -> {
-                        if (e instanceof ResolvableApiException) {
-                            // Location is OFF or does not meet requirements
-                            LocationActivity.setGpsStatus (LocationActivity.gpsStatus.PROVIDER_DISABLED);
-                        }
-                    });
-        }
+         .build();
 
         locationCallback = new LocationCallback() {
-            @RequiresPermission(allOf = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION})
             @Override
             public void onLocationResult(@NonNull LocationResult result) {
                 for (Location location : result.getLocations()) {
                     handleLocation(location);
                 }
-
-                fusedLocationClient.requestLocationUpdates(
-                        locationRequest,
-                        locationCallback,
-                        Looper.getMainLooper()
-                );
             }
         };
 
@@ -130,40 +115,22 @@ public class LocationService extends Service {
     }
 
     private void handleLocation(Location location) {
-        Log.d("GPS", location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
+        Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
         // use system clock instead of GPS device time
         Time CurrentTime = new Time();
         CurrentTime.setToNow();
-/*
-        if (gpsSimulation != null) {
-            if (ControlElements.isTracking()) {
-                location = gpsSimulation.getLocation();
-                if (location == null) return;
-                Log.w("GPS", "location from simulation");
-            }
-            else {
-                Log.w("GPS", "location simulation finished");
-                return;
-            }
-        }
-*/
-        /*
-        // finally handle the real/simulated geo location in the user activity
-        float accuracy = 0; if (location.hasAccuracy()) {
-            accuracy = location.getAccuracy();
-        }
-*/
-        LocationActivity.setLocation(location);
-        //        locationActivity.handleGpsData(CurrentTime,location.getLatitude(),location.getLongitude(), accuracy);
+        Intent intent = new Intent(ACTION_LOCATION_UPDATE);
+        intent.putExtra("location", location);
+        sendBroadcast(intent);
     }
 
     /**
-     *  Dummy notification needed to fulfill Androids security restrictions for background operations
+     *  Notification needed to fulfill Androids security restrictions for background operations
      */
     private Notification buildNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("GPS Tracking Active")
-                .setContentText("Your location is being tracked")
+                .setContentTitle(getString(R.string.notify_gps_active))
+                .setContentText(getString(R.string.notify_gps_reason))
                 .setSmallIcon(R.drawable.location_on)
                 .setOngoing(true)
                 .build();
@@ -176,17 +143,19 @@ public class LocationService extends Service {
                     "Location Tracking",
                     NotificationManager.IMPORTANCE_LOW
             );
-            NotificationManager manager = getSystemService(NotificationManager.class);
+            NotificationManager manager =
+                    getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        super.onDestroy();
     }
 
     @Override

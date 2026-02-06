@@ -330,9 +330,9 @@ public class ControlElements extends BaseActivity {
     }
 
 
-        /**
-         * Show the tracking status
-         */
+    /**
+     * Show the tracking status
+     */
     private void onShowTrackingStatus() {
         _updateTrackingStatus = false;
 
@@ -605,7 +605,10 @@ public class ControlElements extends BaseActivity {
      * Setup the user interface after loading a new GPX track
      */
     public void setupUserInterface() {
-        _tourInfoAvailable = !tourDetails.getFileInfo().description.isEmpty();
+        _tourInfoAvailable =
+                !tourDetails.getFileInfo().description.isEmpty() ||
+                !tourDetails.getFileInfo().link.isEmpty() ||
+                !tourDetails.getFileInfo().sourceLink.isEmpty();
         showAdditionalInfo(-1);
 
         // use stored state of profile view visibility

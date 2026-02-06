@@ -6,7 +6,7 @@
 Tour Navigator is a Privacy Friendly Android App which presents hikers a timetable of a planned 
 tour based on a GPX route containing wayponts.
 
-It's development is primary based on GpsPrune - a map-based application for viewing, editing and 
+It's development is primary based on GpsPrune - a map-based Java application for viewing, editing and 
 converting coordinate data from GPS systems. Further information and Java runnables can be found on
 https://gpsprune.activityworkshop.net.
 

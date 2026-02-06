@@ -48,7 +48,6 @@ import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
 import static androidx.core.content.ContextCompat.getColor;
-import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
 
 /**
  * Search dialog to add items to the track
@@ -93,7 +92,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
      * @param inPoint data point to search for points around
      */
     public SearchResultDialog(ControlElements inActivity, String inTitle, DataPoint inPoint) {
-        super(inActivity, R.layout.dialog_search_result);
+        super(inActivity,R.layout.dialog_search_result);
         dataPoint = inPoint;
         context = inActivity;
         lang = inActivity.getString(R.string.lang);

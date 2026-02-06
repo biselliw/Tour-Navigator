@@ -96,6 +96,7 @@ public class SearchOsmFunction extends GenericSearchFunction
                 + "node(" + coords + ")[\"information\"=\"guidepost\"][\"hiking\"=\"yes\"];"
                 + "node(" + coords + ")[\"railway\"][\"name\"];"
                 + "node(" + coords + ")[\"highway\"][\"name\"];"
+                + "node(" + coords + ")[\"tourism\"];"
                 + ");out%20qt;";
         // Parse the returned XML with a special handler
         SearchOsmPoisXmlHandler xmlHandler = new SearchOsmPoisXmlHandler();
