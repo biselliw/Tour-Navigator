@@ -14,6 +14,7 @@ import org.xml.sax.SAXException;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.stubs.Config;
@@ -74,7 +75,7 @@ public class SearchOsmFunction extends GenericSearchFunction
 
         // Set status label according to error or "none found", leave blank if ok
         if (_errorMessage == null && _trackListModel.isEmpty()) {
-            _errorMessage = App.resources.getString(R.string.osm_pois_none_found);
+            _errorMessage = Resources.getString(R.string.osm_pois_none_found);
         }
 	}
 
@@ -113,7 +114,7 @@ public class SearchOsmFunction extends GenericSearchFunction
                     saxParser.parse(inStream, xmlHandler);
                 } catch (Exception e) {
                     Log.e(TAG,"submitSearch(); " + e.getClass().getName() + " - " + e.getMessage());
-                    _errorMessage = App.resources.getString(R.string.server_not_found); // e.getClass().getName() + " - " + e.getMessage();
+                    _errorMessage = Resources.getString(R.string.server_not_found); // e.getClass().getName() + " - " + e.getMessage();
                     _trackListModel.changed = true;
                     return;
                 }
@@ -151,7 +152,7 @@ public class SearchOsmFunction extends GenericSearchFunction
 
             // Add track list to model
             if (reducedTrackList.isEmpty())
-                _errorMessage = App.resources.getString(R.string.osm_pois_none_found);
+                _errorMessage = Resources.getString(R.string.osm_pois_none_found);
         }
 
 		_trackListModel.addTracks(reducedTrackList, true);
@@ -176,7 +177,7 @@ public class SearchOsmFunction extends GenericSearchFunction
     public static String translateTag(String symbol) {
         for (int i = 0; i < symbols.length; i++)
             if (symbols[i].equals(symbol)) {
-                return App.resources.getString(ids[i]);
+                return Resources.getString(ids[i]);
             }
         return symbol;
     }

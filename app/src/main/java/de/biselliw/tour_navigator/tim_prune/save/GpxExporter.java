@@ -31,11 +31,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.Field;
 import tim.prune.data.Coordinate;
 import tim.prune.data.UnitSetLibrary;
 import tim.prune.save.xml.XmlUtils;
+
+import de.biselliw.tour_navigator.data.Resources;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
@@ -48,7 +50,7 @@ import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
  */
 public class GpxExporter {
 	/** this program name */
-	private static String GpxFileCreator = "";
+	private static final String GpxFileCreator = Resources.Creator;
 
 	/**
 	 * Download the information to the given writer
@@ -61,8 +63,6 @@ public class GpxExporter {
         int result = 0;
 
         if (inInfo != null) {
-            GpxFileCreator = inInfo.getTrack().Creator;
-
             try {
                 result = exportData(writer, inInfo);
             } catch (IOException ignored) {
@@ -151,7 +151,7 @@ public class GpxExporter {
      * @implNote BiselliW: distinguish between file and track description
 	 */
 	private static void writeNameAndDescription(OutputStreamWriter inWriter, String inName,
-            // todo distinguish between file and track description
+            // distinguish between file and track description
 			String inFileDesc,
             String inAuthor, String inTime, String inLink) throws IOException
 	{
@@ -191,10 +191,10 @@ public class GpxExporter {
             inWriter.write("</time>\n");
         }
 
-		inWriter.write("\t</metadata>\n");
-	}
+        inWriter.write("\t</metadata>\n");
+    }
 
-	/**
+    /**
 	 * Loop through the track outputting the relevant track points
 	 * @param inWriter writer object for output
 	 * @param inInfo track info object containing track

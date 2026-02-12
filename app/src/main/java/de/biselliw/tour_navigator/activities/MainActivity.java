@@ -19,6 +19,7 @@ package de.biselliw.tour_navigator.activities;
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -60,10 +61,10 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.AppState;
+import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.data.TrackDetails;
-import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
 import de.biselliw.tour_navigator.dialogs.CommentDialog;
 import de.biselliw.tour_navigator.dialogs.OSM_Dialog;
@@ -91,13 +92,6 @@ import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 public class MainActivity extends LocationActivity  implements
         NavigationView.OnNavigationItemSelectedListener {
 
-    boolean intentFromOtherApp = false;
-
-    public static HTML_File htmlFile;
-    private final boolean _autoAppend = false;
-    private String gpxFileName = "";
-    GpxExporter gpxExporter;
-    XmlFileLoader _xmlFileLoader = null;
     /**
      * TAG for log messages.
      */
@@ -105,16 +99,26 @@ public class MainActivity extends LocationActivity  implements
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    int REQUEST_OPEN_GPX = 222;
+
+    private boolean _destroyed = false;
+    boolean intentFromOtherApp = false;
+
+    public static HTML_File htmlFile;
+    private final boolean _autoAppend = false;
+    private String gpxFileName = "";
+    XmlFileLoader _xmlFileLoader = null;
+
     /**
      * hiking parameters used for walking time calculation
      */
     public static ArrayList<MainActivity.Parameter> hikingParameters;
 
-    int REQUEST_OPEN_GPX = 222;
-
+// todo replace Time
     Time _startTime = null;
 
-    Handler timerHandler = new Handler();
+    private final Handler _timerHandler = new Handler();
+    private Runnable _timerRunnable;
 
     static boolean timerRunnableIsRunning = false;
     //static boolean timerRunnableIsStopped = false;
@@ -146,14 +150,19 @@ public class MainActivity extends LocationActivity  implements
         hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     /*
      * One-time initialization
      */
     protected void onCreate(Bundle savedInstanceState) {
-        if (DEBUG) Log.i(TAG,"onCreate");
+        Log.i(TAG,"onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        AppState.MainActivityInstanceCount++;
+        Resources.resources = getResources();
+        Resources.Creator = getResources().getString(R.string.app_name);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -171,34 +180,14 @@ public class MainActivity extends LocationActivity  implements
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-
-        webView = findViewById(R.id.web_view);
         overridePendingTransition(0, 0);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-/*
-        MaterialButton mb = findViewById(R.id.toggleButton)
-                .setOnClickListener {
-            val currentMode = resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK
 
-            val newMode = if (currentMode ==
-                    Configuration.UI_MODE_NIGHT_YES) {
-                AppCompatDelegate.MODE_NIGHT_NO
-            } else {
-                AppCompatDelegate.MODE_NIGHT_YES
-            }
-
-            AppCompatDelegate.setDefaultNightMode(newMode)
-        }
-*/
-
-        AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        );
+        // todo check day/night mode
+//        AppCompatDelegate.setDefaultNightMode( AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM  );
 
         app = new App(this);
-
 
         // Load preferences
         firstStart = SettingsActivity.isFirstTimeLaunch();
@@ -213,23 +202,29 @@ public class MainActivity extends LocationActivity  implements
         defineHikingParameters();
         SettingsActivity.getPreferences(PreferenceManager.getDefaultSharedPreferences(this));
 
-        // todo check Instantiation of utility class 'GpxExporter'
-        gpxExporter = new GpxExporter();
-
         /* Install a timer to handle all activities */
-        Runnable timerRunnable = new Runnable() {
+        _timerRunnable = new Runnable() {
             @Override
             public void run() {
+                if (DEBUG) {
+                    if (_destroyed) {
+                        Log.e(TAG,"leakage in timerRunnable");
+                        return;
+                    }
+                }
+                if (stopped)
+                    return;
+
                 if (!timerRunnableIsRunning)
                 {
                     timerRunnableIsRunning = true;
                     main_runner();
                     timerRunnableIsRunning = false;
-                    timerHandler.postDelayed(this, timerPeriod_ms);
+                    _timerHandler.postDelayed(this, timerPeriod_ms);
                 }
             }
         };
-        timerHandler.postDelayed(timerRunnable, 200);
+        _timerHandler.postDelayed(_timerRunnable, 200);
     }
 
     @Override
@@ -311,6 +306,10 @@ public class MainActivity extends LocationActivity  implements
      */
     public void onResume() {
         if (DEBUG) Log.i(TAG,"onResume");
+        if (stopped) {
+            stopped = false;
+            _timerHandler.postDelayed(_timerRunnable, timerPeriod_ms);
+        }
         recordAdapter.notifyDataSetChanged();
         super.onResume();
         AppState.setPaused(false);
@@ -364,8 +363,6 @@ public class MainActivity extends LocationActivity  implements
      */
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // todo Dummy
-        outState.putString(TAG,"onSaveInstanceState");
         if (DEBUG) Log.i(TAG,"onSaveInstanceState(): close Log file");
         Log.Close();
     }
@@ -374,9 +371,13 @@ public class MainActivity extends LocationActivity  implements
     protected void onDestroy() {
         Log.e(TAG,"onDestroy");
         super.onDestroy();
+
+        AppState.MainActivityInstanceCount--;
+        if (DEBUG) _destroyed = true;
+        app.destroy();
         AppState.destroyed = true;
 
-        timerHandler.removeCallbacksAndMessages(null);
+        _timerHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -386,9 +387,10 @@ public class MainActivity extends LocationActivity  implements
      */
     public void onBackPressed()
     {
-        if (!getExpandViewStatus())
+        if (!getExpandViewStatus()) {
             if (intentFromOtherApp)
                 finish();
+        }
         super.onBackPressed();
     }
 
@@ -446,6 +448,7 @@ public class MainActivity extends LocationActivity  implements
             deleteTrackPoints();
         else if (id == R.id.itm_set_new_start) {
             setNewStart();
+            // todo create intent ?
             app.Update();
         }
         else if (id == android.R.id.home) {
@@ -624,7 +627,6 @@ public class MainActivity extends LocationActivity  implements
 
     protected void onStartTimeChanged(Time inStartTime) {
         super.onStartTimeChanged(_startTime);
-//        app.Update();
     }
 
     /**
@@ -712,7 +714,7 @@ public class MainActivity extends LocationActivity  implements
     /**
      * Delete all following trackpoints
      */
-    public void deleteTrackPoints() {
+    private void deleteTrackPoints() {
         int selected = recordAdapter.getPlace();
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
@@ -720,7 +722,8 @@ public class MainActivity extends LocationActivity  implements
                 TrackDetails track = App.getTrack();
                 if (track != null) {
                     track.deleteRange(record.trackPointIndex+1,track.getNumTrackPoints()-1);
-                    app.recalculate();
+                    // todo create intent ?
+                    App.app.Update();
                     super.profileAdapter.initPlot();
                 }
             }
@@ -823,7 +826,6 @@ public class MainActivity extends LocationActivity  implements
 
     /**
      * Navigate to the route point with Google Maps
-     *
      */
     void navigateWithGoogle() {
         if (recordAdapter.getCount() > 0) {
@@ -831,10 +833,6 @@ public class MainActivity extends LocationActivity  implements
             if (record != null) {
                 if (getConsentGoogleMaps())
                     runGoogleMaps();
-                else {
-                    AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(this);
-                    acceptDialog.show();
-                }
             }
         }
     }
@@ -971,19 +969,16 @@ public class MainActivity extends LocationActivity  implements
                     assert uriFile != null;
                     _xmlStream = this.getContentResolver().openInputStream(uriFile);
                     App.gpxUri = uriFile;
-                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-                }
+                } catch (FileNotFoundException ignored) { }
                 // if (DEBUG) Log.d(TAG, "Open GPX stream");
                 _xmlFileLoader = new XmlFileLoader(super.app);
                 _xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informDataLoadComplete);
                 if (DEBUG) Log.d(TAG, "-> XmlFileLoader(app::informDataLoadComplete)");
-            } catch (Exception e) {
-//                e.printStackTrace();
-            }
+            } catch (Exception ignored) { }
         }
-        else
+        else {
             showErrorMessage(getString(R.string.error_invalid_gpx_file));
+        }
     }
 
     /**
@@ -1016,14 +1011,12 @@ public class MainActivity extends LocationActivity  implements
                         }
                     }
                 }
-                catch (FileNotFoundException ignored) {
-                }
+                catch (FileNotFoundException ignored) {  }
             }
 
         } catch (FileNotFoundException e) {
             if (DEBUG) Log.e(TAG, "Download failed");
-        } catch (IOException ignored) {
-        }
+        } catch (IOException ignored) {  }
 
         if (DEBUG) Log.d(TAG, "Download was successfully");
     }
@@ -1087,7 +1080,7 @@ public class MainActivity extends LocationActivity  implements
                 OutputStreamWriter writer = new OutputStreamWriter(xmlStream); // StandardCharsets.UTF_8);
                 return (GpxExporter.downloadData(writer, app.getTrackInfo()) > 0);
             }
-            } catch (IOException e) {
+        } catch (IOException e) {
             Log.e(TAG,"SaveFileGPX(): failed to write to cache", e);
         }
 
@@ -1189,9 +1182,10 @@ public class MainActivity extends LocationActivity  implements
             _startTime = null;
         }
 
-        if (App.getTrack() != null)
+        if (App.getTrack() != null) {
             if (!App.getTrack().isValidRecordedTrackFile())
-                super.runner ();
+                super.runner();
+        }
     }
 
 }

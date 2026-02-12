@@ -48,8 +48,9 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
 
-import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.helpers.Log;
+
+import static de.biselliw.tour_navigator.Notifications.ACTION_LOCATION_UPDATE;
 
 /**
  * service class for Fused Location Provider running in background
@@ -64,11 +65,9 @@ public class LocationService extends Service {
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     private static final String CHANNEL_ID = "location_channel";
-    public static final String ACTION_LOCATION_UPDATE = "LOCATION_UPDATE";
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
-    private LocationRequest locationRequest;
 
     @Override
     public void onCreate() {
@@ -114,8 +113,12 @@ public class LocationService extends Service {
         );
     }
 
+    /**
+     * handle a single location and send a broadcast message
+     * @param location received location data
+     */
     private void handleLocation(Location location) {
-        Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
+        if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
         // use system clock instead of GPS device time
         Time CurrentTime = new Time();
         CurrentTime.setToNow();
@@ -126,12 +129,13 @@ public class LocationService extends Service {
 
     /**
      *  Notification needed to fulfill Androids security restrictions for background operations
+     *  todo: check if requirement is need in AndroidManifest
      */
     private Notification buildNotification() {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.notify_gps_active))
                 .setContentText(getString(R.string.notify_gps_reason))
-                .setSmallIcon(R.drawable.location_on)
+                .setSmallIcon(R.drawable.location_on) // R.id.image_location_on) //
                 .setOngoing(true)
                 .build();
     }
@@ -154,7 +158,9 @@ public class LocationService extends Service {
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
-        stopForeground(STOP_FOREGROUND_REMOVE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE);
+        }
         super.onDestroy();
     }
 

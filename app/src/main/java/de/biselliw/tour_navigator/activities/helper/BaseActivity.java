@@ -60,6 +60,7 @@ public class BaseActivity extends AppCompatActivity {
     protected NavigationView mNavigationView;
     protected Handler mHandler;
 
+    protected boolean stopped = false;
     protected boolean isDark = false;
 
     @Override
@@ -144,6 +145,7 @@ public class BaseActivity extends AppCompatActivity {
         if (mainContent != null) {
             mainContent.animate().alpha(1).setDuration(MAIN_CONTENT_FADEIN_DURATION);
         }
+        stopped = false;
     }
 
     @Override
@@ -158,6 +160,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
+        stopped = true;
         super.onStop();
     }
 

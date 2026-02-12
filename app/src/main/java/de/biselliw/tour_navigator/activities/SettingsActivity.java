@@ -28,13 +28,14 @@ import android.text.format.Time;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.ArrayList;
-
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
+
+import java.util.ArrayList;
+
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
@@ -55,7 +56,6 @@ public class SettingsActivity extends BaseActivity {
     //     └─ FrameLayout (settings_container)
     //         └─ SettingsFragment (PreferenceFragmentCompat)
     //             └─ preferences.xml
-    static SettingsActivity sa;
     private SharedPreferences _sharedPref = null;
     private SettingsFragment _settingsFragment = null;
     private static boolean _consentGoogleMaps = false;
@@ -63,10 +63,13 @@ public class SettingsActivity extends BaseActivity {
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
+    private static String _resStrSetToDefault;
+
     static boolean hikingParametersChanged = false;
 
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
+        SettingsActivity activity;
 
         SwitchPreferenceCompat pref_consent_internet = null;
         SwitchPreferenceCompat pref_consent_google_maps = null;
@@ -124,7 +127,7 @@ public class SettingsActivity extends BaseActivity {
                         //preference.setDefaultValue(defValue);
                         if (value == defaultValue)
                             /* Apply default value */
-                            stringValue = App.resources.getString(R.string.set_to_default) + ": " + defaultValue;
+                            stringValue = _resStrSetToDefault + ": " + defaultValue;
                         return stringValue;
                     });
                 }
@@ -155,7 +158,7 @@ public class SettingsActivity extends BaseActivity {
                     boolean enabled = (Boolean) newValue;
                     if (enabled) {
                         if (pref_consent_internet != null && pref_consent_internet.isChecked()) {
-                            AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(App.app.tempSettings); // App.app.getMain());
+                            AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(activity);
                             acceptDialog.show();
                         }
                         else
@@ -185,11 +188,11 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        // needed for Google Maps policy dialog to avoid memory leakages
-        App.app.tempSettings = this;
+        _resStrSetToDefault = getString(R.string.set_to_default);
 
         if (savedInstanceState == null) {
             _settingsFragment = new SettingsFragment();
+            _settingsFragment.activity = this;
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.settings_container, _settingsFragment)
@@ -236,7 +239,6 @@ public class SettingsActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        App.app.tempSettings = null;
     }
 
     @Override
@@ -246,7 +248,6 @@ public class SettingsActivity extends BaseActivity {
     }
 
     @Override
-
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START))
@@ -305,8 +306,7 @@ public class SettingsActivity extends BaseActivity {
         ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
         SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
         if (hikingParameters != null && sharedPref != null) {
-            // hiking speed parameters
-
+            /* hiking speed parameters */
             // horizontal part in [km/h]
             int horSpeed = getIntFromPref(sharedPref, hikingParameters.get(0).key, hikingParameters.get(0).defaultValue);
             // ascending part in [km/h]
@@ -365,15 +365,6 @@ public class SettingsActivity extends BaseActivity {
     public static void consentGoogleMaps(boolean inValue) {
         _consentGoogleMaps = inValue;
         _updateGooglePrefs = true;
-//        if (_settingsFragment == null)
-//            setBooleanPref(App.app.getDefaultSharedPreferences(),"pref_consent_google_maps", inValue);
-    }
-
-    public void _consentGoogleMaps(boolean inValue) {
-        if (_settingsFragment == null)
-            setBooleanPref(App.app.getDefaultSharedPreferences(),"pref_consent_google_maps", inValue);
-        else
-            _settingsFragment.pref_consent_google_maps.setChecked(inValue);
     }
 
     /**
@@ -406,10 +397,10 @@ public class SettingsActivity extends BaseActivity {
      * update preferences for hiking times calculation if they were changed
      */
     static private void updatePreferences(SharedPreferences sharedPref) {
+        getPreferences(sharedPref);
         if (hikingParametersChanged) {
-            getPreferences(sharedPref);
             hikingParametersChanged = false;
-            App.app.recalculate();
+            // FIXME create intent
             App.app.Update();
         }
         if (!getConsentDebug(sharedPref))

@@ -6,7 +6,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.ui.ControlElements;

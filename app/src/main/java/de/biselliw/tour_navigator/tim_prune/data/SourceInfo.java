@@ -10,7 +10,6 @@ import tim.prune.data.ExtensionInfo;
 /**
  * Class to hold the source of the point data, including the original file
  * and file type, and references to each of the point objects
- * @since 26.1
  * @implNote: extended by track description
  */
 public class SourceInfo

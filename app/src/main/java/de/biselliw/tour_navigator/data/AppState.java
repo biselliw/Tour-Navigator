@@ -1,7 +1,6 @@
 package de.biselliw.tour_navigator.data;
 
 import android.net.Uri;
-import android.os.Bundle;
 
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
@@ -16,7 +15,7 @@ public abstract class AppState {
     private static boolean _paused = false;
 
     /**
-     * values to app state
+     * app state values
      */
     private static LocationActivity.gpsStatus _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
     private static LocationActivity.locationStatus _LocationStatus = LocationActivity.locationStatus.INITIAL;
@@ -37,16 +36,13 @@ public abstract class AppState {
      */
     public static GpsSimulator gpsSimulation = null;
 
+    public static int MainActivityInstanceCount = 0;
 
     public static boolean destroyed = false;
     public static boolean restarted = false;
     public static boolean stopped = false;
     public static boolean lowMemory = false;
     public static long trimMemoryLevel = 0;
-
-
-    public AppState () {
-    }
 
     /**
      * Clear the app states on normal start

@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.text.Html;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -38,7 +39,7 @@ import java.util.List;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.TableAdapter;
+import de.biselliw.tour_navigator.adapter.TableAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
@@ -68,7 +69,12 @@ public abstract class SearchResultDialog extends FullScreenDialog {
     protected TrackListModel trackListModel = null;
     /** Description box */
     private TextView _descriptionBox = null;
+
+    private List<String[]> _results = new ArrayList<>();
+    private TableAdapter _adapter = new TableAdapter(_dialog, _results);
+
     private List<Integer> _selectedPositions;
+
     /** Load button */
     protected Button loadButton = null, loadButtonAll = null;
      /** Show button */
@@ -100,6 +106,13 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(inActivity));
 
+        DisplayMetrics displayMetrics =
+                inActivity.getResources().getDisplayMetrics();
+
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
+        recyclerView.setMinimumHeight(displayMetrics.heightPixels * 3/4);
         // dialog title
         TextView view = findViewById(R.id.search_title);
         view.setText(inTitle);
@@ -113,6 +126,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         // description view supporting basic HTML tags
         _descriptionBox = findViewById(R.id.desc_search_result_view);
         _descriptionBox.setText("");
+//        _descriptionBox.setHeight(displayMetrics.heightPixels / 3);
 
         /* define OnClick event to load the results into the track */
         loadButton = findViewById(R.id.btn_load);
@@ -143,24 +157,24 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         trackListModel.clear();
 
         /* Install a timer to handle all activities */
-        Runnable timerRunnable = new Runnable() {
+        //                    if (loadButtonAll.getVisibility() == VISIBLE)
+        Runnable _timerRunnable = new Runnable() {
             @Override
             public void run() {
                 if (trackListModel.changed) {
                     if (searchFunction.getErrorMessage().isEmpty()) {
                         showStatus("");
 
-                        List<String[]> data = new ArrayList<>();
+                        _results = new ArrayList<>();
                         for (int i = 0; i < trackListModel.getRowCount(); i++) {
-                            data.add(new String[]{trackListModel.getValueAt(i,0).toString(),
-                                            trackListModel.getValueAt(i,1).toString()});
+                            _results.add(new String[]{trackListModel.getValueAt(i, 0).toString(),
+                                    trackListModel.getValueAt(i, 1).toString()});
                         }
 
-                        TableAdapter adapter = new TableAdapter(_dialog, data);
+                        _adapter = new TableAdapter(_dialog, _results);
                         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                        recyclerView.setAdapter(adapter);
-                    }
-                    else
+                        recyclerView.setAdapter(_adapter);
+                    } else
                         showErrorMessage(searchFunction.getErrorMessage());
                     trackListModel.changed = false;
 //                    if (loadButtonAll.getVisibility() == VISIBLE)
@@ -169,7 +183,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                 _timerHandler.postDelayed(this, 100);
             }
         };
-        _timerHandler.postDelayed(timerRunnable, 100);
+        _timerHandler.postDelayed(_timerRunnable, 100);
     }
 
     protected void showStatus(String inStatus) {
@@ -309,4 +323,11 @@ public abstract class SearchResultDialog extends FullScreenDialog {
             context.startActivity(Intent.createChooser(intent, "Open with"));
         }
     }
+
+    @Override
+    public void onStop()
+    {
+        _timerHandler.removeCallbacksAndMessages(null);
+    }
+
 }

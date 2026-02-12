@@ -104,7 +104,7 @@ public class EstimateParams extends TrackSegments {
         List<Segment> _segments;
 
         if (USE_PROFILE_ANALYSIS_FOR_RECORDED_TRACK == PROFILE_ANALYSIS_DEFAULT)
-            _segments = calcSegmentsByDefault(inTrack, true);
+            _segments = calcSegmentsByDefault(inTrack, true, false);
         else if (USE_PROFILE_ANALYSIS_FOR_RECORDED_TRACK == PROFILE_ANALYSIS_RDP)
             _segments = calcSegmentsByRDP(inTrack, true);
         else
@@ -165,40 +165,40 @@ public class EstimateParams extends TrackSegments {
                 }
                 switch (segment.segmentType) {
                     case SEG_FLAT:
-                        x[segments] += segment.deltaX;
+                        x[segments] += segment.getDeltaX();
                         y[segments] = 0;
                         z[segments] = 0;
                         useSegment = true;
                         break;
                     case SEG_UP_MODERATE:
-                        x[segments] += segment.deltaX;
-                        y[segments] += segment.deltaY / 2.0;
+                        x[segments] += segment.getDeltaX();
+                        y[segments] += segment.getDeltaY() / 2.0;
                         z[segments] = 0;
                         useSegment = true;
                         break;
                     case SEG_UP_STEEP:
-                        x[segments] += segment.deltaX / 2.0;
-                        y[segments] += segment.deltaY;
+                        x[segments] += segment.getDeltaX() / 2.0;
+                        y[segments] += segment.getDeltaY();
                         z[segments] = 0;
                         useSegment = true;
                         break;
                     case SEG_DOWN_MODERATE:
-                        x[segments] += segment.deltaX;
+                        x[segments] += segment.getDeltaX();
                         y[segments] = 0;
-                        z[segments] -= segment.deltaY / 2.0;
+                        z[segments] -= segment.getDeltaY() / 2.0;
                         useSegment = true;
                         break;
                     case SEG_DOWN_STEEP:
-                        x[segments] += segment.deltaX / 2.0;
+                        x[segments] += segment.getDeltaX() / 2.0;
                         y[segments] = 0;
-                        z[segments] -= segment.deltaY;
+                        z[segments] -= segment.getDeltaY();
                         useSegment = true;
                         break;
                     default:
                         useSegment = false;
                 }
                 if (useSegment) {
-                    t[segments] = segment.activeTime_s; // - segment.breakTime_s;
+                    t[segments] = segment.getActiveTime_s();
                     if (t[segments] <= 0)
                         error = true;
                 }
@@ -292,16 +292,17 @@ public class EstimateParams extends TrackSegments {
             // calculate min/max gradient values of all segments
             for (int i = 0; i < inSegments.size(); i++) {
                 Segment segment = inSegments.get(i);
-                if (segment.deltaY > 0) {
-                    if (segment.gradient < minGradientThresholdClimb)
-                        minGradientThresholdClimb = segment.gradient;
-                    if (segment.gradient > maxGradientThresholdClimb)
-                        maxGradientThresholdClimb = segment.gradient;
+                int gradient = segment.getGradient();
+                if (segment.getDeltaY() > 0) {
+                    if (gradient < minGradientThresholdClimb)
+                        minGradientThresholdClimb = gradient;
+                    if (gradient > maxGradientThresholdClimb)
+                        maxGradientThresholdClimb = gradient;
                 } else {
-                    if (segment.gradient < minGradientThresholdDesc)
-                        minGradientThresholdDesc = segment.gradient;
-                    if (segment.gradient > maxGradientThresholdDesc)
-                        maxGradientThresholdDesc = segment.gradient;
+                    if (gradient < minGradientThresholdDesc)
+                        minGradientThresholdDesc = gradient;
+                    if (gradient > maxGradientThresholdDesc)
+                        maxGradientThresholdDesc = gradient;
                 }
             }
 
@@ -358,9 +359,10 @@ public class EstimateParams extends TrackSegments {
                         gradientThresholdDesc++;
                         for (int i = 0; i < inSegments.size(); i++) {
                             Segment segment = inSegments.get(i);
-                             if (segment.deltaY < 0) {
-                                if ((segment.gradient > gradientThresholdDesc) && (segment.gradient < _minGradientThresholdDesc))
-                                    _minGradientThresholdDesc = segment.gradient;
+                             if (segment.getDeltaY() < 0) {
+                                 int gradient = segment.getGradient();
+                                 if ((gradient > gradientThresholdDesc) && (gradient < _minGradientThresholdDesc))
+                                    _minGradientThresholdDesc = gradient;
                             }
                         }
                         gradientThresholdDesc = _minGradientThresholdDesc;
@@ -371,9 +373,10 @@ public class EstimateParams extends TrackSegments {
                 gradientThresholdClimb++;
                 for (int i = 0; i < inSegments.size(); i++) {
                     Segment segment = inSegments.get(i);
-                    if (segment.deltaY > 0) {
-                        if ((segment.gradient > gradientThresholdClimb) && (segment.gradient < _minGradientThresholdClimb))
-                            _minGradientThresholdClimb = segment.gradient;
+                    if (segment.getDeltaY() > 0) {
+                        int gradient = segment.getGradient();
+                        if ((gradient > gradientThresholdClimb) && (gradient < _minGradientThresholdClimb))
+                            _minGradientThresholdClimb = gradient;
                     }
                 }
                 gradientThresholdClimb = _minGradientThresholdClimb;
@@ -608,11 +611,12 @@ public class EstimateParams extends TrackSegments {
      * @param inSegment segment
      */
     private void updateSegmentGradient(Segment inSegment) {
+        int gradient = inSegment.getGradient();
         switch (inSegment.segmentType) {
             case SEG_UP:
             case SEG_UP_MODERATE:
             case SEG_UP_STEEP:
-                if (inSegment.gradient <= gradientThresholdClimb)
+                if (gradient <= gradientThresholdClimb)
                     inSegment.segmentType = Segment.type.SEG_UP_MODERATE;
                 else
                     inSegment.segmentType = Segment.type.SEG_UP_STEEP;
@@ -620,7 +624,7 @@ public class EstimateParams extends TrackSegments {
             case SEG_DOWN:
             case SEG_DOWN_MODERATE:
             case SEG_DOWN_STEEP:
-                if (inSegment.gradient <= gradientThresholdDesc)
+                if (gradient <= gradientThresholdDesc)
                     inSegment.segmentType = Segment.type.SEG_DOWN_MODERATE;
                 else
                     inSegment.segmentType = Segment.type.SEG_DOWN_STEEP;
@@ -628,8 +632,8 @@ public class EstimateParams extends TrackSegments {
         }
 
         if (DEBUG) {
-            Log.d(TAG, "gradient = " + inSegment.gradient);
-            double hor_speed = inSegment.deltaX / inSegment.activeTime_s * 3600.0;
+            Log.d(TAG, "gradient = " + gradient);
+            double hor_speed = inSegment.getDeltaX() / inSegment.getActiveTime_s() * 3600.0;
             Log.d(TAG, inSegment.getSegmentType() + ": speed = " + formatDouble(hor_speed) + " km/h");
         }
     }

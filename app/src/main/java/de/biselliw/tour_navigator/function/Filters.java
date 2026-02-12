@@ -16,7 +16,7 @@ public class Filters {
             }
             Collections.sort(vals);
             double median = vals.get(vals.size() / 2);
-            out.add(new TrackPoint(in.get(i).distance, median));
+            out.add(new TrackPoint(in.get(i).distance, median, in.get(i).isRoutePoint));
         }
         return out;
     }

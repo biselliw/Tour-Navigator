@@ -23,20 +23,18 @@ package de.biselliw.tour_navigator.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import tim.prune.data.Distance;
 
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.helpers.Log;
 
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_VALUE;
-import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
 
 
 /**
@@ -46,7 +44,6 @@ import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
  */
 public class TrackDetails extends Track {
 
-    public String Creator = App.resources.getString(R.string.app_name);
     /**
      * TAG for log messages.
      */
@@ -73,7 +70,9 @@ public class TrackDetails extends Track {
     /** number of waypoints - all waypoints are arranged after the trackpoints */
     static int _numWaypoints;
 
-	/**
+    public TrackDetails () {  }
+
+    /**
 	 * Recalculate all selection details
 	 */
     public List<RecordAdapter.Record> recalculate() {
@@ -171,33 +170,40 @@ public class TrackDetails extends Track {
                 first = next;
             }
         }
+
         // Check whether it's within required distance
-        if (nearestIndex >= 0)
-            if (min_h2 <= max_h2)
+        if (nearestIndex >= 0) {
+            if (min_h2 <= max_h2) {
                 return nearestIndex;
-            else if (nearestIndex == 0)
+            } else if (nearestIndex == 0) {
                 // special use case: index 0 outside max distance
                 return INVALID_INDEX;
-            else
+            } else {
                 return -nearestIndex;
-        else
-            if (index_min_h2 >= 0)
-                if (min_h2 <= max_h2)
+            }
+        }
+        else {
+            if (index_min_h2 >= 0) {
+                if (min_h2 <= max_h2) {
                     return index_min_h2;
-                else
+                } else {
                     return -index_min_h2;
-            else
+                }
+            } else {
                 return INVALID_INDEX;
+            }
+        }
     }
 
     /**
      * @return distance of nearest track point [km]
      */
     public double getNearestDistance() {
-        if (min_h2 >= 0)
-            return Math.sqrt (min_h2);
-        else
+        if (min_h2 >= 0) {
+            return Math.sqrt (min_h2); }
+        else {
             return 999.9;
+        }
     }
 
     /**
@@ -360,12 +366,11 @@ public class TrackDetails extends Track {
         if (_numTrackPoints > 0) {
             for (int p = 0; p < _numTrackPoints; p++) {
                 DataPoint point = getPoint(p);
-                if (point != null && point.isValid())
-                    if (point.getAltitude() != null)
-                        if (point.getAltitude().isValid()) {
-                            _hasAltitude = true;
-                            break;
-                        }
+                if (point != null && point.isValid() && point.getAltitude() != null &&
+                    point.getAltitude().isValid()) {
+                        _hasAltitude = true;
+                        break;
+                    }
             }
             for (int p = _numTrackPoints; p < getNumPoints(); p++) {
                 DataPoint point = getPoint(p);
@@ -373,8 +378,9 @@ public class TrackDetails extends Track {
                     if (point.isWaypoint()) {
                         if (p > 0 && p < getNumPoints() - 1)
                             _hasWaypoint = true;
-                    } else
+                    } else {
                         _hasTrackpoint = true;
+                    }
                 if (_hasWaypoint && _hasTrackpoint)
                     break;
             }
@@ -388,9 +394,8 @@ public class TrackDetails extends Track {
                     } else {
                         _hasTrackpoint = true;
                     }
-                    if (point.getAltitude() != null)
-                        if (point.getAltitude().isValid())
-                            _hasAltitude = true;
+                    if (point.getAltitude() != null && point.getAltitude().isValid())
+                        _hasAltitude = true;
                 }
                 if (_hasWaypoint && _hasTrackpoint && _hasAltitude)
                     break;
@@ -400,7 +405,7 @@ public class TrackDetails extends Track {
 
 
     /**
-     * todo Append the given point to the end of the way point list and link nearest trackpoints to it
+     * Append the given point to the end of the way point list and link nearest trackpoints to it
      * @param inWaypoint point to append
      */
     public void linkWaypoint(DataPoint inWaypoint) {
@@ -422,16 +427,19 @@ public class TrackDetails extends Track {
         for (int i = 0; i < _numPoints; i++) {
             DataPoint point = _dataPoints[i];
             // if point is a waypoint outside the track
-            if (point.isWayPoint())
+            if (point.isWayPoint()) {
                 wayPoints.add(point);
-            else
+            }
+            else {
                 // app needs altitude values for trackpoints
                 if (point.isValid() && point.hasAltitude()) {
                     point.setIndex(_numTrackPoints);
                     dataPoints[_numTrackPoints++] = point;
-                } else
+                } else {
                     // ignore invalid points
                     numInvalidPoints++;
+                }
+            }
         }
 
         // append waypoints
@@ -451,7 +459,7 @@ public class TrackDetails extends Track {
     }
 
     /**
-     * todo Find nearest trackpoints for all waypoints
+     * Find nearest trackpoints for all waypoints
      */
     private void getNearestTrackpoints() {
         final List<String> protectedWaypointTypes = List.of(
@@ -462,7 +470,6 @@ public class TrackDetails extends Track {
 
         int waypointIndex = 0;
         boolean setStart = true;
-//        _pointIndices = new int[_numPoints];
         scalePoints();
 
         // find nearest trackpoints for all waypoints
@@ -477,7 +484,6 @@ public class TrackDetails extends Track {
                     break;
                 }
             }
-//            _pointIndices[waypointIndex++] = getNearestPointIndex(_xValues[i], _yValues[i], MAX_SCALED_DISTANCE_WP_TO_TRACK, point.isProtectedWayPoint());
         }
 
         // find nearest waypoint for all trackpoints
@@ -493,107 +499,30 @@ public class TrackDetails extends Track {
                     setStart = false;
                 } else {
                     // name first track point as "Start"
-                    point.setWaypointName(App.resources.getString(R.string.start));
+                    point.setWaypointName(Resources.getString(R.string.start));
                     point.setLinkIndex(0);
                     setStart = false;
                 }
-            } else {
-                /* / check for waypoints with this index
-                for (int j = 0; j < _numWaypoints; j++) {
-                    if ((_pointIndices[j] >= 0) && (_pointIndices[j] <= i)) {
-                        /*  is this waypoint the nearest to the track point?
-                         *  - link the track point to this waypoint * /
-                        DataPoint wayPoint = _dataPoints[_numTrackPoints + j];
-                        if (wayPoint != null) {
-                            point.makeRoutePoint(wayPoint.getWaypointName(), wayPoint.getIndex());
-                            _pointIndices[j] = INVALID_INDEX;
-                            wayPoint.setLinkIndex(point.getIndex());
-                            break;
-                        }
-                    }
-                }
-                 */
             }
         }
 
-        // make last trackpoint to end point
+        /* make last trackpoint to end point */
         DataPoint point = _dataPoints[_numTrackPoints - 1];
         if (point.getWaypointName().isEmpty()) {
-            point.setWaypointName(App.resources.getString(R.string.destination));
+            point.setWaypointName(Resources.getString(R.string.destination));
         }
 
         // find all nearest track points for all way points
         findNearestTrackPoints();
-
-        // needs to be scaled again to recalc x, y
-//        _scaled = false;
-    }
-
-    /**
-     * todo find nearest track point for a waypoint
-     * @param wayPoint waypoint
-     * @return nearest track point / null
-     */
-    public DataPoint getNearestTrackPoint(DataPoint wayPoint) {
-        DataPoint nearestTrackPoint = null;
-        int pointIndex = getPointIndex(wayPoint);
-        if (pointIndex >= 0) {
-            DataPoint point = _dataPoints[pointIndex];
-            // if point is a waypoint outside the track
-            if (point != null) {
-                // find nearest track point
-                int nearestPointIndex = getNearestPointIndex(_xValues[pointIndex], _yValues[pointIndex], MAX_SCALED_DISTANCE_WP_TO_TRACK, true);
-                if (nearestPointIndex >= 0)
-                    nearestTrackPoint = _dataPoints[nearestPointIndex];
-            }
-        }
-        return nearestTrackPoint;
     }
 
     /**
      * Reverse the route
-     *
      */
     public void reverseRoute() {
         reverseRange(0, _numPoints - 1);
     }
 
-    /**
-     * Find the nearest track point to a given location
-     *
-     * @param inStart start index within the track
-     * @param inLatitude Latitude of the location in degrees
-     * @param inLongitude Longitude of the location in degrees
-     * @param inMaxDist maximum distance [km] between location and track
-     * @return index of nearest track point / INVALID_INDEX if no point is within the specified max distanceS
-     *
-     * - all coordinates in [km]
-     */
-    private int getNearestPointIndex(int inStart, double inLatitude, double inLongitude, double inMaxDist) {
-        /* index of the nearest track point to the specified Latitude and Longitude coordinates */
-        int nearestPoint = 0;
-        double nearestDist_km = -1.0;
-        if (inStart < 0) inStart = 0;
-        if (inStart >= _numPoints - 1) { return INVALID_INDEX; }
-        for (int i = inStart; i < _numPoints; i++) {
-            if (!_dataPoints[i].isWaypoint()) {
-                DataPoint point = _dataPoints[i];
-                double radians = point.calculateRadiansBetween(inLatitude, inLongitude);
-                double currDist_km = Distance.convertRadiansToDistance(radians);
-                if ((currDist_km < nearestDist_km) || (nearestDist_km < 0.0)) {
-                    nearestPoint = i;
-                    nearestDist_km = currDist_km;
-                    if (currDist_km == 0) break;
-                }
-            }
-        }
-
-        // Check whether it's within required distance
-        if ((nearestDist_km > inMaxDist) && (inMaxDist > 0.0)) {
-            return -nearestPoint;
-        }
-        return nearestPoint;
-    }
 
     /**
      * find all nearest trackpoints for all waypoints
@@ -652,8 +581,8 @@ public class TrackDetails extends Track {
             _trackIndex++;
         }
         // Check whether it's within required distance
-        if (!inWaypoint.isProtectedWayPoint())
-            if (nearestDist > MAX_SCALED_DISTANCE_WP_TO_TRACK)
+        if (!inWaypoint.isProtectedWayPoint() &&
+            nearestDist > MAX_SCALED_DISTANCE_WP_TO_TRACK)
                 return false; // OUT_OF_TRACK;
 
         // apply the found index
@@ -663,8 +592,9 @@ public class TrackDetails extends Track {
             linkedIndexPrevious = linkedIndexFirst;
             _dataPoints[linkedIndexFirst].makeRoutePoint(inWaypoint.getWaypointName(),index_wpt);
         }
-        else
+        else {
             return false;
+        }
 
         /* find the next track point which is considered as outside of the track */
         _trackIndex = linkedIndexFirst;
@@ -685,9 +615,8 @@ public class TrackDetails extends Track {
                     return false;
                 }
                 // Check whether it's within required distance
-                if (!inWaypoint.isProtectedWayPoint())
-                    if (nearestDist > MAX_SCALED_DISTANCE_WP_TO_TRACK)
-                        return false; // OUT_OF_TRACK;
+                if (!inWaypoint.isProtectedWayPoint() && nearestDist > MAX_SCALED_DISTANCE_WP_TO_TRACK)
+                    return false; // OUT_OF_TRACK;
                 _trackIndex++;
             }
 
@@ -773,11 +702,10 @@ public class TrackDetails extends Track {
         if (!_hasAltitude) {
             for (int p = 0; p < _numPoints; p++) {
                 DataPoint point = getPoint(p);
-                if (point != null && point.isValid()) {
-                    if (point.hasAltitude()){
-                        _hasAltitude = true;
-                        break;
-                    }
+                if (point != null && point.isValid() && point.hasAltitude() )
+                {
+                    _hasAltitude = true;
+                    break;
                 }
             }
         }
@@ -792,11 +720,10 @@ public class TrackDetails extends Track {
         if (!_hasTimestamps) {
             for (int p = 1; p < _numPoints; p++) {
                 DataPoint point = getPoint(p);
-                if (point != null && point.isValid()) {
-                    if (point.hasTimestamp()){
-                        _hasTimestamps = true;
-                        break;
-                    }
+                if (point != null && point.isValid() && point.hasTimestamp())
+                {
+                    _hasTimestamps = true;
+                    break;
                 }
             }
         }
@@ -839,21 +766,18 @@ public class TrackDetails extends Track {
      */
     public ArrayList<DataPoint> getWayPointsOutOfTrack() {
         ArrayList<DataPoint> _wayPointsOutOfTrack = new ArrayList<>();
-        if (_numPoints > 0)
+        if (_numPoints > 0) {
             try {
                 // check for way points without link index
                 for (int i = _numTrackPoints; i < getNumPoints(); i++) {
                     DataPoint point = getPoint(i);
-                    if (point != null && point.isValid())
-                        if (point.getLinkIndex() < 0)
-                            _wayPointsOutOfTrack.add(_dataPoints[_numTrackPoints + i]);
+                    if (point != null && point.isValid() && point.getLinkIndex() < 0)
+                        _wayPointsOutOfTrack.add(_dataPoints[_numTrackPoints + i]);
                 }
-            }
-            catch (Exception ignored)
-            {
+            } catch (Exception ignored) {
                 _wayPointsOutOfTrack = null;
             }
-
+        }
         return  _wayPointsOutOfTrack;
     }
 

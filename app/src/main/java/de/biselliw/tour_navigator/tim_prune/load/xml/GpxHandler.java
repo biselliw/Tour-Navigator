@@ -579,7 +579,6 @@ public class GpxHandler extends XmlHandler {
      * @implNote BiselliW remove <br> inserted by checkCharacters()
 	 */
 	public String getFileDescription() {
-        // todo distinguish between file and track description
 		return _fileDescription.getValue().replace("<br>","\r");
 	}
 

@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -44,7 +44,7 @@ public class HTML_File {
     public static StringBuffer html;
 
     private static Resources res;
-    // todo Do not place Android context classes in static fields (static reference to `RecordAdapter` which has field `recordContext` pointing to `Context`); this is a memory leak
+    // Do not place Android context classes in static fields (static reference to `RecordAdapter` which has field `recordContext` pointing to `Context`); this is a memory leak
     private final RecordAdapter recordAdapter;
     private final TourDetails details;
     final DecimalFormat decFormat = new DecimalFormat("#0.0");
@@ -416,11 +416,11 @@ public class HTML_File {
                             }
                             break;
                         case COL_CLIMB:
-                            if (row > 0)
+                            if (row > 0 && record.Sclimb > 0)
                                 html_buffer.append(roundToInt(record.Sclimb));
                             break;
                         case COL_DESCENT:
-                            if (row > 0)
+                            if (row > 0 && record.Sdescent > 0)
                                 html_buffer.append(roundToInt(record.Sdescent));
                             break;
                         case COL_DURATION:

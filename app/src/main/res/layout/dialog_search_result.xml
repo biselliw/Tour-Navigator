@@ -1,96 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:minHeight="600dp">
+    android:layout_height="match_parent">
 
     <!-- Titel -->
     <TextView
         android:id="@+id/search_title"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/find_nearby_wikipedia"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:textColor="@color/black"/>
 
     <!-- Status -->
     <TextView
         android:id="@+id/statusLabel"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/wait"
         android:textSize="16sp"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/search_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:textColor="@color/black"/>
 
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:minHeight="300dp"
-        android:maxHeight="600dp"
-        app:layout_constraintTop_toBottomOf="@id/statusLabel"
-        app:layout_constraintBottom_toTopOf="@id/divider1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Divider -->
-    <View
-        android:id="@+id/divider1"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="?attr/colorSurface"
-        app:layout_constraintTop_toBottomOf="@id/recyclerView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <!-- Description Titel -->
-    <TextView
-        android:id="@+id/desc_search_result"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/search_results"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/description"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/divider1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:orientation="vertical">
 
-    <!-- Description Inhalt -->
-    <TextView
-        android:id="@+id/desc_search_result_view"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:minHeight="300dp"
-        android:maxHeight="600dp"
-        android:autoLink="web"
-        android:scrollbars="vertical"
-        android:textSize="16sp"
-        android:textColor="@color/black"
-        app:layout_constraintTop_toBottomOf="@id/desc_search_result"
-        app:layout_constraintBottom_toTopOf="@id/buttonBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:minHeight="300dp"
+            android:maxHeight="600dp"/>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider1"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            android:background="?attr/colorSurface"/>
+
+        <!-- Description Titel -->
+        <TextView
+            android:id="@+id/desc_search_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/description"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
+
+        <!-- Description Inhalt -->
+        <TextView
+            android:id="@+id/desc_search_result_view"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:minHeight="200dp"
+            android:maxHeight="400dp"
+            android:autoLink="web"
+            android:scrollbars="vertical"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
+    </LinearLayout>
 
     <!-- Button-Bar -->
     <LinearLayout
         android:id="@+id/buttonBar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:minHeight="50dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_load"
@@ -118,4 +102,4 @@
             android:text="@string/cancel" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

@@ -56,10 +56,11 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_DELAY_MAX;
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_DELAY_MIN;
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MAX;
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MIN;
+import static de.biselliw.tour_navigator.Notifications.ACTION_LOCATION_UPDATE;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.COLOR_DELAY_MAX;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.COLOR_DELAY_MIN;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.DELAY_MAX;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.DELAY_MIN;
 import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
 
 /**
@@ -104,6 +105,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         TRACKING,
         APPROACHING,
         OUT_OF_TRACK,
+        BREAK,
         DESTINATION_REACHED,
         DESTINATION_FAILED
     }
@@ -158,6 +160,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     /** index of the lst place to search for the nearest GPS location */
     private int endIndex = 0;
 
+    private int _arrivedPlace = -1, _nextPlace = -1;
+
     /** max. allowed offset between a track point and the GPS location */
     private double maxOffset_km = maxOffsetStart_km;
     /** nearest distance of the track point to the received GPS location */
@@ -199,7 +203,9 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         locationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                _location = intent.getParcelableExtra("location");
+                // handle the intent ACTION_LOCATION_UPDATE
+//                if (intent.getIdentifier().equals(ACTION_LOCATION_UPDATE))
+                    _location = intent.getParcelableExtra("location");
             }
         };
     }
@@ -290,14 +296,21 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     @Override
     protected void onStart() {
         super.onStart();
-        registerReceiver(
+
+        /* register a GPS location receiver */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // One of RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED should be specified when a receiver isn't being registered exclusively for system broadcasts
+            registerReceiver(locationReceiver, new IntentFilter(ACTION_LOCATION_UPDATE), Context.RECEIVER_EXPORTED );
+        } else
+            registerReceiver(
                 locationReceiver,
-                new IntentFilter(LocationService.ACTION_LOCATION_UPDATE)
+                new IntentFilter(ACTION_LOCATION_UPDATE)
         );
     }
 
     @Override
     protected void onStop() {
+        // important: unregister the GPS location receiver
         unregisterReceiver(locationReceiver);
         super.onStop();
     }
@@ -337,6 +350,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     @Override
     protected void onDestroy() {
+        tts.stop();
         tts.shutdown();
         super.onDestroy();
     }
@@ -450,8 +464,20 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     nearestDistance = app.getNearestDistance();
 
                     if (DEBUG) {
+                        if (nearestGPSindex >= 0) {
+                            while (_arrivedPlace < recordAdapter.getCount()) {
+                                if (_startGpsIndex >= recordAdapter.getItem(_arrivedPlace+1).trackPointIndex) {
+                                    _arrivedPlace++;
+                                    Log.i(TAG, "handleGPSdata(): arrived at: " +
+                                            recordAdapter.getItem(_arrivedPlace).trackPoint.getRoutePointName()
+                                            + " @ " + inGPStime.format2445());
+                                }
+                                else
+                                    break;
+                            }
+                        }
                         String simGPSindex = (gpsSimulation != null) ? ", simGPSindex = " + gpsSimulation.getGpsIndex() : "";
-                        Log.d(TAG, "HandleGPSdata(): _locationStatus = " + getLocationStatus(_locationStatus) +
+                        Log.d(TAG, "handleGPSdata(): _locationStatus = " + getLocationStatus(_locationStatus) +
                                 simGPSindex +
                                 ", startGPSindex = " + _startGpsIndex + ", endIndex = " + endIndex +
                                 ": nearestGPSindex = " + nearestGPSindex +
@@ -506,6 +532,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         if (gpsSimulation == null && !getPermissionsGranted())
             return false;
         switch (_locationStatus) {
+            case GPX_FILE_LOADED:
             case WAIT_USER_START:
                 return (_startTime_ms > 0);
             case GOTO_START_POS:
@@ -717,8 +744,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                             setTrackingStatus(true);
                             _initialTrackingStatus = false;
                         }
-
-                        // todo return;
                     }
                     else
                         setTrackingStatus(false);
@@ -748,6 +773,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     break;
                 }
                 case GOTO_START_POS: {
+                    _arrivedPlace = -1;
                     _destinationReached = false;
                     activity = getString(R.string.goto_start_pos);
                     if (_GpsStatus == gpsStatus.GPS_FIX) {
@@ -864,7 +890,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     calender.setTimeInMillis(CurrentTime.toMillis(true));
                     time = sdf.format(calender.getTime());
 
-                    /** @todo 00:00:00 Die Tour kann starten! */
+                    /** add real time, ex. 00:00:00 Die Tour kann starten! */
                     if (_GpsStatus == gpsStatus.GPS_FIX)
                         activity = time + activity;
 
@@ -884,7 +910,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
         _prevLocationStatus = _locationStatus;
         _updateStatus = false;
-        // todo        if (DEBUG) Log.d(TAG,"onUpdateStatus end");
     }
 
     /**
@@ -893,10 +918,14 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private void onUpdateGpsStatus() {
         if (_newGpsStatus != _GpsStatus) {
             if (DEBUG) Log.d (TAG, "onUpdateGpsStatus() _gpsStatus = " + _GpsStatus);
-            showGpsStatus(_newGpsStatus);
             _GpsStatus = _newGpsStatus;
+            showGpsStatus();
         }
         _updateGpsStatus = false;
+    }
+
+    public static gpsStatus getGpsStatus() {
+        return _GpsStatus;
     }
 
     /**
@@ -1025,17 +1054,19 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     long start_Time_s = (start.minute + 60L * start.hour) * 60L;
                     delay_s = gpsTime_s - (start_Time_s + destTime_s);
 
-                    if (DEBUG) {
-                        Log.d(TAG, "handlePosition() - gpsTime_s  = " + gpsTime_s
-                            + " - destTime_s = " + destTime_s
-                            + " - distance   = " + dist_from_start
-                            + " - delay_min  = " + delay_s / 60);
-                    }
-
+                    if (DEBUG)
+                        Log.d(TAG, "handlePosition(): gpsTime_s = " + gpsTime_s
+                            + "; destTime_s = " + destTime_s
+                            + "; distance = " + dist_from_start
+                            + "; delay_min = " + delay_s / 60);
                 } else {
                     long gpsTime_ms = inTime.toMillis(true);
                     delay_s = (gpsTime_ms - _startTime_ms) / 1000;
                     delay_s = (delay_s - destTime_s);
+                }
+                if (DEBUG) {
+                    if (point.isRoutePoint())
+                        Log.i(TAG,"reached: " + point.getRoutePointName());
                 }
 
                 if (remainBreakTime_min <= 0)
@@ -1092,6 +1123,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 else
                     switch (_locationStatus) {
                         case GOTO_START_POS:
+// todo                            break;
                         case TRACKING:
                         case APPROACHING:
                             setLocationStatus(locationStatus.TRACKING);

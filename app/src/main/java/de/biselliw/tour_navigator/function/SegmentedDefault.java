@@ -1,5 +1,37 @@
 package de.biselliw.tour_navigator.function;
 
+/*
+ * This file is part of GpsPrune
+ *
+ * GpsPrune is a tool to visualize, edit, convert and prune GPS data
+ * Please see the included readme.txt or https://activityworkshop.net
+ * This software is copyright activityworkshop.net 2006-2022 and made available through the Gnu GPL version 2.
+ * For license details please see the included license.txt.
+ *
+ * modified by Walter Biselli (BiselliW):
+ */
+
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
+
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +42,11 @@ import de.biselliw.tour_navigator.helpers.Log;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_VALUE;
 
+/**
+ * Analyze all track points and divide the track into segments according to original design
+ * @author tim.prune
+ * @implNote BiselliW: optimized segmentation
+ */
 public class SegmentedDefault {
 
     /**
@@ -19,14 +56,20 @@ public class SegmentedDefault {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-
     private double _wiggleLimit;
-    private static final boolean TEST = false;
-    private static final boolean FEATURED = false;
+
+    /** @implNote design extensions */
+    private static final boolean SET_END_INDEX_OF_PREVIOUS_EXTREME = true;
     private static final boolean CHECK_FLAT_SEGMENTS = true;
+    private static final boolean USE_INITIAL_FLAT = true;
+
     private static final double MIN_DISTANCE_FLAT_SEGMENT = 0.25;
     boolean checkFlatSegment = false;
+    boolean _initialFlat = true;
 
+    /**
+     * Flags for whether we are going up or down
+     */
     private boolean _overallUp, _overallDn;
 
     /**
@@ -34,151 +77,167 @@ public class SegmentedDefault {
      */
     private boolean _gotPreviousMinimum, _gotPreviousMaximum;
     private double _previousMinimum = -1, _previousMaximum = -1;
-    int _indexPreviousMinimum, _indexPreviousMaximum;
 
     /**
-     * Flag for whether previous altitude value exists or not
+     * current altitude value (elevation))
      */
-    private double _altitudeValue,
+    private double _altitudeValue;
+    /**
+     * previous altitude value (elevation))
+     */
+    private double _previousValue_m;
     /**
      * Value of previous minimum or maximum, if any
      */
-    _previousExtreme,
+    private double _previousExtreme;
     /**
-     * Previous metric value
+     * Previous metric values
      */
-    _previousValue_m, _lastAltitude_m;
+    private double _lastAltitude_m;
     double _lastAltitudeDiff_m, _sumLastAltitudes = 0;
     boolean _gotPreviousAltitudeValue;
     int _indexPreviousExtreme;
 
+    /** compressed list of all trackpoints containing valid locations and altitudes */
     private List<TrackPoint> _trackPoints = null;
     TrackPoint _prevPoint;
 
     private Segment _segment = null, _prevSegment;
 
-    /**
-     * if true: data must be recalculated in current segment of the track
-     */
-    protected boolean _segRecalc = false;
+    /** if true: data must be recalculated in current segment of the track */
+    protected boolean _segmentEndDetected = false;
 
+    /** Clear all data used for analysis of the segments within a track */
     private void clear() {
         _prevSegment = null;
         _gotPreviousAltitudeValue = false;
         _previousValue_m = 0;
 
-        /* Flags for whether minimum or maximum has been found */
         _gotPreviousMinimum = _gotPreviousMaximum = false;
         _previousExtreme = 0;
 
         _lastAltitude_m = INVALID_VALUE;
-        if (CHECK_FLAT_SEGMENTS) {
-            checkFlatSegment = false;
-            _lastAltitudeDiff_m = 0.0;
-            _sumLastAltitudes = 0.0;
-        }
+        checkFlatSegment = false;
+        if (CHECK_FLAT_SEGMENTS && DEBUG)
+            _lastAltitudeDiff_m = _sumLastAltitudes = 0.0;
 
-        _previousMinimum = _previousMaximum = INVALID_VALUE;
-        if (DEBUG) {
-            _indexPreviousMinimum = _indexPreviousMaximum = INVALID_INDEX;
-        }
-        if (FEATURED)
+        if (DEBUG)
+            _previousMinimum = _previousMaximum = INVALID_VALUE;
+        if (SET_END_INDEX_OF_PREVIOUS_EXTREME)
             _indexPreviousExtreme = INVALID_INDEX;
 
         _prevPoint = null;
 
-        /* if true: data must be recalculated in current segment of the track */
-        _segRecalc = false;
+        _segmentEndDetected = false;
     }
 
     /**
      * Analyze all track points and divide the track into segments
      *
      * @param inTrackPoints list of simple track points
+     * @param inBreakSegmentsAtRoutePoint if true: force segment end at a route point (original design)
      * @return list of simplified track segments
      */
-    public List<Segment> calcSegments(List<TrackPoint> inTrackPoints, double inWiggleLimit) {
+    public List<Segment> calcSegments(List<TrackPoint> inTrackPoints, double inWiggleLimit,
+                                      boolean inBreakSegmentsAtRoutePoint) {
         _wiggleLimit = inWiggleLimit;
         _trackPoints = inTrackPoints;
         if (inTrackPoints == null) return null;
 
         clear();
-        double totalDistance_km = 0.0;
+
+        // create an empty list of segments
         List<Segment> segments = new ArrayList<>();
-        // create a new segment, start with up/down movement
+        // create a new segment
         _segment = new Segment();
 
         int numPoints = inTrackPoints.size();
         if (DEBUG) Log.d(TAG, "calcSegments(): " + numPoints + " Trackpoints");
 
-        boolean finish = false;
+        boolean segmentEndForced = false, finished = false;
         for (int ptIndex = 0; ptIndex < numPoints; ptIndex++) {
             TrackPoint currPoint = inTrackPoints.get(ptIndex);
 
-            if (ptIndex >= numPoints - 1)
-                finish = true;
+            if (ptIndex == 0)
+                _segment.setElevation(currPoint.elevation);
+            else if (ptIndex >= numPoints - 1)
+                finished = true;
+            else
+                segmentEndForced = (inBreakSegmentsAtRoutePoint && currPoint.isRoutePoint);
 
             analyzeProfile(ptIndex);
 
-            if (finish)
+            if (segmentEndForced)
                 _segment.setEndIndex(ptIndex);
-            else
-                _prevPoint = currPoint;
 
-            // need to calculate time?
-            if (_segRecalc || finish) {
-                updateSegment(ptIndex, finish);
+            if (_segmentEndDetected)
+                updateSegmentEndDetected(ptIndex, false);
+            else if (segmentEndForced || finished)
+                updateSegmentEndForced(ptIndex);
 
+            if (_segmentEndDetected || segmentEndForced || finished) {
                 if (_segment.segmentType != Segment.type.SEG_INVALID) {
-                    if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT && _segment.segmentType == Segment.type.SEG_FLAT)
-                        _prevSegment.deltaX += _segment.deltaX;
-                    else
-//                            if (_segment.distance_km >= MIN_DISTANCE_FLAT_SEGMENT)
+                    if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT
+                            && _segment.segmentType == Segment.type.SEG_FLAT) {
+                        _prevSegment.setDeltaX(_prevSegment.getDeltaX() + _segment.getDeltaX());
+                        checkFlatSegment = false;
+                        _prevSegment.setEndIndex(_segment.getEndIndex());
+                        _segment = _prevSegment;
+                    }
+                    else {
                         segments.add(_segment);
-                    _prevSegment = _segment;
+                        _prevSegment = _segment;
+                    }
                 }
 
-                if (finish || (checkFlatSegment && CHECK_FLAT_SEGMENTS)) {
-                    TrackPoint start = inTrackPoints.get(
-                            (_segment.segmentType == Segment.type.SEG_INVALID) ?
-                                    _segment.getStartIndex() : _segment.getEndIndex());
-                    TrackPoint end = (finish ? _prevPoint : currPoint);
-                    double deltaX = end.distance - start.distance; // segment.startDistance_km - segment.distance_km;
-                    if (deltaX > 0)
-                        if ((deltaX >= MIN_DISTANCE_FLAT_SEGMENT) || finish) {
+                if (segmentEndForced || finished || checkFlatSegment) {
+                    TrackPoint start = inTrackPoints.get(_segment.getStartIndex());
+                    TrackPoint end   = inTrackPoints.get(_segment.getEndIndex());
+                    if (_segment.segmentType != Segment.type.SEG_INVALID)  {
+                        start = end;
+                        // todo check new segment at end
+                        end = finished ? currPoint : _prevPoint;
+                    }
+                    double deltaX = end.distance - start.distance;
+
+                    if (deltaX > 0) {
+                        if ((deltaX >= MIN_DISTANCE_FLAT_SEGMENT) || segmentEndForced || finished) {
                             // start with new segment
-                            _segment = new Segment(_segment);
+                            _segment = new Segment(start.distance, start.elevation, deltaX, 0.0);
                             _segment.segmentType = Segment.type.SEG_FLAT;
-                            _segment.elevation = end.elevation;
-                            _segment.setEndIndex(ptIndex);
-                            _segment.deltaX = deltaX;
+                            _segment.setEndIndex(ptIndex); // todo check index
 
                             // update overall data at the end of the segment from section data
                             if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT && _segment.segmentType == Segment.type.SEG_FLAT)
-                                _prevSegment.deltaX += _segment.deltaX;
+                                _prevSegment.setDeltaX(_prevSegment.getDeltaX() + _segment.getDeltaX());
                             else
                                 segments.add(_segment);
                             _prevSegment = _segment;
+                            /*
                             if (_overallUp)
                                 _gotPreviousMinimum = true;
                             if (_overallDn)
                                 _gotPreviousMaximum = true;
+                             */
+                            _gotPreviousMinimum = _gotPreviousMaximum = false;
                         }
-
-                    if (finish && _segment.getEndIndex() < ptIndex)
+                    }
+                    if (segmentEndForced && _segment.getEndIndex() < ptIndex)
                         _segment.setEndIndex(ptIndex);
 
                     if (CHECK_FLAT_SEGMENTS) {
                         checkFlatSegment = false;
-                        _sumLastAltitudes = -_lastAltitudeDiff_m;
+                        if (DEBUG) _sumLastAltitudes = -_lastAltitudeDiff_m;
                     }
                 }
-                _segRecalc = false;
+                _segmentEndDetected = false;
 
                 // start with new segment
                 if (_segment.segmentType != Segment.type.SEG_INVALID)
                     _segment = new Segment(_segment);
             }
+            _prevPoint = currPoint;
+
         }
 
         return segments;
@@ -196,14 +255,19 @@ public class SegmentedDefault {
 
         // did the previous point have a valid altitude?
         _altitudeValue = currPoint.elevation;
-        if (_lastAltitude_m != INVALID_VALUE) {
-            if (CHECK_FLAT_SEGMENTS) _sumLastAltitudes += _lastAltitudeDiff_m;
-            double altitudeDiff_m = _altitudeValue - _lastAltitude_m;
-            _lastAltitudeDiff_m = altitudeDiff_m;
+        if (DEBUG) {
+            if (_lastAltitude_m != INVALID_VALUE) // always true by design
+            {
+                double altitudeDiff_m = _altitudeValue - _lastAltitude_m;
+                if (CHECK_FLAT_SEGMENTS)
+                    _sumLastAltitudes += _lastAltitudeDiff_m;
+                _lastAltitudeDiff_m = altitudeDiff_m;
+            }
         }
 
         // Compare with previous value if any
-        if (_gotPreviousAltitudeValue) {
+        if (_gotPreviousAltitudeValue)
+        {
             if ((_altitudeValue != _previousValue_m)) {
                 // Got an altitude value which is different from the previous one
                 final boolean locallyUp = (_altitudeValue > _previousValue_m);
@@ -211,181 +275,195 @@ public class SegmentedDefault {
                 _overallDn = _gotPreviousMaximum && _previousValue_m < _previousExtreme;
                 final boolean moreThanWiggle = Math.abs(_altitudeValue - _previousValue_m) > _wiggleLimit;
 
-                if (DEBUG) {
-                    if (locallyUp) {
-                        if ((_altitudeValue < _previousMinimum) || (_previousMinimum <= 0)) {
-                            _previousMinimum = _altitudeValue;
-                            _indexPreviousMinimum = inIndex;
-                        }
-                    } else if (_altitudeValue > _previousMaximum) {
-                        _previousMaximum = _altitudeValue;
-                        _indexPreviousMaximum = inIndex;
-                    }
-                }
-
                 // Do we know whether we're going up or down yet?
-                if (!_gotPreviousMinimum && !_gotPreviousMaximum) {
-                    // we don't know whether we're going up or down yet - check limit
+                if ((!USE_INITIAL_FLAT || _initialFlat) && !_gotPreviousMinimum && !_gotPreviousMaximum) {
+                    /* we don't know whether we're going up or down yet - check limit
+                     * --------------------------------------------------------------- */
                     if (moreThanWiggle) {
+                        if (USE_INITIAL_FLAT)
+                            _initialFlat = false;
                         if (locallyUp) {
                             _gotPreviousMinimum = true;
-                            if (TEST)
-                                _previousExtreme = _previousMinimum;
-//                                _indexPreviousExtreme = _indexPreviousMinimum;
                         } else {
                             _gotPreviousMaximum = true;
-                            if (TEST)
-                                _previousExtreme = _previousMaximum;
-//                                _indexPreviousExtreme = _indexPreviousMaximum;
                         }
                         _previousExtreme = _previousValue_m;
-// todo                            _indexPreviousExtreme = inIndex;
                         _previousValue_m = _altitudeValue;
-// todo                           _prevAltitude_m = _lastAltitude_m;
-                        if (FEATURED)
+                        if (SET_END_INDEX_OF_PREVIOUS_EXTREME)
                             _segment.setEndIndex(_indexPreviousExtreme);
                         if (CHECK_FLAT_SEGMENTS) {
                             checkFlatSegment = true;
-// todo check
-                            _segRecalc = true;
+                            _segmentEndDetected = true;
                         }
                     } else {
-                        _indexPreviousExtreme = inIndex;
+                        if (SET_END_INDEX_OF_PREVIOUS_EXTREME) // todo
+                            _indexPreviousExtreme = inIndex;
                     }
                 } else if (_overallUp) {
+                    /* we're going up
+                     * --------------------------------------------------------------- */
                     if (locallyUp) {
                         // we're still going up - do nothing
-                        if (CHECK_FLAT_SEGMENTS)
-                            if (checkFlatSegment) {
-                                double dist = getPrevDistance(currPoint);
-                                if (dist >= MIN_DISTANCE_FLAT_SEGMENT)
-                                    _segRecalc = true;
-                            }
-                        if (!_segRecalc) {
+                        if (checkFlatSegment) {
+                            double dist = getPrevDistance(currPoint);
+                            if (dist >= MIN_DISTANCE_FLAT_SEGMENT)
+                                _segmentEndDetected = true;
+                        }
+                        if (!_segmentEndDetected) {
                             _previousValue_m = _altitudeValue;
 
-                            if (FEATURED)
+                            if (SET_END_INDEX_OF_PREVIOUS_EXTREME)
                                 _indexPreviousExtreme = inIndex;
                             if (CHECK_FLAT_SEGMENTS)
                                 _segment.setEndIndex(inIndex);
                         }
                     } else if (moreThanWiggle)
                         // we're going up but have dropped over a maximum
-                        _segRecalc = true;
+                        _segmentEndDetected = true;
                     else {
-                        if (CHECK_FLAT_SEGMENTS)
-                            if (!checkFlatSegment) {
-                                _sumLastAltitudes = -_lastAltitudeDiff_m;
-                                checkFlatSegment = true;
-                            }
+                        if (CHECK_FLAT_SEGMENTS && !checkFlatSegment) {
+                            if (DEBUG) _sumLastAltitudes = -_lastAltitudeDiff_m;
+                            checkFlatSegment = true;
+                        }
                     }
                 } else if (_overallDn) {
-                    if (locallyUp)
+                    /* we're going down
+                     * --------------------------------------------------------------- */
+                    if (locallyUp) {
                         if (moreThanWiggle)
                             // we're going down but have climbed up from a minimum
-                            _segRecalc = true;
+                            _segmentEndDetected = true;
                         else {
-                            if (CHECK_FLAT_SEGMENTS)
-                                if (!checkFlatSegment) {
-                                    _sumLastAltitudes = -_lastAltitudeDiff_m;
-                                    checkFlatSegment = true;
-                                }
-                        }
-                    else {
-                        if (CHECK_FLAT_SEGMENTS) {
-                            if (checkFlatSegment) {
-                                double dist = getPrevDistance(currPoint);
-                                if (dist >= MIN_DISTANCE_FLAT_SEGMENT) {
-                                    _segRecalc = true;
-                                }
+                            if (CHECK_FLAT_SEGMENTS && !checkFlatSegment) {
+                                if (DEBUG) _sumLastAltitudes = -_lastAltitudeDiff_m;
+                                checkFlatSegment = true;
                             }
                         }
-                        if (!_segRecalc) {
+                    } else {
+                        if (checkFlatSegment) {
+                            double dist = getPrevDistance(currPoint);
+                            if (dist >= MIN_DISTANCE_FLAT_SEGMENT)
+                                _segmentEndDetected = true;
+                        }
+                        if (!_segmentEndDetected) {
                             // we're still going down - do nothing
                             _previousValue_m = _altitudeValue;
 
-                            if (FEATURED)
+                            if (SET_END_INDEX_OF_PREVIOUS_EXTREME)
                                 _indexPreviousExtreme = inIndex;
                             if (CHECK_FLAT_SEGMENTS)
                                 _segment.setEndIndex(inIndex);
                         }
                     }
-                } else if (FEATURED) {
-                    if (locallyUp) {
-                        if (_gotPreviousMinimum) {
-                            // we're still going up - do nothing
-                            _previousValue_m = _altitudeValue;
-                            _indexPreviousExtreme = inIndex;
-                            _segment.setEndIndex(inIndex);
+                } else {
+                    /* we're not going up or down
+                     * --------------------------------------------------------------- */
+                    if (SET_END_INDEX_OF_PREVIOUS_EXTREME) {
+                        if (locallyUp) {
+                            if (_gotPreviousMinimum) {
+                                // we're still going up - do nothing
+                                _previousValue_m = _altitudeValue;
+                                _indexPreviousExtreme = inIndex;
+                                _segment.setEndIndex(inIndex);
+                            } else if (moreThanWiggle) {
+                                _gotPreviousMaximum = false;
+                                _gotPreviousMinimum = true;
+                                _segmentEndDetected = true;
+                            }
+                        } else {
+                            if (_gotPreviousMaximum) {
+                                // we're still going down - do nothing
+                                _previousValue_m = _altitudeValue;
+                                _indexPreviousExtreme = inIndex;
+                                _segment.setEndIndex(inIndex);
+                            } else if (moreThanWiggle) {
+                                _gotPreviousMaximum = true;
+                                _gotPreviousMinimum = false;
+                                _segmentEndDetected = true;
+                            }
                         }
                     } else {
-                        if (_gotPreviousMaximum) {
-                            // we're still going down - do nothing
+                        if (moreThanWiggle)
                             _previousValue_m = _altitudeValue;
-                            _indexPreviousExtreme = inIndex;
-                            _segment.setEndIndex(inIndex);
-                        }
                     }
-                } else {
-                    if (moreThanWiggle)
-                        _previousValue_m = _altitudeValue;
                 }
             }
-        } else {
+        }
+        else {
             // we haven't got a previous value at all, so it's the start of a new segment
             _previousValue_m = _altitudeValue;
-            if (FEATURED) _indexPreviousExtreme = inIndex;
+            if (SET_END_INDEX_OF_PREVIOUS_EXTREME)
+                _indexPreviousExtreme = inIndex;
             _gotPreviousAltitudeValue = true;
         }
         _lastAltitude_m = _altitudeValue;
     }
 
-    private void updateSegment(int inIndex, boolean inFinish) {
+    private void updateSegmentEndDetected(int inIndex, boolean inFinish) {
         if (_segment.getStartIndex() == _segment.getEndIndex())
             _segment.setEndIndex(inIndex);
         TrackPoint start = _trackPoints.get(_segment.getStartIndex());
         TrackPoint end   = _trackPoints.get(_segment.getEndIndex());
-        _segment.distance = start.distance;
-        _segment.elevation = start.elevation;
-        _segment.deltaX  = end.distance - start.distance;
+        _segment.setDistance(start.distance); // todo
+        _segment.setDeltaX(end.distance - start.distance);
 
         if (inFinish) {
             _overallUp = _gotPreviousMinimum && (_previousValue_m > _previousExtreme);
             _overallDn = _gotPreviousMaximum && _previousValue_m < _previousExtreme;
         }
         if (_overallUp) {
-            if (_segment.deltaX > 0.05)
+            if (_segment.getDeltaX()  > 0.05)
                 _segment.segmentType = Segment.type.SEG_UP;
             // Add the climb from _previousExtreme up to _previousValue
-            _segment.deltaY = _previousValue_m - _previousExtreme;
+            if (DEBUG)
+                _previousMinimum = _previousExtreme;
+            _segment.setDeltaY(_previousValue_m - _previousExtreme);
             _previousExtreme = _previousValue_m;
             _gotPreviousMinimum = false;
             _gotPreviousMaximum = true;
-// todo
             _previousValue_m = _altitudeValue;
         } else if (_overallDn) {
-            if (_segment.deltaX > 0.05)
+            if (_segment.getDeltaX()  > 0.05)
                 _segment.segmentType = Segment.type.SEG_DOWN;
             // Add the descent from _previousExtreme down to _previousValue
-            _segment.deltaY = _previousValue_m - _previousExtreme;
+            if (DEBUG)
+                _previousMaximum = _previousExtreme;
+            _segment.setDeltaY(_previousValue_m - _previousExtreme);
             _previousExtreme = _previousValue_m;
             _gotPreviousMinimum = true;
             _gotPreviousMaximum = false;
-// todo
             _previousValue_m = _altitudeValue;
         } else {
-            _segment.deltaY = 0;
-            if (_segment.deltaX > 0.05)
+            _segment.setDeltaY(0); // todo dY ?
+            if (_segment.getDeltaX()  > 0.05)
                 _segment.segmentType = Segment.type.SEG_FLAT;
-                /* todo check
-                _gotPreviousMinimum = false;
-                _gotPreviousMaximum = false;
-                 */
-// todo                if (_altitude_m > 0)                    _prevAltitude_m = _altitude_m;
         }
+    }
 
-//        else            _segment.distance_km = 0;
-// todo        _previousMinimum = -1; _previousMaximum = -1;
-// todo        _indexPreviousMinimum = -1; _indexPreviousMaximum = -1;
+    private void updateSegmentEndForced(int inIndex) {
+        if (_segment.getEndIndex() <= _segment.getStartIndex())
+            _segment.setEndIndex(inIndex);
+        TrackPoint start = _trackPoints.get(_segment.getStartIndex());
+        TrackPoint end = _trackPoints.get(_segment.getEndIndex());
+        _segment.setDistance(start.distance); // todo
+        _segment.setDeltaX(end.distance - start.distance);
+        if (_previousExtreme > 0)
+            _segment.setDeltaY(_previousValue_m - _previousExtreme);
+
+        if (_segment.getDeltaY() > 0) {
+            _segment.segmentType = Segment.type.SEG_UP;
+            if (DEBUG)
+                _previousMinimum = _previousExtreme;
+            _gotPreviousMinimum = true;
+            _previousExtreme = _previousValue_m;
+        } else if (_segment.getDeltaY() < 0) {
+            _segment.segmentType = Segment.type.SEG_DOWN;
+            if (DEBUG)
+                _previousMaximum = _previousExtreme;
+            _gotPreviousMaximum = true;
+            _previousExtreme = _previousValue_m;
+        } else {
+            _segment.segmentType = Segment.type.SEG_FLAT;
+        }
     }
 }

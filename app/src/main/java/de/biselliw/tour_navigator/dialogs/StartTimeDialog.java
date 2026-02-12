@@ -20,6 +20,7 @@ package de.biselliw.tour_navigator.dialogs;
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import android.app.Dialog;
 import android.content.Context;
 import android.text.format.Time;
 import android.view.View;
@@ -28,13 +29,13 @@ import android.widget.TimePicker;
 
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 
 /**
  * Class to set the start time of the tour
  * @author BiselliW
  */
-public class StartTimeDialog extends FullScreenDialog {
+public class StartTimeDialog extends Dialog {
     public Time time;
     RecordAdapter _recordAdapter;
     Context _context;
@@ -46,7 +47,8 @@ public class StartTimeDialog extends FullScreenDialog {
      * @param recordAdapter adapter for the timetable records
      */
     public StartTimeDialog(Context context, RecordAdapter recordAdapter) {
-        super(context, R.layout.dialog_starttime);
+        super(context);
+        setContentView(R.layout.dialog_starttime);
 
         /* load time picker with current start time */
         _recordAdapter = recordAdapter;

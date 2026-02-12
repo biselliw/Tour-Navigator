@@ -25,7 +25,7 @@ import android.content.res.Resources;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -37,8 +37,10 @@ import tim.prune.data.Distance;
 public class TourDetails {
 
     public static TourDetails details = null;
+    // FIXME potential memory leak
     App app;
     RecordAdapter recordAdapter;
+    // FIXME potential memory leak
     private final Resources res;
 
     public TourDetails(Context inContext, App app, RecordAdapter recordAdapter)
@@ -49,7 +51,6 @@ public class TourDetails {
         this.recordAdapter = recordAdapter;
     }
 
-    // todo move ?
     /**
      * provide the comment and description linked to a place
      *
@@ -57,14 +58,16 @@ public class TourDetails {
      * @param inPlace row index of the table
      */
     public AdditionalInfo getAdditionalInfo(boolean logErrors, int inPlace) {
-
-        if (inPlace >= 0)
-            return  getWaypointInfo(inPlace);
-        else
-            if (logErrors)
+        if (inPlace >= 0) {
+            return getWaypointInfo(inPlace);
+        }
+        else {
+            if (logErrors) {
                 return getErrorInfo();
-            else
+            } else {
                 return getFileInfo();
+            }
+        }
     }
 
     public int getWptCount () {
@@ -81,7 +84,7 @@ public class TourDetails {
      */
     public String interpretWaypointSymbol(String symbol)
     {
-        if (res != null)
+        if (res != null) {
             switch (symbol) {
                 /* outdooractive types */
                 case "waypointDirRightComb":
@@ -97,6 +100,7 @@ public class TourDetails {
                     symbol = res.getString(R.string.waypointFlagComb);
                     break;
             }
+        }
         return symbol;
     }
 
@@ -105,10 +109,9 @@ public class TourDetails {
      * @param type specific waypoint type
      * @return translated string
      */
-    public String interpretWaypointType(String type)
+    private String interpretWaypointType(String type)
     {
         if (type.equals(GetWikipediaFunction.WAYPOINT_TYPE)) {
-            Resources res = App.resources;
             if (res != null)
                 return res.getString(R.string.wpt_wikipedia);
         }
@@ -135,7 +138,7 @@ public class TourDetails {
         SourceInfo sourceInfo = App.getSourceInfo();
         if (sourceInfo != null) {
             info.title = sourceInfo.getFileTitle();
-            info.description = sourceInfo.getTrackDescription();;
+            info.description = sourceInfo.getTrackDescription();
             if (info.description.isEmpty())
                 info.description = sourceInfo.getFileDescription();
             info.author = sourceInfo.getAuthor();
@@ -145,8 +148,7 @@ public class TourDetails {
     }
 
     /**
-     * provide Error information
-     *
+     * @return Error information
      */
     public AdditionalInfo getErrorInfo() {
         AdditionalInfo info = new AdditionalInfo();
@@ -201,20 +203,25 @@ public class TourDetails {
                     }
                 }
                 if (!info.type.isEmpty()) {
-                    if (info.comment.isEmpty())
+                    if (info.comment.isEmpty()) {
                         info.comment = info.type;
-                    else
+                    }
+                    else {
                         info.comment = info.type + ": " + info.comment;
+                    }
                 } else if (!info.symbol.isEmpty()) {
                     /* Handle outdooractive GPX infos */
                     info.symbol = interpretWaypointSymbol(info.symbol);
 
-                    if (!info.comment.isEmpty())
+                    if (!info.comment.isEmpty()) {
                         info.comment = info.symbol + ": " + info.comment;
-                    else
+                    }
+                    else {
                         info.comment = info.symbol;
-                } else
+                    }
+                } else {
                     info.comment = "";
+                }
             }
         }
         return info;
@@ -249,5 +256,4 @@ public class TourDetails {
         public String sourceLink = "";
         public String link = "";
     }
-
 }

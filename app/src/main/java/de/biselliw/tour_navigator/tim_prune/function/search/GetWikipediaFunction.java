@@ -10,6 +10,7 @@ import javax.xml.parsers.SAXParserFactory;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -68,7 +69,7 @@ public class GetWikipediaFunction extends GenericSearchFunction
 
 		// Set status label according to error or "none found", leave blank if ok
 		if (_errorMessage.isEmpty() && _trackListModel.isEmpty()) {
-			_errorMessage = App.resources.getString(R.string.wikipedia_articles_none_found);
+			_errorMessage = Resources.getString(R.string.wikipedia_articles_none_found);
 		}
 	}
 
@@ -98,7 +99,7 @@ public class GetWikipediaFunction extends GenericSearchFunction
         }
         catch (Exception e) {
             Log.e(TAG,"submitSearch: " + e.getClass().getName() + " - " + e.getMessage());
-            _errorMessage = App.resources.getString(R.string.server_not_found);
+            _errorMessage = Resources.getString(R.string.server_not_found);
         }
         // Close stream and ignore errors
         try {
@@ -116,13 +117,15 @@ public class GetWikipediaFunction extends GenericSearchFunction
                 _errorMessage = error;
             }
 
-            if (xmlHandler.getTrackList() != null)
+            if (xmlHandler.getTrackList() != null) {
                 for (SearchResult searchResult : xmlHandler.getTrackList()) {
                     searchResult.update();
                     // Check if a point is already loaded
                     if (!searchResultIsDuplicate(searchResult))
                         reducedTrackList.add(searchResult);
                 }
+                xmlHandler.getTrackList().clear();
+            }
             _trackListModel.addTracks(reducedTrackList, true);
         }
     }

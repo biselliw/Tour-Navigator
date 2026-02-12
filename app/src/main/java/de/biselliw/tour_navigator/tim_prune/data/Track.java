@@ -608,14 +608,14 @@ public class Track {
 	}
 
 	/**
-     * Append the specified point range to the end of the track
-     *
-     * @param inPoints list of points to append
-     */
-	public void appendRange(List<DataPoint> inPoints)
+	 * Append the specified point range to the end of the track
+	 * @param inPoints list of points to append
+	 * @return true if it worked, false otherwise
+	 */
+	public boolean appendRange(List<DataPoint> inPoints)
 	{
 		if (inPoints == null || inPoints.isEmpty()) {
-			return;
+			return false;
 		}
 		// Make new array to copy points over to
 		DataPoint[] newPointArray = new DataPoint[_numPoints + inPoints.size()];
@@ -631,6 +631,7 @@ public class Track {
 		_dataPoints = newPointArray;
 		_numPoints = _dataPoints.length;
 		_scaled = false;
+		return true;
     }
 
     /**

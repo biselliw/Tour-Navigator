@@ -15,6 +15,7 @@ import javax.xml.parsers.SAXParserFactory;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.stubs.Config;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -72,7 +73,7 @@ public class SearchOsmGuidePostsFunction extends GenericSearchFunction
 
         // Set status label according to error or "none found", leave blank if ok
         if (_errorMessage == null && _trackListModel.isEmpty()) {
-            _errorMessage = App.resources.getString(R.string.osm_pois_none_found);
+            _errorMessage = Resources.getString(R.string.osm_pois_none_found);
         }
 	}
 
@@ -107,7 +108,7 @@ public class SearchOsmGuidePostsFunction extends GenericSearchFunction
                     saxParser.parse(inStream, xmlHandler);
                 } catch (Exception e) {
                     Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
-                    _errorMessage = App.resources.getString(R.string.server_not_found);
+                    _errorMessage = Resources.getString(R.string.server_not_found);
                     _trackListModel.changed = true;
                     return;
                 }
@@ -156,7 +157,7 @@ public class SearchOsmGuidePostsFunction extends GenericSearchFunction
 
             // Add track list to model
             if (reducedTrackList.isEmpty())
-                _errorMessage = App.resources.getString(R.string.osm_pois_none_found);
+                _errorMessage = Resources.getString(R.string.osm_pois_none_found);
         }
 
 		_trackListModel.addTracks(reducedTrackList, true);

@@ -25,7 +25,7 @@ import java.util.List;
 
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.function.GpxAltitudeSmoother;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -43,10 +43,13 @@ public class TrackTiming {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    private static final boolean BREAK_SEGMENTS_AT_ROUTE_POINT = true;
+
+    /** original track */
     private TrackDetails _track;
 
+    /** list of segments calculated for this track */
     private List<Segment> _segments = null;
-
 
     /**
      * Recalculate all track points
@@ -57,7 +60,7 @@ public class TrackTiming {
         SettingsActivity.getHikingParameters(_trackSegments);
 
         if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_DEFAULT) {
-            _segments = _trackSegments.calcSegmentsByDefault(inTrack, false);
+            _segments = _trackSegments.calcSegmentsByDefault(inTrack, false, BREAK_SEGMENTS_AT_ROUTE_POINT);
             _trackSegments.calcSegmentsValues(inTrack, false, _segments);
         } else if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == SEGMENTED_LEAST_SQUARES) {
             _segments = _trackSegments.calcSegmentsByLeastSquares(inTrack, false);
@@ -85,17 +88,17 @@ public class TrackTiming {
             for (int ptIndex = 0; ptIndex <= _track.getNumPoints()  - 1; ptIndex++) {
                 DataPoint currPoint = _track.getPoint(ptIndex);
 
-                double segment_climb_m = (segment.deltaY > 0) ? segment.deltaY : 0;
-                double segment_descent_m = (segment.deltaY < 0) ? -segment.deltaY : 0;
+                double segment_climb_m = (segment.getDeltaY() > 0) ? segment.getDeltaY() : 0;
+                double segment_descent_m = (segment.getDeltaY() < 0) ? -segment.getDeltaY() : 0;
                 if (currPoint.isRoutePoint()) {
-                    double dX = currPoint.getDistance() - segment.distance;
-                    if (segment.deltaX > 0) {
-                        double relDistance = dX / segment.deltaX;
+                    double dX = currPoint.getDistance() - segment.getDistance();
+                    if (segment.getDeltaX() > 0) {
+                        double relDistance = dX / segment.getDeltaX();
                         double total_climb   = segment_startClimb_m   + relDistance * segment_climb_m;
                         double total_descent = segment_startDescent_m + relDistance * segment_descent_m;
                         long seconds =
                                 sumStartSeconds +
-                                        (segSumBreakTime_min * 60L) + (long) (relDistance * segment.activeTime_s);
+                                        (segSumBreakTime_min * 60L) + (long) (relDistance * segment.getActiveTime_s());
 
                         record = new RecordAdapter.Record(
                                 currPoint,
@@ -117,11 +120,11 @@ public class TrackTiming {
                         currPoint.setTime(seconds);
                     }
                 }
-                if (currPoint.getDistance() >= segment.distance + segment.deltaX) {
+                if (currPoint.getDistance() >= segment.getDistance() + segment.getDeltaX()) {
                     if (_segments.size() > ++seg) {
                         segment_startClimb_m += segment_climb_m;
                         segment_startDescent_m += segment_descent_m;
-                        sumStartSeconds += segment.activeTime_s + segSumBreakTime_min * 60;
+                        sumStartSeconds += segment.getActiveTime_s() + segSumBreakTime_min * 60;
                         segment = _segments.get(seg);
                         segSumBreakTime_min = 0;
                     } //else
@@ -162,20 +165,20 @@ public class TrackTiming {
     public double getSegmentStartDistance(int inIndex) {
         if (_segments != null)
             if (inIndex < _segments.size())
-                return _segments.get(inIndex).distance;
+                return _segments.get(inIndex).getDistance();
         return 0.0;
     }
     public double getSegmentEndDistance(int inIndex) {
         if (_segments != null)
             if (inIndex < _segments.size())
-                return _segments.get(inIndex).distance + _segments.get(inIndex).deltaX;
+                return _segments.get(inIndex).getDistance() + _segments.get(inIndex).getDeltaX();
         return 0.0;
     }
 
     public double getSegmentStartElevation(int inIndex) {
         if (_segments != null)
             if (inIndex < _segments.size())
-                return _segments.get(inIndex).elevation;
+                return _segments.get(inIndex).getElevation();
         return 0.0;
     }
 
@@ -183,7 +186,7 @@ public class TrackTiming {
         if (_segments != null)
             if (inIndex < _segments.size()) {
                 Segment segment = _segments.get(inIndex);
-                return segment.elevation + segment.deltaY;
+                return segment.getElevation() + segment.getDeltaY();
             }
         return 0.0;
     }

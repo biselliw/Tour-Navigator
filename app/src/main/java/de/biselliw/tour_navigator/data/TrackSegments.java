@@ -69,7 +69,6 @@ public class TrackSegments {
     protected double _speedDescent = DEF_SPEED_DESCENT;
     protected int gradientThresholdDesc = (int) (DEF_GRADIENT_THRESHOLD_DESC);
     protected TrackDetails _track = null;
-    private boolean trackHasTimeStamps = false;
     private static double _minAltitude_m, _maxAltitude_m;
 
     public static SummarySegments summary = new SummarySegments();
@@ -136,7 +135,8 @@ public class TrackSegments {
         }
     }
 
-    public void calcSegmentsValues(TrackDetails inTrack, boolean inHasTimeStamps, List<Segment> inSegments) {
+    public void calcSegmentsValues(TrackDetails inTrack, boolean inHasTimeStamps,
+       List<Segment> inSegments) {
         summary = updateSegmentsValues(inTrack, inHasTimeStamps, inSegments);
     }
 
@@ -158,34 +158,35 @@ public class TrackSegments {
         for (int i = 0; i < inSegments.size(); i++) {
             Segment segment = inSegments.get(i);
 
-            if (segment.deltaX > 0)
-                segment.gradient = Math.abs((int)(segment.deltaY / segment.deltaX) / 10);
+            if (segment.getDeltaX() > 0)
+                segment.setGradient(Math.abs((int)(segment.getDeltaY() / segment.getDeltaX()) / 10));
             if (segment.segmentType == Segment.type.SEG_INVALID) {
-                if (segment.deltaY > 0)
+                if (segment.getDeltaY() > 0)
                     segment.segmentType = Segment.type.SEG_UP;
-                else if (segment.deltaY < 0)
+                else if (segment.getDeltaY() < 0)
                     segment.segmentType = Segment.type.SEG_DOWN;
                 else
                     segment.segmentType = Segment.type.SEG_FLAT;
             }
 
-            DataPoint start = _track.getPoint(segment.startIndex);
-            DataPoint end   = _track.getPoint(segment.endIndex);
+            DataPoint start = _track.getPoint(segment.getStartIndex());
+            DataPoint end   = _track.getPoint(segment.getEndIndex());
             long horSeconds = 0;
 
-            segment.breakTime_s =
-                    calcTotalBreakTimeBetween(inTrack, inTrackHasTimeStamps, segment.startIndex, segment.endIndex);
-            totalBreakTime_s += segment.breakTime_s;
+            segment.setBreakTime_s(calcTotalBreakTimeBetween(
+                    inTrack, inTrackHasTimeStamps, segment.getStartIndex(), segment.getEndIndex()));
+            if (segment.getBreakTime_s() > 0)
+                totalBreakTime_s += segment.getBreakTime_s();
             if (inTrackHasTimeStamps) {
+                long activeTime_s = 0;
                 if (start != null && start.hasTimestamp() && end != null && end.hasTimestamp())
-                    segment.activeTime_s = end.getTimestamp().getSecondsSince(start.getTimestamp()) - segment.breakTime_s;
-                else
-                    segment.activeTime_s = 0;
-                if (segment.activeTime_s < 0)
-                    segment.activeTime_s = 0;
+                    activeTime_s = end.getTimestamp().getSecondsSince(start.getTimestamp()) - segment.getBreakTime_s();
+                if (segment.getActiveTime_s() < 0)
+                    activeTime_s = 0;
+                segment.setActiveTime_s(activeTime_s);
             }
             else
-                horSeconds = (long) (segment.deltaX / _horSpeed * 3600.0);
+                horSeconds = (long) (segment.getDeltaX() / _horSpeed * 3600.0);
 
             // Calculate moderate/steep type of a segment depending on the gradient threshold
             switch (segment.segmentType) {
@@ -194,55 +195,55 @@ public class TrackSegments {
                 case SEG_UP:
                 case SEG_UP_MODERATE:
                 case SEG_UP_STEEP:
-                    sum_climb_m += segment.deltaY;
-                    totalDistanceClimb_km += segment.deltaX;
+                    sum_climb_m += segment.getDeltaY();
+                    totalDistanceClimb_km += segment.getDeltaX();
                     break;
                 case SEG_DOWN:
                 case SEG_DOWN_MODERATE:
                 case SEG_DOWN_STEEP:
-                    sum_descent_m -= segment.deltaY;
-                    totalDistanceDescent_km += segment.deltaX;
+                    sum_descent_m -= segment.getDeltaY();
+                    totalDistanceDescent_km += segment.getDeltaX();
                     break;
             }
 
             if (!inTrackHasTimeStamps) {
                 switch (segment.segmentType) {
                     case SEG_FLAT:
-                        segment.activeTime_s = horSeconds;
+                        segment.setActiveTime_s(horSeconds);
                         break;
                     case SEG_UP:
                     case SEG_UP_MODERATE:
                     case SEG_UP_STEEP:
-                        vertSeconds = (long) (segment.deltaY / _speedClimb * 3.6);
+                        vertSeconds = (long) (segment.getDeltaY() / _speedClimb * 3.6);
                         if (DEBUG) gradientThreshold = _speedClimb / _horSpeed * 100;
                         if (horSeconds > vertSeconds) {
-                            segment.activeTime_s = (long) (horSeconds + vertSeconds / 2.0);
+                            segment.setActiveTime_s((long) (horSeconds + vertSeconds / 2.0));
                             segment.segmentType = Segment.type.SEG_UP_MODERATE;
                         } else {
-                            segment.activeTime_s = (long) (horSeconds / 2.0 + vertSeconds);
+                            segment.setActiveTime_s((long) (horSeconds / 2.0 + vertSeconds));
                             segment.segmentType = Segment.type.SEG_UP_STEEP;
                         }
-                        totalDistanceClimb_km += segment.deltaX;
+                        totalDistanceClimb_km += segment.getDeltaX();
                         break;
                     case SEG_DOWN:
                     case SEG_DOWN_MODERATE:
                     case SEG_DOWN_STEEP:
-                        vertSeconds = (long) (-segment.deltaY / _speedDescent * 3.6);
+                        vertSeconds = (long) (-segment.getDeltaY() / _speedDescent * 3.6);
                         if (DEBUG) gradientThreshold = _speedDescent / _horSpeed * 100;
                         if (horSeconds > vertSeconds) {
-                            segment.activeTime_s = (long) (horSeconds + vertSeconds / 2.0);
+                            segment.setActiveTime_s((long) (horSeconds + vertSeconds / 2.0));
                             segment.segmentType = Segment.type.SEG_DOWN_MODERATE;
                         } else {
-                            segment.activeTime_s = (long) (horSeconds / 2.0 + vertSeconds);
+                            segment.setActiveTime_s((long) (horSeconds / 2.0 + vertSeconds));
                             segment.segmentType = Segment.type.SEG_DOWN_STEEP;
                         }
-                        totalDistanceDescent_km += segment.deltaX;
+                        totalDistanceDescent_km += segment.getDeltaX();
                         break;
                 }
             }
 
-            totalSeconds += segment.activeTime_s + segment.breakTime_s;
-            totalDistance_km += segment.deltaX;
+            totalSeconds += segment.getActiveTime_s() + segment.getBreakTime_s();
+            totalDistance_km += segment.getDeltaX();
         }
 
         /*
@@ -321,7 +322,7 @@ public class TrackSegments {
         /* Analyze segments */
         for (int i = 0; i < inSegments.size(); i++) {
             Segment segment = inSegments.get(i);
-            long horSeconds = (long) (segment.deltaX / _horSpeed * 3600.0);
+            long horSeconds = (long) (segment.getDeltaX() / _horSpeed * 3600.0);
             long vertSeconds = 0;
             long totalSeconds = 0L;
 
@@ -330,19 +331,19 @@ public class TrackSegments {
                     totalSeconds = horSeconds;
                     break;
                 case SEG_UP_MODERATE:
-                    vertSeconds = (long) (segment.deltaY / _speedClimb * 3.6);
+                    vertSeconds = (long) (segment.getDeltaY() / _speedClimb * 3.6);
                     totalSeconds = horSeconds + vertSeconds / 2;
                     break;
                 case SEG_UP_STEEP:
-                    vertSeconds = (long) (segment.deltaY / _speedClimb * 3.6);
+                    vertSeconds = (long) (segment.getDeltaY() / _speedClimb * 3.6);
                     totalSeconds = horSeconds / 2 + vertSeconds;
                     break;
                 case SEG_DOWN_MODERATE:
-                    vertSeconds = (long) (-segment.deltaY / _speedDescent * 3.6);
+                    vertSeconds = (long) (-segment.getDeltaY() / _speedDescent * 3.6);
                     totalSeconds = horSeconds + vertSeconds / 2;
                     break;
                 case SEG_DOWN_STEEP:
-                    vertSeconds = (long) (-segment.deltaY / _speedDescent * 3.6);
+                    vertSeconds = (long) (-segment.getDeltaY() / _speedDescent * 3.6);
                     totalSeconds = horSeconds / 2 + vertSeconds;
                     break;
             }
@@ -388,8 +389,8 @@ public class TrackSegments {
         if (!inSegments.isEmpty() && inTrack.getNumPoints() > 0) {
             int segmentIndex = 0;
             currSegment = inSegments.get(segmentIndex);
-            currSegment.startIndex = -1;
-            currSegment.endIndex = -1;
+            currSegment.setStartIndex(-1);
+            currSegment.setEndIndex(-1);
             DataPoint lastPoint = inTrack.getPoint(inTrack.getNumPoints() - 1);
             for (int i = 0; i < inTrack.getNumPoints(); i++) {
                 currPoint = inTrack.getPoint(i);
@@ -400,10 +401,10 @@ public class TrackSegments {
                         check = true;
                     distance = currPoint.getDistance();
                     if (distance > prevDistance) {
-                        if (currSegment.startIndex < 0) {
-                            currSegment.startIndex = i;
+                        if (currSegment.getStartIndex() < 0) {
+                            currSegment.setStartIndex(i);
                             if (prevSegment != null)
-                                prevSegment.endIndex = i;
+                                prevSegment.setEndIndex(i);
                             prevSegment = currSegment;
                             prevDistance = distance;
                         }
@@ -428,17 +429,17 @@ public class TrackSegments {
                     else
                         // failure in GPX file
                         check = true;
-                    if (distance > currSegment.distance + currSegment.deltaX)
+                    if (distance + 0.005 >= currSegment.getDistance() + currSegment.getDeltaX())
                         if (segmentIndex < inSegments.size() - 1) {
                             currSegment = inSegments.get(++segmentIndex);
-                            currSegment.startIndex = -1;
-                            currSegment.endIndex = -1;
+                            currSegment.setStartIndex(-1);
+                            currSegment.setEndIndex(-1);
                         }
                 }
                 else
                     check = true;
             }
-            currSegment.endIndex = inTrack.getNumPoints() - 1;
+            currSegment.setEndIndex(inTrack.getNumPoints() - 1);
             if (inTrackHasTimeStamps) {
                 success = currPoint != null && currPoint.hasTimestamp() && firstPoint != null && firstPoint.hasTimestamp();
                 if (success) {
@@ -478,7 +479,7 @@ public class TrackSegments {
                 if (currPoint.hasAltitude()) {
                     Altitude altitude = currPoint.getAltitude();
                     if (altitude.isValid())
-                        trackPoints.add(new TrackPoint(totalDistance_km, altitude.getValue()));
+                        trackPoints.add(new TrackPoint(totalDistance_km, altitude.getValue(), currPoint.isRoutePoint()));
                 }
             }
         }
@@ -492,9 +493,11 @@ public class TrackSegments {
      *
      * @param inTrack track
      * @param inTrackHasTimeStamps if true: apply parameters for analysis of recorded tracks
+     * @param inBreakSegmentsAtRoutePoint if true: force segment end at a route point
      * @return list of track segments
      */
-    public List<Segment> calcSegmentsByDefault(TrackDetails inTrack, boolean inTrackHasTimeStamps) {
+    public List<Segment> calcSegmentsByDefault(TrackDetails inTrack, boolean inTrackHasTimeStamps,
+               boolean inBreakSegmentsAtRoutePoint) {
         _track = inTrack;
         if (!USE_PROFILE_ANALYSIS_DEFAULT || inTrack == null) return null;
 
@@ -513,7 +516,7 @@ public class TrackSegments {
         // Approximate the profile as a sequence of linear segments using the default method
         SegmentedDefault segmentedDefault = new SegmentedDefault();
         List<Segment> segments =
-                segmentedDefault.calcSegments(filtered, wiggleLimit);
+                segmentedDefault.calcSegments(filtered, wiggleLimit, inBreakSegmentsAtRoutePoint);
 
         // update the linear segments (indices refer to simplified track!)
         linkSegmentsToTrack(segments, inTrack, inTrackHasTimeStamps);
@@ -555,18 +558,14 @@ public class TrackSegments {
         List<Segment> segments = new ArrayList<>();
 
         for (int i = 0; i < _segments.size(); i++) {
-            Segment segment = new Segment();
             SegmentedLeastSquares.Segment _segment = _segments.get(i);
             TrackPoint start   = trackPoints.get(_segment.startIndex);
             // NOTE for SegmentedLeastSquares.Segment: _segment.get(i+1).startIndex = _segment.get(i).endIndex + 1 !
             int endIndex = _segment.endIndex;
             if (i < _segments.size() - 1) endIndex++;
             TrackPoint end    = trackPoints.get(endIndex);
-            segment.distance  = start.distance;
-            segment.elevation = start.elevation;
-            segment.deltaX    = end.distance - start.distance;
-            segment.deltaY    = end.elevation - start.elevation;;
-
+            Segment segment = new Segment(start.distance, start.elevation,
+                    end.distance - start.distance, end.elevation - start.elevation);
             segments.add(segment);
         }
 
@@ -606,16 +605,12 @@ public class TrackSegments {
         List<Segment> segments = new ArrayList<>();
 
         for (int i = 0; i < simplified.size() - 1; i++) {
-            Segment segment = new Segment();
             TrackPoint start = simplified.get(i);
-            segment.distance = start.distance;
-            segment.elevation = start.elevation;
-
             TrackPoint end = simplified.get(i + 1);
-            segment.deltaX = end.distance - start.distance;
-
-            if (segment.deltaX > 0.0) {
-                segment.deltaY = end.elevation - start.elevation;
+            double deltaX = end.distance - start.distance;
+            if (deltaX > 0.0) {
+                Segment segment = new Segment(start.distance, start.elevation,
+                    deltaX, end.elevation - start.elevation);
                 segments.add (segment);
             }
         }
