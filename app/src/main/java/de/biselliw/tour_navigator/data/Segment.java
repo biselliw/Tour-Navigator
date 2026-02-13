@@ -45,6 +45,7 @@ public class Segment {
 
     /** index range with regard to original track */
     private int startIndex, endIndex;
+    public boolean segmentEndForced;
 
     /** Distance since start [km] */
     private double distance;

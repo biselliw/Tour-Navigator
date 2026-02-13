@@ -62,6 +62,7 @@ public class SegmentedDefault {
     private static final boolean SET_END_INDEX_OF_PREVIOUS_EXTREME = true;
     private static final boolean CHECK_FLAT_SEGMENTS = true;
     private static final boolean USE_INITIAL_FLAT = true;
+    private static final boolean REORGANIZE_SEGMENTS_AT_END = false;
 
     private static final double MIN_DISTANCE_FLAT_SEGMENT = 0.25;
     boolean checkFlatSegment = false;
@@ -170,61 +171,87 @@ public class SegmentedDefault {
             if (segmentEndForced)
                 _segment.setEndIndex(ptIndex);
 
-            if (_segmentEndDetected)
-                updateSegmentEndDetected(ptIndex, false);
-            else if (segmentEndForced || finished)
+            if (segmentEndForced || finished)
                 updateSegmentEndForced(ptIndex);
+            else if (_segmentEndDetected)
+                updateSegmentEndDetected(ptIndex, false);
 
             if (_segmentEndDetected || segmentEndForced || finished) {
                 if (_segment.segmentType != Segment.type.SEG_INVALID) {
-                    if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT
-                            && _segment.segmentType == Segment.type.SEG_FLAT) {
-                        _prevSegment.setDeltaX(_prevSegment.getDeltaX() + _segment.getDeltaX());
-                        checkFlatSegment = false;
-                        _prevSegment.setEndIndex(_segment.getEndIndex());
-                        _segment = _prevSegment;
+                    if (REORGANIZE_SEGMENTS_AT_END) {
+                        segments.add(_segment);
                     }
                     else {
-                        segments.add(_segment);
-                        _prevSegment = _segment;
+                        if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT
+                                && _segment.segmentType == Segment.type.SEG_FLAT
+                                && !segmentEndForced) {
+                            _prevSegment.setDeltaX(_prevSegment.getDeltaX() + _segment.getDeltaX());
+                            checkFlatSegment = false;
+                            _prevSegment.setEndIndex(_segment.getEndIndex());
+                            _segment = _prevSegment;
+                        }
+                        else {
+                            segments.add(_segment);
+                            _prevSegment = _segment;
+                        }
                     }
                 }
 
                 if (segmentEndForced || finished || checkFlatSegment) {
                     TrackPoint start = inTrackPoints.get(_segment.getStartIndex());
-                    TrackPoint end   = inTrackPoints.get(_segment.getEndIndex());
-                    if (_segment.segmentType != Segment.type.SEG_INVALID)  {
+                    int endIndex = _segment.getEndIndex();
+                    TrackPoint end = inTrackPoints.get(endIndex);
+                    if (_segment.segmentType != Segment.type.SEG_INVALID) {
                         start = end;
                         // todo check new segment at end
-                        end = finished ? currPoint : _prevPoint;
+                        endIndex = ptIndex;
+                        if (!finished)
+                            endIndex--;
+                        end = inTrackPoints.get(endIndex);
                     }
                     double deltaX = end.distance - start.distance;
+                    double deltaY = end.elevation - start.elevation;
 
                     if (deltaX > 0) {
-                        if ((deltaX >= MIN_DISTANCE_FLAT_SEGMENT) || segmentEndForced || finished) {
-                            // start with new segment
-                            _segment = new Segment(start.distance, start.elevation, deltaX, 0.0);
+                        if (REORGANIZE_SEGMENTS_AT_END) {
+                            _segment = new Segment(_segment);
+                            _segment.setDeltaX(deltaX);
+                            _segment.setDeltaY(deltaY);
                             _segment.segmentType = Segment.type.SEG_FLAT;
-                            _segment.setEndIndex(ptIndex); // todo check index
-
-                            // update overall data at the end of the segment from section data
-                            if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT && _segment.segmentType == Segment.type.SEG_FLAT)
-                                _prevSegment.setDeltaX(_prevSegment.getDeltaX() + _segment.getDeltaX());
-                            else
-                                segments.add(_segment);
-                            _prevSegment = _segment;
-                            /*
-                            if (_overallUp)
-                                _gotPreviousMinimum = true;
-                            if (_overallDn)
-                                _gotPreviousMaximum = true;
-                             */
-                            _gotPreviousMinimum = _gotPreviousMaximum = false;
+                            _segment.setEndIndex(endIndex); // todo check index
+                            segments.add(_segment);
                         }
-                    }
-                    if (segmentEndForced && _segment.getEndIndex() < ptIndex)
-                        _segment.setEndIndex(ptIndex);
+                        else {
+                            if ((deltaX >= MIN_DISTANCE_FLAT_SEGMENT) || segmentEndForced || finished) {
+                                // start with new segment
+                                //                            _segment = new Segment(start.distance, start.elevation, deltaX, 0.0);
+                                Segment prevSegment = _segment;
+                                _segment = new Segment(_segment);
+                                _segment.setDeltaX(deltaX);
+// todo                                _segment.setDeltaY(deltaY);
+                                _segment.segmentType = Segment.type.SEG_FLAT;
+                                _segment.setEndIndex(endIndex); // todo check index
 
+                                // update overall data at the end of the segment from section data
+                                if (_prevSegment != null && _prevSegment.segmentType == Segment.type.SEG_FLAT
+                                        && _segment.segmentType == Segment.type.SEG_FLAT
+                                        && !segmentEndForced)
+                                    _prevSegment.setDeltaX(_prevSegment.getDeltaX() + _segment.getDeltaX());
+                                else
+                                    segments.add(_segment);
+                                _prevSegment = _segment;
+                                /*
+                                if (_overallUp)
+                                    _gotPreviousMinimum = true;
+                                if (_overallDn)
+                                    _gotPreviousMaximum = true;
+                                 */
+                                _gotPreviousMinimum = _gotPreviousMaximum = false;
+                            }
+                        }
+                        if (segmentEndForced && _segment.getEndIndex() < ptIndex)
+                            _segment.setEndIndex(ptIndex);
+                    }
                     if (CHECK_FLAT_SEGMENTS) {
                         checkFlatSegment = false;
                         if (DEBUG) _sumLastAltitudes = -_lastAltitudeDiff_m;
@@ -411,13 +438,14 @@ public class SegmentedDefault {
             _overallUp = _gotPreviousMinimum && (_previousValue_m > _previousExtreme);
             _overallDn = _gotPreviousMaximum && _previousValue_m < _previousExtreme;
         }
+        double deltaY = _previousValue_m - _previousExtreme;
         if (_overallUp) {
             if (_segment.getDeltaX()  > 0.05)
                 _segment.segmentType = Segment.type.SEG_UP;
             // Add the climb from _previousExtreme up to _previousValue
             if (DEBUG)
                 _previousMinimum = _previousExtreme;
-            _segment.setDeltaY(_previousValue_m - _previousExtreme);
+            _segment.setDeltaY(deltaY);
             _previousExtreme = _previousValue_m;
             _gotPreviousMinimum = false;
             _gotPreviousMaximum = true;
@@ -428,27 +456,31 @@ public class SegmentedDefault {
             // Add the descent from _previousExtreme down to _previousValue
             if (DEBUG)
                 _previousMaximum = _previousExtreme;
-            _segment.setDeltaY(_previousValue_m - _previousExtreme);
+            _segment.setDeltaY(deltaY);
             _previousExtreme = _previousValue_m;
             _gotPreviousMinimum = true;
             _gotPreviousMaximum = false;
             _previousValue_m = _altitudeValue;
         } else {
-            _segment.setDeltaY(0); // todo dY ?
+            _segment.setDeltaY(0); // todo deltaY ?
             if (_segment.getDeltaX()  > 0.05)
                 _segment.segmentType = Segment.type.SEG_FLAT;
         }
     }
 
     private void updateSegmentEndForced(int inIndex) {
+        _segment.segmentEndForced = true;
         if (_segment.getEndIndex() <= _segment.getStartIndex())
             _segment.setEndIndex(inIndex);
         TrackPoint start = _trackPoints.get(_segment.getStartIndex());
         TrackPoint end = _trackPoints.get(_segment.getEndIndex());
         _segment.setDistance(start.distance); // todo
         _segment.setDeltaX(end.distance - start.distance);
-        if (_previousExtreme > 0)
-            _segment.setDeltaY(_previousValue_m - _previousExtreme);
+        double deltaY = _previousValue_m - _previousExtreme;
+        double deltaElevation = end.elevation - _segment.getElevation();
+        double dY = deltaElevation - deltaY;
+        _segment.setDeltaY(deltaElevation);
+// todo        if (_previousExtreme > 0)        _segment.setDeltaY(deltaY);
 
         if (_segment.getDeltaY() > 0) {
             _segment.segmentType = Segment.type.SEG_UP;

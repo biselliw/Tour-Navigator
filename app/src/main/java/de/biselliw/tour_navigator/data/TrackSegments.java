@@ -191,6 +191,10 @@ public class TrackSegments {
             // Calculate moderate/steep type of a segment depending on the gradient threshold
             switch (segment.segmentType) {
                 case SEG_FLAT:
+                    if (segment.getDeltaY() > 0)
+                        sum_climb_m += segment.getDeltaY(); // todo
+                    else
+                        sum_descent_m -= segment.getDeltaY();
                     break;
                 case SEG_UP:
                 case SEG_UP_MODERATE:

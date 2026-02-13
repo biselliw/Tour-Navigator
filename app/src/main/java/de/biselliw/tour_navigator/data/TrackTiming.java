@@ -75,60 +75,86 @@ public class TrackTiming {
         List<RecordAdapter.Record> recordList = null;
         double sumClimb_m = 0, sumDescent_m = 0;
 
+        if (DEBUG) { }
+        double sum_record_climb_m, sum_record_descent_m, sum_segment_climb_m, sum_segment_descent_m;
+        sum_record_climb_m = 0.0;
+        sum_record_descent_m = 0.0;
+        sum_segment_climb_m = 0.0;
+        sum_segment_descent_m = 0.0;
+        boolean error = false;
+
         if (!_segments.isEmpty()) {
             int seg = 0;
             Segment segment = _segments.get(seg);
+            if (DEBUG) {
+                sum_segment_climb_m = segment.getDeltaY();
+            }
             recordList = new ArrayList<>();
             RecordAdapter.Record record;
 
-            double prevDistance_km = 0;
+            double segment_climb_m = 0.0,  segment_descent_m = 0.0;
+            double prevDistance_km = 0.0;
             long sumStartSeconds = 0L, sumSeconds = 0L;
             double segment_startClimb_m = 0.0, segment_startDescent_m = 0.0;
             int breakTime_min = 0, segSumBreakTime_min = 0;
-            for (int ptIndex = 0; ptIndex <= _track.getNumPoints()  - 1; ptIndex++) {
+            for (int ptIndex = 0; ptIndex < _track.getNumPoints(); ptIndex++) {
                 DataPoint currPoint = _track.getPoint(ptIndex);
-
-                double segment_climb_m = (segment.getDeltaY() > 0) ? segment.getDeltaY() : 0;
-                double segment_descent_m = (segment.getDeltaY() < 0) ? -segment.getDeltaY() : 0;
                 if (currPoint.isRoutePoint()) {
-                    double dX = currPoint.getDistance() - segment.getDistance();
-                    if (segment.getDeltaX() > 0) {
-                        double relDistance = dX / segment.getDeltaX();
-                        double total_climb   = segment_startClimb_m   + relDistance * segment_climb_m;
-                        double total_descent = segment_startDescent_m + relDistance * segment_descent_m;
-                        long seconds =
-                                sumStartSeconds +
-                                        (segSumBreakTime_min * 60L) + (long) (relDistance * segment.getActiveTime_s());
+                    while (segment != null) {
+                        double dX = currPoint.getDistance() - segment.getDistance();
+                        segment_climb_m = (segment.getDeltaY() >= 0) ? segment.getDeltaY() : 0;
+                        segment_descent_m = (segment.getDeltaY() < 0) ? -segment.getDeltaY() : 0;
+                        if ((dX >= 0 && dX < segment.getDeltaX() + 0.010) || ptIndex >= _track.getNumPoints() - 1 ) {
+                            double relDistance = dX / segment.getDeltaX();
+                            double total_climb   = segment_startClimb_m   + relDistance * segment_climb_m;
+                            double total_descent = segment_startDescent_m + relDistance * segment_descent_m;
+                            long seconds = sumStartSeconds +
+                                (segSumBreakTime_min * 60L) + (long) (relDistance * segment.getActiveTime_s());
 
-                        record = new RecordAdapter.Record(
+                            record = new RecordAdapter.Record(
                                 currPoint,
                                 ptIndex,
                                 currPoint.getDistance() - prevDistance_km,
                                 total_climb - sumClimb_m,
                                 total_descent - sumDescent_m,
                                 seconds - sumSeconds
-                        );
+                            );
+                            recordList.add(record);
 
-                        prevDistance_km = currPoint.getDistance();
-                        sumClimb_m = total_climb;
-                        sumDescent_m = total_descent;
-                        breakTime_min = currPoint.getWaypointDuration();
-                        segSumBreakTime_min += breakTime_min;
-                        sumSeconds = seconds + breakTime_min * 60L;
+                            if (DEBUG) {
+                                sum_record_climb_m += record.Sclimb;
+                                sum_record_descent_m += record.Sdescent;
+                                if (sum_record_climb_m > sum_segment_climb_m || sum_record_descent_m > sum_segment_descent_m)
+                                    error = true;
 
-                        recordList.add(record);
-                        currPoint.setTime(seconds);
+                            }
+
+                            prevDistance_km = currPoint.getDistance();
+                            sumClimb_m = total_climb;
+                            sumDescent_m = total_descent;
+                            breakTime_min = currPoint.getWaypointDuration();
+                            segSumBreakTime_min += breakTime_min;
+                            sumSeconds = seconds + breakTime_min * 60L;
+                            currPoint.setTime(seconds);
+
+                            break;
+                        }
+                        else {
+                            if (_segments.size() > seg) {
+                                segment_startClimb_m += segment_climb_m;
+                                segment_startDescent_m += segment_descent_m;
+                                sumStartSeconds += segment.getActiveTime_s() + segSumBreakTime_min * 60L;
+                                segSumBreakTime_min = 0;
+                                segment = _segments.get(++seg);
+                                if (segment.getDeltaY() > 0)
+                                    sum_segment_climb_m += segment.getDeltaY();
+                                else
+                                    sum_segment_descent_m -= segment.getDeltaY();
+                            }
+                            else
+                                segment = null;
+                        }
                     }
-                }
-                if (currPoint.getDistance() >= segment.getDistance() + segment.getDeltaX()) {
-                    if (_segments.size() > ++seg) {
-                        segment_startClimb_m += segment_climb_m;
-                        segment_startDescent_m += segment_descent_m;
-                        sumStartSeconds += segment.getActiveTime_s() + segSumBreakTime_min * 60;
-                        segment = _segments.get(seg);
-                        segSumBreakTime_min = 0;
-                    } //else
-                      //  break;
                 }
             }
         }
