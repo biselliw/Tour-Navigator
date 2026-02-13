@@ -20,10 +20,10 @@ package de.biselliw.tour_navigator.activities;
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import de.biselliw.tour_navigator.activities.helper.WebViewActivity;
-import de.biselliw.tour_navigator.files.HTML_File;
 
 /**
  * Show the time table of the tour
@@ -34,7 +34,17 @@ public class TimeTableActivity extends WebViewActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        StringBuffer html = HTML_File.html;
-        loadData(html.toString());
+        // Handle a received intent
+        Intent intent = getIntent();
+        if (intent != null) {
+            String html = intent.getStringExtra("contents");
+            loadData(html);
+        }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
 }

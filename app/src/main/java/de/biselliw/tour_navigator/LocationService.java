@@ -120,8 +120,6 @@ public class LocationService extends Service {
     private void handleLocation(Location location) {
         if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
         // use system clock instead of GPS device time
-        Time CurrentTime = new Time();
-        CurrentTime.setToNow();
         Intent intent = new Intent(ACTION_LOCATION_UPDATE);
         intent.putExtra("location", location);
         sendBroadcast(intent);

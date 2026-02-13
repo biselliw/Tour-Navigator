@@ -197,9 +197,8 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         mHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 
 }

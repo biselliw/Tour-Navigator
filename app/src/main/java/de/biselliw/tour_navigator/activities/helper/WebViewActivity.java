@@ -56,6 +56,18 @@ public class WebViewActivity extends BaseActivity {
         super.onPostCreate(savedInstanceState);
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        _webView = null;
+        super.onDestroy();
+    }
+
+
     /**
      * Loads HTML contents
      * @param html HTML contents to load
@@ -120,4 +132,5 @@ public class WebViewActivity extends BaseActivity {
         if (_webView != null)
             _webView.scrollTo(0,0);
     }
+
 }

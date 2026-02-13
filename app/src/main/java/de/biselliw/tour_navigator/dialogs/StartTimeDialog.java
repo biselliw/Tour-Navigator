@@ -22,60 +22,62 @@ package de.biselliw.tour_navigator.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.text.format.Time;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.adapter.RecordAdapter;
 
 /**
  * Class to set the start time of the tour
  * @author BiselliW
  */
 public class StartTimeDialog extends Dialog {
-    public Time time;
-    RecordAdapter _recordAdapter;
-    Context _context;
-
     /**
      * Constructor
      *
      * @param context context
-     * @param recordAdapter adapter for the timetable records
      */
-    public StartTimeDialog(Context context, RecordAdapter recordAdapter) {
+    public StartTimeDialog(Context context) {
         super(context);
         setContentView(R.layout.dialog_starttime);
 
-        /* load time picker with current start time */
-        _recordAdapter = recordAdapter;
-        _context = context;
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        int time = 0;
+        if (sharedPref != null) {
+            time = sharedPref.getInt("StartTime", 0);
+        }
 
-        time = recordAdapter.getStartTime();
-        TimePicker timePicker = (TimePicker) findViewById(R.id.timePickerStart);
+        /* load time picker with current start time */
+        TimePicker timePicker = findViewById(R.id.timePickerStart);
         timePicker.setIs24HourView(true);
-        timePicker.setHour(time.hour);
-        timePicker.setMinute(time.minute);
+        timePicker.setMinute(time % 60);
+        timePicker.setHour(time / 60);
 
         /* define OnClick event for changing the start time */
-        Button buttonOkay = (Button) findViewById(R.id.bt_start_ok);
+        Button buttonOkay = findViewById(R.id.bt_start_ok);
         buttonOkay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 /* load current start time from time picker */
-                TimePicker timePicker = (TimePicker) findViewById(R.id.timePickerStart);
+                TimePicker timePicker = findViewById(R.id.timePickerStart);
 
-                time.setToNow();
-                time.hour =  timePicker.getHour();
-                time.minute =timePicker.getMinute();
+                int time = timePicker.getHour() * 60 + timePicker.getMinute();
 
-                ((MainActivity)_context).notifyStartTimeChanged(time);
+                if (sharedPref != null) {
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putInt("StartTime", time);
+                    editor.apply(); // editor.commit();
+                }
+
+                ((MainActivity)context).notifyStartTimeChanged(time);
                 dismiss();
             }
         });
+
         /* define OnClick event to cancel the dialog */
         Button cancelButton = findViewById(R.id.btn_cancel);
         cancelButton.setOnClickListener(v -> {

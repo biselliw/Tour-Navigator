@@ -24,7 +24,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
-import android.text.format.Time;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -44,6 +43,7 @@ import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.helpers.Log;
 
+import static de.biselliw.tour_navigator.data.Resources.resStrSetToDefault;
 import static de.biselliw.tour_navigator.ui.ControlElements.setAlarmPreference;
 
 /**
@@ -62,8 +62,6 @@ public class SettingsActivity extends BaseActivity {
     private static boolean _updateGooglePrefs = false;
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
-
-    private static String _resStrSetToDefault;
 
     static boolean hikingParametersChanged = false;
 
@@ -127,7 +125,7 @@ public class SettingsActivity extends BaseActivity {
                         //preference.setDefaultValue(defValue);
                         if (value == defaultValue)
                             /* Apply default value */
-                            stringValue = _resStrSetToDefault + ": " + defaultValue;
+                            stringValue = resStrSetToDefault + ": " + defaultValue;
                         return stringValue;
                     });
                 }
@@ -188,7 +186,6 @@ public class SettingsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        _resStrSetToDefault = getString(R.string.set_to_default);
 
         if (savedInstanceState == null) {
             _settingsFragment = new SettingsFragment();
@@ -238,6 +235,8 @@ public class SettingsActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        _settingsFragment = null;
+        _sharedPref = null;
         super.onDestroy();
     }
 
@@ -328,22 +327,23 @@ public class SettingsActivity extends BaseActivity {
         setBooleanPref(App.app.getDefaultSharedPreferences(), IS_FIRST_TIME_LAUNCH, isFirstTime);
     }
 
-    public static long getStartTime(SharedPreferences sharedPref) {
-        Time time = new Time();
-        if (sharedPref != null)
-            time.set(sharedPref.getLong("StartTime", 0L));
-        int hour = time.hour;
-        int min = time.minute;
-        time.setToNow();
-        time.set(0,min,hour,time.monthDay,time.month,time.year);
-        return time.toMillis(true);
+    /**
+     * Get the persisted start time of the tour
+     * @return start time in [min] since midnight
+     */
+    public static int getStartTime(SharedPreferences sharedPref) {
+        return sharedPref.getInt("StartTime", -1);
     }
 
-    public static void setStartTime(long inValue) {
+    /**
+     * Persist the start time of the tour
+     * @param inValue start time in [min] since midnight
+     */
+    public static void setStartTime(int inValue) {
         SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
         if (sharedPref != null) {
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putLong("StartTime", inValue);
+            editor.putInt("StartTime", inValue);
             editor.apply(); // editor.commit();
         }
     }

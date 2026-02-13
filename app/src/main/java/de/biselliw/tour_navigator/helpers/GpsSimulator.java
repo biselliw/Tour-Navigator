@@ -46,7 +46,7 @@ public class GpsSimulator {
     private static TimeZone timeZone;
 
     public static class GpsSimulationData {
-        final double longitude, latitude;
+        final double longitude, latitude, altitude;
         final float accuracy;
         final long time;
 
@@ -54,6 +54,7 @@ public class GpsSimulator {
         {
             longitude = fromOther.getLongitude().getDouble();
             latitude = fromOther.getLatitude().getDouble();
+            altitude = fromOther.getAltitude().getValue();
             accuracy = 5.0F;
             time = fromOther.getTimestamp().getMilliseconds(timeZone);
         }
@@ -113,6 +114,7 @@ public class GpsSimulator {
             GpsSimulationData dataPoint = gpsData[gpsIndex++];
             location.setLongitude(dataPoint.longitude);
             location.setLatitude(dataPoint.latitude);
+            location.setAltitude(dataPoint.altitude);
             location.setTime(dataPoint.time);
             location.setAccuracy(dataPoint.accuracy);
             return location;

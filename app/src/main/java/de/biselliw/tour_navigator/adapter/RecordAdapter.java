@@ -20,7 +20,6 @@ package de.biselliw.tour_navigator.adapter;
 */
 
 import android.app.Activity;
-import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,20 +31,18 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
-
 import de.biselliw.tour_navigator.activities.LocationActivity;
-import de.biselliw.tour_navigator.activities.SettingsActivity;
+import de.biselliw.tour_navigator.activities.MainActivity;
+import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
-import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static de.biselliw.tour_navigator.App.app;
-import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
-import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezoneStr;
 
 /**
  * class to handle all records of the timetable
@@ -78,14 +75,15 @@ public class RecordAdapter extends BaseAdapter {
     public static final int COLOR_DELAY_MIN = R.color.COLOR_DELAY_MIN;
     public static final int COLOR_DELAY_MAX = R.color.COLOR_DELAY_MAX;
 
-    private LocationActivity _activity;
     private ProfileAdapter _profileAdapter;
+
+    LayoutInflater recordInflater;
 
     private ListView recordsView;
     public List<Record> recordList;
     private List<Record> _updatedRecordList = null;
 
-    private final Calendar _calender;
+    private Calendar _calendar;
 
     private int _selected = -1;
     private int _initialPlace = -1;
@@ -93,10 +91,11 @@ public class RecordAdapter extends BaseAdapter {
     private String _debugLastPlace = "";
     private int _endPlace = 0;
 
-    /**
-     * start time of the tour
-     */
-    private final Time _startTime;
+    /** start time of the tour in [min] since midnight */
+    private int _startTime_min;
+    /** start time of the tour in [UTC ms] since midnight */
+    private long _startTime_UTC;
+
     private boolean _realtime = false;
     /**
      * current distance since start
@@ -106,7 +105,7 @@ public class RecordAdapter extends BaseAdapter {
      * current delay [min]
      */
     private int _delay_min = 0;
-    final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.GERMAN);
     final DecimalFormat decFormat = new DecimalFormat("  #0.0");
 
     private static class RecordViewHolder {
@@ -126,7 +125,8 @@ public class RecordAdapter extends BaseAdapter {
      */
     public RecordAdapter(LocationActivity activity, ProfileAdapter inProfileAdapter, List<Record> records) {
         recordList = records;
-        _activity = activity;
+
+        recordInflater = (LayoutInflater) activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         _profileAdapter = inProfileAdapter;
 
         track_place = activity.findViewById(R.id.track_place);
@@ -137,15 +137,9 @@ public class RecordAdapter extends BaseAdapter {
 
         // Create a Listener for this list view of places
         recordsView.setOnItemClickListener((adapter, v, inPlace, arg3) ->
-                setPlace(inPlace, true));
+                setPlace(activity, inPlace, true));
 
-        _calender = Calendar.getInstance();
-        _calender.setTimeZone(getSelectedTimezone());
-
-        _startTime = new Time(getSelectedTimezoneStr());
-        _startTime.setToNow();
-        _startTime.hour = 0;
-        _startTime.minute = 0;
+        _calendar = Calendar.getInstance();
     }
 
     public static class Record {
@@ -221,7 +215,6 @@ public class RecordAdapter extends BaseAdapter {
         RecordViewHolder holder;
 
         if (view == null) {
-            LayoutInflater recordInflater = (LayoutInflater) _activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             // Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout's root element)
             view = recordInflater.inflate(R.layout.record, null);
             holder = new RecordViewHolder();
@@ -236,20 +229,26 @@ public class RecordAdapter extends BaseAdapter {
 
         Record record = getItem(i);
         if (record != null) {
+            // use local calendar
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(_startTime_UTC);
+
             DataPoint point = record.trackPoint;
             if (point != null) {
                 /* Mark selected row */
                 int bgColor = (i == _selected) ? COLOR_BG_SELECTED : COLOR_BG_RECORD;
-                view.setBackgroundColor(get_Color(bgColor)); // 0x14d0d0d0); // todo get_Color(bgColor));
+                view.setBackgroundColor(Resources.get_Color(bgColor)); // 0x14d0d0d0); // todo get_Color(bgColor));
 
                 /* get the formatted arrival time */
-                String time = getPlannedArriveTime(point);
+                calendar.setTimeInMillis(_startTime_UTC + point.getTime() * 1000L);
+
+                String plannedTime_Str = timeFormat.format(calendar.getTime());
                 if (point.getWaypointDuration() > 0) {
-                    /* add end of pause time */
-                    _calender.add(Calendar.MINUTE, point.getWaypointDuration());
-                    time = time + " " + timeFormat.format(_calender.getTime());
+                    /* add end of break time */
+                    calendar.add(Calendar.MINUTE, point.getWaypointDuration());
+                    plannedTime_Str = plannedTime_Str + " " + timeFormat.format(calendar.getTime());
                 }
-                holder.timeView.setText(time);
+                holder.timeView.setText(plannedTime_Str);
 
                 /* show the presumable arrival time depending on the delay */
                 showPresumableArriveTime(false, false, holder.delayView, point);
@@ -275,12 +274,18 @@ public class RecordAdapter extends BaseAdapter {
         }
     }
 
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+    }
+
     public void notifyDataSetChanged(List<Record> records) {
         _updatedRecordList = records;
         if (records == null) {
             RemoveRecords();
         }
         if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
+// todo        notifyDataSetChanged();
     }
 
     /**
@@ -294,37 +299,34 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * @return start time of the tour
-     */
-    public Time getStartTime() {
-        return _startTime;
-    }
-
-    /**
      * Set the start time of the tour
      *
-     * @param inTime start time of the tour
+     * @param inStartTime time in [min] since midnight
      */
-    public void setStartTime(long inTime) {
-        _startTime.set(inTime);
-    }
+    public void setStartTime(int inStartTime) {
+        _startTime_min = inStartTime;
 
-    /**
-     * Set the start time of the tour
-     *
-     * @param inTime start time of the tour
-     */
-    public void setStartTime(Time inTime) {
-        _startTime.set(inTime);
-        SettingsActivity.setStartTime(inTime.toMillis(true));
+        /* get the corresponding UTC time in ms once */
+        _calendar.set(0, 0, 0, 0, 0);
+        _calendar.setTimeInMillis(_calendar.getTimeInMillis() + inStartTime * 60000L);
+        _startTime_UTC = _calendar.getTimeInMillis();
+
+/*
         Record record = getItem(0);
         if (record != null) {
             DataPoint point = record.trackPoint;
             if (point != null) {
-                String time2445 = inTime.format2445();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.set(Calendar.MINUTE, inStartTime % 60);
+                calendar.set(Calendar.HOUR, inStartTime / 60);
+                // replace inTime.format2445(); eg. "2024-09-07T07:39:27.290Z"
+                String time2445 = ISO_8601_FORMAT.format(calendar.getTime());
+                // todo check result
                 point.setFieldValue(Field.TIMESTAMP, time2445, false);
             }
         }
+ */
         track_arrive.setText("");
         notifyDataSetChanged();
     }
@@ -383,21 +385,9 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * Format the planned arrival time for a waypoint
+     * Format the planned arrival time for a route point
      *
-     * @param inPoint waypoint data
-     * @return formatted time string
-     */
-    private String getPlannedArriveTime(DataPoint inPoint) {
-        long _t = _startTime.toMillis(true) + inPoint.getTime() * 1000L;
-        _calender.setTimeInMillis(_t);
-        return timeFormat.format(_calender.getTime());
-    }
-
-    /**
-     * Format the planned arrival time for a waypoint
-     *
-     * @param inPlace waypoint index of the record
+     * @param inPlace route point index of the record
      * @return formatted time string
      */
     public String getPlannedArriveTime(int inPlace) {
@@ -405,7 +395,10 @@ public class RecordAdapter extends BaseAdapter {
         Record record = getItem(inPlace);
         if (record != null) {
             DataPoint point = record.trackPoint;
-            if (point != null) res = getPlannedArriveTime(point);
+            if (point != null) {
+                _calendar.setTimeInMillis(_startTime_UTC + point.getTime() * 1000L);
+                res = timeFormat.format(_calendar.getTime());
+            }
         }
         return res;
     }
@@ -419,37 +412,42 @@ public class RecordAdapter extends BaseAdapter {
      * @param inPoint       point data
      * @return formatted planned arrival time
      */
-    public String showPresumableArriveTime(boolean inShowDelay, boolean inShowPlanned, TextView inView, DataPoint inPoint) {
+    public synchronized String showPresumableArriveTime(boolean inShowDelay, boolean inShowPlanned, TextView inView, DataPoint inPoint) {
+        // use local calendar
+        Calendar calendar = Calendar.getInstance();
+
+        /* get the formatted planned arrival time */
+        calendar.setTimeInMillis(_startTime_UTC + inPoint.getTime() * 1000L);
         String plannedTime_Str = "";
-        long startTime_ms = _startTime.toMillis(true);
-        if (_realtime && (startTime_ms > 0) && (inPoint.getDistance() >= _distance)) {
-            startTime_ms += inPoint.getTime() * 1000;
-            _calender.setTimeInMillis(startTime_ms);
+
+        if (_realtime && (_startTime_min > 0) && (inPoint.getDistance() >= _distance)) {
+            // todo check result
             if (inShowDelay) {
                 // get the formatted planned arrival time
-                plannedTime_Str = getPlannedArriveTime(inPoint);
+                plannedTime_Str = timeFormat.format(calendar.getTime());
 
-                _calender.set(0, 0, 0, 0, 0);
+                calendar.set(0, 0, 0, 0, 0);
                 if (_delay_min > 0) {
-                    _calender.add(Calendar.MINUTE, _delay_min);
-                    String delay_Str = timeFormat.format(_calender.getTime());
+                    calendar.add(Calendar.MINUTE, _delay_min);
+                    String delay_Str = timeFormat.format(calendar.getTime());
                     plannedTime_Str = plannedTime_Str + " +" + delay_Str;
                 } else if (_delay_min < 0) {
-                    _calender.add(Calendar.MINUTE, -_delay_min);
-                    String delay_Str = timeFormat.format(_calender.getTime());
+                    calendar.add(Calendar.MINUTE, -_delay_min);
+                    String delay_Str = timeFormat.format(calendar.getTime());
                     plannedTime_Str = plannedTime_Str + " -" + delay_Str;
                 }
             } else {
-                _calender.add(Calendar.MINUTE, _delay_min);
-                plannedTime_Str = timeFormat.format(_calender.getTime());
+                // show delay
+                calendar.add(Calendar.MINUTE, _delay_min);
+                plannedTime_Str = timeFormat.format(calendar.getTime());
             }
             inView.setTextColor(getTextColorDelay());
         } else {
             /* don't show the presumable arrival time */
-            inView.setTextColor(get_Color(COLOR_NONE));
+            inView.setTextColor(Resources.get_Color(COLOR_NONE));
             if (inShowPlanned) {
                 /* get the formatted planned arrival time */
-                plannedTime_Str = getPlannedArriveTime(inPoint);
+                plannedTime_Str = timeFormat.format(calendar.getTime());
             }
         }
         inView.setText(plannedTime_Str);
@@ -461,11 +459,11 @@ public class RecordAdapter extends BaseAdapter {
      */
     public int getTextColorDelay() {
         if (_delay_min >= DELAY_MAX)
-            return get_Color(COLOR_DELAY_MAX);
+            return Resources.get_Color(COLOR_DELAY_MAX);
         else if (_delay_min > 0)
-            return get_Color(COLOR_DELAY_MIN);
+            return Resources.get_Color(COLOR_DELAY_MIN);
         else
-            return get_Color(COLOR_DELAY_NONE);
+            return Resources.get_Color(COLOR_DELAY_NONE);
     }
 
     /**
@@ -505,7 +503,7 @@ public class RecordAdapter extends BaseAdapter {
      * @param inUser     true if invoked by the user
      * @return index of the place within the list of places
      */
-    public int setNextPlace(double inDistance, boolean inUser) {
+    public int setNextPlace(LocationActivity inActivity, double inDistance, boolean inUser) {
         int place = 0;
         do {
             DataPoint recPoint = getItem(place).getTrackPoint();
@@ -516,7 +514,7 @@ public class RecordAdapter extends BaseAdapter {
                 }
                 else
                 {
-                    setPlace(place, inUser);
+                    setPlace(inActivity, place, inUser);
                     break;
                 }
             }
@@ -532,7 +530,7 @@ public class RecordAdapter extends BaseAdapter {
      * @param inUser  true if invoked by the user
      * @see RecordAdapter#setPlace(int)
      */
-    public boolean setPlace(int inPlace, boolean inUser) {
+    public boolean setPlace(LocationActivity inActivity, int inPlace, boolean inUser) {
         // if (DEBUG) Log.d(TAG,"setPlace "+ inPlace);
         double distanceToPlace = 0.0;
         if (inPlace < 0) inPlace = 0;
@@ -540,7 +538,7 @@ public class RecordAdapter extends BaseAdapter {
 
         _endPlace = inPlace;
         if (inUser)
-            _activity.clearErrorMessage();
+            inActivity.clearErrorMessage();
 
         if (showPlace(inPlace)) {
             /* Set relative position in the seek bar */
@@ -554,17 +552,17 @@ public class RecordAdapter extends BaseAdapter {
             /* Scroll to the place in the list */
             setPlace(inPlace);
 
-            if (!_activity.isViewExpanded()) {
+            if (!inActivity.isViewExpanded()) {
                 if (!inUser)
                     recordsView.smoothScrollToPosition(inPlace);
                 else
-                    _activity.updateTrackingStatus();
+                    inActivity.updateTrackingStatus();
             }
 
             if (inUser) {
-                _activity.setStartGpsIndex(point.getIndex());
+                inActivity.setStartGpsIndex(point.getIndex());
                 if (inPlace == 0) {
-                    _activity.resetLocationStatus();
+                    inActivity.resetLocationStatus();
                 }
 
                 record = getItem(inPlace + 1);
@@ -595,12 +593,12 @@ public class RecordAdapter extends BaseAdapter {
         }
 
         // Set the distance to the next place
-        _activity.setDistanceToPlace(distanceToPlace);
+        inActivity.setDistanceToPlace(distanceToPlace);
 
         if (inPlace != _lastPlace)
         {
-            _activity.showExpandViewStatus(inPlace, _activity.isViewExpanded());
-            _activity.showAdditionalInfo(inPlace);
+            inActivity.showExpandViewStatus(inPlace, inActivity.isViewExpanded());
+            inActivity.showAdditionalInfo(inPlace);
             notifyDataSetChanged();
             recordsView.smoothScrollToPosition(inPlace);
         }
@@ -631,7 +629,7 @@ public class RecordAdapter extends BaseAdapter {
                 place = point.getRoutePointName();
 
                 /* Show time of arrival at next place */
-                if (_startTime.toMillis(true) > 0) {
+                if (_startTime_min > 0) {
                     // show the presumable arrival time depending on the delay
                     plannedTime_Str = showPresumableArriveTime(true, true, track_arrive, point);
                 }
@@ -677,14 +675,21 @@ public class RecordAdapter extends BaseAdapter {
 
     public void resetEndPlace() {  _endPlace = 0; }
 
-    private int get_Color(int resID) {
-        int color = 0xAA000000;
-        try {
-            color = _activity.getColor(resID);
-        } catch (Exception e) {
-            Log.e(TAG, "color resource not found: " + resID);
+    public void destroy () {
+        _profileAdapter = null;
+        recordInflater = null;
+        recordsView = null;;
+        if (recordList != null) {
+            recordList.clear();
+            recordList = null;
         }
-        return color;
+        if (_updatedRecordList != null) {
+            _updatedRecordList.clear();
+            _updatedRecordList = null;
+        }
+        _calendar = null;;
     }
+
+
 
 }

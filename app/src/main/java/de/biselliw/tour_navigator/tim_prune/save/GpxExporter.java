@@ -50,7 +50,7 @@ import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
  */
 public class GpxExporter {
 	/** this program name */
-	private static final String GpxFileCreator = Resources.Creator;
+	private static final String GpxFileCreator = Resources.resStrCreator;
 
 	/**
 	 * Download the information to the given writer

@@ -197,10 +197,9 @@ public class ControlElements extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         AppState.destroyed = true;
-
         _timerHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 
     /**

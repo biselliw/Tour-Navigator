@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
@@ -61,6 +62,24 @@ public final class Log {
     }
 
     /**
+     * format a given time stamp
+     * @param inTime time in seconds
+     * @return formatted string: HH:mm:ss
+     */
+    public static String formatHourMinSecs (long inTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.GERMANY); // .GERMAN);;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.SECOND, (int) (inTime % 60L));
+        inTime /= 60L;
+        calendar.set(Calendar.MINUTE, (int) (inTime % 60));
+        inTime /= 60L;
+        calendar.set(Calendar.HOUR, (int) inTime);
+        String formatted = sdf.format(calendar.getTime());
+        return formatted;
+    }
+
+    /**
      * Create a log file
      * @return true if log file writing is enabled and log file has been created
      */
@@ -81,9 +100,9 @@ public final class Log {
                         else {
                             Time now = new Time(); now.setToNow();
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                            Calendar calender = Calendar.getInstance();
-                            calender.setTimeInMillis(now.toMillis(true));
-                            date_time = sdf.format(calender.getTime());
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(now.toMillis(true));
+                            date_time = sdf.format(calendar.getTime());
                         }
 
                         File _file = new File(dir, _prefix + date_time + ".log");
@@ -117,11 +136,11 @@ public final class Log {
                     date_time = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS: "));
                 }
                 else {
-                    Time now = new Time(); now.setToNow();
+                    // todo To get local formatting use getDateInstance(), getDateTimeInstance(), or getTimeInstance(), or use new SimpleDateFormat(String template, Locale locale) with for example Locale.US for ASCII dates.
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS: ");
-                    Calendar calender = Calendar.getInstance();
-                    calender.setTimeInMillis(now.toMillis(true));
-                    date_time = sdf.format(calender.getTime());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    date_time = sdf.format(calendar.getTime());
                 }
 
                 _writer.write (date_time + "\t" + tag + "\t" + type + "\t"+ msg + "\r\n");

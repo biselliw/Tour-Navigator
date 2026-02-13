@@ -75,7 +75,7 @@ public class BreakTimeDialog extends Dialog {
 
                     /* update break time of current route point */
                     _recordAdapter.recordList.set(selected, record);
-                    /* update all places in the records view */
+                    /* todo update all places in the records view */
                     _app.updateRecords();
                     _recordAdapter.notifyDataSetChanged();
                     dismiss();

@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
-import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,7 +53,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -104,24 +102,24 @@ public class MainActivity extends LocationActivity  implements
     private boolean _destroyed = false;
     boolean intentFromOtherApp = false;
 
-    public static HTML_File htmlFile;
+    public HTML_File htmlFile;
     private final boolean _autoAppend = false;
     private String gpxFileName = "";
-    XmlFileLoader _xmlFileLoader = null;
 
     /**
      * hiking parameters used for walking time calculation
      */
     public static ArrayList<MainActivity.Parameter> hikingParameters;
 
-// todo replace Time
-    Time _startTime = null;
+    /**
+     * if >= 0; change start time of the tour in [min] since midnight
+     */
+    int _changeStartTime = -1;
 
     private final Handler _timerHandler = new Handler();
     private Runnable _timerRunnable;
 
     static boolean timerRunnableIsRunning = false;
-    //static boolean timerRunnableIsStopped = false;
 
     /**
      * class for hiking parameters used for walking time calculation
@@ -161,8 +159,10 @@ public class MainActivity extends LocationActivity  implements
         setContentView(R.layout.activity_main);
 
         AppState.MainActivityInstanceCount++;
+
+        Resources.activity = this;
         Resources.resources = getResources();
-        Resources.Creator = getResources().getString(R.string.app_name);
+        Resources.getResources();
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -194,9 +194,8 @@ public class MainActivity extends LocationActivity  implements
 
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
-
         profileAdapter = new ProfileAdapter(this, app);
-        /* create a table of waypoints */
+        /* create a table of route points */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
         defineHikingParameters();
@@ -252,7 +251,7 @@ public class MainActivity extends LocationActivity  implements
         mNavigationView.setNavigationItemSelectedListener(this);
         selectNavigationItem(R.id.nav_open_gpx);
 
-        htmlFile = new HTML_File(this, recordAdapter);
+        htmlFile = new HTML_File(this);
 
         // Handle a received intent from another app
         Intent intent = getIntent();
@@ -370,14 +369,19 @@ public class MainActivity extends LocationActivity  implements
     @Override
     protected void onDestroy() {
         Log.e(TAG,"onDestroy");
-        super.onDestroy();
 
         AppState.MainActivityInstanceCount--;
+
+        htmlFile.destroy();  htmlFile = null;
+
+        recordAdapter.destroy ();
+
         if (DEBUG) _destroyed = true;
         app.destroy();
         AppState.destroyed = true;
 
         _timerHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 
     @Override
@@ -613,7 +617,7 @@ public class MainActivity extends LocationActivity  implements
      */
     private void changeStartTime() {
         if (recordAdapter.getCount() > 0) {
-            StartTimeDialog startTimeDialog = new StartTimeDialog(MainActivity.this, recordAdapter);
+            StartTimeDialog startTimeDialog = new StartTimeDialog(MainActivity.this);
             startTimeDialog.show();
         }
     }
@@ -621,12 +625,12 @@ public class MainActivity extends LocationActivity  implements
     /**
      * Notify the application of the changed start time of the tour
      */
-    public void notifyStartTimeChanged(Time inStartTime) {
-        _startTime = inStartTime;
+    public void notifyStartTimeChanged(int inStartTime) {
+        _changeStartTime = inStartTime;
     }
 
-    protected void onStartTimeChanged(Time inStartTime) {
-        super.onStartTimeChanged(_startTime);
+    protected void onStartTimeChanged(int inStartTime) {
+        super.onStartTimeChanged(_changeStartTime);
     }
 
     /**
@@ -912,9 +916,10 @@ public class MainActivity extends LocationActivity  implements
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_timetable) {
-            htmlFile.formatTimetableToHTML(false);
+            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,false);
             // open Time Table page
             intent = new Intent(this, TimeTableActivity.class);
+            intent.putExtra("contents",html.toString());
             startActivity(intent);
             overridePendingTransition(0, 0);
         }
@@ -971,8 +976,8 @@ public class MainActivity extends LocationActivity  implements
                     App.gpxUri = uriFile;
                 } catch (FileNotFoundException ignored) { }
                 // if (DEBUG) Log.d(TAG, "Open GPX stream");
-                _xmlFileLoader = new XmlFileLoader(super.app);
-                _xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informDataLoadComplete);
+                XmlFileLoader xmlFileLoader = new XmlFileLoader(super.app);
+                xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informDataLoadComplete);
                 if (DEBUG) Log.d(TAG, "-> XmlFileLoader(app::informDataLoadComplete)");
             } catch (Exception ignored) { }
         }
@@ -1034,8 +1039,8 @@ public class MainActivity extends LocationActivity  implements
                 _xmlStream = this.getContentResolver().openInputStream(uriFile);
             } catch (FileNotFoundException e) { return; }
             if (DEBUG) Log.d(TAG, "OpenFileGPX(Uri) uri =" + uriFile.getPath());
-            _xmlFileLoader = new XmlFileLoader(super.app);
-            _xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informUriFileLoadComplete);
+            XmlFileLoader xmlFileLoader = new XmlFileLoader(super.app);
+            xmlFileLoader.openStream(_xmlStream, _autoAppend, app::informUriFileLoadComplete);
             if (DEBUG) Log.d(TAG, "GPX file loaded?");
         } catch (Exception ignored) {  }
     }
@@ -1051,8 +1056,8 @@ public class MainActivity extends LocationActivity  implements
 
             if(DEBUG) Log.d (TAG, "OpenCachedFileGPX():");
 
-            _xmlFileLoader = new XmlFileLoader(super.app);
-            _xmlFileLoader.openFile(file, _autoAppend, app::informDataLoadComplete);
+            XmlFileLoader xmlFileLoader = new XmlFileLoader(super.app);
+            xmlFileLoader.openFile(file, _autoAppend, app::informDataLoadComplete);
             if (DEBUG) Log.d(TAG, "- GPX file loaded?");
         } catch (Exception e) {
             Log.e(TAG,"- cached GPX file not loaded: ", e);
@@ -1087,14 +1092,27 @@ public class MainActivity extends LocationActivity  implements
         return false;
     }
 
-    /*
+    /**
      *  Save HTML file
      */
     void SaveFileHTML(final Intent data) {
         Uri uriFile = data.getData(); //The uri with the location of the file
         try {
             assert uriFile != null;
-            htmlFile.SaveFileHTML(this.getContentResolver().openOutputStream(uriFile, "w"));
+            OutputStream _xmlStream = this.getContentResolver().openOutputStream(uriFile, "w");
+            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,true);
+            OutputStreamWriter writer;
+            try {
+                writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
+                // write file
+                writer.write(html.toString());
+
+                // close file
+                writer.close();
+                assert _xmlStream != null;
+                _xmlStream.close();
+            } catch (IOException ignored) { }
+
         } catch (FileNotFoundException e) {
             Log.e(TAG,"SaveFileHTML()", e);
         }
@@ -1177,9 +1195,9 @@ public class MainActivity extends LocationActivity  implements
      * --------------------------------------------------------------------------------------------
      */
     private synchronized void main_runner() {
-        if (_startTime != null) {
-            onStartTimeChanged(_startTime);
-            _startTime = null;
+        if (_changeStartTime >= 0) {
+            onStartTimeChanged(_changeStartTime);
+            _changeStartTime = -1;
         }
 
         if (App.getTrack() != null) {
