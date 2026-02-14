@@ -18,6 +18,8 @@ package de.biselliw.tour_navigator.dialogs;
             <http://www.gnu.org/licenses/>.
 
     Copyright 2026 Walter Biselli (BiselliW)
+
+    replaced by OSM_DialogFragment
 */
 
 import android.content.Context;

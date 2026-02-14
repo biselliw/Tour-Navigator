@@ -18,6 +18,8 @@ package de.biselliw.tour_navigator.dialogs;
             <http://www.gnu.org/licenses/>.
 
     Copyright 2026 Walter Biselli (BiselliW)
+
+    replaced by SearchResultDialogFragment
 */
 
 
@@ -48,6 +50,7 @@ import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
+import static android.view.View.SCROLLBARS_INSIDE_INSET;
 import static androidx.core.content.ContextCompat.getColor;
 
 /**
@@ -71,7 +74,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
     private TextView _descriptionBox = null;
 
     private List<String[]> _results = new ArrayList<>();
-    private TableAdapter _adapter = new TableAdapter(_dialog, _results);
+    private TableAdapter _adapter = null; // FIXME delete file new TableAdapter(_dialog, _results);
 
     private List<Integer> _selectedPositions;
 
@@ -126,6 +129,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
         // description view supporting basic HTML tags
         _descriptionBox = findViewById(R.id.desc_search_result_view);
         _descriptionBox.setText("");
+
 //        _descriptionBox.setHeight(displayMetrics.heightPixels / 3);
 
         /* define OnClick event to load the results into the track */
@@ -171,7 +175,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
                                     trackListModel.getValueAt(i, 1).toString()});
                         }
 
-                        _adapter = new TableAdapter(_dialog, _results);
+               // FIXME         _adapter = new TableAdapter(_dialog, _results);
                         RecyclerView recyclerView = findViewById(R.id.recyclerView);
                         recyclerView.setAdapter(_adapter);
                     } else
@@ -328,6 +332,7 @@ public abstract class SearchResultDialog extends FullScreenDialog {
     public void onStop()
     {
         _timerHandler.removeCallbacksAndMessages(null);
+        super.onStop();
     }
 
 }
