@@ -10,6 +10,8 @@ import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**
  * Search dialog to add Wikipedia articles to the track
+ *
+ * WikipediaDialog replaced by WikipediaDialogFragment
  */
 public class WikipediaDialog extends SearchResultDialog  {
 
