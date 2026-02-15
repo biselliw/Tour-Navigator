@@ -48,9 +48,6 @@
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
     <!-- ### MAIN ### -->
-    <string name="main_button_text">Full Width Button</string>
-    <string name="main_button_disabled_text">Inactive Button</string>
-    <string name="main_text_title"> - </string>
 
     <!-- ### Activities at Status ### -->
     <string name="load_gpx_file">Please load a GPX file</string>
@@ -219,6 +216,7 @@
     <string name="summary">Summary</string>
 
     <string name="wpt_type">Type</string>
+    <string name="wpt_ref">ID</string>
     <string name="wpt_desc">Description</string>
     <string name="wpt_take_comment">Take It</string>
 
@@ -231,12 +229,28 @@
     <string name="waypointFlagComb">"Trackpoint"</string>
 
     <!-- Open Street Map waypoints -->
-    <string name="guidepost">guidepost</string>
-    <string name="bus_stop">osm_bus stop</string>
+
     <string name="restaurant">restaurant</string>
     <string name="bbq">bbq</string>
     <string name="bench">bench</string>
+    <string name="lounger">lounger</string>
+    <string name="guidepost">guidepost</string>
+    <string name="bus_stop">bus stop</string>
+    <string name="stop">stop</string>
+    <string name="station">station</string>
+    <string name="turning_circle">turning_circle</string>
     <string name="profile">"Profile"</string>
+    <string name="map">"map"</string>
+    <string name="cafe">"Cafe"</string>
+    <string name="drinking_water">drinking water</string>
+    <string name="toilets">"toilets"</string>
+    <string name="place_of_worship">place of worship</string>
+    <string name="shelter">shelter</string>
+    <string name="office">office</string>
+    <string name="board">board</string>
+    <string name="ice_cream">ice_cream</string>
+    <string name="viewpoint">viewpoint</string>
+    <string name="museum">museum</string>
 
     <!-- ### Search Results ###-->
     <string name="server_not_found">The server is currently not reachable or cannot handle your request</string>
@@ -253,12 +267,17 @@
     <string name="point_already_loaded">The track already contains the point!</string>
     <string name="distance_from_track">from track</string>
 
-    <!-- ### OSM POIs ###-->
+    <!-- ### OpenStreetMap guideposts ###-->
+    <string name="osm_guide_posts_title">OpenStreetMap Guideposts along the route</string>
+    <string name="guide_post_name">Guidepost name</string>
+
+    <!-- ### OpenStreetMap POIs ###-->
     <string name="osm_title">Nearby OSM POIs</string>
     <string name="osm_pois_none_found">No further OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
 
     <!-- ### Remote POIs ###-->
-    <string name="wpt_title">Waypoints out of track</string>
+    <string name="wpts_out_of_track">Waypoints out of track</string>
+    <string name="waypoint_name">Waypoint name</string>
 
 </resources>

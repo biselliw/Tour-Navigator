@@ -50,7 +50,7 @@ public class BreakTimeDialog extends Dialog {
         selected = _recordAdapter.getPlace();
         if (selected > 0) {
             record = _recordAdapter.recordList.get(selected);
-            int waypointDuration = record.getTrackPoint().getWaypointDuration();
+            int waypointDuration = record.trackPoint.getWaypointDuration();
 
             TimePicker timePicker = (TimePicker) findViewById(R.id.timePickerBreak);
             timePicker.setIs24HourView(true);
@@ -71,7 +71,7 @@ public class BreakTimeDialog extends Dialog {
                     if (hour > 12) hour = 0;
                     int minute =timePicker.getCurrentMinute();
                     int break_min = hour * 60 + minute;
-                    record.getTrackPoint().setWaypointDuration(break_min);
+                    record.trackPoint.setWaypointDuration(break_min);
 
                     /* update break time of current route point */
                     _recordAdapter.recordList.set(selected, record);

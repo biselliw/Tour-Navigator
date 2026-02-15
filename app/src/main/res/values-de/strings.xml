@@ -39,9 +39,6 @@
     <string name="action_tutorial">Tutorial</string>
 
     <!-- ###MAIN### -->
-    <string name="main_button_text">Test</string>
-    <string name="main_button_disabled_text">Inaktiver Button</string>
-    <string name="main_text_title"> - </string>
 
     <!-- ###Activities at Status### -->
     <string name="load_gpx_file">Lade eine GPX Datei</string>
@@ -167,6 +164,7 @@
     <string name="summary">Zusammenfassung</string>
 
     <string name="wpt_type">Typ</string>
+    <string name="wpt_ref">ID</string>
     <string name="wpt_desc">Beschreibung</string>
     <string name="wpt_take_comment">Übernehmen</string>
 
@@ -179,11 +177,27 @@
     <string name="waypointFlagComb">"Trackpunkt"</string>
 
     <!-- Open Street Map waypoints -->
-    <string name="guidepost">Wegweiser</string>
-    <string name="bus_stop">Bushaltestelle</string>
     <string name="restaurant">Restaurant</string>
     <string name="bbq">Grillplatz</string>
     <string name="bench">Parkbank</string>
+    <string name="lounger">Liege</string>
+    <string name="guidepost">Wegweiser</string>
+    <string name="bus_stop">Bushaltestelle</string>
+    <string name="stop">Haltestelle</string>
+    <string name="station">Station</string>
+    <string name="turning_circle">Wendeplatz</string>
+    <string name="map">"Karte"</string>
+    <string name="cafe">"Café"</string>
+    <string name="drinking_water">Trinkwasser</string>
+    <string name="toilets">"Toiletten"</string>
+    <string name="place_of_worship">Andachtsstätte</string>
+    <string name="shelter">Schutzhütte</string>
+    <string name="office">Büro</string>
+    <string name="board">Infotafel</string>
+    <string name="ice_cream">Eisdiele</string>
+    <string name="viewpoint">Aussichtspunkt</string>
+    <string name="museum">Museum</string>
+
 
     <string name="profile">"Höhenprofil"</string>
     <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
@@ -205,11 +219,16 @@
     <string name="point_already_loaded">Der Track enthält bereits diesen Punkt!</string>
     <string name="distance_from_track">vom Track entfernt</string>
 
-    <!-- ### OSM POIs ###-->
+    <!-- ### OpenStreetMap Wegweiser ###-->
+    <string name="osm_guide_posts_title">OpenStreetMap Wegweiser entlang des Tracks</string>
+    <string name="guide_post_name">Wegweisername</string>
+
+    <!-- ### OpenStreetMap POIs ###-->
     <string name="osm_title">OpenStreetMap POIs in der Nähe</string>
     <string name="osm_pois_none_found">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
 
     <!-- ### Remote POIs ###-->
-    <string name="wpt_title">Wegpunkte ausserhalb des Tracks</string>
+    <string name="wpts_out_of_track">Wegpunkte ausserhalb des Tracks</string>
+    <string name="waypoint_name">Wegpunktname</string>
 </resources>

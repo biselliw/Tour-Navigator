@@ -22,7 +22,7 @@ public class CommentDialog  extends FullScreenDialog {
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-                DataPoint dataPoint = record.getTrackPoint();
+                DataPoint dataPoint = record.trackPoint;
                 TextView view = findViewById(R.id.tvComment);
                 view.setText(dataPoint.getRoutePointName());
 

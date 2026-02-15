@@ -1,5 +1,6 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,6 +21,7 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.stubs.Config;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Distance;
+import tim.prune.data.DoubleRange;
 import tim.prune.data.Latitude;
 import tim.prune.data.Longitude;
 import tim.prune.data.Unit;
@@ -38,13 +40,23 @@ public class SearchOsmFunction extends GenericSearchFunction
     private static final boolean _DEBUG = false; // Set to true to enable debugging / logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+    /** Enable simulation of overpass-api query by loading a test file instead */
+    private static final boolean SIMULATE_QUERY = false;
+
     public static final String WAYPOINT_TYPE = "OSM";
 
 	/** Maximum distance from point in m */
 	private static final int MAX_DISTANCE = 500;
 
-    static String[] symbols =   {"restaurant",       "bbq",        "bench",        "guidepost",        "bus_stop"};
-    static int[] ids = {R.string.restaurant, R.string.bbq, R.string.bench, R.string.guidepost, R.string.bus_stop};
+    /** Translation table fpr OSM POIs */
+    static String[] symbols =   {"restaurant",       "bbq",        "bench", "lounger", "guidepost",
+            "bus_stop", "stop", "station", "turning_circle",
+    "map", "cafe", "drinking_water", "toilets", "place_of_worship", "shelter", "office",
+    "board", "ice_cream", "viewpoint", "museum"};
+    static int[] ids = {R.string.restaurant, R.string.bbq, R.string.bench,R.string.lounger, R.string.guidepost,
+            R.string.bus_stop, R.string.stop, R.string.station, R.string.turning_circle,
+    R.string.map, R.string.cafe, R.string.drinking_water, R.string.toilets, R.string.place_of_worship,
+    R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum};
 
     /**
 	 * Constructor
@@ -85,41 +97,68 @@ public class SearchOsmFunction extends GenericSearchFunction
 	 * @param inLon longitude
 	 */
 	private void submitSearch(double inLat, double inLon) {
-        String coords = "around:" + MAX_DISTANCE + "," + inLat + "," + inLon;
-        String urlString = "https://overpass-api.de/api/interpreter?data=("
-                + "node(" + coords + ")[\"amenity\"=\"restaurant\"];"
-                + "node(" + coords + ")[\"amenity\"=\"bbq\"];"
-                + "node(" + coords + ")[\"amenity\"=\"bench\"];"
-                + "node(" + coords + ")[\"amenity\"=\"drinking_water\"];"
-                + "node(" + coords + ")[\"amenity\"=\"water_point\"];"
-                + "node(" + coords + ")[\"amenity\"=\"shelter\"];"
-                + "node(" + coords + ")[\"amenity\"=\"toilets\"];"
-                + "node(" + coords + ")[\"information\"=\"guidepost\"][\"hiking\"=\"yes\"];"
-                + "node(" + coords + ")[\"railway\"][\"name\"];"
-                + "node(" + coords + ")[\"highway\"][\"name\"];"
-                + "node(" + coords + ")[\"tourism\"];"
-                + ");out%20qt;";
+        InputStream inStream = null;
+        SAXParser saxParser = null;
+
         // Parse the returned XML with a special handler
         SearchOsmPoisXmlHandler xmlHandler = new SearchOsmPoisXmlHandler();
         _errorMessage = "";
 
-        if (!_DEBUG)
-            try {
-//                String coords = "nwr(48.210416666666674,8.208166666666667,48.25688888888889,8.251416666666666)";
-//                String urlString = "https://overpass-api.de/api/interpreter?data=("
-
-                URL url = new URL(urlString);
-                SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-                try (InputStream inStream = url.openStream()) {
-                    saxParser.parse(inStream, xmlHandler);
-                } catch (Exception e) {
-                    Log.e(TAG,"submitSearch(); " + e.getClass().getName() + " - " + e.getMessage());
-                    _errorMessage = Resources.getString(R.string.server_not_found); // e.getClass().getName() + " - " + e.getMessage();
-                    _trackListModel.changed = true;
-                    return;
+        try {
+            saxParser = SAXParserFactory.newInstance().newSAXParser();
+            if (!SIMULATE_QUERY) {
+                String coords = "around:" + MAX_DISTANCE + "," + inLat + "," + inLon;
+                String urlString = "https://overpass-api.de/api/interpreter?data=("
+                        + "node(" + coords + ")[\"amenity\"=\"place_of_worship\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"restaurant\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"cafe\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"biergarten\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"ice_cream\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"bbq\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"bench\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"lounger\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"drinking_water\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"water_point\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"shelter\"];"
+                        + "node(" + coords + ")[\"amenity\"=\"toilets\"];"
+                        + "node(" + coords + ")[\"information\"=\"guidepost\"][\"hiking\"=\"yes\"];"
+                        + "node(" + coords + ")[\"railway\"][\"name\"];"
+                        + "node(" + coords + ")[\"highway\"][\"name\"];"
+                        + "node(" + coords + ")[\"tourism\"];"
+                        + ");out%20qt;";
+                try {
+                    URL url = new URL(urlString);
+                    inStream = url.openStream();
                 }
-            } catch (MalformedURLException | SAXException | ParserConfigurationException ignored) {
+                catch (IOException e) {
+                    Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+                    _errorMessage = Resources.getString(R.string.server_not_found);
+                    _trackListModel.changed = true;
+                }
+            } else {
+                try {
+                    if (assetManager != null)
+                        inStream = assetManager.open("overpass_api_results_guideposts_pois.txt");
+                } catch (IOException e) {
+                    Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+                    _errorMessage = "assets/overpass_api_results_guideposts_pois.txt could not be opened";
+                    _trackListModel.changed = true;
+                }
             }
+        } catch (ParserConfigurationException | SAXException e) {
+            Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+            _errorMessage = "error in SAXParser";
+            _trackListModel.changed = true;
+        }
+
+        try {
+            if (saxParser != null && inStream != null)
+                saxParser.parse(inStream, xmlHandler);
+        } catch (SAXException | IOException e) {
+            Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+            _errorMessage = Resources.getString(R.string.server_not_found);
+            _trackListModel.changed = true;
+        }
 
 		// Calculate distances for each returned point
 		DataPoint searchPoint = new DataPoint(Latitude.make(_searchLatitude),
@@ -127,36 +166,24 @@ public class SearchOsmFunction extends GenericSearchFunction
 		Unit distUnit = Config.getUnitSet().getDistanceUnit();
         ArrayList<SearchResult> reducedTrackList = new ArrayList<>();
 
-        if (_DEBUG) {
-            SearchResult searchResult = new SearchResult();
-            searchResult.setTrackName("Demo");
-            searchResult.setLatitude("47.734074");
-            searchResult.setLongitude("8.2112455");
-            searchResult.setPointType("guidepost");
-            searchResult.update();
-            reducedTrackList.add(searchResult);
-        }
-        else {
-            if (xmlHandler.getPointList() != null)
-                for (SearchResult searchResult : xmlHandler.getPointList())
-                {
-                    // Update single search result
-                    searchResult.update();
-                    double dist = DataPoint.calculateRadiansBetween(searchPoint, searchResult.getDataPoint());
-                    searchResult.setLength(Distance.convertRadiansToDistance(dist, distUnit));
+        if (xmlHandler.getPointList() != null)
+            for (SearchResult searchResult : xmlHandler.getPointList())
+            {
+                // Update single search result
+                searchResult.update();
+                double dist = DataPoint.calculateRadiansBetween(searchPoint, searchResult.getDataPoint());
+                searchResult.setLength(Distance.convertRadiansToDistance(dist, distUnit));
 
-                    searchResult.setPointType(translateTag(searchResult.getPointType() ));
-                    if (!searchResultIsDuplicate(searchResult))
-                        reducedTrackList.add(searchResult);
-                }
+                searchResult.setPointType(translateTag(searchResult.getPointType() ));
+                if (!searchResultIsDuplicate(searchResult))
+                    reducedTrackList.add(searchResult);
+            }
 
-            // Add track list to model
-            if (reducedTrackList.isEmpty())
-                _errorMessage = Resources.getString(R.string.osm_pois_none_found);
-        }
+        // Add track list to model
+        if (reducedTrackList.isEmpty())
+            _errorMessage = Resources.getString(R.string.osm_pois_none_found);
 
 		_trackListModel.addTracks(reducedTrackList, true);
-		_trackListModel.setShowPointTypes(true);
 	}
 
     /**

@@ -216,7 +216,7 @@ public class App {
     }
 
 
-    public void Update() {
+    public synchronized void Update() {
         if (_track == null) return;
 
         int numPoints = _track.getNumPoints();
@@ -232,7 +232,7 @@ public class App {
     /**
      * update all places in the records view
      */
-    public void updateRecords() {
+    public synchronized void updateRecords() {
         if (_track == null) return;
         if (_main == null) return;
         _main.notifyDataSetChanged(_track.updateRecords());

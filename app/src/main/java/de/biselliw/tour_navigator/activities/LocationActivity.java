@@ -782,7 +782,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     recordAdapter.setPlace(this, startPlace, false);
                     /* start tracking from first track point */
                     if (recordAdapter.getCount() > startPlace)
-                        setStartGpsIndex(recordAdapter.getItem(startPlace).getTrackPoint().getIndex());
+                        setStartGpsIndex(recordAdapter.getItem(startPlace).trackPoint.getIndex());
                     setLocationStatus(locationStatus.GOTO_START_POS);
                     break;
                 }

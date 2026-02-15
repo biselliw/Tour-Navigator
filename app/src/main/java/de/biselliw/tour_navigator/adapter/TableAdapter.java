@@ -31,20 +31,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.dialogs.SearchResultDialog;
+import de.biselliw.tour_navigator.fragments.SearchResultDialogFragment;
 
+/**
+ * Adapter provide a binding from an app-specific data set to views that are displayed within a RecyclerView.
+ * @see SearchResultDialogFragment
+ */
 public class TableAdapter extends RecyclerView.Adapter<TableAdapter.ViewHolder> {
 
-    private final SearchResultDialog parent;
-    private final List<String[]> data;
-    private List<Integer> selectedPositions = null;
+    private final SearchResultDialogFragment _parent;
+    /** contents of the table */
+    private final List<String[]> _data;
+    /**
+     * Number of columns (1,2,3)
+     */
+    private int _numColumns;
 
-    public TableAdapter(SearchResultDialog parent, List<String[]> data) {
-        this.parent = parent;
-        this.data = data;
-        selectedPositions = new ArrayList<>();
+    /** list of all selected items of the table */
+    private List<Integer> _selectedPositions;
+
+
+    /**
+     * constructs a new TableAdapter
+     * @param parent  parent fragment
+     * @param data    contents of the table
+     * @param numColumns number of columns of the table
+     */
+    public TableAdapter(SearchResultDialogFragment parent, List<String[]> data, int numColumns) {
+        _parent = parent;
+        _data = data;
+        _numColumns = numColumns;
+        _selectedPositions = new ArrayList<>();
     }
 
+    /**
+     *
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return         new ViewHolder
+     * FIXME           Class 'ViewHolder' is exposed outside its defined visibility scope
+     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
@@ -54,55 +81,61 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.ViewHolder> 
 
     boolean position_selected = false;
 
+    /**
+     *
+     * @param holder
+     * @param position The position of a data item within the Adapter
+     */
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.col1.setText(data.get(position)[0]);
-        holder.col2.setText(data.get(position)[1]);
+        for (int col = 0; col < _numColumns; col++)
+            holder.col[col].setText(_data.get(position)[col]);
 
         // Highlight selection
         holder.itemView.setBackgroundColor(0xFFFFFFFF);
         holder.itemView.setBackgroundColor(
-            selectedPositions.contains(position)
+            _selectedPositions.contains(position)
                     ? 0xFFE0E0E0
                     : 0xFFFFFFFF
         );
 
         holder.itemView.setOnLongClickListener(v -> {
-            if (selectedPositions.contains(position)) {
-                selectedPositions.remove((Integer) position);
+            if (_selectedPositions.contains(position)) {
+                _selectedPositions.remove((Integer) position);
             } else {
-                selectedPositions.add(position);
+                _selectedPositions.add(position);
             }
             notifyItemChanged(position);
-            parent.notifySelectionChanged(position, selectedPositions);
+            _parent.notifySelectionChanged(position, _selectedPositions);
             return true;
         });
 
         holder.itemView.setOnClickListener(v -> {
-            position_selected = selectedPositions.contains(position);
-            selectedPositions.clear();
+            position_selected = _selectedPositions.contains(position);
+            _selectedPositions.clear();
             if (!position_selected) {
-                selectedPositions.add(position);
+                _selectedPositions.add(position);
             }
 
             notifyDataSetChanged();
-            parent.notifySelectionChanged(position, selectedPositions);
+            _parent.notifySelectionChanged(position, _selectedPositions);
         });
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return _data.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView col1, col2;
+        TextView [] col = new TextView[3];
 
         ViewHolder(View itemView) {
             super(itemView);
-            col1 = itemView.findViewById(R.id.search_result_name);
-            col2 = itemView.findViewById(R.id.search_result_distance);
+            col[0] = itemView.findViewById(R.id.search_result_distance);
+            col[1] = itemView.findViewById(R.id.search_result_name);
+            col[2] = itemView.findViewById(R.id.search_result_type);
         }
     }
 }

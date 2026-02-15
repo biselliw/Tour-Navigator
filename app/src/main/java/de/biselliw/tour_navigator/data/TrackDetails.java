@@ -772,7 +772,7 @@ public class TrackDetails extends Track {
                 for (int i = _numTrackPoints; i < getNumPoints(); i++) {
                     DataPoint point = getPoint(i);
                     if (point != null && point.isValid() && point.getLinkIndex() < 0)
-                        _wayPointsOutOfTrack.add(_dataPoints[_numTrackPoints + i]);
+                        _wayPointsOutOfTrack.add(_dataPoints[i]);
                 }
             } catch (Exception ignored) {
                 _wayPointsOutOfTrack = null;

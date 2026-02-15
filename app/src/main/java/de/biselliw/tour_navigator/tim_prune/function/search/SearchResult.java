@@ -29,6 +29,9 @@ public class SearchResult implements Comparable<SearchResult>
 	/** Coordinates of point */
 	private String _latitude = null, _longitude = null;
 
+    /** reference if any */
+    private String _ref = null;
+
     public SearchResult() {
 
     }
@@ -157,7 +160,16 @@ public class SearchResult implements Comparable<SearchResult>
 		return _longitude;
 	}
 
-	/**
+    public void setRef(String inRef) {
+        this._ref = inRef;
+    }
+
+    public String getRef() {
+        return _ref;
+    }
+
+
+    /**
 	 * Compare two search results for sorting (nearest first, then alphabetic)
 	 */
 	public int compareTo(SearchResult inOther)

@@ -1,5 +1,24 @@
 package de.biselliw.tour_navigator.function.search;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
 import java.util.ArrayList;
 
 import de.biselliw.tour_navigator.stubs.Config;
@@ -54,7 +73,7 @@ public class GetWaypointsFunction extends GenericSearchFunction
                 // show only way points outside the track which are not yet linked to the track
                 if (searchPoint.getLinkIndex() < 0) {
                     // Calculate distances to track for each way point
-                    double minDistance = 9999.9;
+                    double minDistance = 9999.9, foundDistance = 0.0;;
                     for (int i = 0; i < track.getNumPoints(); i++) {
                         DataPoint trackPoint = track.getPoint(i);
                         if (trackPoint != null && !trackPoint.isWaypoint()) {
@@ -62,6 +81,7 @@ public class GetWaypointsFunction extends GenericSearchFunction
                             double distance = Distance.convertRadiansToDistance(dist, distUnit);
                             if (distance < minDistance) {
                                 minDistance = distance;
+                                foundDistance = trackPoint.getDistance();
                                 if (distance < 0.01)
                                     break;
                             }
@@ -71,7 +91,8 @@ public class GetWaypointsFunction extends GenericSearchFunction
                         SearchResult result = new SearchResult();
                         result.setDataPoint(searchPoint);
                         result.setTrackName(searchPoint.getWaypointName());
-                        result.setLength(Distance.convertRadiansToDistance(minDistance, distUnit));
+                        // set the distance of the found point with regard to the start of the track
+                        result.setLength(foundDistance);
                         result.setWebUrl(searchPoint.getWebLink());
                         result.setDescription(searchPoint.getDescription());
                         result.setPointType(searchPoint.getWaypointType());

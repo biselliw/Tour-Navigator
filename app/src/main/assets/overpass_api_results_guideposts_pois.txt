@@ -1,0 +1,1418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="Overpass API 0.7.62.10 2d4cfc48">
+<note>The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.</note>
+<meta osm_base="2026-02-15T13:32:45Z"/>
+
+  <node id="1385130409" lat="48.4016167" lon="8.0178921">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="3144558698" lat="48.4013856" lon="8.0167960">
+    <tag k="ele" v="175"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Brückenhäuser"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE011"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE011 Gengenbach Brückenhäuser.jpg"/>
+  </node>
+  <node id="8662022920" lat="48.4013542" lon="8.0166607">
+    <tag k="bicycle" v="yes"/>
+    <tag k="colour:back" v="white"/>
+    <tag k="colour:text" v="green"/>
+    <tag k="direction_southeast" v="Haslach 18;Biberach 9.6"/>
+    <tag k="direction_southwest" v="Zunsweier 7.2;Berghaupten 2.4"/>
+    <tag k="guidepost:type" v="table"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="network" v="lcn"/>
+    <tag k="ref" v="OG-GEN.114.1"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="21387034" lat="48.4045788" lon="8.0101727">
+    <tag k="ele" v="172"/>
+    <tag k="name" v="Gengenbach"/>
+    <tag k="operator" v="DB InfraGO AG"/>
+    <tag k="public_transport" v="station"/>
+    <tag k="railway" v="station"/>
+    <tag k="railway:position" v="9.5"/>
+    <tag k="railway:ref" v="RGB"/>
+    <tag k="railway:station_category" v="4"/>
+    <tag k="ref:IFOPT" v="de:08317:15810"/>
+    <tag k="ref:IFOPT:description" v="Gengenbach"/>
+    <tag k="ref:ibnr" v="8002235"/>
+    <tag k="ref:station" v="2062"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="train" v="yes"/>
+    <tag k="uic_ref" v="8014497"/>
+    <tag k="wheelchair" v="yes"/>
+    <tag k="wikidata" v="Q15278688"/>
+  </node>
+  <node id="370931407" lat="48.4040827" lon="8.0148696">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="1"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="contact:facebook" v="vinobarmichelangelo"/>
+    <tag k="cuisine" v="italian"/>
+    <tag k="email" v="amici@vinobar-michelangelo.de"/>
+    <tag k="name" v="Ristorantino Eiscafe Michelangelo"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 40583"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.vinobar-michelangelo.de/"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="374797217" lat="48.4036299" lon="8.0108366">
+    <tag k="bus" v="yes"/>
+    <tag k="highway" v="turning_circle"/>
+    <tag k="name" v="Gengenbach, Grünstraße"/>
+    <tag k="public_transport" v="stop_position"/>
+    <tag k="ref:IFOPT" v="de:08317:15825:0:1"/>
+    <tag k="ref:IFOPT:description" v="1"/>
+  </node>
+  <node id="777096402" lat="48.4048678" lon="8.0105927">
+    <tag k="ele" v="173"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Bahnhof"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE123"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE123 Gengenbach Bahnhof.jpg"/>
+  </node>
+  <node id="1224047188" lat="48.4033310" lon="8.0149448">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="6"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Feuergasse"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="email" v="info@myCappu.de"/>
+    <tag k="fax" v="+49 7803 40420"/>
+    <tag k="internet_access" v="wlan"/>
+    <tag k="name" v="Bistro Cappuccino"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 1408"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="http://www.bistrocappuccino.de/"/>
+    <tag k="wheelchair" v="yes"/>
+  </node>
+  <node id="1301950480" lat="48.4046395" lon="8.0101718">
+    <tag k="local_ref" v="2"/>
+    <tag k="name" v="Gengenbach"/>
+    <tag k="operator" v="DB Netz AG"/>
+    <tag k="public_transport" v="stop_position"/>
+    <tag k="railway" v="stop"/>
+    <tag k="railway:position" v="9.5"/>
+    <tag k="railway:ref" v="RGB"/>
+    <tag k="ref:IFOPT" v="de:08317:15810:1:2"/>
+    <tag k="ref:IFOPT:description" v="Gleis 2"/>
+    <tag k="train" v="yes"/>
+  </node>
+  <node id="2570359509" lat="48.4036917" lon="8.0133189">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="39"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="fee" v="yes"/>
+    <tag k="museum" v="local"/>
+    <tag k="name" v="Narrenmuseum"/>
+    <tag k="opening_hours" v="We,Fr,Sa 14:00-17:00, Su,PH 11:00-17:00"/>
+    <tag k="tourism" v="museum"/>
+    <tag k="website" v="https://www.narrenmuseum-niggelturm.de/"/>
+    <tag k="wheelchair" v="no"/>
+    <tag k="wikimedia_commons" v="Category:Narrenmuseum Niggelturm (Gengenbach)"/>
+  </node>
+  <node id="2573346346" lat="48.4055072" lon="8.0116424">
+    <tag k="bench" v="yes"/>
+    <tag k="bin" v="yes"/>
+    <tag k="bus" v="yes"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="no"/>
+    <tag k="name" v="Gengenbach Bahnhofstraße"/>
+    <tag k="network" v="Tarifverbund Ortenau"/>
+    <tag k="network:short" v="TGO"/>
+    <tag k="network:wikidata" v="Q1525084"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="ref:IFOPT" v="de:08317:15820:1:1"/>
+    <tag k="ref:IFOPT:description" v="Steig 1"/>
+    <tag k="shelter" v="no"/>
+    <tag k="short_name" v="Bahnhofstraße"/>
+    <tag k="tactile_paving" v="no"/>
+  </node>
+  <node id="2920666054" lat="48.4066955" lon="8.0142879">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="2960276391" lat="48.4056206" lon="8.0134759">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="2960276393" lat="48.4056357" lon="8.0134486">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="3052517903" lat="48.4050950" lon="8.0145176">
+    <tag k="amenity" v="drinking_water"/>
+  </node>
+  <node id="3192276153" lat="48.4046698" lon="8.0102163">
+    <tag k="local_ref" v="1"/>
+    <tag k="name" v="Gengenbach"/>
+    <tag k="operator" v="DB Netz AG"/>
+    <tag k="public_transport" v="stop_position"/>
+    <tag k="railway" v="stop"/>
+    <tag k="railway:position" v="9.5"/>
+    <tag k="railway:ref" v="RGB"/>
+    <tag k="ref:IFOPT" v="de:08317:15810:1:1"/>
+    <tag k="ref:IFOPT:description" v="Gleis 1"/>
+    <tag k="train" v="yes"/>
+  </node>
+  <node id="3899399257" lat="48.4017786" lon="8.0142971">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2025-05-01"/>
+    <tag k="seats" v="5"/>
+  </node>
+  <node id="3899399259" lat="48.4017857" lon="8.0148296">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2025-05-01"/>
+    <tag k="seats" v="5"/>
+  </node>
+  <node id="3899399261" lat="48.4018018" lon="8.0148874">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-03-09"/>
+    <tag k="seats" v="5"/>
+  </node>
+  <node id="3899415081" lat="48.4041651" lon="8.0144597">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="20"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="check_date" v="2024-05-29"/>
+    <tag k="cuisine" v="regional"/>
+    <tag k="email" v="info@winzerstueble.de"/>
+    <tag k="name" v="Winzerstüble"/>
+    <tag k="opening_hours" v="Mo, Th, Fr 11:30-14:00, 17:00-21:30; Sa, Su 11:30-21:30"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.winzerstueble.de/galerie/winzerstueble/82146"/>
+    <tag k="wheelchair" v="limited"/>
+  </node>
+  <node id="3935894731" lat="48.4037744" lon="8.0137057">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="33"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="contact:facebook" v="FreiKULTUR"/>
+    <tag k="contact:instagram" v="frei_steinkellerhaus"/>
+    <tag k="cuisine" v="tapas"/>
+    <tag k="email" v="info@frei-gengenbach.de"/>
+    <tag k="fax" v="+49 7803 2114"/>
+    <tag k="name" v="Frei Steinkellerhaus"/>
+    <tag k="opening_hours" v="Tu-Su 17:00-23:00"/>
+    <tag k="phone" v="+49 7803 2471"/>
+    <tag k="website" v="https://www.frei-gengenbach.de/"/>
+    <tag k="wheelchair" v="yes"/>
+  </node>
+  <node id="4404273166" lat="48.4045678" lon="8.0100476">
+    <tag k="local_ref" v="3"/>
+    <tag k="name" v="Gengenbach"/>
+    <tag k="operator" v="DB Netz AG"/>
+    <tag k="public_transport" v="stop_position"/>
+    <tag k="railway" v="stop"/>
+    <tag k="railway:position" v="9.5"/>
+    <tag k="railway:ref" v="RGB"/>
+    <tag k="train" v="yes"/>
+  </node>
+  <node id="5134621701" lat="48.4054415" lon="8.0119030">
+    <tag k="bench" v="yes"/>
+    <tag k="bin" v="yes"/>
+    <tag k="bus" v="yes"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="yes"/>
+    <tag k="name" v="Gengenbach Bahnhofstraße"/>
+    <tag k="network" v="Tarifverbund Ortenau"/>
+    <tag k="network:short" v="TGO"/>
+    <tag k="network:wikidata" v="Q1525084"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="ref:IFOPT" v="de:08317:15820:1:2"/>
+    <tag k="ref:IFOPT:description" v="Steig 2"/>
+    <tag k="shelter" v="no"/>
+    <tag k="short_name" v="Bahnhofstraße"/>
+    <tag k="tactile_paving" v="no"/>
+  </node>
+  <node id="5884201193" lat="48.4042101" lon="8.0146373">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="3a"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="check_date" v="2024-05-29"/>
+    <tag k="cuisine" v="regional"/>
+    <tag k="name" v="Schatull"/>
+    <tag k="opening_hours" v="We-Mo 11:00+"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 7550"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.schatull.de/"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="5885114850" lat="48.4043461" lon="8.0144847">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="4"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Höllengasse"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="contact:facebook" v="cafeuvgengenbach"/>
+    <tag k="cuisine" v="bistro"/>
+    <tag k="name" v="Café UV im Winzerhof"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 926401"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.cafeuv.de/"/>
+    <tag k="wheelchair" v="yes"/>
+  </node>
+  <node id="5918989531" lat="48.4040102" lon="8.0133031">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="32"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="ice_cream"/>
+    <tag k="contact:facebook" v="CasadelgelatoGengenbach"/>
+    <tag k="email" v="casadelgelato2018@gmail.com"/>
+    <tag k="name" v="Casa del Gelato"/>
+    <tag k="opening_hours" v="Mo-Su 10:00-21:00"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 5020314"/>
+    <tag k="start_date" v="2018"/>
+    <tag k="takeaway" v="yes"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="6238119155" lat="48.4043436" lon="8.0142662">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="4"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Höllengasse"/>
+    <tag k="contact:facebook" v="gengenbach.info"/>
+    <tag k="email" v="tourist-info@stadt-gengenbach.de"/>
+    <tag k="information" v="office"/>
+    <tag k="name" v="Tourist-Info"/>
+    <tag k="opening_hours" v="Mo-Fr 09:00-12:30 , 13:30-17:00; Sa 10:00-12:00"/>
+    <tag k="operator" v="Gengenbach Kultur- und Tourismus GmbH"/>
+    <tag k="phone" v="+49 7803 930143"/>
+    <tag k="tourism" v="information"/>
+    <tag k="website" v="https://www.gengenbach.info/"/>
+  </node>
+  <node id="6307621406" lat="48.4028917" lon="8.0122373">
+    <tag k="amenity" v="bench"/>
+  </node>
+  <node id="7039373592" lat="48.4032660" lon="8.0129393">
+    <tag k="amenity" v="bench"/>
+    <tag k="source" v="survey / Durchreise"/>
+  </node>
+  <node id="7951150330" lat="48.4046534" lon="8.0100337">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="covered" v="yes"/>
+    <tag k="material" v="metal"/>
+    <tag k="seats" v="5"/>
+  </node>
+  <node id="7951150332" lat="48.4047253" lon="8.0102606">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="covered" v="yes"/>
+    <tag k="material" v="metal"/>
+    <tag k="seats" v="5"/>
+  </node>
+  <node id="7951156991" lat="48.4036843" lon="8.0109443">
+    <tag k="bus" v="yes"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="name" v="Gengenbach, Grünstraße"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="ref:IFOPT" v="de:08317:15825:0:1"/>
+    <tag k="ref:IFOPT:description" v="1"/>
+  </node>
+  <node id="7951156993" lat="48.4044075" lon="8.0103361">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="covered" v="yes"/>
+    <tag k="material" v="metal"/>
+    <tag k="seats" v="5"/>
+  </node>
+  <node id="7951156994" lat="48.4043850" lon="8.0103545">
+    <tag k="board_type" v="public_transport"/>
+    <tag k="covered" v="yes"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="information" v="board"/>
+    <tag k="lit" v="yes"/>
+    <tag k="support" v="wall_mounted"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="8662022926" lat="48.4050745" lon="8.0120386">
+    <tag k="bicycle" v="yes"/>
+    <tag k="colour:back" v="white"/>
+    <tag k="colour:text" v="green"/>
+    <tag k="direction_northwest" v="Offenburg 8.4;Ohlsbach 3.3"/>
+    <tag k="direction_southwest" v="Bahnhof 0.1"/>
+    <tag k="guidepost:type" v="table"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="network" v="lcn"/>
+    <tag k="ref" v="OG-GEN.109.3"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="8662022927" lat="48.4053296" lon="8.0119662">
+    <tag k="ele" v="174"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Leutkirchstraße"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE183"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE183 Gengenbach Leutkirchstraße.jpg"/>
+  </node>
+  <node id="8662022931" lat="48.4051987" lon="8.0115632">
+    <tag k="bicycle" v="yes"/>
+    <tag k="colour:back" v="white"/>
+    <tag k="colour:text" v="green"/>
+    <tag k="direction_northwest" v="Offenburg 8.4;Ohlsbach 3.3"/>
+    <tag k="direction_southeast" v="Haslach 18;Biberach 10;Stadtmitte 0.4"/>
+    <tag k="guidepost:type" v="table"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="network" v="lcn"/>
+    <tag k="ref" v="OG-GEN.109.5"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="8662022935" lat="48.4048270" lon="8.0103877">
+    <tag k="bench" v="no"/>
+    <tag k="bin" v="no"/>
+    <tag k="bus" v="yes"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="yes"/>
+    <tag k="name" v="Gengenbach Bahnhof"/>
+    <tag k="network" v="Tarifverbund Ortenau"/>
+    <tag k="network:short" v="TGO"/>
+    <tag k="network:wikidata" v="Q1525084"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="rail_replacement_service" v="yes"/>
+    <tag k="ref:IFOPT" v="de:08317:15810:2:1"/>
+    <tag k="route_ref" v="SEV"/>
+    <tag k="shelter" v="no"/>
+    <tag k="short_name" v="Bahnhof"/>
+    <tag k="tactile_paving" v="no"/>
+  </node>
+  <node id="8672922090" lat="48.4056663" lon="8.0115557">
+    <tag k="bicycle" v="yes"/>
+    <tag k="colour:back" v="white"/>
+    <tag k="colour:text" v="green"/>
+    <tag k="direction_southeast" v="Haslach 18;Biberach 10;Stadtmitte 0.4"/>
+    <tag k="direction_southwest" v="Bahnhof 0.1"/>
+    <tag k="guidepost:type" v="table"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="network" v="lcn"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="9545639518" lat="48.4070448" lon="8.0112011">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="9545639519" lat="48.4068996" lon="8.0113091">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="9545639520" lat="48.4071129" lon="8.0111461">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="9548088036" lat="48.4041032" lon="8.0128553">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="2"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Leutkirchstraße"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="check_date" v="2024-05-31"/>
+    <tag k="name" v="Café Birnbräuer"/>
+    <tag k="phone" v="+49 7803 2220"/>
+    <tag k="start_date" v="1972"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.cafe-birnbraeuer.de/"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="9548088048" lat="48.4037978" lon="8.0145814">
+    <tag k="addr:housenumber" v="23"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="contact:facebook" v="sonnegengenbach"/>
+    <tag k="contact:instagram" v="sonne_gengenbach"/>
+    <tag k="cuisine" v="regional"/>
+    <tag k="fax" v="+49 7803 40624"/>
+    <tag k="name" v="Hotel Restaurant Sonne"/>
+    <tag k="opening_hours" v="Mo,Tu,Fr,Sa 17:30-22:30; Su 11:30-15:00; 17:30-22:30"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 93300"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.sonne-gengenbach.de/de/restaurant/"/>
+    <tag k="website:menu" v="https://www.sonne-gengenbach.de/media/54122/homepage-speisekarte-25112022-2576113.pdf"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="9548088051" lat="48.4040436" lon="8.0145076">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="18"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="cuisine" v="regional"/>
+    <tag k="email" v="info@winzerstueble.de"/>
+    <tag k="name" v="Von Bender"/>
+    <tag k="opening_hours" v="Tu-Su 11:45-21:00"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 3636"/>
+    <tag k="website" v="https://www.winzerstueble.de/galerie/bender/82142"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="9552496575" lat="48.4052117" lon="8.0147932">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="6"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Mercyscher Hof"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="contact:facebook" v="mercyscherhofgengenbach"/>
+    <tag k="cuisine" v="german"/>
+    <tag k="email" v="info@mercyscher-hof.de"/>
+    <tag k="name" v="Mercyscher Hof"/>
+    <tag k="opening_hours" v="We-Su 10:30-14:30,16:30-23:45"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 929476"/>
+    <tag k="website" v="https://mercyscher-hof.de/"/>
+  </node>
+  <node id="9552496588" lat="48.4043434" lon="8.0135500">
+    <tag k="artist_name" v="Berthold Eble"/>
+    <tag k="artwork_type" v="sculpture"/>
+    <tag k="material" v="wood"/>
+    <tag k="name" v="Ernst Schillinger"/>
+    <tag k="tourism" v="artwork"/>
+    <tag k="wikimedia_commons" v="File:Engelgasse in Gengenbach, Ernst Schillinger.jpg"/>
+  </node>
+  <node id="10008486055" lat="48.4075326" lon="8.0147232">
+    <tag k="bench" v="no"/>
+    <tag k="bin" v="no"/>
+    <tag k="bus" v="yes"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="yes"/>
+    <tag k="name" v="Gengenbach Geschwister-Scholl-Grundschule"/>
+    <tag k="network" v="Tarifverbund Ortenau"/>
+    <tag k="network:guid" v="DE-BW-TGO"/>
+    <tag k="network:short" v="TGO"/>
+    <tag k="network:wikidata" v="Q1525084"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="shelter" v="no"/>
+    <tag k="tactile_paving" v="no"/>
+  </node>
+  <node id="10008486056" lat="48.4076869" lon="8.0146663">
+    <tag k="amenity" v="shelter"/>
+    <tag k="shelter_type" v="weather_shelter"/>
+  </node>
+  <node id="10008486057" lat="48.4077596" lon="8.0147387">
+    <tag k="amenity" v="shelter"/>
+    <tag k="shelter_type" v="weather_shelter"/>
+  </node>
+  <node id="10046683371" lat="48.4081647" lon="8.0149951">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10055872698" lat="48.4032007" lon="8.0127468">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="10057959320" lat="48.4056107" lon="8.0140231">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10057959321" lat="48.4056136" lon="8.0141190">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="11376227883" lat="48.4027873" lon="8.0148683">
+    <tag k="bench" v="yes"/>
+    <tag k="bin" v="yes"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="yes"/>
+    <tag k="name" v="Gengenbach Friedrichstraße"/>
+    <tag k="shelter" v="yes"/>
+    <tag k="tactile_paving" v="no"/>
+  </node>
+  <node id="12987535364" lat="48.4046681" lon="8.0104487">
+    <tag k="board_type" v="public_transport"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="indoor" v="yes"/>
+    <tag k="information" v="board"/>
+    <tag k="lit" v="yes"/>
+    <tag k="support" v="wall_mounted"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="12987535385" lat="48.4043619" lon="8.0104072">
+    <tag k="board_type" v="public_transport"/>
+    <tag k="covered" v="yes"/>
+    <tag k="information" v="board"/>
+    <tag k="lit" v="yes"/>
+    <tag k="support" v="billboard"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="12987535391" lat="48.4047084" lon="8.0102898">
+    <tag k="board_type" v="public_transport"/>
+    <tag k="information" v="board"/>
+    <tag k="support" v="wall_mounted"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="12987604283" lat="48.4046681" lon="8.0105000">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="covered" v="yes"/>
+    <tag k="lit" v="yes"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="8"/>
+  </node>
+  <node id="12987629632" lat="48.4046356" lon="8.0105373">
+    <tag k="board_type" v="public_transport"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="indoor" v="yes"/>
+    <tag k="information" v="board"/>
+    <tag k="lit" v="yes"/>
+    <tag k="support" v="wall_mounted"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="370926213" lat="48.4047428" lon="8.0153230">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="17"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="contact:facebook" v="PfeffermuehleGengenbach"/>
+    <tag k="contact:instagram" v="restaurant_pfeffermuehle"/>
+    <tag k="cuisine" v="german"/>
+    <tag k="email" v="info@pfeffermuehle-gengenbach.de"/>
+    <tag k="name" v="Spezialitätenrestaurant Pfeffermühle"/>
+    <tag k="opening_hours" v="Fr-We,PH 11:30-14:15, 17:30-21:30"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="website" v="https://pfeffermuehle-gengenbach.de/restaurant/"/>
+  </node>
+  <node id="370926218" lat="48.4046243" lon="8.0159886">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="15"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Klosterstraße"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="contact:facebook" v="dolomitieisgengenbach"/>
+    <tag k="email" v="dolomitieiscafegengenbach@gmail.com"/>
+    <tag k="name" v="Eiscafé Dolomiti"/>
+    <tag k="opening_hours" v="Mo-Sa 09:30-20:00; Su 10:00-20:00"/>
+    <tag k="phone" v="+49 7803 4100"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="370926222" lat="48.4045351" lon="8.0157680">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="12-14"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="name" v="Dreher's Kaffeehaus"/>
+    <tag k="opening_hours" v="Mo-Sa 06:00-18:00; Su 08:00-18:00"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 9667836"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.stadtbaeckerei-dreher.de/standorte/kaffeehaus-gengenbach"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="777096474" lat="48.4027302" lon="8.0162265">
+    <tag k="ele" v="176"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Kinzigtor"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE182"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE182 Gengenbach Kinzigtor.jpg"/>
+  </node>
+  <node id="777096702" lat="48.4059615" lon="8.0162839">
+    <tag k="ele" v="180"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Am oberen Tor"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE001"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE001 Gengenbach Am oberen Tor (1).jpg"/>
+  </node>
+  <node id="777096835" lat="48.4059759" lon="8.0161339">
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="note" v="Kein Name oder Höhe angeschrieben"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE001"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE001 Gengenbach Am oberen Tor (3).jpg"/>
+  </node>
+  <node id="835815604" lat="48.4038257" lon="8.0152744">
+    <tag k="bench" v="no"/>
+    <tag k="bin" v="no"/>
+    <tag k="bus" v="yes"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="no"/>
+    <tag k="name" v="Gengenbach Rathaus"/>
+    <tag k="network" v="Tarifverbund Ortenau"/>
+    <tag k="network:short" v="TGO"/>
+    <tag k="network:wikidata" v="Q1525084"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="ref:IFOPT" v="de:08317:15812:1:1"/>
+    <tag k="shelter" v="no"/>
+    <tag k="short_name" v="Rathaus"/>
+    <tag k="tactile_paving" v="no"/>
+    <tag k="wheelchair" v="yes"/>
+  </node>
+  <node id="859950629" lat="48.4052388" lon="8.0192445">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-03-09"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="8"/>
+  </node>
+  <node id="859963574" lat="48.4065055" lon="8.0187566">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-06-01"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="859969893" lat="48.4052334" lon="8.0193239">
+    <tag k="tourism" v="viewpoint"/>
+  </node>
+  <node id="859977692" lat="48.4064310" lon="8.0201718">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-06-01"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="8"/>
+  </node>
+  <node id="859977706" lat="48.4073951" lon="8.0212072">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="8"/>
+  </node>
+  <node id="859984607" lat="48.4056513" lon="8.0174128">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-06-01"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="1385130537" lat="48.4016987" lon="8.0186646">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="1801570429" lat="48.4069965" lon="8.0202938">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="1801570430" lat="48.4070672" lon="8.0201862">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="2399106312" lat="48.4038175" lon="8.0151259">
+    <tag k="access" v="yes"/>
+    <tag k="amenity" v="toilets"/>
+    <tag k="changing_table" v="yes"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="fee" v="yes"/>
+    <tag k="level" v="-1"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="2427323207" lat="48.4020843" lon="8.0153939">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="2480412770" lat="48.4037529" lon="8.0158451">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="12"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="name" v="Café König"/>
+    <tag k="opening_hours" v="Tu-Su 10:00-18:00"/>
+  </node>
+  <node id="2480412797" lat="48.4055506" lon="8.0161229">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="38"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="diet:vegan" v="no"/>
+    <tag k="diet:vegetarian" v="yes"/>
+    <tag k="indoor_seating" v="yes"/>
+    <tag k="internet_access" v="yes"/>
+    <tag k="name" v="Stadtcafe Alt Gengenbach"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 1622"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="website" v="https://www.stadtcafe-alt-gengenbach.de/"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="2570359512" lat="48.4036089" lon="8.0156016">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="13"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="fee" v="yes"/>
+    <tag k="name" v="Museum Haus Löwenberg"/>
+    <tag k="opening_hours" v="Tu-Fr 11:00-17:00; Sa,Su,PH 13:00-18:00"/>
+    <tag k="phone" v="+49 7803 930141"/>
+    <tag k="tourism" v="museum"/>
+    <tag k="website" v="https://www.museum-haus-loewenberg.de/"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="2570359515" lat="48.4029917" lon="8.0160021">
+    <tag k="fee" v="yes"/>
+    <tag k="name" v="Wehrgeschichtliches Museum"/>
+    <tag k="opening_hours" v="PH,Su 10:00-12:00,14:00-17:00; May-Oct: Sa 14:00-17:00"/>
+    <tag k="tourism" v="museum"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="2573346343" lat="48.4024723" lon="8.0162446">
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="3414863861" lat="48.4031510" lon="8.0201080">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2023-06-27"/>
+  </node>
+  <node id="3414937965" lat="48.4071144" lon="8.0207845">
+    <tag k="access" v="yes"/>
+    <tag k="amenity" v="toilets"/>
+    <tag k="fee" v="no"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="3554134680" lat="48.4036909" lon="8.0155493">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="13"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="contact:facebook" v="LaGrappaGengenbach"/>
+    <tag k="cuisine" v="italian"/>
+    <tag k="email" v="pizzeria@lagrappa.net"/>
+    <tag k="name" v="La Grappa"/>
+    <tag k="opening_hours" v="Mo,We-Fr,Su 11:30-14:00; 17:30-22:30; Sa 17:30-22:00"/>
+    <tag k="phone" v="+49 7803 5021911"/>
+    <tag k="toilets:wheelchair" v="no"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="3899399287" lat="48.4021897" lon="8.0158687">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="3899415051" lat="48.4032063" lon="8.0160897">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="4"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="contact:facebook" v="cuoredipuglia1"/>
+    <tag k="contact:instagram" v="_CuoreDiPuglia_"/>
+    <tag k="cuisine" v="italian"/>
+    <tag k="email" v="cuoredipuglia.gengenbach@gmail.com"/>
+    <tag k="name" v="Cuore di Puglia"/>
+    <tag k="opening_hours" v="Tu-Su 11:00-15:00 , 17:00-22:00"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 9286503"/>
+    <tag k="website" v="https://www.cuore-di-puglia.com/"/>
+    <tag k="wheelchair" v="yes"/>
+  </node>
+  <node id="3899415052" lat="48.4053006" lon="8.0158101">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="29"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="cuisine" v="italian;indian"/>
+    <tag k="name" v="Namaste Bawi's"/>
+    <tag k="phone" v="+49 7803 5020187"/>
+    <tag k="website" v="https://namaste1.de/"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="3899417999" lat="48.4052003" lon="8.0193284">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-03-09"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="8"/>
+  </node>
+  <node id="3899418000" lat="48.4052129" lon="8.0192837">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-03-09"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="8"/>
+  </node>
+  <node id="4917630281" lat="48.4052474" lon="8.0206880">
+    <tag k="amenity" v="drinking_water"/>
+  </node>
+  <node id="5562032690" lat="48.4032089" lon="8.0208427">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-05-08"/>
+  </node>
+  <node id="5562032691" lat="48.4031920" lon="8.0208300">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-05-08"/>
+  </node>
+  <node id="5562037668" lat="48.4036174" lon="8.0209188">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2025-09-11"/>
+  </node>
+  <node id="5613964502" lat="48.4038499" lon="8.0196306">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="5630145533" lat="48.4036966" lon="8.0181133">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-05-31"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="5726090763" lat="48.4029979" lon="8.0207385">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2025-09-11"/>
+  </node>
+  <node id="5763777666" lat="48.4070139" lon="8.0201681">
+    <tag k="tourism" v="viewpoint"/>
+  </node>
+  <node id="5763850981" lat="48.4050679" lon="8.0207238">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="5763850982" lat="48.4050745" lon="8.0206813">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="6111678317" lat="48.4024193" lon="8.0165680">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="6111678318" lat="48.4024671" lon="8.0167299">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="6307621407" lat="48.4025364" lon="8.0170909">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="8662022921" lat="48.4058576" lon="8.0162433">
+    <tag k="colour:back" v="yellow"/>
+    <tag k="colour:text" v="blue"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="mtb" v="yes"/>
+    <tag k="ref" v="GE02"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="8672922074" lat="48.4077356" lon="8.0177531">
+    <tag k="ele" v="186"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Oberdorf"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE078"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE078 Gengenbach Oberdorf.jpg"/>
+  </node>
+  <node id="8672922076" lat="48.4061517" lon="8.0163133">
+    <tag k="bench" v="no"/>
+    <tag k="bin" v="no"/>
+    <tag k="bus" v="yes"/>
+    <tag k="departures_board" v="timetable"/>
+    <tag k="highway" v="bus_stop"/>
+    <tag k="lit" v="no"/>
+    <tag k="name" v="Gengenbach Löwenplatz"/>
+    <tag k="network" v="Tarifverbund Ortenau"/>
+    <tag k="network:short" v="TGO"/>
+    <tag k="network:wikidata" v="Q1525084"/>
+    <tag k="public_transport" v="platform"/>
+    <tag k="ref:IFOPT" v="de:08317:15824:1:1"/>
+    <tag k="shelter" v="no"/>
+    <tag k="short_name" v="Löwenplatz"/>
+    <tag k="tactile_paving" v="no"/>
+  </node>
+  <node id="8672922077" lat="48.4058313" lon="8.0162765">
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="map"/>
+    <tag k="name" v="Sagenrundweg Bergle"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="8672922078" lat="48.4057912" lon="8.0163020">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="8672922079" lat="48.4057717" lon="8.0162939">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="8672922087" lat="48.4051947" lon="8.0206400">
+    <tag k="ele" v="200"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="An der Stirn"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE178"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE178 An der Stirn.jpg"/>
+  </node>
+  <node id="9545627107" lat="48.4032779" lon="8.0156381">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="7"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="cafe"/>
+    <tag k="name" v="La Vita"/>
+  </node>
+  <node id="9548088053" lat="48.4038192" lon="8.0157877">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:country" v="DE"/>
+    <tag k="addr:housenumber" v="14"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="amenity" v="ice_cream"/>
+  </node>
+  <node id="9548088057" lat="48.4037667" lon="8.0155027">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="9548088058" lat="48.4037836" lon="8.0154356">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="9548088061" lat="48.4033803" lon="8.0159533">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="9552496561" lat="48.4049241" lon="8.0155684">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="21"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="contact:facebook" v="CocotteSchwarzwaldBrasserie"/>
+    <tag k="email" v="info@cocotte-gengenbach.de"/>
+    <tag k="name" v="Cocotte"/>
+    <tag k="opening_hours" v="Mo-Th 17:00-23:00; Fr,Sa 11:00-23:00"/>
+    <tag k="operator" v="Die Reichsstadt GmbH"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="9552496574" lat="48.4049410" lon="8.0150695">
+    <tag k="addr:city" v="Gengenbach"/>
+    <tag k="addr:housenumber" v="33"/>
+    <tag k="addr:postcode" v="77723"/>
+    <tag k="addr:street" v="Engelgasse"/>
+    <tag k="amenity" v="restaurant"/>
+    <tag k="check_date" v="2024-05-29"/>
+    <tag k="contact:facebook" v="HotelDieReichsstadt"/>
+    <tag k="cuisine" v="regional"/>
+    <tag k="email" v="info@die-reichsstadt.de"/>
+    <tag k="name" v="Die Reichsstadt"/>
+    <tag k="opening_hours" v="Tu-Su 17:00-23:00"/>
+    <tag k="outdoor_seating" v="yes"/>
+    <tag k="phone" v="+49 7803 96630"/>
+    <tag k="website" v="https://www.die-reichsstadt.de/de/restaurant/"/>
+  </node>
+  <node id="9830495968" lat="48.4073973" lon="8.0212416">
+    <tag k="board_type" v="history"/>
+    <tag k="information" v="board"/>
+    <tag k="name" v="Sagenrundweg Bergle - Die Berglekapelle"/>
+    <tag k="operator" v="Ortenaukreis"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="10008486047" lat="48.4054101" lon="8.0171967">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10016621088" lat="48.4036507" lon="8.0179469">
+    <tag k="description" v="Hüpfen, Klettern, Laufen"/>
+    <tag k="information" v="board"/>
+    <tag k="name" v="Station 1 mit dem kleinen Gespenst"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="10016621089" lat="48.4037849" lon="8.0179469">
+    <tag k="description" v="Baumslalom"/>
+    <tag k="information" v="board"/>
+    <tag k="name" v="Station 2 mit dem kleinen Gespenst"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="10016621090" lat="48.4039080" lon="8.0179576">
+    <tag k="description" v="Im Krütergarten"/>
+    <tag k="information" v="board"/>
+    <tag k="name" v="Station 3 mit dem kleinen Gespenst"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="10016621091" lat="48.4042263" lon="8.0180572">
+    <tag k="description" v="Bühne frei zum Hampeln, Hüpfen, Hopsen"/>
+    <tag k="information" v="board"/>
+    <tag k="name" v="Station 5 mit dem kleinen Gespenst"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="10016637936" lat="48.4054000" lon="8.0155624">
+    <tag k="name" v="Gänsbühl Appartement N° 1"/>
+    <tag k="number_of_apartments" v="7"/>
+    <tag k="tourism" v="apartment"/>
+  </node>
+  <node id="10046683410" lat="48.4063663" lon="8.0167238">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10053901409" lat="48.4047372" lon="8.0175069">
+    <tag k="access" v="private"/>
+    <tag k="amenity" v="toilets"/>
+    <tag k="fee" v="no"/>
+  </node>
+  <node id="10057885703" lat="48.4044242" lon="8.0186526">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10057885707" lat="48.4035223" lon="8.0184474">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10057885709" lat="48.4040667" lon="8.0178922">
+    <tag k="information" v="board"/>
+    <tag k="name" v="Freundeskreis Kräutergarten"/>
+    <tag k="tourism" v="information"/>
+  </node>
+  <node id="10068627179" lat="48.4036616" lon="8.0200866">
+    <tag k="amenity" v="lounger"/>
+    <tag k="backrest" v="no"/>
+    <tag k="description" v="Liegefläche"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10123996938" lat="48.4079199" lon="8.0191934">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10123996939" lat="48.4079898" lon="8.0201845">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10140221119" lat="48.4032468" lon="8.0151873">
+    <tag k="email" v="mail@hausRoser.de"/>
+    <tag k="fax" v="+49 7803 50 220 56"/>
+    <tag k="name" v="Haus Roser"/>
+    <tag k="note" v="Check-in im CAPPUCCINO Café-Bistro-Cocktailbar, Feuergasse 6 gegenüber haus Roser"/>
+    <tag k="phone" v="+49 7803 50 220 55; +49 170 995 0170"/>
+    <tag k="tourism" v="apartment"/>
+    <tag k="website" v="https://www.hausroser.de"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="10943700441" lat="48.4072595" lon="8.0199987">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10943723100" lat="48.4070354" lon="8.0201524">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10943723102" lat="48.4070150" lon="8.0202300">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="colour" v="brown"/>
+    <tag k="inscription" v="Gengenbach Hexen"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="10943723103" lat="48.4069973" lon="8.0201912">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="colour" v="brown"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="11356591659" lat="48.4037758" lon="8.0152026">
+    <tag k="addr:housenumber" v="17"/>
+    <tag k="addr:street" v="Hauptstraße"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="information" v="office"/>
+    <tag k="level" v="0"/>
+    <tag k="name" v="Tourist Information Gengenbach"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wheelchair" v="no"/>
+  </node>
+  <node id="11356591660" lat="48.4043456" lon="8.0152010">
+    <tag k="addr:housenumber" v="7"/>
+    <tag k="addr:street" v="Victor-Kretz-Straße"/>
+    <tag k="amenity" v="place_of_worship"/>
+    <tag k="check_date" v="2023-11-16"/>
+    <tag k="denomination" v="catholic"/>
+    <tag k="name" v="Ein.Laden - Kirche am Markt"/>
+    <tag k="religion" v="christian"/>
+  </node>
+  <node id="11532576345" lat="48.4049081" lon="8.0158031">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576352" lat="48.4046105" lon="8.0154997">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576353" lat="48.4045613" lon="8.0154716">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576410" lat="48.4040836" lon="8.0153874">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576411" lat="48.4039804" lon="8.0154182">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576412" lat="48.4041731" lon="8.0153163">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576413" lat="48.4041143" lon="8.0152506">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576414" lat="48.4040542" lon="8.0151815">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576418" lat="48.4039554" lon="8.0152107">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576419" lat="48.4038982" lon="8.0154702">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11532576420" lat="48.4039363" lon="8.0153159">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11576889692" lat="48.4069860" lon="8.0202626">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="12486288397" lat="48.4051135" lon="8.0176261">
+    <tag k="ele" v="186"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Haigerbachtal"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE204"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE204 Haigerbachtal (1).jpg"/>
+  </node>
+  <node id="12486288398" lat="48.4051371" lon="8.0183063">
+    <tag k="ele" v="201"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Otto-Ernst-Sutter-Weg"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE216"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE216 Otto-Ernst-Sutter-Weg.jpg"/>
+  </node>
+  <node id="12486288399" lat="48.4053840" lon="8.0191491">
+    <tag k="ele" v="224"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Im Kastelberg"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE205"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE205 Im Kastelberg.jpg"/>
+  </node>
+  <node id="12486291313" lat="48.4035870" lon="8.0213175">
+    <tag k="ele" v="176"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Schneckenmatt Ost"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE206"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE206 Schneckenmatt Ost.jpg"/>
+  </node>
+  <node id="12486291314" lat="48.4036033" lon="8.0186555">
+    <tag k="ele" v="174"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Schneckenmatt Nord"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE218"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE218 Schneckenmatt Nord.jpg"/>
+  </node>
+  <node id="12801929462" lat="48.4045283" lon="8.0178974">
+    <tag k="amenity" v="bench"/>
+  </node>
+  <node id="12801968030" lat="48.4041915" lon="8.0174924">
+    <tag k="amenity" v="drinking_water"/>
+  </node>
+  <node id="13097821030" lat="48.4035035" lon="8.0184213">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="13136193601" lat="48.4037248" lon="8.0182844">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="13136193701" lat="48.4036269" lon="8.0183948">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="13136234401" lat="48.4039710" lon="8.0183472">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="13136234501" lat="48.4040496" lon="8.0183526">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="13136234601" lat="48.4041713" lon="8.0183629">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="13243295330" lat="48.4055927" lon="8.0172334">
+    <tag k="ele" v="182"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Kindergarten"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE203"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE203 Kindergarten.jpg"/>
+  </node>
+  <node id="5514100183" lat="48.4073271" lon="8.0223571">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="check_date" v="2024-06-01"/>
+  </node>
+  <node id="5763609330" lat="48.4068465" lon="8.0223214">
+    <tag k="ele" v="230"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Im Baumgarten"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE179"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE179 Im Baumgarten.jpg"/>
+  </node>
+  <node id="5763609331" lat="48.4068937" lon="8.0223697">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="5763609332" lat="48.4068937" lon="8.0224046">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+  </node>
+  <node id="5763844892" lat="48.4063666" lon="8.0216819">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="8672922073" lat="48.4074133" lon="8.0223812">
+    <tag k="ele" v="235"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Eckkapelle"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE003"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE003 Eckkapelle.jpg"/>
+  </node>
+  <node id="10123996940" lat="48.4076644" lon="8.0220359">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="11576973950" lat="48.4060530" lon="8.0224127">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+    <tag k="material" v="wood"/>
+    <tag k="seats" v="4"/>
+  </node>
+  <node id="1884006175" lat="48.4096765" lon="8.0155802">
+    <tag k="ele" v="210"/>
+    <tag k="hiking" v="yes"/>
+    <tag k="information" v="guidepost"/>
+    <tag k="name" v="Gengenbach Wolfsweg"/>
+    <tag k="operator" v="Schwarzwaldverein"/>
+    <tag k="ref" v="OGGE166"/>
+    <tag k="tourism" v="information"/>
+    <tag k="wikimedia_commons" v="File:SWV Wegweiser OGGE166.JPG"/>
+  </node>
+  <node id="10046683361" lat="48.4092312" lon="8.0153565">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10046683367" lat="48.4089477" lon="8.0154256">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+  <node id="10046683369" lat="48.4085769" lon="8.0153511">
+    <tag k="amenity" v="bench"/>
+    <tag k="backrest" v="yes"/>
+  </node>
+
+</osm>

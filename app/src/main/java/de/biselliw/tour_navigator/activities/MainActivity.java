@@ -65,18 +65,19 @@ import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.dialogs.BreakTimeDialog;
 import de.biselliw.tour_navigator.dialogs.CommentDialog;
-import de.biselliw.tour_navigator.dialogs.OSM_Dialog;
-import de.biselliw.tour_navigator.dialogs.OSM_GuidePostsDialog;
 import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
-import de.biselliw.tour_navigator.dialogs.WaypointsDialog;
-import de.biselliw.tour_navigator.dialogs.WikipediaDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
+import de.biselliw.tour_navigator.fragments.OSM_DialogFragment;
+import de.biselliw.tour_navigator.fragments.OSM_GuidePostsDialogFragment;
+import de.biselliw.tour_navigator.fragments.WaypointsDialogFragment;
+import de.biselliw.tour_navigator.fragments.WikipediaDialogFragment;
 import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
@@ -121,6 +122,7 @@ public class MainActivity extends LocationActivity  implements
 
     static boolean timerRunnableIsRunning = false;
 
+    private boolean _updateRecords = false;
     /**
      * class for hiking parameters used for walking time calculation
      */
@@ -502,15 +504,26 @@ public class MainActivity extends LocationActivity  implements
         }
         else if (id == R.id.nav_remote_waypoints)
         {
-            WaypointsDialog waypointsDialog = new WaypointsDialog(this, null);
-            waypointsDialog.show();
+            // add waypoints along the track which are provided by the GPX file but are out of track
+            WaypointsDialogFragment dialog =
+                    WaypointsDialogFragment.newInstance(this)
+                            .setNotification(this::updateRecords);
+            dialog.show(
+                    getSupportFragmentManager(),"WaypointsDialogFragment"
+            );
+
             return true;
         }
         else if (id == R.id.nav_osm_guideposts)
         {
             // find OSM guideposts along the track
-            OSM_GuidePostsDialog guidePostsDialog = new OSM_GuidePostsDialog(this);
-            guidePostsDialog.show();
+            OSM_GuidePostsDialogFragment dialog =
+                    OSM_GuidePostsDialogFragment.newInstance(this)
+                    .setNotification(this::updateRecords);
+
+            dialog.show(
+                    getSupportFragmentManager(),"OSM_GuidePostsDialogFragment"
+            );
             return true;
         }
         else if (id == R.id.nav_start_time) {
@@ -537,6 +550,23 @@ public class MainActivity extends LocationActivity  implements
 
         return true;
     }
+
+    /**
+     * Check if a point is already loaded
+     * todo use in OSM_GuidePostsDialogFragment
+     */
+    public boolean isDuplicate(DataPoint inDataPoint) {
+            return (getRecordAdapter().contains(inDataPoint));
+    }
+
+    /**
+     * update all places in the records view
+     */
+    public synchronized void updateRecords() {
+        _updateRecords = true;
+    }
+
+
 
     /**
      *  Register an activity to load the GPX file
@@ -663,7 +693,7 @@ public class MainActivity extends LocationActivity  implements
             if (selected < 0) return;
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record == null) return;
-            DataPoint dataPoint = record.getTrackPoint();
+            DataPoint dataPoint = record.trackPoint;
             if (dataPoint == null) return;
 
             // is a waypoint linked to the routepoint?
@@ -742,8 +772,13 @@ public class MainActivity extends LocationActivity  implements
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-                WikipediaDialog wikipediaDialog = new WikipediaDialog(this, record.getTrackPoint());
-                wikipediaDialog.show();
+                WikipediaDialogFragment dialog =
+                        WikipediaDialogFragment.newInstance(this, record.trackPoint)
+                                .setNotification(this::updateRecords);
+
+                dialog.show(
+                        getSupportFragmentManager(),"WikipediaDialogFragment"
+                );
             }
         }
     }
@@ -756,8 +791,14 @@ public class MainActivity extends LocationActivity  implements
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-                OSM_Dialog osmDialog = new OSM_Dialog(this, record.getTrackPoint());
-                osmDialog.show();
+                // find OSM POIs
+                OSM_DialogFragment dialog =
+                        OSM_DialogFragment.newInstance(this, record.trackPoint)
+                                .setNotification(this::updateRecords);
+
+                dialog.show(
+                        getSupportFragmentManager(),"OSM_DialogFragment"
+                );
             }
         }
     }
@@ -811,7 +852,7 @@ public class MainActivity extends LocationActivity  implements
             /* Get destination coordinates */
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
-                DataPoint point = record.getTrackPoint();
+                DataPoint point = record.trackPoint;
                 if (point != null)
                     // is the track point linked to a way point?
                     if (point.getLinkIndex() >= 0)
@@ -852,7 +893,7 @@ public class MainActivity extends LocationActivity  implements
             /* Get destination coordinates */
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
-                DataPoint point = record.getTrackPoint();
+                DataPoint point = record.trackPoint;
                 if (point != null) {
                     String queryParameter = formatLatitude(point) + "," + formatLongitude(point);
                     /* Show the map at the given latitude and longitude */
@@ -1203,6 +1244,13 @@ public class MainActivity extends LocationActivity  implements
         if (App.getTrack() != null) {
             if (!App.getTrack().isValidRecordedTrackFile())
                 super.runner();
+
+            if (_updateRecords) {
+                if (App.getTrack() != null)
+                    notifyDataSetChanged(App.getTrack().updateRecords());
+                recordAdapter.notifyDataSetChanged();
+                _updateRecords = false;
+            }
         }
     }
 

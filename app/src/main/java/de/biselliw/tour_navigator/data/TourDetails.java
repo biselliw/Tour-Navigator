@@ -173,7 +173,7 @@ public class TourDetails {
             if (inPlace < recordAdapter.getCount()) {
                 RecordAdapter.Record record = recordAdapter.getItem(inPlace);
                 if (record == null) return null;
-                DataPoint point = record.getTrackPoint();
+                DataPoint point = record.trackPoint;
                 if (point == null) return null;
 
                 info.title = point.getRoutePointName();
@@ -235,7 +235,7 @@ public class TourDetails {
         if (recordAdapter == null) return null;
         RecordAdapter.Record record = recordAdapter.getItem(inPlace);
         if (record == null) return null;
-        return record.getTrackPoint();
+        return record.trackPoint;
     }
 
     public String getPlannedArriveTime(int inPlace) {

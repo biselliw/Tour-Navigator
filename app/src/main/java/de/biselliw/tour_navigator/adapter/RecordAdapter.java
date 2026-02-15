@@ -158,10 +158,6 @@ public class RecordAdapter extends BaseAdapter {
             Sdescent = _Sdescent;
             Sseconds = _Sseconds;
         }
-
-        public DataPoint getTrackPoint() {
-            return trackPoint;
-        }
     }
 
     @Override
@@ -271,11 +267,13 @@ public class RecordAdapter extends BaseAdapter {
             }
             _updatedRecordList.clear();
             _updatedRecordList = null;
+            notifyDataSetChanged();
         }
     }
 
     @Override
     public void notifyDataSetChanged() {
+        if (DEBUG) Log.d(TAG,"notifyDataSetChanged()");
         super.notifyDataSetChanged();
     }
 
@@ -285,7 +283,7 @@ public class RecordAdapter extends BaseAdapter {
             RemoveRecords();
         }
         if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
-// todo        notifyDataSetChanged();
+// todo  notifyDataSetChanged();
     }
 
     /**
@@ -474,7 +472,7 @@ public class RecordAdapter extends BaseAdapter {
      */
     public boolean contains(DataPoint inPoint) {
         for (int i = 0; i < recordList.size(); i++) {
-            DataPoint point = getItem(i).getTrackPoint();
+            DataPoint point = getItem(i).trackPoint;
             if (point != null)
                 if (point.getLinkIndex() >= 0)
                     point = app.getPoint(point.getLinkIndex());
@@ -506,7 +504,7 @@ public class RecordAdapter extends BaseAdapter {
     public int setNextPlace(LocationActivity inActivity, double inDistance, boolean inUser) {
         int place = 0;
         do {
-            DataPoint recPoint = getItem(place).getTrackPoint();
+            DataPoint recPoint = getItem(place).trackPoint;
             if (recPoint != null) {
                 double dist = recPoint.getDistance();
                 if (inDistance > dist) {
@@ -544,7 +542,7 @@ public class RecordAdapter extends BaseAdapter {
             /* Set relative position in the seek bar */
             RecordAdapter.Record record = getItem(inPlace);
             if (record == null) return false;
-            DataPoint point = record.getTrackPoint();
+            DataPoint point = record.trackPoint;
             if (point == null) return false;
             double distance = point.getDistance();
             distanceToPlace = distance - _distance; // dist_from_start;
@@ -568,7 +566,7 @@ public class RecordAdapter extends BaseAdapter {
                 record = getItem(inPlace + 1);
                 double nextDistance = distance + 1.0;
                 if (record != null) {
-                    point = record.getTrackPoint();
+                    point = record.trackPoint;
                     if (point != null)
                         nextDistance = point.getDistance();
                 }
@@ -578,7 +576,7 @@ public class RecordAdapter extends BaseAdapter {
                     record = getItem(inPlace - 1);
                     double prevDistance = distance - 1.0;
                     if (record != null) {
-                        point = record.getTrackPoint();
+                        point = record.trackPoint;
                         if (point != null)
                             prevDistance = point.getDistance();
                     }
@@ -624,7 +622,7 @@ public class RecordAdapter extends BaseAdapter {
                 /* Show the place on the board */
                 RecordAdapter.Record record = getItem(inPlace);
                 if (record == null) return false;
-                DataPoint point = record.getTrackPoint();
+                DataPoint point = record.trackPoint;
                 if (point == null) return false;
                 place = point.getRoutePointName();
 

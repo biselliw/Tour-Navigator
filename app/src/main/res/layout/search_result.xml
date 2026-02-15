@@ -7,7 +7,17 @@ android:orientation="horizontal"
 android:padding="12dp"
 android:background="?attr/colorSurface">
 
-<TextView
+    <TextView
+        android:id="@+id/search_result_distance"
+        android:textColor="#000"
+        android:fontFamily="serif"
+        android:layout_height="20dp"
+        android:layout_width="75dp"
+        android:layout_weight="0"
+        android:layout_gravity="end"
+        android:paddingRight="10dp"
+        android:text=""/>
+    <TextView
         android:textColor="#000"
         android:id="@+id/search_result_name"
         android:fontFamily="serif"
@@ -16,12 +26,12 @@ android:background="?attr/colorSurface">
         android:layout_weight="1"
         android:text="@string/wikipedia_article_name"/>
     <TextView
-        android:id="@+id/search_result_distance"
+        android:id="@+id/search_result_type"
         android:textColor="#000"
         android:fontFamily="serif"
         android:layout_height="20dp"
         android:layout_width="wrap_content"
         android:layout_weight="0"
         android:layout_gravity="end"
-        android:text="@string/distance"/>
+        android:text=""/>
 </LinearLayout>

@@ -55,15 +55,16 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
                 if (_currPoint.getPointType().isEmpty())
 				    _currPoint.setPointType(value);
 			}
-            else if (key.equals("website")) {
-                _currPoint.setDownloadLink(value);
-            }
             else if (key.equals("ele")) {}
             else {
                 if (key.equals("wikimedia_commons"))
                     value = "https://commons.wikimedia.org/wiki/" + value.replace(" ","_");
                 if (key.startsWith("wikipedia"))
                     value = "https://de.wikipedia.org/wiki/" + value.replace(" ","_");
+                if (key.equals("website"))
+                    _currPoint.setDownloadLink(value);
+                if (key.equals("ref"))
+                    _currPoint.setRef(value);
                 _currPoint.setDescription(_currPoint.getDescription() + "<p>" + key + ": " + value + "</p>");
             }
         }
@@ -78,9 +79,12 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
 		if (inTagName.equals("node"))
 		{
 			// end of the entry
-			if (_currPoint.getTrackName() != null && !_currPoint.getTrackName().equals("")) {
-                _pointList.add(_currPoint);
+            _currPoint.getTrackName();
+            if (_currPoint.getTrackName().isEmpty())
+            {
+                _currPoint.setTrackName("<" + _currPoint.getPointType() + ">");
             }
+            _pointList.add(_currPoint);
 		}
 		super.endElement(inUri, inLocalName, inTagName);
 	}
