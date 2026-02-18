@@ -2,7 +2,6 @@
 
     <style name="Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
 
-
         <!-- Status -->
         <item name="colorSuccess">#4CAF50</item>
         <item name="colorWarning">#FFC107</item>
@@ -38,4 +37,7 @@
         </item>
     </style>
 
+    <style name="NoIconPreference" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="iconSpaceReserved">false</item>
+    </style>
 </resources>

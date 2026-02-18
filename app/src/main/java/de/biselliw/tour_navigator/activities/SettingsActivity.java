@@ -43,6 +43,7 @@ import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.helpers.Log;
 
+import static de.biselliw.tour_navigator.data.Resources.getString;
 import static de.biselliw.tour_navigator.data.Resources.resStrSetToDefault;
 import static de.biselliw.tour_navigator.ui.ControlElements.setAlarmPreference;
 
@@ -64,13 +65,13 @@ public class SettingsActivity extends BaseActivity {
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
     static boolean hikingParametersChanged = false;
+    static String lang = "";
 
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         SettingsActivity activity;
-
-        SwitchPreferenceCompat pref_consent_internet = null;
         SwitchPreferenceCompat pref_consent_google_maps = null;
+        SwitchPreferenceCompat pref_consent_swv_tourenportal = null;
 
         private class IntPreference {
             EditTextPreference textPref;
@@ -149,35 +150,44 @@ public class SettingsActivity extends BaseActivity {
                 for (int i = 0; i < MainActivity.hikingParameters.size(); i++)
                     new IntPreference(MainActivity.hikingParameters.get(i));
 
-            pref_consent_internet =    findPreference("pref_consent_internet");
+            SwitchPreferenceCompat pref_consent_internet = findPreference("pref_consent_internet");
             pref_consent_google_maps = findPreference("pref_consent_google_maps");
-            if (pref_consent_google_maps != null) {
-                pref_consent_google_maps.setOnPreferenceChangeListener((preference, newValue) -> {
-                    boolean enabled = (Boolean) newValue;
-                    if (enabled) {
-                        if (pref_consent_internet != null && pref_consent_internet.isChecked()) {
-                            AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(activity);
-                            acceptDialog.show();
-                        }
-                        else
-                            // refuse the new value
-                            return false;
-                    }
-                    // Handle change (e.g., enable/disable notifications)
-                    return true; // true = save the new value
-                });
-            }
-
+            // Das Schwarzwaldverein Tourenportal gibt es nur in deutscher Sprache!
+            if (lang.equals("de"))
+                pref_consent_swv_tourenportal = findPreference("pref_consent_swv_tourenportal");
             if (pref_consent_internet != null) {
-                pref_consent_internet.setOnPreferenceChangeListener((preference, newValue) -> {
-                    boolean enabled = (Boolean) newValue;
-                    if (!enabled) {
-                        if (pref_consent_google_maps != null)
-                            pref_consent_google_maps.setChecked(false);
+                boolean consent_internet = pref_consent_internet.isChecked();
+                if (pref_consent_google_maps != null) {
+                    pref_consent_google_maps.setVisible(consent_internet);
+                    pref_consent_google_maps.setOnPreferenceChangeListener((preference, newValue) -> {
+                        boolean enabled = (Boolean) newValue;
+                        if (enabled) {
+                            if (pref_consent_internet.isChecked()) {
+                                AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(activity);
+                                acceptDialog.show();
+                            } else
+                                // refuse the new value
+                                return false;
+                        }
+                        // Handle change (e.g., enable/disable notifications)
+                        return true; // true = save the new value
+                    });
+
+                    if (pref_consent_swv_tourenportal != null) {
+                        pref_consent_swv_tourenportal.setVisible(consent_internet);
+                        pref_consent_internet.setOnPreferenceChangeListener((preference, newValue) -> {
+                            boolean enabled = (Boolean) newValue;
+                            pref_consent_google_maps.setVisible(enabled);
+                            pref_consent_swv_tourenportal.setVisible(enabled);
+                            if (!enabled) {
+                                pref_consent_google_maps.setChecked(false);
+                                pref_consent_swv_tourenportal.setChecked(false);
+                            }
+                            // save the new value
+                            return true;
+                        });
                     }
-                    // save the new value
-                    return true;
-                });
+                }
             }
         }
     }
@@ -196,20 +206,23 @@ public class SettingsActivity extends BaseActivity {
                     .commit();
         }
 
+        lang = getString(R.string.lang);
+
         // set default value on first time launch
         ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
         _sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (_sharedPref != null && hikingParameters != null) {
-            String def = _sharedPref.getString(hikingParameters.get(0).key, "");
-            if (def.isEmpty()) {
-                // set default preferences for hiking times calculation
-                SharedPreferences.Editor editor = _sharedPref.edit();
-                for (int i = 0; i < hikingParameters.size(); i++) {
-                    editor.putString(hikingParameters.get(i).key,
-                            String.valueOf(hikingParameters.get(i).defaultValue));
+        if (_sharedPref != null) {
+            if (hikingParameters != null) {
+                String def = _sharedPref.getString(hikingParameters.get(0).key, "");
+                if (def.isEmpty()) {
+                    // set default preferences for hiking times calculation
+                    SharedPreferences.Editor editor = _sharedPref.edit();
+                    for (int i = 0; i < hikingParameters.size(); i++) {
+                        editor.putString(hikingParameters.get(i).key,
+                                String.valueOf(hikingParameters.get(i).defaultValue));
+                    }
+                    editor.apply();
                 }
-                editor.apply();
             }
         }
 

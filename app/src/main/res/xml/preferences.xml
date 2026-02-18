@@ -1,19 +1,24 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
 
 <PreferenceCategory
+    style="@style/NoIconPreference"
         android:title="@string/pref_header_hiking_parameters">
         <EditTextPreference
+            style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_horSpeed"
             android:key="pref_hiking_par_horSpeed"
             android:defaultValue="1"
             android:title="@string/pref_hiking_par_horSpeed" />
         <EditTextPreference
+            style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_speedClimb"
             android:key="pref_hiking_par_speedClimb"
             android:defaultValue="2"
             android:title="@string/pref_hiking_par_speedClimb" />
         <EditTextPreference
+            style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_speedDescent"
             android:key="pref_hiking_par_speedDescent"
             android:defaultValue="3"
@@ -21,8 +26,10 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        style="@style/NoIconPreference"
         android:title="@string/pref_header_alarm_parameters">
         <SwitchPreferenceCompat
+            style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_alarm"
             android:key="pref_hiking_par_alarm"
             android:title="@string/pref_hiking_par_alarm"
@@ -31,22 +38,36 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        style="@style/NoIconPreference"
         android:title="@string/pref_header_consent_parameters">
         <SwitchPreferenceCompat
+            style="@style/NoIconPreference"
             android:id="@+id/pref_consent_internet"
             android:key="pref_consent_internet"
             android:title="Internet"
             android:summary="@string/consent_internet"
             android:defaultValue="false"/>
         <SwitchPreferenceCompat
+            style="@style/NoIconPreference"
             android:id="@+id/pref_consent_google_maps"
             android:key="pref_consent_google_maps"
             android:title="Google Maps"
+            app:isPreferenceVisible="false"
             android:defaultValue="false"/>
         <SwitchPreferenceCompat
+            style="@style/NoIconPreference"
+            android:id="@+id/pref_consent_swv_tourenportal"
+            android:key="pref_consent_swv_tourenportal"
+            android:title="Schwarzwaldverein Tourenportal"
+            android:summary="@string/consent_swv_tourenportal"
+            app:isPreferenceVisible="false"
+            android:defaultValue="false"/>
+        <SwitchPreferenceCompat
+            style="@style/NoIconPreference"
             android:id="@+id/pref_debug"
             android:key="pref_debug"
             android:title="Debug"
+            app:isPreferenceVisible="false"
             android:defaultValue="false"/>
     </PreferenceCategory>
 </PreferenceScreen>
