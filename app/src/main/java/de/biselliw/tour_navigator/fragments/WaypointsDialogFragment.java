@@ -20,12 +20,14 @@ package de.biselliw.tour_navigator.fragments;
 */
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
@@ -46,12 +48,23 @@ public class WaypointsDialogFragment extends SearchResultDialogFragment {
      */
     public static WaypointsDialogFragment newInstance(ControlElements inActivity) {
         WaypointsDialogFragment fragment = new WaypointsDialogFragment();
+        /*
         Bundle args = new Bundle();
         args.putString("title", inActivity.getString(R.string.wpts_out_of_track));
         fragment.setArguments(args);
-
+*/
         return fragment;
     }
+
+    /** Set a notification routine to be called after adding route points
+     * @param inNotification Runnable as callback function
+     */
+    public WaypointsDialogFragment _setNotification (Runnable inNotification)
+    {
+        notification = inNotification;
+        return this;
+    }
+
 
     @Override
     public void onAttach( @NonNull Context context ) {
@@ -64,17 +77,8 @@ public class WaypointsDialogFragment extends SearchResultDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadButtonAll.setVisibility(VISIBLE);
+        loadButtonAll.setVisibility(View.VISIBLE);
         showButton.setVisibility(GONE);
-    }
-
-    /** Set a notification routine to be called after adding route points
-     * @param inNotification Runnable as callback function
-     */
-    public WaypointsDialogFragment setNotification (Runnable inNotification)
-    {
-        notification = inNotification;
-        return this;
     }
 
     /**

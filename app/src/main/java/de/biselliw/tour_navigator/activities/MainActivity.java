@@ -69,7 +69,7 @@ import de.biselliw.tour_navigator.dialogs.StartTimeDialog;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.fragments.OSM_DialogFragment;
-import de.biselliw.tour_navigator.fragments.OSM_GuidePostsDialogFragment;
+import de.biselliw.tour_navigator.fragments.OSM_BoundingBoxDialogFragment;
 import de.biselliw.tour_navigator.fragments.WaypointsDialogFragment;
 import de.biselliw.tour_navigator.fragments.WikipediaDialogFragment;
 import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
@@ -77,7 +77,6 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
@@ -165,6 +164,8 @@ public class MainActivity extends LocationActivity  implements
         Resources.activity = this;
         Resources.resources = getResources();
         Resources.getResources();
+
+//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -505,25 +506,45 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.nav_remote_waypoints)
         {
             // add waypoints along the track which are provided by the GPX file but are out of track
-            WaypointsDialogFragment dialog =
-                    WaypointsDialogFragment.newInstance(this)
-                            .setNotification(this::updateRecords);
-            dialog.show(
-                    getSupportFragmentManager(),"WaypointsDialogFragment"
-            );
+            WaypointsDialogFragment dialog = WaypointsDialogFragment.newInstance(this);
+            dialog.setNotification(this::updateRecords);
+            dialog.show(getSupportFragmentManager(),"WaypointsDialogFragment");
 
             return true;
         }
         else if (id == R.id.nav_osm_guideposts)
         {
+            WikipediaDialogFragment dialog = WikipediaDialogFragment.newInstance(this);
+            dialog.setTitle (getString(R.string.osm_guide_posts_title));
+            dialog.setNotification(this::updateRecords);
+
+            dialog.show(
+                    getSupportFragmentManager(),"OSM_BoundingBoxDialogFragment"
+            );
+
+            /*
             // find OSM guideposts along the track
-            OSM_GuidePostsDialogFragment dialog =
-                    OSM_GuidePostsDialogFragment.newInstance(this)
+            OSM_BoundingBoxDialogFragment dialog =
+                    OSM_BoundingBoxDialogFragment.newInstance(this)
+                    .setTitle (getString(R.string.osm_guide_posts_title))
+                    .queryGuideposts()
                     .setNotification(this::updateRecords);
 
             dialog.show(
-                    getSupportFragmentManager(),"OSM_GuidePostsDialogFragment"
+                    getSupportFragmentManager(),"OSM_BoundingBoxDialogFragment"
             );
+
+             */
+            return true;
+        }
+        else if (id == R.id.nav_osm_pois)
+        {
+            // find OSM POIs along the track
+            OSM_BoundingBoxDialogFragment dialog = OSM_BoundingBoxDialogFragment.newInstance(this);
+            dialog.setTitle (getString(R.string.osm_pois_title));
+            dialog.queryPOIs();
+            dialog.setNotification(this::updateRecords);
+            dialog.show(getSupportFragmentManager(),"OSM_BoundingBoxDialogFragment");
             return true;
         }
         else if (id == R.id.nav_start_time) {
@@ -772,13 +793,11 @@ public class MainActivity extends LocationActivity  implements
         if (selected >= 0) {
             RecordAdapter.Record record = recordAdapter.getItem(selected);
             if (record != null) {
-                WikipediaDialogFragment dialog =
-                        WikipediaDialogFragment.newInstance(this, record.trackPoint)
-                                .setNotification(this::updateRecords);
-
-                dialog.show(
-                        getSupportFragmentManager(),"WikipediaDialogFragment"
-                );
+                WikipediaDialogFragment dialog = WikipediaDialogFragment.newInstance(this);
+                dialog.setTitle(getString(R.string.wikipedia_title));
+                dialog.findNearbyWikipedia(record.trackPoint);
+                dialog.setNotification(this::updateRecords);
+                dialog.show(getSupportFragmentManager(),"WikipediaDialogFragment");
             }
         }
     }

@@ -21,6 +21,9 @@ package de.biselliw.tour_navigator.function.search;
 
 import android.content.res.AssetManager;
 
+import java.text.DecimalFormat;
+import java.util.Locale;
+
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.stubs.Config;
@@ -29,6 +32,7 @@ import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Distance;
+import tim.prune.data.DoubleRange;
 import tim.prune.data.Unit;
 
 /**
@@ -70,11 +74,25 @@ public abstract class GenericSearchFunction implements Runnable
     /**
      * Get coordinates from current point (if any)
      * @param inPoint current point
+     * @return true if search coordinates are valid
      */
-    protected void getSearchCoordinates(DataPoint inPoint) {
-        if (inPoint == null) return;
+    protected boolean getSearchCoordinates(DataPoint inPoint) {
+        if (inPoint == null) return false;
         _searchLatitude  = inPoint.getLatitude().getDouble();
         _searchLongitude = inPoint.getLongitude().getDouble();
+        return (_searchLatitude > 0 && _searchLongitude > 0);
+    }
+
+    /**
+     * return a double value in US format
+     * @param inValue value
+     * @return formatted value
+     */
+
+    public static String formatDoubleUS (double inValue) {
+//        String s = new DecimalFormat("#0.00000").format(inValue);
+//        return s.replace(',', '.');
+        return String.format(Locale.US, "%.6f", inValue);
     }
 
     /**
@@ -89,24 +107,28 @@ public abstract class GenericSearchFunction implements Runnable
         double minDistance = 999.99, foundDistance = -999.0;
         DataPoint searchPoint = inSearchResult.getDataPoint();
         Unit distUnit = Config.getUnitSet().getDistanceUnit();
-        if (searchPoint != null && !searchResultIsDuplicate(inSearchResult)) {
+        if (searchPoint != null) {
             for (int i = 0; i < track.getNumPoints(); i++) {
                 DataPoint trackPoint = track.getPoint(i);
                 if (trackPoint != null && !trackPoint.isWaypoint()) {
-                    double dist = DataPoint.calculateRadiansBetween(searchPoint, trackPoint);
-                    if (dist > 0.0) {
-                        double distance = Distance.convertRadiansToDistance(dist, distUnit);
-                        if (inMaxDistance > 0.0 && distance < inMaxDistance) {
-                            foundDistance = trackPoint.getDistance();
-                            found = true;
-                            break;
-                        }
-                        else {
-                            if (distance < minDistance) {
-                                minDistance = distance;
+                    if (trackPoint.isValid()) {
+                        double dist = DataPoint.calculateRadiansBetween(searchPoint, trackPoint);
+                        if (dist > 0.0) {
+                            double distance = Distance.convertRadiansToDistance(dist, distUnit);
+                            if (inMaxDistance > 0.0 && distance < inMaxDistance) {
                                 foundDistance = trackPoint.getDistance();
+                                found = true;
+                                break;
+                            } else {
+                                if (distance < minDistance) {
+                                    minDistance = distance;
+                                    foundDistance = trackPoint.getDistance();
+                                }
                             }
                         }
+                    }
+                    else {
+                        trackPoint = null;
                     }
                 }
             }
@@ -114,7 +136,7 @@ public abstract class GenericSearchFunction implements Runnable
 
         // set the distance of the found point with regard to the start of the track
         if (found || foundDistance >= 0.0)
-            inSearchResult.setLength(foundDistance * 1000.0);
+            inSearchResult.setDistance(foundDistance);
         return found;
     }
 

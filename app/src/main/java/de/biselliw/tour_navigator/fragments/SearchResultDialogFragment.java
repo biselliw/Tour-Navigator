@@ -95,11 +95,11 @@ public class SearchResultDialogFragment extends DialogFragment {
      * Load button(s)
      */
     protected Button loadButton = null;
-    protected static Button loadButtonAll = null;
+    protected Button loadButtonAll = null;
     /**
      * Show button
      */
-    protected static Button showButton = null;
+    protected Button showButton = null;
     /**
      * Cancelled flag
      */
@@ -123,29 +123,59 @@ public class SearchResultDialogFragment extends DialogFragment {
     /**
      * Basic dialog for searching POIs
      *
-     * @param inActivity context of the class
-     * @param inTitle    dialog title
-     * @param inPoint    data point to search for points around
      */
-    public static SearchResultDialogFragment newInstance(ControlElements inActivity, String inTitle, DataPoint inPoint) {
+    public static SearchResultDialogFragment newInstance() {
         SearchResultDialogFragment fragment = new SearchResultDialogFragment();
+        /*
         Bundle args = new Bundle();
         args.putString("title", inTitle);
         fragment.setArguments(args);
-        dataPoint = inPoint;
+         */
         return fragment;
+    }
+
+    /**
+     * Set the dialog title
+     * @param inTitle dialog title
+     * @return this fragment
+     */
+    public SearchResultDialogFragment setTitle (String inTitle)
+    {
+        Bundle args = new Bundle();
+        args.putString("title", inTitle);
+        setArguments(args);
+        return this;
+    }
+
+    /**
+     * Set the center data point for searching around
+     *
+     * @param inPoint    data point to search for points around
+     */
+    public SearchResultDialogFragment setDataPoint(DataPoint inPoint) {
+        dataPoint = inPoint;
+        return this;
+    }
+
+    /**
+     * Set a notification routine to be called after adding route points
+     *
+     * @param inNotification Runnable as callback function
+     */
+    public SearchResultDialogFragment setNotification(Runnable inNotification) {
+        notification = inNotification;
+        return this;
     }
 
     @Override
     public int getTheme() {
-        return R.style.Theme_App_FullScreenDialog;
+        return R.style.AppTheme;
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
 
@@ -156,18 +186,14 @@ public class SearchResultDialogFragment extends DialogFragment {
 
         // Main panel with track list
         trackListModel = new TrackListModel(_numColumns);
-        // Clear list
-        trackListModel.clear();
-
         super.onAttach(context);
     }
 
-
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            ViewGroup container,
-            Bundle savedInstanceState
+        @NonNull LayoutInflater inflater,
+        ViewGroup container,
+        Bundle savedInstanceState
     ) {
         return inflater.inflate(R.layout.fragment_search_result, container, false);
     }
@@ -182,8 +208,8 @@ public class SearchResultDialogFragment extends DialogFragment {
         Window window = dialog.getWindow();
         if (window == null) return;
         window.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
         );
     }
 
@@ -192,8 +218,8 @@ public class SearchResultDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         String title = getArguments() != null
-                ? getArguments().getString("title")
-                : "";
+            ? getArguments().getString("title")
+            : "";
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -215,7 +241,6 @@ public class SearchResultDialogFragment extends DialogFragment {
 
         // description view supporting basic HTML tags
         _descriptionBox = view.findViewById(R.id.desc_search_result_view);
-        _descriptionBox.setText("");
 
         /* define OnClick event to load the results into the track */
         loadButton = view.findViewById(R.id.btn_load);
@@ -249,7 +274,7 @@ public class SearchResultDialogFragment extends DialogFragment {
             public void run() {
                 if (trackListModel.changed) {
                     if (searchFunction.getErrorMessage().isEmpty()) {
-                        showStatus("");
+                        showStatus(trackListModel.message);
 
                         List<String[]> _results = new ArrayList<>();
                         for (int row = 0; row < trackListModel.getRowCount(); row++) {
@@ -288,19 +313,9 @@ public class SearchResultDialogFragment extends DialogFragment {
         _timerHandler.postDelayed(_timerRunnable, 100);
     }
 
-    /**
-     * Set a notification routine to be called after adding route points
-     *
-     * @param inNotification Runnable as callback function
-     */
-    public SearchResultDialogFragment setNotification(Runnable inNotification) {
-        notification = inNotification;
-        return this;
-    }
-
     protected void showStatus(String inStatus) {
         _statusLabel.setText(inStatus);
-        _statusLabel.setTextColor(getColor(requireContext(), R.color.black));
+        _statusLabel.setTextColor(getColor(requireContext(), R.color.colorText));
     }
 
     protected void showErrorMessage(String inErrorMessage) {
@@ -344,11 +359,7 @@ public class SearchResultDialogFragment extends DialogFragment {
      * @param inDescription description to set, or null for no description
      */
     public void setDescription(String inDescription) {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            _descriptionBox.setText(Html.fromHtml(inDescription, Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            _descriptionBox.setText(Html.fromHtml(inDescription));
-        }
+        _descriptionBox.setText(Html.fromHtml(inDescription));
         _descriptionBox.scrollTo(0, 0);
     }
 

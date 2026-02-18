@@ -35,6 +35,7 @@
     <string name="action_add_waypoints">Add waypoints</string>
     <string name="action_add_remote_waypoints">- from GPX file</string>
     <string name="action_osm_guideposts">- OpenStreetMap guide posts</string>
+    <string name="action_osm_pois">- OpenStreetMap POIs</string>
     <string name="action_start_time">Start Time</string>
     <string name="action_timetable">Time Table</string>
     <string name="action_download_gpx">Save as GPX</string>
@@ -270,6 +271,12 @@
     <!-- ### OpenStreetMap guideposts ###-->
     <string name="osm_guide_posts_title">OpenStreetMap Guideposts along the route</string>
     <string name="guide_post_name">Guidepost name</string>
+
+    <!-- ### OpenStreetMap POIs ###-->
+    <string name="osm_pois_title">OpenStreetMap POIs along the route</string>
+    <string name="poi_name">POI name</string>
+    <string name="osm_data_cache_error">OpenStreetMap data could not be loaded from app cache</string>
+    <string name="osm_data_from_cache">OpenStreetMap data from app cache</string>
 
     <!-- ### OpenStreetMap POIs ###-->
     <string name="osm_title">Nearby OSM POIs</string>

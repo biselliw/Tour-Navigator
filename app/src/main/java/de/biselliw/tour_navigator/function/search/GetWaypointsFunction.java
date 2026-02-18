@@ -34,6 +34,7 @@ import tim.prune.data.Unit;
  */
 public class GetWaypointsFunction extends GenericSearchFunction
 {
+    /** new waypoint type required for GPX file */
     public static final String WAYPOINT_TYPE = "WPT";
 
     /**
@@ -92,7 +93,7 @@ public class GetWaypointsFunction extends GenericSearchFunction
                         result.setDataPoint(searchPoint);
                         result.setTrackName(searchPoint.getWaypointName());
                         // set the distance of the found point with regard to the start of the track
-                        result.setLength(foundDistance);
+                        result.setDistance(foundDistance);
                         result.setWebUrl(searchPoint.getWebLink());
                         result.setDescription(searchPoint.getDescription());
                         result.setPointType(searchPoint.getWaypointType());

@@ -12,10 +12,13 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class SearchOsmPoisXmlHandler extends DefaultHandler
 {
-	private ArrayList<SearchResult> _pointList = null;
-	private SearchResult _currPoint = null;
+	protected ArrayList<SearchResult> _pointList = null;
+	protected SearchResult _currPoint = null;
 
-	/**
+    /** set to true if parser passed the filtered items */
+    protected boolean _useCurrPoint = true;
+
+    /**
 	 * React to the start of an XML tag
 	 */
 	public void startElement(String inUri, String inLocalName, String inTagName,
@@ -29,8 +32,6 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
 			_currPoint = new SearchResult();
 			_currPoint.setLatitude(inAttributes.getValue("lat"));
 			_currPoint.setLongitude(inAttributes.getValue("lon"));
-            String link = "https://www.openstreetmap.org/node/"+inAttributes.getValue("id");
-            _currPoint.setWebUrl(link);
         }
 		else if (inTagName.equals("tag") && _currPoint != null) {
 			processTag(inAttributes);
@@ -41,32 +42,13 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
 	/**
 	 * @param inAttributes attributes to process
 	 */
-	private void processTag(Attributes inAttributes)
-	{
-		String key = inAttributes.getValue("k");
-		if (key != null)
-		{
-			String value = inAttributes.getValue("v");
-			if (key.equals("name")) {
-				_currPoint.setTrackName(value);
-			}
-			else if (key.equals("amenity") || key.equals("information") || key.equals("tourism")
-                    || key.equals("highway") || key.equals("railway")) {
-                if (_currPoint.getPointType().isEmpty())
-				    _currPoint.setPointType(value);
-			}
-            else if (key.equals("ele")) {}
-            else {
-                if (key.equals("wikimedia_commons"))
-                    value = "https://commons.wikimedia.org/wiki/" + value.replace(" ","_");
-                if (key.startsWith("wikipedia"))
-                    value = "https://de.wikipedia.org/wiki/" + value.replace(" ","_");
-                if (key.equals("website"))
-                    _currPoint.setDownloadLink(value);
-                if (key.equals("ref"))
-                    _currPoint.setRef(value);
-                _currPoint.setDescription(_currPoint.getDescription() + "<p>" + key + ": " + value + "</p>");
-            }
+	protected void processTag(Attributes inAttributes) {
+        String key = inAttributes.getValue("k");
+        if (key != null) {
+            String value = inAttributes.getValue("v");
+
+            if (key.equals("name"))
+                _currPoint.setTrackName(value);
         }
 	}
 
@@ -78,13 +60,10 @@ public class SearchOsmPoisXmlHandler extends DefaultHandler
 	{
 		if (inTagName.equals("node"))
 		{
-			// end of the entry
-            _currPoint.getTrackName();
-            if (_currPoint.getTrackName().isEmpty())
-            {
-                _currPoint.setTrackName("<" + _currPoint.getPointType() + ">");
+            if (_useCurrPoint) {
+                // end of the entry
+                _pointList.add(_currPoint);
             }
-            _pointList.add(_currPoint);
 		}
 		super.endElement(inUri, inLocalName, inTagName);
 	}

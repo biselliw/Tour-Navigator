@@ -61,9 +61,12 @@ public class GetWikipediaXmlHandler extends DefaultHandler
 		else if (inTagName.equals("lng")) {
 			_track.setLongitude(_value);
 		}
+        else if (inTagName.equals("feature")) {
+            _track.setPointType(_value);
+        }
 		else if (inTagName.equals("distance")) {
 			try {
-				_track.setLength(Double.parseDouble(_value) * 1000.0); // convert from km to m
+				_track.setDistance(Double.parseDouble(_value));
 			}
 			catch (NumberFormatException nfe) {}
 		}

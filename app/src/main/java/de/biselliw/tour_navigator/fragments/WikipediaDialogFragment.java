@@ -25,17 +25,13 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.function.search.SearchOsmGuidePostsFunction;
+import de.biselliw.tour_navigator.function.search.GetWikipediaBoundingBoxFunction;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.search.GetWikipediaFunction;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
-import static androidx.constraintlayout.widget.ConstraintSet.VISIBLE;
 import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_DISTANCE_KM;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_DISTANCE_M;
 import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_NAME;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_TYPE;
 
 /**
  * Search dialog to add Wikipedia articles
@@ -47,8 +43,7 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
      *
      * @param inActivity context of the class
      */
-    public static WikipediaDialogFragment newInstance(ControlElements inActivity, DataPoint inPoint) {
-        dataPoint = inPoint;
+    public static WikipediaDialogFragment newInstance(ControlElements inActivity) {
         WikipediaDialogFragment fragment = new WikipediaDialogFragment();
         Bundle args = new Bundle();
         args.putString("title", inActivity.getString(R.string.wikipedia_title));
@@ -56,11 +51,31 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
         return  fragment;
     }
 
+    /**
+     * Set the center data point for searching around
+     *
+     * @param inPoint    data point to search for points around
+     */
+    public SearchResultDialogFragment findNearbyWikipedia(DataPoint inPoint) {
+        dataPoint = inPoint;
+        return this;
+    }
+
+    /** Set a notification routine to be called after adding route points
+     * @param inNotification Runnable as callback function
+     */
+    public WikipediaDialogFragment _setNotification (Runnable inNotification)
+    {
+        notification = inNotification;
+        return this;
+    }
+
     @Override
     public void onAttach( @NonNull Context context ) {
         super.onAttach(context);
-        GetWikipediaFunction getWikipediaFunction = new GetWikipediaFunction((ControlElements)context, trackListModel);
-        prefixWaypointType = getWikipediaFunction.getWikipedia(dataPoint, lang);
+        GetWikipediaBoundingBoxFunction getWikipediaFunction = new GetWikipediaBoundingBoxFunction((ControlElements)context, trackListModel);
+        if (dataPoint != null)
+            prefixWaypointType = getWikipediaFunction.findNearbyWikipedia(dataPoint, lang);
         searchFunction = getWikipediaFunction;
         getWikipediaFunction.assetManager = this.requireContext().getAssets();
     }
@@ -69,17 +84,7 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadButtonAll.setVisibility(GONE);
-        showButton.setVisibility(VISIBLE);
-    }
-
-
-    /** Set a notification routine to be called after adding route points
-     * @param inNotification Runnable as callback function
-     */
-    public WikipediaDialogFragment setNotification (Runnable inNotification)
-    {
-        notification = inNotification;
-        return this;
+        showButton.setVisibility(View.VISIBLE);
     }
 
     /**

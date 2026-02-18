@@ -27,6 +27,10 @@
                 android:id="@+id/nav_osm_guideposts"
                 android:title="@string/action_osm_guideposts">
             </item>
+            <item
+                android:id="@+id/nav_osm_pois"
+                android:title="@string/action_osm_pois">
+            </item>
         </menu>
 
         </item>

@@ -3,7 +3,6 @@ package de.biselliw.tour_navigator.tim_prune.function.search;
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
-import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Latitude;
 import tim.prune.data.Longitude;
 
@@ -22,8 +21,8 @@ public class SearchResult implements Comparable<SearchResult>
 	private String _description = null;
 	/** Web page for more details */
 	private String _webUrl = null;
-	/** Track length in metres */
-	private double _trackLength = 0.0;
+	/** Distance between found position and track [km] */
+	private double _trackDistance = 0.0;
 	/** Download link */
 	private String _downloadLink = null;
 	/** Coordinates of point */
@@ -31,6 +30,8 @@ public class SearchResult implements Comparable<SearchResult>
 
     /** reference if any */
     private String _ref = null;
+
+    public boolean isGuidePost;
 
     public SearchResult() {
 
@@ -103,11 +104,11 @@ public class SearchResult implements Comparable<SearchResult>
 	public String getWebUrl() { return _webUrl == null ? "" : _webUrl; }
 
 	/**
-	 * @param inLength length of track
+	 * @param inDistance distance between found position and track
 	 */
-	public void setLength(double inLength)
+	public void setDistance(double inDistance)
 	{
-		_trackLength = inLength;
+		_trackDistance = inDistance;
 	}
 
 	/**
@@ -115,7 +116,7 @@ public class SearchResult implements Comparable<SearchResult>
 	 */
 	public double getLength()
 	{
-		return _trackLength;
+		return _trackDistance;
 	}
 
 	/**
@@ -194,7 +195,11 @@ public class SearchResult implements Comparable<SearchResult>
             try {
                 if (_latitude != null && _longitude != null) {
                     _dataPoint = new DataPoint(Latitude.make(_latitude), Longitude.make(_longitude));
-                    _dataPoint.setWaypointName(getTrackName());
+                    if (getTrackName().isEmpty()) {
+// todo use replacement for empty name                        _dataPoint.setWaypointName(_pointType);
+                    }
+                    else
+                        _dataPoint.setWaypointName(getTrackName());
                     _dataPoint.setFieldValue(Field.DESCRIPTION, getDescription(), false);
                     _dataPoint.setFieldValue(Field.WAYPT_LINK, getWebUrl(), false);
                     _dataPoint.makeProtectedWaypoint();

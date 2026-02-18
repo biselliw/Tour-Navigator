@@ -26,7 +26,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmFunction;
+import de.biselliw.tour_navigator.function.search.SearchOsmFunction;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
@@ -59,7 +59,7 @@ public class OSM_DialogFragment extends SearchResultDialogFragment {
     public void onAttach( @NonNull Context context ) {
         super.onAttach(context);
         SearchOsmFunction searchOsmPoisFunction = new SearchOsmFunction((ControlElements)context, trackListModel);
-        prefixWaypointType = searchOsmPoisFunction.getOSM(dataPoint, lang);
+        prefixWaypointType = searchOsmPoisFunction.getOSM(dataPoint);
         searchFunction = searchOsmPoisFunction;
         searchOsmPoisFunction.assetManager = this.requireContext().getAssets();
     }
@@ -67,8 +67,8 @@ public class OSM_DialogFragment extends SearchResultDialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        loadButtonAll.setVisibility(VISIBLE);
-        showButton.setVisibility(GONE);
+        loadButtonAll.setVisibility(GONE);
+        showButton.setVisibility(View.VISIBLE);
     }
 
     /** Set a notification routine to be called after adding route points

@@ -29,6 +29,7 @@
     <string name="action_add_waypoints">Wegpunkte hinzufügen</string>
     <string name="action_add_remote_waypoints">- von der GPX-Datei</string>
     <string name="action_osm_guideposts">- OpenStreetMap Wegweiser</string>
+    <string name="action_osm_pois">- OpenStreetMap POIs</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_download_gpx">Speichern als GPX</string>
@@ -224,6 +225,11 @@
     <string name="guide_post_name">Wegweisername</string>
 
     <!-- ### OpenStreetMap POIs ###-->
+    <string name="osm_pois_title">OpenStreetMap POIs entlang des Tracks</string>
+    <string name="poi_name">POI Name</string>
+    <string name="osm_data_cache_error">OpenStreetMap Daten konnten nicht vom App cache geladen werden!</string>
+    <string name="osm_data_from_cache">OpenStreetMap Daten vom App cache</string>
+
     <string name="osm_title">OpenStreetMap POIs in der Nähe</string>
     <string name="osm_pois_none_found">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>

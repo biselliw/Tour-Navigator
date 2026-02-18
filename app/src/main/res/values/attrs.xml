@@ -29,6 +29,9 @@
         <attr name="colorPrimaryDark" format="color" />
         <attr name="colorPrimary" format="color" />
 
+        <attr name="colorSurface" format="color" />
+        <attr name="colorOnSurface" format="color" />
+
         <attr name="activityBackgroundColor" format="color" />
         <attr name="headingTextColor" format="color" />
         <attr name="cardBackgroundColor" format="color" />

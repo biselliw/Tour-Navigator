@@ -73,6 +73,7 @@ public class TrackTiming {
 
     public List<RecordAdapter.Record> updateRecords() {
         List<RecordAdapter.Record> recordList = null;
+        if (_track == null) return null;
         double sumClimb_m = 0, sumDescent_m = 0;
 
         if (DEBUG) { }

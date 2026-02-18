@@ -2,6 +2,7 @@
 
     <style name="Theme.App" parent="Theme.Material3.DayNight.NoActionBar">
 
+
         <!-- Status -->
         <item name="colorSuccess">#4CAF50</item>
         <item name="colorWarning">#FFC107</item>

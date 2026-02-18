@@ -574,7 +574,7 @@ public class Track {
 	 */
 	public boolean appendPoint(DataPoint inPoint) {
         inPoint.setIndex(_numPoints);
-		return insertPoint(inPoint, _numPoints);
+        return insertPoint(inPoint, _numPoints);
 	}
 
 	/**

@@ -5,8 +5,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import de.biselliw.tour_navigator.stubs.Config;
-import tim.prune.data.Unit;
 
 /**
  * Model for list of tracks from a search result (eg geonames, overpass)
@@ -26,11 +24,14 @@ public class TrackListModel // extends AbstractTableModel
 	/** List of tracks */
 	private ArrayList<SearchResult> _trackList = null;
 	/** Column heading for track name */
-	private String _nameColLabel = null;
+
 	/** Number of columns */
 	private int _numColumns = 2;
 	/** Formatter for distances */
 	private NumberFormat _distanceFormatter = NumberFormat.getInstance();
+
+    /** status message */
+    public String message = "";
 
     /** notification for change of data */
     public boolean changed = false;
@@ -91,17 +92,10 @@ public class TrackListModel // extends AbstractTableModel
 
 		double lengthM = track.getLength();
         if (inKey.equals(COL_KEY_DISTANCE_KM))
-            return new DecimalFormat("#0.0").format(lengthM / 1000.0) + " km";
+            return new DecimalFormat("#0.0").format(lengthM) + " km";
 
         if (inKey.equals(COL_KEY_DISTANCE_M))
-            return new DecimalFormat("#").format(lengthM) + " m";
-
-		// convert to current distance units
-		Unit distUnit = Config.getUnitSet().getDistanceUnit();
-		double length = lengthM * distUnit.getMultFactorFromStd();
-		// Make text
-        if (inKey.equals(COL_KEY_DISTANCE))
-		    return _distanceFormatter.format(length) + " km";
+            return new DecimalFormat("#").format(lengthM * 1000.0) + " m";
 
         return "";
 	}

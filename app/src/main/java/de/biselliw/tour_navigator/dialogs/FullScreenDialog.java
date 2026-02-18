@@ -40,7 +40,7 @@ abstract public class FullScreenDialog extends Dialog {
         if (window != null) {
             lp.copyFrom(window.getAttributes());
             lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+//            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
             lp.horizontalMargin = 40;
             window.setAttributes(lp);
         }

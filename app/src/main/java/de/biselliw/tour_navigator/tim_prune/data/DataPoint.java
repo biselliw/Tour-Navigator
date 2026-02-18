@@ -478,18 +478,18 @@ public class DataPoint
 	 * @return true if the points are equivalent
 	 */
 	public boolean isDuplicate(DataPoint inOther)
-	{
-		if (inOther == null) return false;
-		if (_longitude == null || _latitude == null
-			|| inOther._longitude == null || inOther._latitude == null)
-		{
-			return false;
-		}
+    {
+        if (inOther == null) return false;
+        if (_longitude == null || _latitude == null
+                || inOther._longitude == null || inOther._latitude == null)
+        {
+            return false;
+        }
 		/* Make sure photo points aren't specified as duplicates
 		 *
 		if (_photo != null) return false;
 		*/
-		// Compare latitude and longitude
+        // Compare latitude and longitude
         double diffLong = _longitude.getDouble() - inOther.getLongitude().getDouble();
         if (Math.abs(diffLong) > 0.0001)
             return false;
@@ -499,13 +499,13 @@ public class DataPoint
 
 //		if (!_longitude.equals(inOther._longitude) || !_latitude.equals(inOther._latitude)) return false;
 
-		// Note that conversion from decimal to dms can make non-identical points into duplicates
-		// Compare waypoint name (if any)
-		if (!isWaypoint()) {
-			return !inOther.isWaypoint();
-		}
-		return (inOther._waypointName != null && inOther._waypointName.equals(_waypointName));
-	}
+        // Note that conversion from decimal to dms can make non-identical points into duplicates
+        // Compare waypoint name (if any)
+        if (!isWaypoint()) {
+            return !inOther.isWaypoint();
+        }
+        return (inOther._waypointName != null && inOther._waypointName.equals(_waypointName));
+    }
 
 	/**
 	 * Set the altitude including units

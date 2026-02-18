@@ -59,6 +59,8 @@ import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentG
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentInternet;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
+import static de.biselliw.tour_navigator.data.AppState.isGpxFileGuidePostsCached;
+import static de.biselliw.tour_navigator.data.AppState.isGpxFilePOIsCached;
 
 public class ControlElements extends BaseActivity {
 
@@ -265,11 +267,16 @@ public class ControlElements extends BaseActivity {
                             mitem.setVisible(App.getTrack().hasWayPointsOutOfTrack());
                         mitem = subMenu.findItem(R.id.nav_osm_guideposts);
                         if (mitem != null)
-                            mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() && getConsentInternet());
+                            mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
+                                    (getConsentInternet() || isGpxFileGuidePostsCached()));
+                        mitem = subMenu.findItem(R.id.nav_osm_pois);
+                        if (mitem != null)
+                            mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
+                                    (getConsentInternet() || isGpxFilePOIsCached()));
                     }
                 }
             }
-            else if (id == R.id.nav_osm_guideposts)
+            else if (id == R.id.nav_osm_guideposts || id == R.id.nav_osm_pois)
                 item.setVisible(getConsentInternet());
             else
                 item.setVisible(true);
