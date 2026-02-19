@@ -23,6 +23,7 @@ package de.biselliw.tour_navigator.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import tim.prune.data.Distance;
 
@@ -69,6 +70,9 @@ public class TrackDetails extends Track {
     protected int _numTrackPoints;
     /** number of waypoints - all waypoints are arranged after the trackpoints */
     static int _numWaypoints;
+    /** flag set if waypoints out of track are present in the GPX file but not linked to the track*/
+    private boolean _hasWayPointsOutOfTrack = false;
+    private boolean _updateWayPointsOutOfTrack = false;
 
     public TrackDetails () {  }
 
@@ -453,6 +457,7 @@ public class TrackDetails extends Track {
         wayPoints.clear();
         _dataPoints = dataPoints;
         _numPoints = numDataPoints;
+        _updateWayPointsOutOfTrack = true;
 
         if (DEBUG) Log.d(TAG, "separateWayAndTrackpoints(): found " + _numWaypoints + " waypoints; " +
                 _numTrackPoints + " trackpoints; " + numInvalidPoints + " invalid points");
@@ -764,26 +769,34 @@ public class TrackDetails extends Track {
      * Return a list of waypoints which have been excluded before
      * @return list of waypoints
      */
+    @NonNull
     public ArrayList<DataPoint> getWayPointsOutOfTrack() {
         ArrayList<DataPoint> _wayPointsOutOfTrack = new ArrayList<>();
         if (_numPoints > 0) {
-            try {
                 // check for way points without link index
                 for (int i = _numTrackPoints; i < getNumPoints(); i++) {
-                    DataPoint point = getPoint(i);
-                    if (point != null && point.isValid() && point.getLinkIndex() < 0)
-                        _wayPointsOutOfTrack.add(_dataPoints[i]);
+                    try {
+                        DataPoint point = getPoint(i);
+                        if (point != null && point.isValid() && point.getLinkIndex() < 0)
+                            _wayPointsOutOfTrack.add(_dataPoints[i]);
+                        } catch (Exception ignored) {
+                        }
                 }
-            } catch (Exception ignored) {
-                _wayPointsOutOfTrack = null;
-            }
         }
-        return  _wayPointsOutOfTrack;
+        _hasWayPointsOutOfTrack = !_wayPointsOutOfTrack.isEmpty();
+        return _wayPointsOutOfTrack;
     }
 
+    /**
+     * Determine if at least one waypoint is excluded from track
+     * @return true if waypoints are excluded
+     */
     public boolean hasWayPointsOutOfTrack() {
-        ArrayList<DataPoint> list = getWayPointsOutOfTrack();
-        return (list != null) && !list.isEmpty();
+        if (_updateWayPointsOutOfTrack) {
+            _hasWayPointsOutOfTrack = !getWayPointsOutOfTrack().isEmpty();
+            _updateWayPointsOutOfTrack = false;
+        }
+        return _hasWayPointsOutOfTrack;
     }
 
     public boolean isValidRecordedTrackFile() {

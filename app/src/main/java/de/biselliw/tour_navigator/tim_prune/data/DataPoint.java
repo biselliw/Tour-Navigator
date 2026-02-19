@@ -726,7 +726,7 @@ public class DataPoint
         String lon = getLongitude() != null ? getLongitude().toString() : "null";
         String res = "[Lat=" + lat + ", Lon=" + lon + "]";
         if (name != null) res = name + ": " + res;
-		return type + res;
+        return type + res;
 	}
 	
 	/** 

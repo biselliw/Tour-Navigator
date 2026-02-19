@@ -82,6 +82,7 @@ import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
+import static de.biselliw.tour_navigator.files.FileUtils.buildFragment;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 
 /**
@@ -438,6 +439,9 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_nav_waypoint)
             /* Navigate to the waypoint */
             navigateToRoutePoint();
+        else if (id == R.id.itm_nav_swv_tourenportal)
+            /* Navigate to Schwarzwaldverein Tourenportal */
+            navigateToSwvTourenportal();
         else if (id == R.id.itm_nav_google)
             /* Navigate with Google */
             navigateWithGoogle();
@@ -586,8 +590,6 @@ public class MainActivity extends LocationActivity  implements
     public synchronized void updateRecords() {
         _updateRecords = true;
     }
-
-
 
     /**
      *  Register an activity to load the GPX file
@@ -889,6 +891,49 @@ public class MainActivity extends LocationActivity  implements
     }
 
     /**
+     * Navigate to the route point in external web browser with Schwarzwaldverein Tourenportal
+     * @implNote final web view depends on browser (working in Firefox, not in Brave!)
+     */
+    private void navigateToSwvTourenportal() {
+        if (recordAdapter != null && recordAdapter.getCount() > 0) {
+            /* Get destination coordinates */
+            RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
+            if (record != null) {
+                DataPoint point = record.trackPoint;
+                if (point != null) {
+                    /* Show the map at the given latitude and longitude */
+                    String area = "*";
+                    String filter = "r-fullyTranslatedLangus-,r-openState-,sb-sortedBy-0";
+                    String zc = "16.," + formatLongitude(point) + "," + formatLatitude(point);
+            /*
+                Option 1: build full fragment
+                   String fragment = buildFragment(area, filter, zc);
+                    Uri uri = Uri.parse("https://www.schwarzwaldverein-tourenportal.de/mobile/de/touren#" + fragment);
+            */
+            /*
+                Option 2: use Uri.Builder() - encodes uri - thus it cannot be used in outdooractive:
+                    Uri uri = new Uri.Builder()
+                            .scheme("https")
+                            .authority("www.schwarzwaldverein-tourenportal.de")
+                            .appendPath("mobile")
+                            .appendPath("de")
+                            .appendPath("touren")
+                            .appendPath("")
+                            .fragment(fragment) //.fragment(Uri.encode(fragment, "&=*,.-"))
+                            .build();
+            */
+            /*
+                Option 3: ignore fragment
+            */
+                    Uri uri = Uri.parse("https://www.schwarzwaldverein-tourenportal.de/mobile/de/touren#zc=" + zc);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
+    /**
      * Navigate to the route point with Google Maps
      */
     void navigateWithGoogle() {
@@ -915,7 +960,7 @@ public class MainActivity extends LocationActivity  implements
                 DataPoint point = record.trackPoint;
                 if (point != null) {
                     String queryParameter = formatLatitude(point) + "," + formatLongitude(point);
-                    /* Show the map at the given latitude and longitude */
+                    /* Show the map at the given latitude and longitude, eg.: https://www.google.com/maps/dir/?api=1&destination=48.40475,8.01058 */
                     Uri.Builder directionsBuilder = new Uri.Builder()
                             .scheme("https")
                             .authority("www.google.com")
@@ -930,7 +975,6 @@ public class MainActivity extends LocationActivity  implements
             }
         }
     }
-
 
     /**
      * set active navigation item

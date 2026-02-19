@@ -410,6 +410,38 @@ public class FileUtils {
     }
 
     /**
+     * Build Fragment-String for Intent
+     * @param area
+     * @param filter
+     * @param zc
+     * @return
+     */
+    public static String buildFragment(
+            String area,
+            String filter,
+            String zc
+    ) {
+        StringBuilder fragment = new StringBuilder();
+
+        if (area != null) {
+            fragment.append("area=").append(area);
+        }
+
+        if (filter != null) {
+            if (fragment.length() > 0) fragment.append("&");
+            fragment.append("filter=").append(filter);
+        }
+
+        if (zc != null) {
+            if (fragment.length() > 0) fragment.append("&");
+            fragment.append("zc=").append(zc);
+        }
+
+        return fragment.toString();
+    }
+
+
+    /**
      * todo delete files in advance
      * /
     File downloadsDir = FileUtils.getDownloadsDir();

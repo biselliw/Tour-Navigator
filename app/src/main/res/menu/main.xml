@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group
@@ -23,6 +24,11 @@
             android:id="@+id/itm_nav_waypoint"
             android:orderInCategory="2"
             android:title="@string/nav_waypoint"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/itm_nav_swv_tourenportal"
+            android:orderInCategory="2"
+            android:title="@string/nav_swv_tourenportal"
             app:showAsAction="never" />
         <item
             android:id="@+id/itm_nav_google"
@@ -52,7 +58,8 @@
             android:icon="@null"
             android:title="_____________________________________________________________"
             app:showAsAction="never"
-            android:layout_height="1dp"/>
+            android:layout_height="1dp"
+            tools:ignore="HardcodedText" />
         <item
             android:id="@+id/itm_set_new_start"
             android:orderInCategory="4"

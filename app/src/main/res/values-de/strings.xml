@@ -98,7 +98,7 @@
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>
     <string name="consent_internet">Zugang zu Wikipedia-Artikeln und OpenStreetMap POIs</string>
-    <string name="consent_GoogleMaps">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
+    <string name="consent_google_maps_policy">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
         Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
         Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
         Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://privacy.google.com/businesses/gdprcontrollerterms/ und https://privacy.google.com/businesses/gdprcontrollerterms/sccs/.\n

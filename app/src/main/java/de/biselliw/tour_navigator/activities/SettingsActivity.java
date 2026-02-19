@@ -41,9 +41,9 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
+import de.biselliw.tour_navigator.dialogs.AcceptSwvTourenportalPolicyDialog;
 import de.biselliw.tour_navigator.helpers.Log;
 
-import static de.biselliw.tour_navigator.data.Resources.getString;
 import static de.biselliw.tour_navigator.data.Resources.resStrSetToDefault;
 import static de.biselliw.tour_navigator.ui.ControlElements.setAlarmPreference;
 
@@ -59,8 +59,16 @@ public class SettingsActivity extends BaseActivity {
     //             └─ preferences.xml
     private SharedPreferences _sharedPref = null;
     private SettingsFragment _settingsFragment = null;
+    /**
+     * Preferences for use of Google Maps
+     */
     private static boolean _consentGoogleMaps = false;
     private static boolean _updateGooglePrefs = false;
+    /**
+     * Preferences for use of Schwarzwaldverein Tourenportal
+     */
+    private static boolean _consentSwvTourenportal = false;
+    private static boolean _updateSwvTourenportal = false;
 
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
 
@@ -152,11 +160,10 @@ public class SettingsActivity extends BaseActivity {
 
             SwitchPreferenceCompat pref_consent_internet = findPreference("pref_consent_internet");
             pref_consent_google_maps = findPreference("pref_consent_google_maps");
-            // Das Schwarzwaldverein Tourenportal gibt es nur in deutscher Sprache!
-            if (lang.equals("de"))
-                pref_consent_swv_tourenportal = findPreference("pref_consent_swv_tourenportal");
             if (pref_consent_internet != null) {
                 boolean consent_internet = pref_consent_internet.isChecked();
+                /* Accept Google Maps Policy
+                *  ---------------------------------------------------------------------------------*/
                 if (pref_consent_google_maps != null) {
                     pref_consent_google_maps.setVisible(consent_internet);
                     pref_consent_google_maps.setOnPreferenceChangeListener((preference, newValue) -> {
@@ -165,29 +172,49 @@ public class SettingsActivity extends BaseActivity {
                             if (pref_consent_internet.isChecked()) {
                                 AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(activity);
                                 acceptDialog.show();
-                            } else
-                                // refuse the new value
-                                return false;
+                            }
+                            // refuse the new value
+                            return false;
                         }
                         // Handle change (e.g., enable/disable notifications)
                         return true; // true = save the new value
                     });
-
-                    if (pref_consent_swv_tourenportal != null) {
-                        pref_consent_swv_tourenportal.setVisible(consent_internet);
-                        pref_consent_internet.setOnPreferenceChangeListener((preference, newValue) -> {
-                            boolean enabled = (Boolean) newValue;
-                            pref_consent_google_maps.setVisible(enabled);
-                            pref_consent_swv_tourenportal.setVisible(enabled);
-                            if (!enabled) {
-                                pref_consent_google_maps.setChecked(false);
-                                pref_consent_swv_tourenportal.setChecked(false);
-                            }
-                            // save the new value
-                            return true;
-                        });
-                    }
                 }
+                /* Accept Schwarzwaldverein Tourenportal Policy
+                 *  ---------------------------------------------------------------------------------*/
+                // Das Schwarzwaldverein Tourenportal gibt es nur in deutscher Sprache!
+                if (lang.equals("de"))
+                    pref_consent_swv_tourenportal = findPreference("pref_consent_swv_tourenportal");
+                if (pref_consent_swv_tourenportal != null) {
+                    pref_consent_swv_tourenportal.setVisible(consent_internet);
+                    pref_consent_swv_tourenportal.setOnPreferenceChangeListener((preference, newValue) -> {
+                        boolean enabled = (Boolean) newValue;
+                        if (enabled) {
+                            if (pref_consent_internet.isChecked()) {
+                                AcceptSwvTourenportalPolicyDialog acceptDialog = new AcceptSwvTourenportalPolicyDialog(activity);
+                                acceptDialog.show();
+                            }
+                            // refuse the new value
+                            return false;
+                        }
+                        // Handle change (e.g., enable/disable notifications)
+                        return true; // true = save the new value
+                    });
+                }
+
+                pref_consent_internet.setOnPreferenceChangeListener((preference, newValue) -> {
+                    boolean enabled = (Boolean) newValue;
+                    pref_consent_google_maps.setVisible(enabled);
+                    if (!enabled)
+                        pref_consent_google_maps.setChecked(false);
+                    if (pref_consent_swv_tourenportal != null) {
+                        pref_consent_swv_tourenportal.setVisible(enabled);
+                        if (!enabled)
+                            pref_consent_swv_tourenportal.setChecked(false);
+                    }
+                    // save the new value
+                    return true;
+                });
             }
         }
     }
@@ -234,6 +261,11 @@ public class SettingsActivity extends BaseActivity {
                     _updateGooglePrefs = false;
                     if (_settingsFragment != null)
                         _settingsFragment.pref_consent_google_maps.setChecked(_consentGoogleMaps);
+                }
+                if (_updateSwvTourenportal) {
+                    _updateSwvTourenportal = false;
+                    if (_settingsFragment != null)
+                        _settingsFragment.pref_consent_swv_tourenportal.setChecked(_consentSwvTourenportal);
                 }
                 mHandler.postDelayed(this, 100);
             }
@@ -380,6 +412,16 @@ public class SettingsActivity extends BaseActivity {
         _updateGooglePrefs = true;
     }
 
+    /**
+     * Preferences for use of Schwarzwaldverein Tourenportal
+     */
+    public static boolean getConsentSwvTourenportal() {
+        return getBooleanPref("pref_consent_swv_tourenportal", false);
+    }
+    public static void consentSwvTourenportal(boolean inValue) {
+        _consentSwvTourenportal = inValue;
+        _updateSwvTourenportal = true;
+    }
     /**
      * Preferences for writing Debug infos to Download dir
      */

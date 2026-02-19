@@ -72,6 +72,7 @@
     <string name="find_nearby_wikipedia">Find nearby Wikipedia</string>
     <string name="find_nearby_osm">Find nearby OSM POIs</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
+    <string name="nav_swv_tourenportal" translatable="false">zum Schwarzwaldverein Tourenportal</string>
     <string name="nav_google">Google-Navigate</string>
     <string name="action_set_new_start">Start from here</string>
     <string name="delete_waypoint">Remove Waypoint</string>
@@ -158,14 +159,29 @@
     <string name="decline">Decline</string>
     <string name="consent_internet">Access to Wikipedia articles and OSM POIs</string>
     <string name="consent_swv_tourenportal" translatable="false">Zugang zum Schwarzwaldverein Tourenportal</string>
-    <string name="consent_GoogleMaps">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
+    <string name="consent_swv_tourenportal_policy" translatable="false">Die App Tour Navigator ermöglicht die Übertragung von Geokoordinaten an das externe Schwarzwaldverein Tourenportal
+        Dies erfolgt ausschliesslich durch das Anklicken der aktuell gesperrten Funktion <i>Zum Schwarzwaldverein Tourenportal navigieren</i>.
+        \nBeim Laden der Website www.schwarzwaldverein-tourenportal.de werden Daten an Drittanbieter weitergegeben. Um die Inhalte des Portals anzusehen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.
+        Mit Ihrer Einwilligung akzeptieren Sie die Datenschutz-Bedingungen von Schwarzwaldverein Tourenportal.\n
+        \n<b>Provider-Informationen</b>\n
+        \n<b>Provider-Name: </b>Schwarzwaldverein e.V.
+        \n<b>Beschreibung</b>
+        \nDer Schwarzwaldverein e.V. bietet Wander- und Naturschutzaktivitäten, pflegt ein umfangreiches Wanderwegenetz im Schwarzwald und engagiert sich für den Erhalt von Natur und Kulturlandschaft.
+        \n<b>Adresse: </b>Schlossbergring 15, 79098 Freiburg
+        \n<b>Web: </b>https://schwarzwaldverein.de
+        \n<b>URL der Datenschutzerklärung</b>
+        \nhttps://www.schwarzwaldverein-tourenportal.de/de/datenschutz.html
+        \n<b>Service</b>
+        \nDas Schwarzwaldverein Tourenportal bietet redaktionell geprüfte Wander‑ und Radtouren inklusive detaillierter Infos, Kartenausgabe und Track‑Downloads, sowie eigenem Tourenplaner zur Offline‑Navigation
+    </string>
+    <string name="consent_google_maps_policy">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
     <string name="set_to_default">Set to default</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome on tour!</string>
     <string name="slide1_text">This App ...</string>
 
-    <string name="slide2_heading">Prerequisizes</string>
+    <string name="slide2_heading">Prerequisites</string>
     <string name="slide2_text">...</string>
 
     <string name="slide3_heading">Time management</string>

@@ -57,6 +57,7 @@ import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import static android.view.View.VISIBLE;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentInternet;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentSwvTourenportal;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
 import static de.biselliw.tour_navigator.data.AppState.isGpxFileGuidePostsCached;
@@ -224,10 +225,13 @@ public class ControlElements extends BaseActivity {
             else if (id == R.id.itm_nav_google) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
                         item.setVisible(getConsentGoogleMaps());
-            } else if ((id == R.id.itm_find_nearby_wikipedia) ||
-                    (id == R.id.itm_find_nearby_osm)) {
+            } else if (id == R.id.itm_find_nearby_wikipedia ||
+                    id == R.id.itm_find_nearby_osm) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
                         item.setVisible(getConsentInternet());
+            } else if (id == R.id.itm_nav_swv_tourenportal) {
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+                item.setVisible(getConsentSwvTourenportal());
             } else if (id == R.id.itm_separator) {
                         item.setEnabled(true);
                         item.setVisible(true);

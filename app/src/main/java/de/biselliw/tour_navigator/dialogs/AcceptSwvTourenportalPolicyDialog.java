@@ -8,19 +8,19 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
 
 /**
- * Dialog to accept/discard Google Maps policy
+ * Dialog to accept/discard Schwarzwaldverein Tourenportal policy (in German only!)
  */
-public class AcceptGoogleMapsPolicyDialog extends FullScreenDialog {
+public class AcceptSwvTourenportalPolicyDialog extends FullScreenDialog {
 
-    public AcceptGoogleMapsPolicyDialog(AppCompatActivity activity) {
-        super(activity, R.layout.dialog_consent_google_maps);
+    public AcceptSwvTourenportalPolicyDialog(AppCompatActivity activity) {
+        super(activity, R.layout.dialog_consent_swv_tourenportal);
 
         /* define OnClick events for declining / accepting the policy */
         Button buttonDecline = findViewById(R.id.bt_decline);
         buttonDecline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SettingsActivity.consentGoogleMaps(false);
+                SettingsActivity.consentSwvTourenportal(false);
                 dismiss();
             }
         });
@@ -28,9 +28,10 @@ public class AcceptGoogleMapsPolicyDialog extends FullScreenDialog {
         buttonConsent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SettingsActivity.consentGoogleMaps(true);
+                SettingsActivity.consentSwvTourenportal(true);
                 dismiss();
             }
         });
+
     }
 }

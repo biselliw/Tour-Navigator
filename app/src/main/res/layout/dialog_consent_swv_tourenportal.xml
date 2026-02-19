@@ -20,7 +20,7 @@
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="Google Maps" />
+            android:text="Schwarzwaldverein Tourenportal" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                 android:autoLink="web"
                 android:textColor="@color/black"
                 android:textSize="16sp"
-                android:text="@string/consent_google_maps_policy"
+                android:text="@string/consent_swv_tourenportal_policy"
                 android:scrollbarSize="5dp"
                 android:scrollbars="vertical"
                 android:scrollbarAlwaysDrawVerticalTrack="true"
