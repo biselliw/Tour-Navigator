@@ -14,21 +14,12 @@ public class TrackListModel // extends AbstractTableModel
     /**
      * column keys for interpretation of contents
      * */
-    public static final String COL_KEY_NAME = "name";
-    public static final String COL_KEY_TYPE = "type";
-    public static final String COL_KEY_DISTANCE = "distance";
-    public static final String COL_KEY_DISTANCE_M = "distance_m";
-    public static final String COL_KEY_DISTANCE_KM = "distance_km";
-    public static final String COL_KEY_REF = "ref";
-
-	/** List of tracks */
-	private ArrayList<SearchResult> _trackList = null;
-	/** Column heading for track name */
-
-	/** Number of columns */
-	private int _numColumns = 2;
-	/** Formatter for distances */
-	private NumberFormat _distanceFormatter = NumberFormat.getInstance();
+    public static final int COL_KEY_NAME = 1;
+    public static final int COL_KEY_TYPE = 2;
+    public static final int COL_KEY_DISTANCE = 3;
+    public static final int COL_KEY_DISTANCE_M = 4;
+    public static final int COL_KEY_DISTANCE_KM = 5;
+    public static final int COL_KEY_REF = 6;
 
     /** status message */
     public String message = "";
@@ -36,14 +27,22 @@ public class TrackListModel // extends AbstractTableModel
     /** notification for change of data */
     public boolean changed = false;
 
-	/**
+    /** List of tracks */
+    private ArrayList<SearchResult> _trackList = null;
+
+    /** Number of columns */
+    private int _numColumns = 2;
+
+    /**
 	 * Constructor
 	 * @param inColumnCount total number of columns
 	 */
 	public TrackListModel(int inColumnCount)
 	{
 		_numColumns = inColumnCount;
-		_distanceFormatter.setMaximumFractionDigits(1);
+        /** Formatter for distances */
+        NumberFormat _distanceFormatter = NumberFormat.getInstance();
+        _distanceFormatter.setMaximumFractionDigits(1);
 	}
 
 	/**
@@ -74,28 +73,26 @@ public class TrackListModel // extends AbstractTableModel
 	 * @param inKey column key
 	 * @return cell entry at given row and column
 	 */
-	public String getValueAt(int inRowNum, String inKey)
+	public String getValueAt(int inRowNum, int inKey)
 	{
-		SearchResult track = _trackList.get(inRowNum);
-		if (inKey.equals(COL_KEY_NAME))
-			return track.getTrackName();
-
-        if (inKey.equals(COL_KEY_TYPE))
-			return track.getPointType();
-
-        if (inKey.equals(COL_KEY_REF)) {
-            if (track.getRef() != null)
-                return track.getRef();
-            else
-                return "";
+        SearchResult track = _trackList.get(inRowNum);
+        if (track != null) {
+            double lengthM = track.getLength();
+            switch (inKey) {
+                case COL_KEY_NAME:
+                    return track.getTrackName();
+                case COL_KEY_TYPE:
+                    return track.getPointType();
+                case COL_KEY_REF:
+                    if (track.getRef() != null)
+                        return track.getRef();
+                    break;
+                case COL_KEY_DISTANCE_KM:
+                    return new DecimalFormat("#0.0").format(lengthM) + " km";
+                case COL_KEY_DISTANCE_M:
+                    return new DecimalFormat("#").format(lengthM * 1000.0) + " m";
+            }
         }
-
-		double lengthM = track.getLength();
-        if (inKey.equals(COL_KEY_DISTANCE_KM))
-            return new DecimalFormat("#0.0").format(lengthM) + " km";
-
-        if (inKey.equals(COL_KEY_DISTANCE_M))
-            return new DecimalFormat("#").format(lengthM * 1000.0) + " m";
 
         return "";
 	}

@@ -30,7 +30,7 @@ import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
-import de.biselliw.tour_navigator.tim_prune.function.search.GetWikipediaFunction;
+import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
 import de.biselliw.tour_navigator.function.search.SearchOsmFunction;
 import tim.prune.data.Distance;
 

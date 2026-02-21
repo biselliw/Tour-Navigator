@@ -41,11 +41,11 @@ public class GetWaypointsFunction extends GenericSearchFunction
      * Constructor
      * @param inActivity parent activity
      */
-    public GetWaypointsFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
-        super(inActivity, inTrackListModel);
+    public GetWaypointsFunction(ControlElements inActivity) {
+        super(inActivity);
     }
 
-    public String getWaypoints(DataPoint inPoint, String inLang) {
+    public String getWaypoints() {
         if (track != null) {
             // background work
             new Thread(this).start();
@@ -53,14 +53,11 @@ public class GetWaypointsFunction extends GenericSearchFunction
         return WAYPOINT_TYPE;
     }
 
+    /**
+     * Get all waypoints which are not linked to the track
+     */
     @Override
     public void run() {
-        // Submit search
-        submitSearch();
-    }
-
-    private void submitSearch() {
-        // get all waypoints which are not linked to the track
         ArrayList<DataPoint> wayPoints = track.getWayPointsOutOfTrack();
 
         ArrayList<SearchResult> trackList = new ArrayList<>();
@@ -103,9 +100,9 @@ public class GetWaypointsFunction extends GenericSearchFunction
             }
         }
         // Add track list to model
-        if (_trackListModel != null) {
-            _trackListModel.changed = true;
-            _trackListModel.addTracks(trackList, true);
+        if (trackListModel != null) {
+            trackListModel.changed = true;
+            trackListModel.addTracks(trackList, true);
         }
     }
 

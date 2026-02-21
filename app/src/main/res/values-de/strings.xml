@@ -27,9 +27,10 @@
     <string name="action_file_info">Infos zur Tour</string>
     <string name="action_reverse_route">Route umkehren</string>
     <string name="action_add_waypoints">Wegpunkte hinzufügen</string>
-    <string name="action_add_remote_waypoints">- von der GPX-Datei</string>
+    <string name="action_remote_waypoints">- von der GPX-Datei</string>
     <string name="action_osm_guideposts">- OpenStreetMap Wegweiser</string>
     <string name="action_osm_pois">- OpenStreetMap POIs</string>
+    <string name="action_wikipedia">- Wikipedia</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_download_gpx">Speichern als GPX</string>
@@ -207,12 +208,14 @@
 
     <!-- ### Search Results ###-->
     <string name="server_not_found">Der Server ist gerade nicht erreichbar oder kann die Anfrage nicht bearbeiten!</string>
+    <string name="server_replacement_not_found">Alle Server sind gerade nicht erreichbar oder können die Anfrage nicht bearbeiten!</string>
+    <string name="server_replacement">POIs ohne Inhalt vom alternativen geonames Server</string>
     <string name="btn_load">Laden</string>
     <string name="btn_load_all">Lade alle</string>
     <string name="btn_show">Anzeigen</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_title">Wikipedia-Artikel in der Nähe</string>
+    <string name="wikipedia_title">Wikipedia-Artikel</string>
     <string name="wikipedia_articles_none_found">Keine (weiteren) Wikipedia-Artikel in der Nähe gefunden!</string>
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
@@ -230,7 +233,7 @@
     <string name="osm_data_cache_error">OpenStreetMap Daten konnten nicht vom App cache geladen werden!</string>
     <string name="osm_data_from_cache">OpenStreetMap Daten vom App cache</string>
 
-    <string name="osm_title">OpenStreetMap POIs in der Nähe</string>
+    <string name="osm_nearby_pois_title">OpenStreetMap POIs in der Nähe</string>
     <string name="osm_pois_none_found">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
 

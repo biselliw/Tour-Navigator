@@ -11,6 +11,8 @@ import tim.prune.data.Longitude;
  */
 public class SearchResult implements Comparable<SearchResult>
 {
+    /** ID of the node / way */
+    private String ID = null;
     /** Data Point */
     private DataPoint _dataPoint = null;
 	/** Track name or title */
@@ -36,6 +38,10 @@ public class SearchResult implements Comparable<SearchResult>
     public SearchResult() {
 
     }
+
+    public void setID(String inID) { this.ID = inID; }
+
+    public String getID() { return ID; }
 
     public void setDataPoint(DataPoint inDataPoint) { _dataPoint = inDataPoint; }
 
@@ -160,6 +166,14 @@ public class SearchResult implements Comparable<SearchResult>
 	public String getLongitude() {
 		return _longitude;
 	}
+
+    /**
+     * @return true if the search result contains coordinates
+     */
+    public boolean hasCoordinates() {
+        return _latitude != null && _longitude != null;
+    }
+
 
     public void setRef(String inRef) {
         this._ref = inRef;

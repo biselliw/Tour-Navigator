@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.tim_prune.function;
+package de.biselliw.tour_navigator.function;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,7 @@ import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
  * XML handler for dealing with XML returned from the geonames api,
  * both from the search by name and search by location
  */
-public class GetWikipediaXmlHandler extends DefaultHandler
+public class WikipediaXmlHandler extends DefaultHandler
 {
 	private String _value = null;
 	private ArrayList<SearchResult> _trackList = null;

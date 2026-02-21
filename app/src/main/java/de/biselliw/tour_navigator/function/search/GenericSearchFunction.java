@@ -21,7 +21,6 @@ package de.biselliw.tour_navigator.function.search;
 
 import android.content.res.AssetManager;
 
-import java.text.DecimalFormat;
 import java.util.Locale;
 
 import de.biselliw.tour_navigator.App;
@@ -32,7 +31,6 @@ import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Distance;
-import tim.prune.data.DoubleRange;
 import tim.prune.data.Unit;
 
 /**
@@ -41,6 +39,11 @@ import tim.prune.data.Unit;
  */
 public abstract class GenericSearchFunction implements Runnable
 {
+    /**
+     * language code used for search
+     */
+    public String lang;
+
     /** Reference to track */
     public TrackDetails track;
 
@@ -51,20 +54,27 @@ public abstract class GenericSearchFunction implements Runnable
     protected double _searchLatitude = 0.0, _searchLongitude = 0.0;
 
     /** list model */
-    protected TrackListModel _trackListModel;
+    public TrackListModel trackListModel;
 
     protected final ControlElements _activity;
     public AssetManager assetManager;
 
+    public boolean queryAround = false;
+
+    protected String boundingBox = "";
+    public boolean queryBoundingBox = false;
+    /**
+     * extend all sides of the rectangular by a fixed offset in degrees
+     */
+    public double extendBoundingBox;
 
     /**
 	 * Constructor
 	 * @param inActivity parent activity
 	 */
-	public GenericSearchFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
+	public GenericSearchFunction(ControlElements inActivity) {
         _activity = inActivity;
         track = App.getTrack();
-        _trackListModel = inTrackListModel;
     }
 
     public String getErrorMessage() {
@@ -90,8 +100,6 @@ public abstract class GenericSearchFunction implements Runnable
      */
 
     public static String formatDoubleUS (double inValue) {
-//        String s = new DecimalFormat("#0.00000").format(inValue);
-//        return s.replace(',', '.');
         return String.format(Locale.US, "%.6f", inValue);
     }
 

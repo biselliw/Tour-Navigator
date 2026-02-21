@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:id="@+id/nav_group_main">
         <item
@@ -11,6 +12,10 @@
             android:icon="@drawable/description"
             android:title="@string/action_file_info" />
         <item
+            android:id="@+id/nav_start_time"
+            android:icon="@drawable/schedule"
+            android:title="@string/action_start_time"/>
+        <item
             android:id="@+id/nav_reverse_route"
             android:icon="@drawable/swap_horiz"
             android:title="@string/action_reverse_route" />
@@ -18,10 +23,11 @@
             android:id="@+id/nav_add_waypoints"
             android:icon="@drawable/signpost"
             android:title="@string/action_add_waypoints">
-        <menu>
+        <menu
+            >
             <item
                 android:id="@+id/nav_remote_waypoints"
-                android:title="@string/action_add_remote_waypoints">
+                android:title="@string/action_remote_waypoints">
             </item>
             <item
                 android:id="@+id/nav_osm_guideposts"
@@ -31,14 +37,14 @@
                 android:id="@+id/nav_osm_pois"
                 android:title="@string/action_osm_pois">
             </item>
+            <item
+                android:id="@+id/nav_wikipedia"
+                android:title="@string/action_wikipedia">
+            </item>
         </menu>
 
         </item>
 
-        <item
-            android:id="@+id/nav_start_time"
-            android:icon="@drawable/schedule"
-            android:title="@string/action_start_time"/>
     </group>
 
     <group android:id="@+id/nav_group_export">

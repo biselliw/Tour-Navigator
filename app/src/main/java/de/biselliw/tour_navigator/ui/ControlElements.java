@@ -225,7 +225,7 @@ public class ControlElements extends BaseActivity {
             else if (id == R.id.itm_nav_google) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
                         item.setVisible(getConsentGoogleMaps());
-            } else if (id == R.id.itm_find_nearby_wikipedia ||
+            } else if ( // id == R.id.itm_find_nearby_wikipedia ||
                     id == R.id.itm_find_nearby_osm) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
                         item.setVisible(getConsentInternet());

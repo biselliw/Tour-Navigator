@@ -90,7 +90,10 @@ public class TableAdapter extends RecyclerView.Adapter<TableAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         for (int col = 0; col < _numColumns; col++)
-            holder.col[col].setText(_data.get(position)[col]);
+            if (_numColumns == 1)
+                holder.col[1].setText(_data.get(position)[col]);
+            else
+                holder.col[col].setText(_data.get(position)[col]);
 
         // Highlight selection
         holder.itemView.setBackgroundColor(0xFFFFFFFF);

@@ -36,21 +36,20 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaXmlHandler;
+import de.biselliw.tour_navigator.function.WikipediaXmlHandler;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
-import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.DoubleRange;
 
 /**
  * Function to load nearby point information from Wikipedia
 */
-public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
+public class GetWikipediaFunction extends GenericSearchFunction
 {
     /**
      * TAG for log messages.
      */
-    static final String TAG = "GetWikipediaBoundingBoxFunction";
+    static final String TAG = "GetWikipediaFunction";
     private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
@@ -70,26 +69,34 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
     /** find Nearby Wikipedia articles around the current point */
     private boolean findNearbyWikipedia = false;
 
-    String lang = "";
-
 	/**
 	 * Constructor
      * @param inActivity parent activity
 	 */
-	public GetWikipediaBoundingBoxFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
-		super(inActivity, inTrackListModel);
+	public GetWikipediaFunction(ControlElements inActivity) {
+		super(inActivity);
 	}
 
     /**
      * Find nearby Wikipedia articles
      * @param inPoint point for which surrounding data shall be searched
-     * @param inLang language code for search
      */
-    public String findNearbyWikipedia(DataPoint inPoint, String inLang)
+    public String queryAround(DataPoint inPoint)
     {
         // Get coordinates from current point
         findNearbyWikipedia = getSearchCoordinates(inPoint);
-        lang = inLang;
+        // background work
+        new Thread(this).start();
+        return WAYPOINT_TYPE;
+    }
+
+    /**
+     * Find Wikipedia articles within a bounding box covering the track
+     */
+    public String wikipediaBoundingBox()
+    {
+        boundingBox = getBoundingBox(extendBoundingBox);
+
         // background work
         new Thread(this).start();
         return WAYPOINT_TYPE;
@@ -106,9 +113,9 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
         DoubleRange lonRange = track.getLonRange();
 
         return "north=" + formatDoubleUS(latRange.getMaximum() + inExtendDegrees)
-      + "&south=" + formatDoubleUS(latRange.getMinimum() + inExtendDegrees)
+      + "&south=" + formatDoubleUS(latRange.getMinimum() - inExtendDegrees)
       + "&east="  + formatDoubleUS(lonRange.getMaximum() + inExtendDegrees)
-      + "&west="  + formatDoubleUS(lonRange.getMinimum() + inExtendDegrees);
+      + "&west="  + formatDoubleUS(lonRange.getMinimum() - inExtendDegrees);
     }
 
     /**
@@ -126,7 +133,7 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
         else
             // use wikipediaBoundingBox
             urlString = urlString + "wikipediaBoundingBox?"
-                + getBoundingBox(0.0);
+                + boundingBox;
 
         urlString = urlString + "&lang=" + lang  + "&username=" + GEONAMES_USERNAME;
 
@@ -158,7 +165,7 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
         catch (IOException e) {
             Log.e(TAG,"run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = Resources.getString(R.string.server_not_found);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -172,12 +179,12 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
         try {
             if (assetManager != null) {
                 inputStream = assetManager.open(getSimulationFileName());
-                _trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
+                trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
             }
         } catch (IOException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -186,22 +193,22 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
 	 * Run method to get the points in a separate thread
 	 */
 	public void run() {
-        if (_trackListModel == null) return;
+        if (trackListModel == null) return;
 
-        _trackListModel.changed = false;
+        trackListModel.changed = false;
         InputStream inputStream = null;
         _errorMessage = "";
 
         // Parse the returned XML with a special handler
         SAXParser saxParser = null;
-        GetWikipediaXmlHandler xmlHandler = new GetWikipediaXmlHandler();
+        WikipediaXmlHandler xmlHandler = new WikipediaXmlHandler();
 
         try {
             saxParser = SAXParserFactory.newInstance().newSAXParser();
         } catch (ParserConfigurationException | SAXException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = "error in SAXParser";
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         /* load the stream
@@ -221,12 +228,12 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
            =========================================================================================
          */
         try {
-            if (saxParser != null && inputStream != null && !_trackListModel.changed)
+            if (saxParser != null && inputStream != null && !trackListModel.changed)
                 saxParser.parse(inputStream, xmlHandler);
         } catch (SAXException | IOException e) {
             Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = Resources.getString(R.string.server_not_found);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         // Close stream and ignore errors
@@ -262,6 +269,6 @@ public class GetWikipediaBoundingBoxFunction extends GenericSearchFunction
             _errorMessage = Resources.getString(R.string.wikipedia_articles_none_found);
 
         // Add new articles to model
-        _trackListModel.addTracks(reducedTrackList, true);
+        trackListModel.addTracks(reducedTrackList, true);
     }
 }

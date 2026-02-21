@@ -33,9 +33,10 @@
     <string name="action_file_info">Tour Info</string>
     <string name="action_reverse_route">Reverse route</string>
     <string name="action_add_waypoints">Add waypoints</string>
-    <string name="action_add_remote_waypoints">- from GPX file</string>
+    <string name="action_remote_waypoints">- from GPX file</string>
     <string name="action_osm_guideposts">- OpenStreetMap guide posts</string>
     <string name="action_osm_pois">- OpenStreetMap POIs</string>
+    <string name="action_wikipedia">- Wikipedia</string>
     <string name="action_start_time">Start Time</string>
     <string name="action_timetable">Time Table</string>
     <string name="action_download_gpx">Save as GPX</string>
@@ -72,7 +73,7 @@
     <string name="find_nearby_wikipedia">Find nearby Wikipedia</string>
     <string name="find_nearby_osm">Find nearby OSM POIs</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
-    <string name="nav_swv_tourenportal" translatable="false">zum Schwarzwaldverein Tourenportal</string>
+    <string name="nav_swv_tourenportal" translatable="false">Zum Schwarzwaldverein Tourenportal</string>
     <string name="nav_google">Google-Navigate</string>
     <string name="action_set_new_start">Start from here</string>
     <string name="delete_waypoint">Remove Waypoint</string>
@@ -129,13 +130,13 @@
         www.apache.org/licenses/LICENSE-2.0\n
         </li>
         <li><b>GeoNames geographical database</b>\n
-            web services to access Wikipedia articles\n
+            web services to access OpenStreetMap data and Wikipedia articles\n
             www.geonames.org\n
             Licensed under a Creative Commons Attribution 4.0 License\n
             https://creativecommons.org/licenses/by/4.0\n
         </li>
         <li><b>Overpass API</b>\n
-            web services to access Open Street Map (OSM) data\n
+            web services to access OpenStreetMap (OSM) data\n
             https://overpass-api.de\n
             Licensed under Open Database License, "ODbL" 1.0\n
             https://osmfoundation.org/wiki/Licence
@@ -159,17 +160,18 @@
     <string name="decline">Decline</string>
     <string name="consent_internet">Access to Wikipedia articles and OSM POIs</string>
     <string name="consent_swv_tourenportal" translatable="false">Zugang zum Schwarzwaldverein Tourenportal</string>
-    <string name="consent_swv_tourenportal_policy" translatable="false">Die App Tour Navigator ermöglicht die Übertragung von Geokoordinaten an das externe Schwarzwaldverein Tourenportal
-        Dies erfolgt ausschliesslich durch das Anklicken der aktuell gesperrten Funktion <i>Zum Schwarzwaldverein Tourenportal navigieren</i>.
+    <string name="consent_swv_tourenportal_policy" translatable="false">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten des ausgewählten Wegpunktes an das externe Schwarzwaldverein Tourenportal.
+        Dies erfolgt ausschliesslich durch das Anklicken der aktuell gesperrten Funktion <i>zum Schwarzwaldverein Tourenportal</i> navigieren.
+        \nDabei wird eine Karte mit Tourenvorschlägen in der Umgebung angezeigt.
         \nBeim Laden der Website www.schwarzwaldverein-tourenportal.de werden Daten an Drittanbieter weitergegeben. Um die Inhalte des Portals anzusehen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.
-        Mit Ihrer Einwilligung akzeptieren Sie die Datenschutz-Bedingungen von Schwarzwaldverein Tourenportal.\n
+        Mit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung von Schwarzwaldverein Tourenportal.\n
         \n<b>Provider-Informationen</b>\n
         \n<b>Provider-Name: </b>Schwarzwaldverein e.V.
         \n<b>Beschreibung</b>
         \nDer Schwarzwaldverein e.V. bietet Wander- und Naturschutzaktivitäten, pflegt ein umfangreiches Wanderwegenetz im Schwarzwald und engagiert sich für den Erhalt von Natur und Kulturlandschaft.
         \n<b>Adresse: </b>Schlossbergring 15, 79098 Freiburg
         \n<b>Web: </b>https://schwarzwaldverein.de
-        \n<b>URL der Datenschutzerklärung</b>
+        \n<b>URL der Datenschutzerklärung:</b>
         \nhttps://www.schwarzwaldverein-tourenportal.de/de/datenschutz.html
         \n<b>Service</b>
         \nDas Schwarzwaldverein Tourenportal bietet redaktionell geprüfte Wander‑ und Radtouren inklusive detaillierter Infos, Kartenausgabe und Track‑Downloads, sowie eigenem Tourenplaner zur Offline‑Navigation
@@ -272,12 +274,14 @@
 
     <!-- ### Search Results ###-->
     <string name="server_not_found">The server is currently not reachable or cannot handle your request</string>
+    <string name="server_replacement_not_found">All servers are currently not reachable or cannot handle your request</string>
+    <string name="server_replacement">Reduced data from geonames</string>
     <string name="btn_load">Load</string>
     <string name="btn_load_all">Load all</string>
     <string name="btn_show">Show</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_title">Nearby Wikipedia Articles</string>
+    <string name="wikipedia_title">Wikipedia Articles</string>
     <string name="wikipedia_articles_none_found">No (further) Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
@@ -295,8 +299,8 @@
     <string name="osm_data_cache_error">OpenStreetMap data could not be loaded from app cache</string>
     <string name="osm_data_from_cache">OpenStreetMap data from app cache</string>
 
-    <!-- ### OpenStreetMap POIs ###-->
-    <string name="osm_title">Nearby OSM POIs</string>
+    <!-- ### OpenStreetMap Nearby POIs ###-->
+    <string name="osm_nearby_pois_title">Nearby OSM POIs</string>
     <string name="osm_pois_none_found">No further OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
 

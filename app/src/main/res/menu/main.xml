@@ -42,6 +42,7 @@
             android:id="@+id/itm_find_nearby_wikipedia"
             android:orderInCategory="3"
             android:title="@string/find_nearby_wikipedia"
+            android:visible="false"
             app:showAsAction="never" />
         <item
             android:id="@+id/itm_find_nearby_osm"
@@ -56,7 +57,7 @@
             android:orderInCategory="4"
             android:enabled="true"
             android:icon="@null"
-            android:title="_____________________________________________________________"
+            android:title="__________________________________________________"
             app:showAsAction="never"
             android:layout_height="1dp"
             tools:ignore="HardcodedText" />

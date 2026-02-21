@@ -26,6 +26,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
+import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
 import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.ui.ControlElements;
@@ -47,31 +48,16 @@ public class WaypointsDialogFragment extends SearchResultDialogFragment {
      * @param inActivity context of the class
      */
     public static WaypointsDialogFragment newInstance(ControlElements inActivity) {
-        WaypointsDialogFragment fragment = new WaypointsDialogFragment();
-        /*
-        Bundle args = new Bundle();
-        args.putString("title", inActivity.getString(R.string.wpts_out_of_track));
-        fragment.setArguments(args);
-*/
-        return fragment;
+        searchFunction = new GetWaypointsFunction(inActivity);
+        return new WaypointsDialogFragment();
     }
-
-    /** Set a notification routine to be called after adding route points
-     * @param inNotification Runnable as callback function
-     */
-    public WaypointsDialogFragment _setNotification (Runnable inNotification)
-    {
-        notification = inNotification;
-        return this;
-    }
-
 
     @Override
     public void onAttach( @NonNull Context context ) {
         super.onAttach(context);
-        GetWaypointsFunction getWaypointsFunction = new GetWaypointsFunction((ControlElements)context, trackListModel);
-        prefixWaypointType = getWaypointsFunction.getWaypoints(null, lang);
-        searchFunction = getWaypointsFunction;
+        GetWaypointsFunction search = (GetWaypointsFunction)searchFunction;
+        if (search != null)
+            search.getWaypoints();
     }
 
     @Override
@@ -113,9 +99,8 @@ public class WaypointsDialogFragment extends SearchResultDialogFragment {
      *
      * @param inColNum index of column (1,2,3)
      * @return key for this column
-     * @implNote: not used
      */
-    protected String getColumnKey(int inColNum) {
+    protected int getColumnKey(int inColNum) {
         switch (inColNum) {
             case 0:
                 return COL_KEY_DISTANCE_KM;

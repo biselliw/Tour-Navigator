@@ -34,9 +34,9 @@ import javax.xml.parsers.SAXParserFactory;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.data.Resources;
+import de.biselliw.tour_navigator.function.OpenStreetMapXmlHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.stubs.Config;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmPoisXmlHandler;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
@@ -83,17 +83,8 @@ public class SearchOsmFunction extends GenericSearchFunction
      * @param inActivity parent activity
 	 */
 	public SearchOsmFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
-		super(inActivity, inTrackListModel);
+		super(inActivity);
 	}
-
-    public String getOSM(DataPoint inPoint)
-    {
-        // Get coordinates from current point
-        getSearchCoordinates(inPoint);
-        // background work
-        new Thread(this).start();
-        return WAYPOINT_TYPE;
-    }
 
     /**
      * Add a query
@@ -163,7 +154,7 @@ public class SearchOsmFunction extends GenericSearchFunction
         } catch (IOException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = Resources.getString(R.string.server_not_found);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         return inputStream;
@@ -178,12 +169,12 @@ public class SearchOsmFunction extends GenericSearchFunction
         try {
             if (assetManager != null) {
                 inputStream = assetManager.open(getSimulationFileName());
-                _trackListModel.message = "OSM Data from file assets/" + getSimulationFileName();
+                trackListModel.message = "OSM Data from file assets/" + getSimulationFileName();
             }
         } catch (IOException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -193,15 +184,15 @@ public class SearchOsmFunction extends GenericSearchFunction
 	 */
 	public void run()
 	{
-        if (_trackListModel == null) return;
+        if (trackListModel == null) return;
 
-        _trackListModel.changed = false;
+        trackListModel.changed = false;
         InputStream inputStream = null;
         _errorMessage = "";
 
         // Parse the returned XML with a special handler
         SAXParser saxParser = null;
-        SearchOsmPoisHandler xmlHandler = new SearchOsmPoisHandler();
+        OpenStreetMapXmlHandler xmlHandler = new OpenStreetMapXmlHandler();
         xmlHandler.matchAll();
 
         try {
@@ -209,7 +200,7 @@ public class SearchOsmFunction extends GenericSearchFunction
         } catch (ParserConfigurationException | SAXException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = "error in SAXParser";
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         /* load the stream
@@ -229,12 +220,12 @@ public class SearchOsmFunction extends GenericSearchFunction
            =========================================================================================
          */
         try {
-            if (saxParser != null && inputStream != null && !_trackListModel.changed)
+            if (saxParser != null && inputStream != null && !trackListModel.changed)
                 saxParser.parse(inputStream, xmlHandler);
         } catch (SAXException | IOException e) {
             Log.e(TAG, "run(): " + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = Resources.getString(R.string.server_not_found);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         // Close stream and ignore errors
@@ -277,7 +268,7 @@ public class SearchOsmFunction extends GenericSearchFunction
         if (reducedTrackList.isEmpty())
             _errorMessage = Resources.getString(R.string.osm_pois_none_found);
 
-        _trackListModel.addTracks(reducedTrackList, true);
+        trackListModel.addTracks(reducedTrackList, true);
 	}
 
     /**

@@ -41,9 +41,10 @@ import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.files.FileUtils;
+import de.biselliw.tour_navigator.function.OpenStreetMapXmlHandler;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
-import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.DoubleRange;
 
@@ -58,11 +59,11 @@ import static de.biselliw.tour_navigator.function.search.SearchOsmFunction.trans
  * OpenStreetMap data are queried in a bounding box covering the whole track and looking for hiking relevant nodes.
  * The filtered resulting points are sorted by their distance from start of the track.  .
  */
-public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
+public class GetOpenStreetMapFunction extends GenericSearchFunction {
     /**
      * TAG for log messages.
      */
-    static final String TAG = "SearchOsmBoundingBoxFunction";
+    static final String TAG = "GetOpenStreetMapFunction";
     private static final boolean _DEBUG = false; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
@@ -74,16 +75,28 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
     /**
      * Enable simulation of overpass-api query by loading a test file instead
      */
-    private static final boolean SIMULATE_QUERY = false;
-
+    private static final boolean SIMULATE_QUERY = true;
 
     /**
      * Maximum distance between track and point in km
      */
     private static final double MAX_DISTANCE = 0.050;
 
-    private boolean queryGuideposts = false;
-    private boolean queryPOIs = false;
+    /**
+     * Maximum distance between search point and point in m
+     */
+    private static final double AROUND = 150.0;
+
+    /**
+     * Maximum number of (free) search records
+     */
+    private static final int MAX_ROWS = 25;
+
+    /** user name required for geonames api */
+    private static final String GEONAMES_USERNAME = "tournavigator";
+
+    public boolean findGuideposts = false;
+    public boolean findPOIs = false;
 
 
     /**
@@ -91,21 +104,32 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
      *
      * @param inActivity parent activity
      *
-     * @implNote Needs one of these additional calls:
-     * @see #getOsmGuideposts: Query guideposts only
-     * @see #getOsmPOIs: Query all hiking relevant POIs except of guideposts
      */
-    public SearchOsmBoundingBoxFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
-        super(inActivity, inTrackListModel);
+    public GetOpenStreetMapFunction(ControlElements inActivity) {
+        super(inActivity);
     }
 
     /**
-     * Query guideposts only
+     * Query guideposts only / all hiking relevant POIs except of guideposts
      *
      * @return WAYPOINT_TYPE
      */
-    public String getOsmGuideposts() {
-        queryGuideposts = true;
+    public String queryAround(DataPoint inPoint) {
+        // Get coordinates from current point
+        queryAround = getSearchCoordinates(inPoint);
+
+        // background work
+        new Thread(this).start();
+        return WAYPOINT_TYPE;
+    }
+
+
+    /**
+     * Query guideposts only / all hiking relevant POIs except of guideposts
+     *
+     * @return WAYPOINT_TYPE
+     */
+    public String queryBoundingBox() {
 
         // background work
         new Thread(this).start();
@@ -113,13 +137,11 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
     }
 
     /**
-     * Query all hiking relevant POIs except of guideposts
+     * Query
      *
      * @return WAYPOINT_TYPE
      */
     public String getOsmPOIs() {
-        queryPOIs = true;
-
         // background work
         new Thread(this).start();
         return WAYPOINT_TYPE;
@@ -135,36 +157,36 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
         DoubleRange latRange = track.getLatRange();
         DoubleRange lonRange = track.getLonRange();
 
-        return "(" + formatDoubleUS(latRange.getMinimum()) + inExtendDegrees + ","
-                + formatDoubleUS(lonRange.getMinimum()) + inExtendDegrees
-                + "," + formatDoubleUS(latRange.getMaximum()) + inExtendDegrees
-                + "," + formatDoubleUS(lonRange.getMaximum()) + inExtendDegrees + ");";
+        return "(" + formatDoubleUS(latRange.getMinimum() + inExtendDegrees) + ","
+                + formatDoubleUS(lonRange.getMinimum() + inExtendDegrees)
+                + "," + formatDoubleUS(latRange.getMaximum() + inExtendDegrees)
+                + "," + formatDoubleUS(lonRange.getMaximum() + inExtendDegrees) + ");";
     }
 
     /**
      * Create an overpass api query depending on the request
      * @return query URI
      */
-    private String getQuery() {
+    private String getQueryBoundingBox() {
         String boundingBox = getBoundingBox(0.0);
         String urlString = "https://overpass-api.de/api/interpreter?data=(";
 
-        if (queryGuideposts)
+        if (findGuideposts)
             urlString = urlString
                     + "node[information=guidepost][hiking=yes]" + boundingBox;
-        if (queryPOIs)
+        if (findPOIs)
             urlString = urlString
                     + "node[amenity]" + boundingBox
                     + "node[tourism][museum]" + boundingBox
                     + "node[tourism][viewpoint]" + boundingBox;
-        if (!queryGuideposts)
+        if (!findGuideposts)
             urlString = urlString
                     // excluding [information!=guidepost] does not work if including all [tourism]
                     // + "node[tourism=information][information!=guidepost]" + boundingBox
                     + "node[amenity]" + boundingBox
                     + "node[natural]" + boundingBox
                     + "node[man_made]" + boundingBox
-                    // + "node[wikipedia]" + boundingBox
+                    + "node[wikipedia]" + boundingBox
                     + "node[wikimedia_commons]" + boundingBox
                     + "node[wikidata]" + boundingBox
                     + "node[website]" + boundingBox
@@ -174,20 +196,47 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
                     + "node[historic=wayside_shrine]" + boundingBox
                     + "node[historic=wayside_cross]" + boundingBox
 
-                    + "node[man_made]" + boundingBox
-         + ");out qt;";
+                    + "node[man_made]" + boundingBox;
+
+        urlString = urlString
+                    + ");out qt;";
 
         return urlString;
     }
 
     /**
+     * Create an overpass api query
+     * @return query URI
+     */
+    private String getQueryAround() {
+
+        String around = "(around:" + AROUND + "," + _searchLatitude + "," + _searchLongitude + ")";
+        String node_around = "node" + around;
+        String way_around = "way" + around;
+        String urlString = "https://overpass-api.de/api/interpreter?data=("
+                /*
+                + node_around + "[amenity];"
+                + node_around + "[building];"
+                + node_around + "[information];"
+*/
+                + node_around
+                + way_around + "[historic];"
+                + ");out qt;";
+
+        return urlString;
+    }
+
+
+    /**
      * @return true if OSM file has been cached before
      */
     private boolean isDataFileCached() {
-        if (queryGuideposts)
-            return isGpxFileGuidePostsCached();
-        if (queryPOIs)
-            return isGpxFilePOIsCached();
+        if (queryBoundingBox) {
+            if (findGuideposts)
+                return isGpxFileGuidePostsCached();
+            if (findPOIs)
+                return isGpxFilePOIsCached();
+        }
         return false;
     }
 
@@ -195,9 +244,9 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
      * @param inValue set to true if OSM file has been successfully cached
      */
     private void setDataFileCached(boolean inValue) {
-        if (queryGuideposts)
+        if (findGuideposts)
             setGpxFileGuidePostsCached(inValue);
-        if (queryPOIs)
+        if (findPOIs)
             setGpxFilePOIsCached(inValue);
     }
 
@@ -205,9 +254,9 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
      * @return file name of cached OSM data
      */
     private String getCachedDataFileName() {
-        if (queryGuideposts)
+        if (findGuideposts)
             return "osm_guideposts.txt";
-        if (queryPOIs)
+        if (findPOIs)
             return "osm_pois.txt";
         return "";
     }
@@ -216,9 +265,9 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
      * @return simulation file name of OSM data
      */
     private String getSimulationFileName() {
-        if (queryGuideposts)
+        if (findGuideposts)
             return "overpass_api_guideposts.txt";
-        if (queryPOIs)
+        if (findPOIs)
             return "overpass_api_pois.txt";
         return "";
     }
@@ -227,17 +276,47 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
      * Submit a query to the overpass-api server
      * @return stream with results from overpass API
      */
-    private InputStream submitQuery() {
+    private InputStream submitQueryOverpassApi() {
         InputStream inputStream = null;
         // get the query for the overpass-api server
-        String urlString = getQuery();
+        String urlString;
+        if (queryBoundingBox)
+            urlString = getQueryBoundingBox();
+        else if (queryAround)
+            urlString = getQueryAround();
+        else return null;
+
         try {
             URL url = new URL(urlString);
             inputStream = url.openStream();
         } catch (IOException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = Resources.getString(R.string.server_not_found);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
+        }
+
+        return inputStream;
+    }
+
+    /**
+     * Submit a query to the geonames server
+     * @return stream with results
+     */
+    private InputStream submitQueryGeonames() {
+        InputStream inputStream = null;
+        String urlString = "http://api.geonames.org/findNearbyPOIsOSM?lat="
+                + _searchLatitude + "&lng=" + _searchLongitude
+                + "&radius=" + AROUND/1000 + "&maxRows=" + MAX_ROWS
+                + "&username=" + GEONAMES_USERNAME;
+
+        try {
+            URL url = new URL(urlString);
+            inputStream = url.openStream();
+            trackListModel.message = Resources.getString(R.string.server_replacement);
+        } catch (IOException e) {
+            Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
+            _errorMessage = Resources.getString(R.string.server_replacement_not_found);
+            trackListModel.changed = true;
         }
 
         return inputStream;
@@ -313,7 +392,7 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
             Log.e(TAG, "run(): cached file " + cachedFileName + " could not be opened" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = Resources.getString(R.string.osm_data_cache_error);
             setDataFileCached(false);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -327,12 +406,12 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
         try {
             if (assetManager != null) {
                 inputStream = assetManager.open(getSimulationFileName());
-                _trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
+                trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
             }
         } catch (IOException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -341,23 +420,23 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
      * Run method to get the points in a separate thread
      */
     public void run() {
-        if (_trackListModel == null) return;
+        if (trackListModel == null) return;
 
-        _trackListModel.changed = false;
+        trackListModel.changed = false;
         InputStream inputStream = null;
         _errorMessage = "";
         boolean osmFileCached = isDataFileCached();
 
         // Parse the returned XML with a special handler
         SAXParser saxParser = null;
-        SearchOsmPoisHandler xmlHandler = new SearchOsmPoisHandler();
+        OpenStreetMapXmlHandler xmlHandler = new OpenStreetMapXmlHandler();
 
         try {
             saxParser = SAXParserFactory.newInstance().newSAXParser();
         } catch (ParserConfigurationException | SAXException e) {
             Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
             _errorMessage = "error in SAXParser";
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         /* load the stream
@@ -369,20 +448,20 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
                         // are cached OSM data not available?
                         !osmFileCached) {
                     // Submit a query to the overpass-api server
-                    inputStream = submitQuery();
+                    inputStream = submitQueryOverpassApi();
 
                     // cache the stream for future reloading
-                    if (inputStream != null)
+                    if (inputStream != null && queryBoundingBox)
                         cacheQuery(inputStream);
                 }
 
                 // are cached OSM data available?
-                if (isDataFileCached()) {
+                if (queryBoundingBox && isDataFileCached()) {
                     // fetch overpass api OSM data from cached file
                     inputStream = getCachedQuery();
                     // Notify the user
                     if (osmFileCached)
-                        _trackListModel.message = Resources.getString(R.string.osm_data_from_cache);
+                        trackListModel.message = Resources.getString(R.string.osm_data_from_cache);
                 }
             } else {
                 // fetch overpass api OSM data from file in assets directory
@@ -390,11 +469,17 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
             }
         }
 
+        /* use fallback geonames.org server on timeout of overpass api */
+        if (inputStream == null && !queryBoundingBox) {
+            _errorMessage = "";
+            inputStream = submitQueryGeonames();
+        }
+
         /* parse the stream
            =========================================================================================
          */
         try {
-            if (saxParser != null && inputStream != null && !_trackListModel.changed)
+            if (saxParser != null && inputStream != null && !trackListModel.changed)
                 saxParser.parse(inputStream, xmlHandler);
         } catch (SAXException | IOException e) {
             Log.e(TAG, "run(): cached file could not be interpreted - " + e.getClass().getName() + " - " + e.getMessage());
@@ -403,7 +488,7 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
                 _errorMessage = Resources.getString(R.string.osm_data_cache_error);
             } else
                 _errorMessage = Resources.getString(R.string.server_not_found);
-            _trackListModel.changed = true;
+            trackListModel.changed = true;
         }
 
         // Close stream and ignore errors
@@ -425,12 +510,12 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
                 // Update single search result
                 searchResult.update();
 
-                if (queryGuideposts || !searchResult.isGuidePost)
+//                    if (findGuideposts || !searchResult.isGuidePost)
                     // Check if a point is already loaded
                     if (!searchResultIsDuplicate(searchResult))
                         // find nearest track point
-                        if (findNearestTrackpoint(searchResult, MAX_DISTANCE)) {
-                            if (queryGuideposts || !searchResult.isGuidePost) {
+                        if (!queryBoundingBox || findNearestTrackpoint(searchResult, MAX_DISTANCE)) {
+//                            if (findGuideposts || !searchResult.isGuidePost) {
                                 // translate waypoint types
                                 searchResult.setPointType(translateTag(searchResult.getPointType()));
                                 if (searchResult.getTrackName().isEmpty()) {
@@ -441,13 +526,12 @@ public class SearchOsmBoundingBoxFunction extends GenericSearchFunction {
                                 reducedTrackList.add(searchResult);
                             }
                         }
-            }
         }
 
         // Add track list to model
         if (reducedTrackList.isEmpty() && _errorMessage.isEmpty())
             _errorMessage = Resources.getString(R.string.osm_pois_none_found);
 
-        _trackListModel.addTracks(reducedTrackList, true);
+        trackListModel.addTracks(reducedTrackList, true);
     }
 }

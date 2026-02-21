@@ -25,8 +25,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.function.search.GetWikipediaBoundingBoxFunction;
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
@@ -44,40 +43,22 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
      * @param inActivity context of the class
      */
     public static WikipediaDialogFragment newInstance(ControlElements inActivity) {
-        WikipediaDialogFragment fragment = new WikipediaDialogFragment();
-        Bundle args = new Bundle();
-        args.putString("title", inActivity.getString(R.string.wikipedia_title));
-        fragment.setArguments(args);
-        return  fragment;
-    }
-
-    /**
-     * Set the center data point for searching around
-     *
-     * @param inPoint    data point to search for points around
-     */
-    public SearchResultDialogFragment findNearbyWikipedia(DataPoint inPoint) {
-        dataPoint = inPoint;
-        return this;
-    }
-
-    /** Set a notification routine to be called after adding route points
-     * @param inNotification Runnable as callback function
-     */
-    public WikipediaDialogFragment _setNotification (Runnable inNotification)
-    {
-        notification = inNotification;
-        return this;
+        searchFunction = new GetWikipediaFunction(inActivity);
+        return new WikipediaDialogFragment();
     }
 
     @Override
     public void onAttach( @NonNull Context context ) {
         super.onAttach(context);
-        GetWikipediaBoundingBoxFunction getWikipediaFunction = new GetWikipediaBoundingBoxFunction((ControlElements)context, trackListModel);
-        if (dataPoint != null)
-            prefixWaypointType = getWikipediaFunction.findNearbyWikipedia(dataPoint, lang);
-        searchFunction = getWikipediaFunction;
-        getWikipediaFunction.assetManager = this.requireContext().getAssets();
+        GetWikipediaFunction getWikipediaFunction = (GetWikipediaFunction)searchFunction;
+        if (getWikipediaFunction != null) {
+            if (dataPoint != null)
+                // Find Wikipedia articles nearby the given way point
+                prefixWaypointType = getWikipediaFunction.queryAround(dataPoint);
+            else
+                // Find Wikipedia articles within a bounding box covering the track
+                prefixWaypointType = getWikipediaFunction.wikipediaBoundingBox();
+        }
     }
 
     @Override
@@ -93,24 +74,29 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
     @Override
     public int getColumnCount()
     {
-        return 2;
+        if (searchFunction != null) {
+            if (searchFunction.queryAround)
+                return 2;
+            else
+                return 1;
+        }
+        return 0;
     }
 
     /**
      * Get column titles
      * @param inColNum index of column
-     * @return key for this column
+     * @return title for this column
+     * @implNote all three columns are always in use!
      */
     @Override
     protected String getColumnTitle(int inColNum)
     {
-        switch (inColNum) {
-            case 0:
-                return "";
-            case 1:
-            default:
+        if (searchFunction != null) {
+            if (!searchFunction.queryAround || inColNum == 1)
                 return getString(R.string.wikipedia_article_name);
         }
+        return "";
     }
 
     /**
@@ -118,15 +104,14 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
      *
      * @param inColNum index of column (1,2,3)
      * @return key for this column
-     * @implNote: not used
      */
-    protected String getColumnKey(int inColNum) {
-        switch (inColNum) {
-            case 0:
-                return COL_KEY_DISTANCE_KM;
-            case 1:
-            default:
+    protected int getColumnKey(int inColNum) {
+        if (searchFunction != null) {
+            if (!searchFunction.queryAround || inColNum == 1)
                 return COL_KEY_NAME;
+            else
+                return COL_KEY_DISTANCE_KM;
         }
+        return 0;
     }
 }

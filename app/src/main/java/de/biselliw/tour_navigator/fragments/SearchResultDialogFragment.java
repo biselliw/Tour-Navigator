@@ -48,7 +48,6 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
-import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
 import static androidx.core.content.ContextCompat.getColor;
@@ -56,26 +55,7 @@ import static androidx.core.content.ContextCompat.getColor;
 
 public class SearchResultDialogFragment extends DialogFragment {
 
-    private SearchResultDialogFragment _dialog = this;
-
     protected static GenericSearchFunction searchFunction = null;
-
-    /**
-     * notification routine to be called after adding route points
-     */
-    protected Runnable notification = null;
-
-    private final Handler _timerHandler = new Handler();
-
-    /**
-     * Status label
-     */
-    private TextView _statusLabel;
-
-    /**
-     * Number of columns (1,2,3)
-     */
-    private int _numColumns = 0;
 
     /**
      * list model
@@ -83,13 +63,12 @@ public class SearchResultDialogFragment extends DialogFragment {
     protected static TrackListModel trackListModel = null;
 
     /**
-     * Description box
+     * notification routine to be called after adding route points
      */
-    private TextView _descriptionBox = null;
+    protected Runnable notification = null;
 
-    private TableAdapter _adapter = null;
-
-    private List<Integer> _selectedPositions;
+    private SearchResultDialogFragment _dialog = null;
+    private Handler _timerHandler = null;
 
     /**
      * Load button(s)
@@ -106,19 +85,33 @@ public class SearchResultDialogFragment extends DialogFragment {
     protected boolean cancelled = false;
 
     /**
-     * language code used for search
-     */
-    protected static String lang;
-
-    /**
      * prefix for waypoint types (needed for GPX file)
      */
-    protected static String prefixWaypointType;
+    protected String prefixWaypointType;
 
     /**
      * data point to search for points around
      */
-    protected static DataPoint dataPoint;
+    protected DataPoint dataPoint;
+
+    /**
+     * Status label
+     */
+    private TextView _statusLabel;
+
+    /**
+     * Number of columns (1,2,3)
+     */
+    private int _numColumns = 0;
+
+    /**
+     * Description box
+     */
+    private TextView _descriptionBox = null;
+
+    private TableAdapter _adapter = null;
+
+    private List<Integer> _selectedPositions;
 
     /**
      * Basic dialog for searching POIs
@@ -126,11 +119,6 @@ public class SearchResultDialogFragment extends DialogFragment {
      */
     public static SearchResultDialogFragment newInstance() {
         SearchResultDialogFragment fragment = new SearchResultDialogFragment();
-        /*
-        Bundle args = new Bundle();
-        args.putString("title", inTitle);
-        fragment.setArguments(args);
-         */
         return fragment;
     }
 
@@ -152,9 +140,26 @@ public class SearchResultDialogFragment extends DialogFragment {
      *
      * @param inPoint    data point to search for points around
      */
-    public SearchResultDialogFragment setDataPoint(DataPoint inPoint) {
+    public SearchResultDialogFragment queryAround(DataPoint inPoint) {
         dataPoint = inPoint;
         return this;
+    }
+
+    /**
+     * Find data within a bounding box covering the track
+     *
+     * @param inExtendDegrees extend all sides of the rectangular by a fixed offset in degrees
+     */
+    public SearchResultDialogFragment queryBoundingBox(double inExtendDegrees) {
+        if (searchFunction != null) {
+            searchFunction.queryBoundingBox = true;
+            searchFunction.extendBoundingBox = inExtendDegrees;
+        }
+        return this;
+    }
+
+    public SearchResultDialogFragment queryBoundingBox() {
+        return queryBoundingBox(0);
     }
 
     /**
@@ -181,11 +186,19 @@ public class SearchResultDialogFragment extends DialogFragment {
 
     @Override
     public void onAttach(@NonNull Context context) {
-        lang = getString(R.string.lang);
+        _dialog = this;
+        _timerHandler = new Handler();
         _numColumns = getColumnCount();
 
         // Main panel with track list
         trackListModel = new TrackListModel(_numColumns);
+
+        if (searchFunction != null) {
+            searchFunction.lang = getString(R.string.lang);
+            searchFunction.trackListModel = trackListModel;
+            // todo only required for debugging
+            searchFunction.assetManager = this.requireContext().getAssets();
+        }
         super.onAttach(context);
     }
 
@@ -237,7 +250,12 @@ public class SearchResultDialogFragment extends DialogFragment {
         columnTitleViewIDs[1] = view.findViewById(R.id.search_result_name);
         columnTitleViewIDs[2] = view.findViewById(R.id.search_result_type);
         for (int i = 0; i < _numColumns; i++)
-            columnTitleViewIDs[i].setText(getColumnTitle(i));
+            if (_numColumns == 1) {
+                columnTitleViewIDs[1].setText(getColumnTitle(1));
+                break;
+            }
+            else
+                columnTitleViewIDs[i].setText(getColumnTitle(i));
 
         // description view supporting basic HTML tags
         _descriptionBox = view.findViewById(R.id.desc_search_result_view);
@@ -268,7 +286,6 @@ public class SearchResultDialogFragment extends DialogFragment {
         cancelled = false;
 
         /* Install a timer to handle all activities */
-        //                    if (loadButtonAll.getVisibility() == VISIBLE)
         Runnable _timerRunnable = new Runnable() {
             @Override
             public void run() {
@@ -304,7 +321,6 @@ public class SearchResultDialogFragment extends DialogFragment {
                     } else
                         showErrorMessage(searchFunction.getErrorMessage());
                     trackListModel.changed = false;
-//                    if (loadButtonAll.getVisibility() == VISIBLE)
                     loadButtonAll.setEnabled(!trackListModel.isEmpty());
                 }
                 _timerHandler.postDelayed(this, 100);
@@ -336,7 +352,6 @@ public class SearchResultDialogFragment extends DialogFragment {
      *
      * @param inColNum index of column
      * @return key for this column
-     * @implNote: not used
      */
     protected String getColumnTitle(int inColNum) {
         return "";
@@ -347,10 +362,9 @@ public class SearchResultDialogFragment extends DialogFragment {
      *
      * @param inColNum index of column (1,2,3)
      * @return key for this column
-     * @implNote: not used
      */
-    protected String getColumnKey(int inColNum) {
-        return "";
+    protected int getColumnKey(int inColNum) {
+        return 0;
     }
 
     /**
@@ -474,7 +488,6 @@ public class SearchResultDialogFragment extends DialogFragment {
     public void onDestroyView() {
         _timerHandler.removeCallbacksAndMessages(null);
 
-        _dialog = null;
         _adapter = null;
         searchFunction = null;
         notification = null;
