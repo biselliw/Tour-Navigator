@@ -59,6 +59,9 @@ public abstract class GenericSearchFunction implements Runnable
     protected final ControlElements _activity;
     public AssetManager assetManager;
 
+    /** data point to search for points around */
+    public DataPoint dataPoint;
+
     public boolean queryAround = false;
 
     protected String boundingBox = "";
@@ -146,6 +149,24 @@ public abstract class GenericSearchFunction implements Runnable
         if (found || foundDistance >= 0.0)
             inSearchResult.setDistance(foundDistance);
         return found;
+    }
+
+    /**
+     * Calculate distance between current point and search result
+     * @param inDataPoint current point
+     * @param inSearchResult found point
+     * @return distance [km]
+     */
+    public double getDistanceAround(DataPoint inDataPoint, SearchResult inSearchResult) {
+        double distance = 0;
+        DataPoint searchPoint = inSearchResult.getDataPoint();
+        Unit distUnit = Config.getUnitSet().getDistanceUnit();
+        if (searchPoint != null) {
+            double dist = DataPoint.calculateRadiansBetween(searchPoint, inDataPoint);
+            if (dist > 0.0)
+                distance = Distance.convertRadiansToDistance(dist, distUnit);
+        }
+        return distance;
     }
 
     /**

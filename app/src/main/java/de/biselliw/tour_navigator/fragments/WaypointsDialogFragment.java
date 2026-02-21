@@ -20,22 +20,18 @@ package de.biselliw.tour_navigator.fragments;
 */
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
 import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
-import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
-import static androidx.constraintlayout.widget.ConstraintSet.VISIBLE;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_DISTANCE_KM;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_NAME;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_TYPE;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_DISTANCE_FROM_START_KM;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_NAME;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_TYPE;
 
 /**
  * Search dialog to add waypoints along the track which are provided by the GPX file but are out of track
@@ -103,11 +99,11 @@ public class WaypointsDialogFragment extends SearchResultDialogFragment {
     protected int getColumnKey(int inColNum) {
         switch (inColNum) {
             case 0:
-                return COL_KEY_DISTANCE_KM;
+                return KEY_DISTANCE_FROM_START_KM;
             case 1:
-                return COL_KEY_NAME;
+                return KEY_NAME;
             default:
-                return COL_KEY_TYPE;
+                return KEY_TYPE;
         }
     }
 

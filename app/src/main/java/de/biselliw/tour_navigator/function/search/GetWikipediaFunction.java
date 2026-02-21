@@ -79,12 +79,11 @@ public class GetWikipediaFunction extends GenericSearchFunction
 
     /**
      * Find nearby Wikipedia articles
-     * @param inPoint point for which surrounding data shall be searched
      */
-    public String queryAround(DataPoint inPoint)
+    public String queryAround()
     {
         // Get coordinates from current point
-        findNearbyWikipedia = getSearchCoordinates(inPoint);
+        findNearbyWikipedia = getSearchCoordinates(dataPoint);
         // background work
         new Thread(this).start();
         return WAYPOINT_TYPE;

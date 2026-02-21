@@ -500,11 +500,19 @@ public class DataPoint
 //		if (!_longitude.equals(inOther._longitude) || !_latitude.equals(inOther._latitude)) return false;
 
         // Note that conversion from decimal to dms can make non-identical points into duplicates
+
+        if (inOther._waypointName != null && !inOther._waypointName.equals(_waypointName))
+            return false;
+
+        // Compare waypoint types (if any)
+        if (_wptType != null && inOther._wptType != null && !_wptType.equals(inOther._wptType))
+                return false;
+
         // Compare waypoint name (if any)
         if (!isWaypoint()) {
             return !inOther.isWaypoint();
         }
-        return (inOther._waypointName != null && inOther._waypointName.equals(_waypointName));
+        return false;
     }
 
 	/**

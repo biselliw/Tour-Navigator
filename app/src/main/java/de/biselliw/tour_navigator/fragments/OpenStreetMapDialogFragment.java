@@ -29,10 +29,11 @@ import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_DISTANCE_KM;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_NAME;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_DISTANCE_FROM_START_KM;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_NAME;
 import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_REF;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_TYPE;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_TYPE;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_DISTANCE_TO_TRACK_M;
 
 /**
  * Search dialog to add OSM guideposts along the track
@@ -81,9 +82,9 @@ public class OpenStreetMapDialogFragment extends SearchResultDialogFragment {
         super.onAttach(context);
         GetOpenStreetMapFunction searchOSM = (GetOpenStreetMapFunction)searchFunction;
         if (searchOSM != null) {
-            if (dataPoint != null)
+            if (searchOSM.queryAround)
                 // Find POIs nearby the given way point
-                prefixWaypointType = searchOSM.queryAround(dataPoint);
+                prefixWaypointType = searchOSM.queryAround();
             if (searchFunction.queryBoundingBox)
                 // Find POIs within a bounding box covering the track
                 prefixWaypointType = searchOSM.queryBoundingBox();
@@ -127,25 +128,19 @@ public class OpenStreetMapDialogFragment extends SearchResultDialogFragment {
     {
         GetOpenStreetMapFunction searchOSM = (GetOpenStreetMapFunction)searchFunction;
         if (searchOSM != null) {
-            if (searchOSM.findGuideposts) {
-                switch (inColNum) {
-                    case 0:
-                        return getString(R.string.distance);
-                    case 1:
+            switch (inColNum) {
+                case 0:
+                    return getString(R.string.distance);
+                case 1:
+                    if (searchOSM.findGuideposts)
                         return getString(R.string.guide_post_name);
-                    default:
-                        return getString(R.string.wpt_ref);
-                }
-            }
-            else if (searchOSM.findPOIs) {
-                switch (inColNum) {
-                    case 0:
-                        return getString(R.string.distance);
-                    case 1:
+                    else
                         return getString(R.string.poi_name);
-                    default:
+                default:
+                    if (searchOSM.findGuideposts)
+                        return getString(R.string.wpt_ref);
+                    else
                         return getString(R.string.wpt_type);
-                }
             }
         }
         return "";
@@ -160,24 +155,27 @@ public class OpenStreetMapDialogFragment extends SearchResultDialogFragment {
     protected int getColumnKey(int inColNum) {
         GetOpenStreetMapFunction searchOSM = (GetOpenStreetMapFunction)searchFunction;
         if (searchOSM != null) {
-            if (searchOSM.findGuideposts) {
+            if (searchOSM.queryAround) {
                 switch (inColNum) {
                     case 0:
-                        return COL_KEY_DISTANCE_KM;
+                        return KEY_DISTANCE_TO_TRACK_M;
                     case 1:
-                        return COL_KEY_NAME;
+                        return KEY_NAME;
                     default:
-                        return COL_KEY_REF;
+                        return KEY_TYPE;
                 }
             }
-            else if (searchOSM.findPOIs) {
+            else if (searchOSM.queryBoundingBox) {
                 switch (inColNum) {
                     case 0:
-                        return COL_KEY_DISTANCE_KM;
+                        return KEY_DISTANCE_FROM_START_KM;
                     case 1:
-                        return COL_KEY_NAME;
+                        return KEY_NAME;
                     default:
-                        return COL_KEY_TYPE;
+                        if (searchOSM.findGuideposts)
+                            return COL_KEY_REF;
+                        else
+                            return KEY_TYPE;
                 }
             }
         }

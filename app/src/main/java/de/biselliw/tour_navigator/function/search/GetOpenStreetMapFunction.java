@@ -46,6 +46,7 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.ui.ControlElements;
+import tim.prune.data.Distance;
 import tim.prune.data.DoubleRange;
 
 import static de.biselliw.tour_navigator.data.AppState.isGpxFileGuidePostsCached;
@@ -75,7 +76,7 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     /**
      * Enable simulation of overpass-api query by loading a test file instead
      */
-    private static final boolean SIMULATE_QUERY = true;
+    private static final boolean SIMULATE_QUERY = false;
 
     /**
      * Maximum distance between track and point in km
@@ -114,9 +115,9 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
      *
      * @return WAYPOINT_TYPE
      */
-    public String queryAround(DataPoint inPoint) {
+    public String queryAround() {
         // Get coordinates from current point
-        queryAround = getSearchCoordinates(inPoint);
+        queryAround = getSearchCoordinates(dataPoint);
 
         // background work
         new Thread(this).start();
@@ -219,7 +220,8 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                 + node_around + "[building];"
                 + node_around + "[information];"
 */
-                + node_around
+                + node_around + ";"
+                + way_around + "[building];"
                 + way_around + "[historic];"
                 + ");out qt;";
 
@@ -265,10 +267,14 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
      * @return simulation file name of OSM data
      */
     private String getSimulationFileName() {
-        if (findGuideposts)
-            return "overpass_api_guideposts.txt";
-        if (findPOIs)
-            return "overpass_api_pois.txt";
+        if (queryBoundingBox) {
+            if (findGuideposts)
+                return "overpass_api_guideposts.txt";
+            if (findPOIs)
+                return "overpass_api_bounding_box.txt";
+        }
+        else if (queryAround)
+            return "overpass_api_around.txt";
         return "";
     }
 
@@ -511,21 +517,28 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                 searchResult.update();
 
 //                    if (findGuideposts || !searchResult.isGuidePost)
-                    // Check if a point is already loaded
-                    if (!searchResultIsDuplicate(searchResult))
+                // Check if a point is already loaded
+                if (!searchResultIsDuplicate(searchResult)) {
+                    boolean usePoint = false;
+                    if (queryBoundingBox)
                         // find nearest track point
-                        if (!queryBoundingBox || findNearestTrackpoint(searchResult, MAX_DISTANCE)) {
-//                            if (findGuideposts || !searchResult.isGuidePost) {
-                                // translate waypoint types
-                                searchResult.setPointType(translateTag(searchResult.getPointType()));
-                                if (searchResult.getTrackName().isEmpty()) {
-                                    searchResult.setTrackName(searchResult.getPointType());
-                                    if (searchResult.getDataPoint() != null)
-                                        searchResult.getDataPoint().setWaypointName(searchResult.getTrackName());
-                                }
-                                reducedTrackList.add(searchResult);
-                            }
+                        usePoint = findNearestTrackpoint(searchResult, MAX_DISTANCE);
+                    if (queryAround) {
+                        searchResult.setDistance(getDistanceAround(dataPoint, searchResult));
+                        usePoint = true;
+                    }
+                    if (usePoint) {
+                        // translate waypoint types
+                        searchResult.setPointType(translateTag(searchResult.getPointType()));
+                        if (searchResult.getTrackName().isEmpty()) {
+                            searchResult.setTrackName(searchResult.getPointType());
+                            if (searchResult.getDataPoint() != null)
+                                searchResult.getDataPoint().setWaypointName(searchResult.getTrackName());
                         }
+                        reducedTrackList.add(searchResult);
+                    }
+                }
+            }
         }
 
         // Add track list to model

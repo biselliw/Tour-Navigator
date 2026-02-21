@@ -90,11 +90,6 @@ public class SearchResultDialogFragment extends DialogFragment {
     protected String prefixWaypointType;
 
     /**
-     * data point to search for points around
-     */
-    protected DataPoint dataPoint;
-
-    /**
      * Status label
      */
     private TextView _statusLabel;
@@ -141,7 +136,10 @@ public class SearchResultDialogFragment extends DialogFragment {
      * @param inPoint    data point to search for points around
      */
     public SearchResultDialogFragment queryAround(DataPoint inPoint) {
-        dataPoint = inPoint;
+        if (searchFunction != null) {
+            searchFunction.queryAround = true;
+            searchFunction.dataPoint = inPoint;
+        }
         return this;
     }
 

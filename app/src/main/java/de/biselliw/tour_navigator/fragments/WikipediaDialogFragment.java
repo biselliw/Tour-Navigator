@@ -29,8 +29,8 @@ import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_DISTANCE_KM;
-import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.COL_KEY_NAME;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_DISTANCE_FROM_START_KM;
+import static de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel.KEY_NAME;
 
 /**
  * Search dialog to add Wikipedia articles
@@ -50,14 +50,14 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
     @Override
     public void onAttach( @NonNull Context context ) {
         super.onAttach(context);
-        GetWikipediaFunction getWikipediaFunction = (GetWikipediaFunction)searchFunction;
-        if (getWikipediaFunction != null) {
-            if (dataPoint != null)
+        GetWikipediaFunction search = (GetWikipediaFunction)searchFunction;
+        if (search != null) {
+            if (search.queryAround)
                 // Find Wikipedia articles nearby the given way point
-                prefixWaypointType = getWikipediaFunction.queryAround(dataPoint);
+                prefixWaypointType = search.queryAround();
             else
                 // Find Wikipedia articles within a bounding box covering the track
-                prefixWaypointType = getWikipediaFunction.wikipediaBoundingBox();
+                prefixWaypointType = search.wikipediaBoundingBox();
         }
     }
 
@@ -108,9 +108,9 @@ public class WikipediaDialogFragment extends SearchResultDialogFragment {
     protected int getColumnKey(int inColNum) {
         if (searchFunction != null) {
             if (!searchFunction.queryAround || inColNum == 1)
-                return COL_KEY_NAME;
+                return KEY_NAME;
             else
-                return COL_KEY_DISTANCE_KM;
+                return KEY_DISTANCE_FROM_START_KM;
         }
         return 0;
     }

@@ -5,6 +5,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+
 
 /**
  * Model for list of tracks from a search result (eg geonames, overpass)
@@ -14,11 +16,11 @@ public class TrackListModel // extends AbstractTableModel
     /**
      * column keys for interpretation of contents
      * */
-    public static final int COL_KEY_NAME = 1;
-    public static final int COL_KEY_TYPE = 2;
+    public static final int KEY_NAME = 1;
+    public static final int KEY_TYPE = 2;
     public static final int COL_KEY_DISTANCE = 3;
-    public static final int COL_KEY_DISTANCE_M = 4;
-    public static final int COL_KEY_DISTANCE_KM = 5;
+    public static final int KEY_DISTANCE_TO_TRACK_M = 4;
+    public static final int KEY_DISTANCE_FROM_START_KM = 5;
     public static final int COL_KEY_REF = 6;
 
     /** status message */
@@ -77,20 +79,27 @@ public class TrackListModel // extends AbstractTableModel
 	{
         SearchResult track = _trackList.get(inRowNum);
         if (track != null) {
-            double lengthM = track.getLength();
             switch (inKey) {
-                case COL_KEY_NAME:
+                case KEY_NAME:
                     return track.getTrackName();
-                case COL_KEY_TYPE:
+                case KEY_TYPE:
                     return track.getPointType();
                 case COL_KEY_REF:
                     if (track.getRef() != null)
                         return track.getRef();
                     break;
-                case COL_KEY_DISTANCE_KM:
-                    return new DecimalFormat("#0.0").format(lengthM) + " km";
-                case COL_KEY_DISTANCE_M:
-                    return new DecimalFormat("#").format(lengthM * 1000.0) + " m";
+                case KEY_DISTANCE_TO_TRACK_M: {
+                    return new DecimalFormat("#").format(track.getDistance() * 1000.0) + " m";
+                }
+                case KEY_DISTANCE_FROM_START_KM: {
+                    return new DecimalFormat("#0.0").format(track.getDistance()) + " km";
+/*
+                    DataPoint dataPoint = track.getDataPoint();
+                    if (dataPoint != null)
+                        return new DecimalFormat("#0.0").format(dataPoint.getDistance()) + " km";
+                    break;
+ */
+                }
             }
         }
 
