@@ -23,7 +23,7 @@ Details are presented here:
 
 You can freely download the Android app here from [GitHub](/app/release/TourNavigator.apk)
 
-Further development requires Android Studio, we recommend to use at least version 3.1.1
+Further development requires Android Studio
  
 ### API Reference
 
@@ -54,8 +54,5 @@ The program uses:
 - sources from [Nick Fellows (halfhp)](https://github.com/halfhp/androidplot) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 - sources from [coltoscosmin](https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 - icons from [Google Material Design Icons](https://fonts.google.com/icons) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-- web services from [GeoNames geographical database](https://www.geonames.org/) to access Wikipedia articles; licensed under a [Creative Commons Attribution 4.0 License[(https://creativecommons.org/licenses/by/4.0/)
-- web services from [Overpass API](https://overpass-api.de/) to access Open Street Map (OSM) data; licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence)
-
-
-
+- web services from [Overpass API](https://overpass-api.de/) to access OpenStreetMap (OSM) data; licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence)
+- web services from [GeoNames geographical database](https://www.geonames.org/) to access OpenStreetMap (OSM) data, licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence) and Wikipedia articles, licensed under a [Creative Commons Attribution 4.0 License[(https://creativecommons.org/licenses/by/4.0/)

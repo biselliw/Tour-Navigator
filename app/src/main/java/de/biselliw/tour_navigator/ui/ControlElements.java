@@ -277,11 +277,12 @@ public class ControlElements extends BaseActivity {
                         if (mitem != null)
                             mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
                                     (getConsentInternet() || isGpxFilePOIsCached()));
+                        mitem = subMenu.findItem(R.id.nav_wikipedia);
+                        if (mitem != null)
+                            mitem.setVisible(!_initUserInterface && (getConsentInternet()));
                     }
                 }
             }
-            else if (id == R.id.nav_osm_guideposts || id == R.id.nav_osm_pois || id == R.id.nav_wikipedia)
-                item.setVisible(getConsentInternet());
             else
                 item.setVisible(true);
         }
