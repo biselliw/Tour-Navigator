@@ -14,34 +14,35 @@ package de.biselliw.tour_navigator.dialogs;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2023 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 
 import de.biselliw.tour_navigator.App;
 
-/*
- This file handles the break time of a single waypoint
+/**
+ * Dialog to handle the break time of a single route point
  */
-public class BreakTimeDialog extends FullScreenDialog {
-    public RecordAdapter _recordAdapter;
-    public int selected;
-    public RecordAdapter.Record record;
-    public int waypointDuration;
-    public App _app;
+public class BreakTimeDialog extends Dialog {
+    private final RecordAdapter _recordAdapter;
+    private final int selected;
+    private RecordAdapter.Record record;
+    private final App _app;
 
     public BreakTimeDialog(Context context, RecordAdapter recordAdapter, App app) {
-        super(context, R.layout.break_time_dialog);
+        super(context);
+        setContentView(R.layout.dialog_break_time);
 
         /* load time picker with current start time */
         _recordAdapter = recordAdapter;
@@ -49,11 +50,12 @@ public class BreakTimeDialog extends FullScreenDialog {
         selected = _recordAdapter.getPlace();
         if (selected > 0) {
             record = _recordAdapter.recordList.get(selected);
-            waypointDuration = record.getTrackPoint().getWaypointDuration();
+            int waypointDuration = record.trackPoint.getWaypointDuration();
+
             TimePicker timePicker = (TimePicker) findViewById(R.id.timePickerBreak);
             timePicker.setIs24HourView(true);
-            int hour = waypointDuration/60;
-            int minute = waypointDuration - hour*60;
+            int hour = waypointDuration / 60;
+            int minute = waypointDuration - hour * 60;
             timePicker.setCurrentHour(hour);
             timePicker.setCurrentMinute(minute);
 
@@ -68,16 +70,21 @@ public class BreakTimeDialog extends FullScreenDialog {
                     // prohibit negative times
                     if (hour > 12) hour = 0;
                     int minute =timePicker.getCurrentMinute();
-                    int break_min = hour*60 + minute;
-                    record.getTrackPoint().setWaypointDuration(break_min);
+                    int break_min = hour * 60 + minute;
+                    record.trackPoint.setWaypointDuration(break_min);
 
-                    /* update break time of current waypoint */
+                    /* update break time of current route point */
                     _recordAdapter.recordList.set(selected, record);
-
-                    /* update time stamps of remaining waypoints */
-                    _app.Update();
+                    /* todo update all places in the records view */
+                    _app.updateRecords();
+                    _recordAdapter.notifyDataSetChanged();
                     dismiss();
                 }
+            });
+            /* define OnClick event to cancel the dialog */
+            Button cancelButton = findViewById(R.id.btn_cancel);
+            cancelButton.setOnClickListener(v -> {
+                dismiss();
             });
         }
         dismiss();

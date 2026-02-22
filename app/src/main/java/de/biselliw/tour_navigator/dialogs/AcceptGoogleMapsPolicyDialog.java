@@ -1,36 +1,35 @@
 package de.biselliw.tour_navigator.dialogs;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.MainActivity;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
 
-import static de.biselliw.tour_navigator.activities.SettingsActivity.consentGoogleMaps;
-
+/**
+ * Dialog to accept/discard Google Maps policy
+ */
 public class AcceptGoogleMapsPolicyDialog extends FullScreenDialog {
 
-    public AcceptGoogleMapsPolicyDialog(Context context, AppCompatActivity activity) {
-        super(activity, R.layout.consent_google_maps);
+    public AcceptGoogleMapsPolicyDialog(AppCompatActivity activity) {
+        super(activity, R.layout.dialog_consent_google_maps);
 
         /* define OnClick events for declining / accepting the policy */
-        Button buttonDecline = findViewById(R.id.bt_decline_GoogleMaps);
+        Button buttonDecline = findViewById(R.id.bt_decline);
         buttonDecline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                consentGoogleMaps(false);
+                SettingsActivity.consentGoogleMaps(false);
                 dismiss();
             }
         });
-        Button buttonConsent = findViewById(R.id.bt_consent_GoogleMaps);
+        Button buttonConsent = findViewById(R.id.bt_consent);
         buttonConsent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                consentGoogleMaps(true);
+                SettingsActivity.consentGoogleMaps(true);
                 dismiss();
-//                activity.runGoogleMaps();
             }
         });
     }

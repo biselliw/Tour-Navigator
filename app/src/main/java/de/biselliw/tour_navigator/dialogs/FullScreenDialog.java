@@ -19,23 +19,30 @@ package de.biselliw.tour_navigator.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.appcompat.app.AppCompatDialog;
+import de.biselliw.tour_navigator.R;
 
 
 abstract public class FullScreenDialog extends Dialog {
 
     public FullScreenDialog(Context context, int layoutId) {
-        super(context);
+        super(context); //, R.style.Theme_App_FullScreenDialog);
 
         setContentView(layoutId);
 
-        // required to make the dialog use the full screen width
+        // required to make the dialog use the full screen width/height
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Window window = getWindow();
-        lp.copyFrom(window.getAttributes());
-        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-        lp.horizontalMargin = 40;
-        window.setAttributes(lp);
+        if (window != null) {
+            lp.copyFrom(window.getAttributes());
+            lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+//            lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+            lp.horizontalMargin = 40;
+            window.setAttributes(lp);
+        }
     }
 }
