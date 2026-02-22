@@ -1,51 +1,74 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.Resources;
+import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
+import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.GetWikipediaXmlHandler;
+import de.biselliw.tour_navigator.function.WikipediaXmlHandler;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**
- * Function to load nearby point information from Wikipedia
- * according to the currently viewed area
- */
-public class GetWikipediaFunction extends GenericDownloaderFunction
+ * Function to load Wikipedia articles
+*/
+public class GetWikipediaFunction extends GenericSearchFunction
 {
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "GetWikipediaFunction";
+    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
+    /** new waypoint type required for GPX file */
+    public static final String WAYPOINT_TYPE = "Wikipedia";
+
+    /** Enable simulation of geonames-api query by loading a test file instead */
+    private static final boolean SIMULATE_QUERY = false;
+
 	/** Maximum number of results to get */
-	private static final int MAX_RESULTS = 20;
+	private static final int MAX_RESULTS = 30;
 	/** Maximum distance from point in km */
-	private static final int MAX_DISTANCE = 10;
+	private static final int MAX_DISTANCE = 20;
+    /** user name required for geonames api */
 	private static final String GEONAMES_USERNAME = "tournavigator";
 
-    private DataPoint dataPoint = null;
-    String lang = "";
 
-    BaseActivity _activity;
+    String lang = "";
 
 	/**
 	 * Constructor
-	 * @param activity
+     * @param inActivity parent activity
 	 */
-	public GetWikipediaFunction(BaseActivity activity, TrackListModel inTrackListModel) {
-		super(null, inTrackListModel);
-        _activity = activity;
+	public GetWikipediaFunction(ControlElements inActivity, TrackListModel inTrackListModel) {
+		super(inActivity);
 	}
 
-	public void getWikipedia(DataPoint inPoint, String inLang)
+    /**
+     * Load nearby Wikipedia articles
+     * @param inPoint point for which surrounding data shall be searched
+     * @param inLang language code for search
+     */
+    public String getWikipedia(DataPoint inPoint, String inLang)
     {
-        dataPoint = inPoint;
+        // Get coordinates from current point
+        getSearchCoordinates(inPoint);
         lang = inLang;
-        new Thread(() -> {
-            // background work
-            run();
-        }).start();
+        // background work
+        new Thread(this).start();
+        return WAYPOINT_TYPE;
     }
 
 	/**
@@ -53,69 +76,96 @@ public class GetWikipediaFunction extends GenericDownloaderFunction
 	 */
 	public void run()
 	{
-		// Get coordinates from current point (if any) or from centre of screen
-        if(dataPoint == null) return;
-        double lat = dataPoint.getLatitude().getDouble();
-        double lon = dataPoint.getLongitude().getDouble();
-
-		// For geonames, firstly try the local language
-        submitSearch(lat, lon, lang);
-
-        // prohibit recursive search
-        dataPoint = null;
-
-		// Set status label according to error or "none found", leave blank if ok
-		if (_errorMessage.isEmpty() && _trackListModel.isEmpty()) {
-			_errorMessage = _activity.getString(R.string.wikipedia_articles_nonefound);
-		}
-	}
-
-	/**
-	 * Submit the search for the given parameters
-	 * @param inLat latitude
-	 * @param inLon longitude
-	 * @param inLang language code to use, such as en or de
-	 */
-	private void submitSearch(double inLat, double inLon, String inLang)
-	{
-        // Example http://api.geonames.org/findNearbyWikipedia?lat=47&lng=9
-        String urlString = "https://secure.geonames.org/findNearbyWikipedia?lat=" +
-                inLat + "&lng=" + inLon + "&maxRows=" + MAX_RESULTS
-                + "&radius=" + MAX_DISTANCE + "&lang=" + inLang
-                + "&username=" + GEONAMES_USERNAME;
-        // Parse the returned XML with a special handler
-        GetWikipediaXmlHandler xmlHandler = new GetWikipediaXmlHandler();
         InputStream inStream = null;
+        SAXParser saxParser = null;
+        if (trackListModel == null) return;
+
+        // Parse the returned XML with a special handler
+        WikipediaXmlHandler xmlHandler = new WikipediaXmlHandler();
+        trackListModel.changed = false;
         _errorMessage = "";
 
-        try
-        {
-            URL url = new URL(urlString);
-            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
-            inStream = url.openStream();
-            saxParser.parse(inStream, xmlHandler);
-        }
-        catch (Exception e) {
-            _errorMessage = e.getClass().getName() + " - " + e.getMessage();
-        }
-        // Close stream and ignore errors
         try {
-            inStream.close();
-        } catch (Exception ignored) {}
-        // Add track list to model
-        ArrayList<SearchResult> trackList = xmlHandler.getTrackList();
-
-        if (_trackListModel != null) {
-            _trackListModel.addTracks(trackList, true);
-
-            // Show error message if any
-            if (_trackListModel.isEmpty()) {
-                String error = xmlHandler.getErrorMessage();
-                if (error != null && !error.equals("")) {
-                    //	_app.showErrorMessageNoLookup(getNameKey(), error);
-                    _errorMessage = error;
+            saxParser = SAXParserFactory.newInstance().newSAXParser();
+            if (!SIMULATE_QUERY) {
+                /* fetch Wikipedia data from geonames.org
+                   =================================================================================
+                 */
+                String urlString = "https://secure.geonames.org/findNearbyWikipedia?lat=" +
+                        _searchLatitude + "&lng=" + _searchLongitude + "&maxRows=" + MAX_RESULTS
+                        + "&radius=" + MAX_DISTANCE + "&lang=" + lang
+                        + "&username=" + GEONAMES_USERNAME;
+                try {
+                    URL url = new URL(urlString);
+                    inStream = url.openStream();
+                }
+                catch (IOException e) {
+                    Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+                    _errorMessage = Resources.getString(R.string.server_not_found);
+                    trackListModel.changed = true;
+                }
+            } else {
+                /* fetch Wikipedia data from former file retrieved from overpass-api
+                   =================================================================================
+                 */
+                try {
+                    if (assetManager != null)
+                        inStream = assetManager.open("geonames_findNearbyWikipedia.txt");
+                } catch (IOException e) {
+                    Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+                    _errorMessage = "assets/geonames_findNearbyWikipedia.txt could not be opened";
+                    trackListModel.changed = true;
                 }
             }
+        } catch (ParserConfigurationException | SAXException e) {
+            Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+            _errorMessage = "error in SAXParser";
+            trackListModel.changed = true;
+        }
+
+        try {
+            if (saxParser != null && inStream != null && !trackListModel.changed)
+                saxParser.parse(inStream, xmlHandler);
+        } catch (SAXException | IOException e) {
+            Log.e(TAG,"submitSearch():" + e.getClass().getName() + " - " + e.getMessage());
+            _errorMessage = Resources.getString(R.string.server_not_found);
+            trackListModel.changed = true;
+        }
+
+        if (inStream != null && !trackListModel.changed) {
+            // Close stream and ignore errors
+            try {
+                inStream.close();
+            } catch (Exception ignored) {}
+
+            // Add track list to model
+            ArrayList<SearchResult> reducedTrackList = new ArrayList<>();
+
+            // Show error message from parsing if any
+            String error = xmlHandler.getErrorMessage();
+            if (error != null && !error.isEmpty()) {
+                _errorMessage = error;
+            }
+            else {
+                // was parsing successful ?
+                if (xmlHandler.getTrackList() != null) {
+                    // for all records ...
+                    for (SearchResult searchResult : xmlHandler.getTrackList()) {
+                    // Update single search result
+                        searchResult.update();
+                        // Check if a point is already loaded
+                        if (!searchResultIsDuplicate(searchResult))
+                            reducedTrackList.add(searchResult);
+                    }
+                    // free memory
+                    xmlHandler.getTrackList().clear();
+                }
+                // No new articles found ?
+                if (reducedTrackList.isEmpty())
+                    _errorMessage = Resources.getString(R.string.wikipedia_articles_none_found);
+            }
+            // Add new articles to model
+            trackListModel.addTracks(reducedTrackList, true);
         }
     }
 }

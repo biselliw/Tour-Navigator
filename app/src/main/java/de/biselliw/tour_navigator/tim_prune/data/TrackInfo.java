@@ -23,13 +23,13 @@ public class TrackInfo
 		_track = inTrack;
 	}
 
-
 	/**
 	 * @return the Track object
 	 */
 	public TrackDetails getTrack() {
 		return _track;
 	}
+
 
 	/**
 	 * @return the FileInfo object
@@ -51,5 +51,49 @@ public class TrackInfo
 		_fileInfo = null;
 	}
 
+
+	/**
+	 * Select the given DataPoint
+	 * @param inPoint DataPoint object to select
+	 */
+	public void selectPoint(DataPoint inPoint) {
+		selectPoint(_track.getPointIndex(inPoint));
+	}
+
+
+	/**
+	 * Select the data point with the given index
+	 * @param inPointIndex index of DataPoint to select, or -1 for none
+	 */
+	public void selectPoint(int inPointIndex)
+	{
+        // nothing to select
+	}
+
+	public boolean appendRange(List<DataPoint> inPoints)
+	{
+		final int currentNumPoints = getTrack().getNumPoints();
+		if (getTrack().appendRange(inPoints))
+		{
+			// Select the first point added
+			selectPoint(currentNumPoints);
+			return true;
+		}
+		return false;
+	}
+
+
+	public void markPointForDeletion(int inIndex) {
+		markPointForDeletion(inIndex, true);
+	}
+
+	public void markPointForDeletion(int inIndex, boolean inDelete) {
+		markPointForDeletion(inIndex, inDelete, false);
+	}
+
+	public void markPointForDeletion(int inIndex, boolean inDelete, boolean inSegmentBreak)
+	{
+
+	}
 
 }

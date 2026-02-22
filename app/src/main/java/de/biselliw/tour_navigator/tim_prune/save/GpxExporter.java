@@ -31,11 +31,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.Field;
 import tim.prune.data.Coordinate;
 import tim.prune.data.UnitSetLibrary;
 import tim.prune.save.xml.XmlUtils;
+
+import de.biselliw.tour_navigator.data.Resources;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
@@ -48,7 +50,7 @@ import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
  */
 public class GpxExporter {
 	/** this program name */
-	private static String GpxFileCreator = "";
+	private static final String GpxFileCreator = Resources.resStrCreator;
 
 	/**
 	 * Download the information to the given writer
@@ -61,8 +63,6 @@ public class GpxExporter {
         int result = 0;
 
         if (inInfo != null) {
-            GpxFileCreator = inInfo.getTrack().Creator;
-
             try {
                 result = exportData(writer, inInfo);
             } catch (IOException ignored) {
@@ -94,10 +94,12 @@ public class GpxExporter {
             // name and description
             SourceInfo sourceinfo = inInfo.getFileInfo().getSource(0);
             if (sourceinfo != null ) {
-                String inDesc = sourceinfo.getFileDescription();
+                // distinguish between file and track description
+                String inFileDesc = sourceinfo.getFileDescription();
+                String inTrackDesc = sourceinfo.getTrackDescription();
                 String inName = sourceinfo.getFileTitle();
                 // String trackName = (!inName.isEmpty()) ? XmlUtils.fixCdata(inName) : GpxFileCreator;
-                writeNameAndDescription(inWriter, inName, inDesc,
+                writeNameAndDescription(inWriter, inName, inFileDesc,
                         sourceinfo.getAuthor(), sourceinfo.getMetaTime(), sourceinfo.getMetaLink());
 
                 DataPoint point;
@@ -123,7 +125,7 @@ public class GpxExporter {
 
                 // Output all track points, if any
                 String trackStart = "\t<trk>\n\t\t<name>" + inName + "</name>\n\t\t<trkseg>\n";
-                String trackDesc = (inDesc != null && !inDesc.isEmpty()) ? XmlUtils.fixCdata(inDesc) : "";
+                String trackDesc = (inTrackDesc != null && !inTrackDesc.isEmpty()) ? XmlUtils.fixCdata(inTrackDesc) : "";
                 if (!trackDesc.isEmpty())
                     trackStart += "\t\t<desc>" + trackDesc + "\n\t\t</desc>\n";
                 numSaved += writeTrackPoints(inWriter, inInfo,
@@ -141,14 +143,17 @@ public class GpxExporter {
 	 * Write the name, description and time according to the GPX version number
 	 * @param inWriter writer object
 	 * @param inName name, or null if none supplied
-	 * @param inDesc description, or null if none supplied
+	 * @param inFileDesc file description, or null if none supplied
 	 * @param inAuthor author, or null if none supplied
 	 * @param inTime time, or null if none supplied
 	 * @param inLink link, or null if none supplied
 	 * @implNote BiselliW: add extra GPX meta tags author, time, link; GPX format 1.1 only
+     * @implNote BiselliW: distinguish between file and track description
 	 */
 	private static void writeNameAndDescription(OutputStreamWriter inWriter, String inName,
-			String inDesc, String inAuthor, String inTime, String inLink) throws IOException
+            // distinguish between file and track description
+			String inFileDesc,
+            String inAuthor, String inTime, String inLink) throws IOException
 	{
 		// Position of name and description fields needs to be different for GPX1.0 and GPX1.1
 		// GPX 1.1 has the name and description inside a metadata tag
@@ -159,10 +164,10 @@ public class GpxExporter {
 			inWriter.write(inName);
 			inWriter.write("</name>\n");
 		}
-		if (inDesc != null && !inDesc.isEmpty())
+		if (inFileDesc != null && !inFileDesc.isEmpty())
 		{
 			inWriter.write("\t\t<desc>");
-			inWriter.write(inDesc);
+			inWriter.write(inFileDesc);
 			inWriter.write("</desc>\n");
 		}
 		if (inAuthor != null && !inAuthor.isEmpty())
@@ -173,24 +178,23 @@ public class GpxExporter {
 			inWriter.write("</name>\n");
 			inWriter.write("\t\t</author>\n");
 		}
-		if (inTime != null && !inTime.isEmpty()) {
-			inWriter.write('\t');
-			inWriter.write("\t<time>");
-			inWriter.write(inTime);
-			inWriter.write("</time>\n");
-		}
-
 		if (inLink != null && !inLink.isEmpty()) {
 			inWriter.write('\t');
 			inWriter.write("\t<link href=\"");
 			inWriter.write(inLink);
 			inWriter.write("\"/>\n");
 		}
+        if (inTime != null && !inTime.isEmpty()) {
+            inWriter.write('\t');
+            inWriter.write("\t<time>");
+            inWriter.write(inTime);
+            inWriter.write("</time>\n");
+        }
 
-		inWriter.write("\t</metadata>\n");
-	}
+        inWriter.write("\t</metadata>\n");
+    }
 
-	/**
+    /**
 	 * Loop through the track outputting the relevant track points
 	 * @param inWriter writer object for output
 	 * @param inInfo track info object containing track
@@ -271,18 +275,20 @@ public class GpxExporter {
 	private static void exportWaypoint(DataPoint inPoint, Writer inWriter)
 		throws IOException
 	{
-		inWriter.write("\n\t<wpt lat=\"");
-		inWriter.write(inPoint.getLatitude().output(Coordinate.Format.DECIMAL_FORCE_POINT,4));
-		inWriter.write("\" lon=\"");
-		inWriter.write(inPoint.getLongitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
-		inWriter.write("\">\n");
-		// altitude if available
-		if (inPoint.hasAltitude())
-		{
-			inWriter.write("\t\t<ele>");
-			inWriter.write(inPoint.hasAltitude() ? inPoint.getAltitude().getStringValue(UnitSetLibrary.UNITS_METRES) : "0");
-			inWriter.write("</ele>\n");
-		}
+        if ((inPoint.getLatitude() == null) || (inPoint.getLongitude() == null)) return;
+
+        inWriter.write("\n\t<wpt lat=\"");
+        inWriter.write(inPoint.getLatitude().output(Coordinate.Format.DECIMAL_FORCE_POINT, 4));
+        inWriter.write("\" lon=\"");
+        inWriter.write(inPoint.getLongitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
+        inWriter.write("\">\n");
+        // altitude if available
+        if (inPoint.hasAltitude()) {
+            inWriter.write("\t\t<ele>");
+            inWriter.write(inPoint.hasAltitude() ? inPoint.getAltitude().getStringValue(UnitSetLibrary.UNITS_METRES) : "0");
+            inWriter.write("</ele>\n");
+        }
+
 		// write waypoint name after elevation and time
 		if (!inPoint.getWaypointName().isEmpty())
 		{
@@ -343,18 +349,18 @@ public class GpxExporter {
 	private static void exportTrackpoint(DataPoint inPoint, Writer inWriter)
 		throws IOException
 	{
-		inWriter.write("      <trkpt lat=\"");
-		inWriter.write(inPoint.getLatitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
-		inWriter.write("\" lon=\"");
-		inWriter.write(inPoint.getLongitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
-		inWriter.write("\">\n");
-		// altitude
-		if (inPoint.hasAltitude())
-		{
-			inWriter.write("        <ele>");
-			inWriter.write(inPoint.hasAltitude() ? inPoint.getAltitude().getStringValue(UnitSetLibrary.UNITS_METRES) : "0");
-			inWriter.write("</ele>\n");
-		}
+        if ((inPoint.getLatitude() == null) || (inPoint.getLongitude() == null)) return;
+        inWriter.write("      <trkpt lat=\"");
+        inWriter.write(inPoint.getLatitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
+        inWriter.write("\" lon=\"");
+        inWriter.write(inPoint.getLongitude().output(Coordinate.Format.DECIMAL_FORCE_POINT));
+        inWriter.write("\">\n");
+        // altitude
+        if (inPoint.hasAltitude()) {
+            inWriter.write("        <ele>");
+            inWriter.write(inPoint.hasAltitude() ? inPoint.getAltitude().getStringValue(UnitSetLibrary.UNITS_METRES) : "0");
+            inWriter.write("</ele>\n");
+        }
 
 		// write waypoint name after elevation and time
 		String name = inPoint.getWaypointName().trim();

@@ -2,7 +2,7 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
 
 // Basic class required for Android app
 // tim.prune.load.xml.XmlFileLoader
-// @since WB
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,23 +18,21 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import tim.prune.load.FileToBeLoaded;
+
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
-import tim.prune.load.FileToBeLoaded;
 import de.biselliw.tour_navigator.tim_prune.load.FileTypeLoader;
 import de.biselliw.tour_navigator.helpers.Log;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
 /**
  * Class for handling loading of Xml files, and passing the
  * loaded data back to the App object
- * @since 26.1
  * @implNote BiselliW: support stream read/write
  */
 public class XmlFileLoader extends DefaultHandler implements Runnable
 {
-
 	private final App _app;
 	private FileToBeLoaded _fileLock = null;
 	private boolean _autoAppend = false;
@@ -49,7 +47,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 
 	/** TAG for log messages. */
 	static final String TAG = "XmlFileLoader";
-	private static final boolean _DEBUG = false; // Set to true to enable logging
+	private static final boolean _DEBUG = true; // Set to true to enable logging
 	private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
 	/**
@@ -87,9 +85,7 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 		reset();
 		_XML_stream = null;
 		// start new thread in case xml parsing is time-consuming
-        _thread = new Thread(this);
-        _thread.start();
-        _threadState = _thread.getState();
+		new Thread(this).start();
 	}
 
     /**
@@ -171,8 +167,11 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                 SourceInfo sourceInfo = new SourceInfo(_fileLock.getFile(), _handler.getFileType(),
                         _handler.getFileVersion());
                 sourceInfo.setFileTitle(_handler.getFileTitle());
-                sourceInfo.setAuthor((_handler.getAuthor()));
+                sourceInfo.setAuthor(_handler.getAuthor());
+                sourceInfo.setMetaTime(_handler.getMetaTime());
+                // distinguish between file and track description
                 sourceInfo.setFileDescription(_handler.getFileDescription());
+                sourceInfo.setTrackDescription(_handler.getTrackDescription());
                 sourceInfo.setExtensionInfo(_handler.getExtensionInfo());
                 sourceInfo.setLink(_handler.getLink());
 
@@ -218,9 +217,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 			}
 			catch (Exception e)
 			{
-               if (DEBUG) {
                   if (_parsedXmlStream) {
-                        Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
+                        if (DEBUG) Log.d(TAG, "Parsing with SAXParser finished - exception ignored");
                         success = true;
                     } else {
                         Log.e(TAG, "SAXParser Exception: " + e.getMessage());
@@ -236,9 +234,8 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
                             Log.d(TAG, "SAXParser Exception terminates XML file loading");
 
                     }
-                }
                 // Show error message
-                control.showErrorMessage(e.toString()); // .getMessage());
+                // todo ControlElements.showErrorMessage(e.toString()); // .getMessage());
             }
         }
 		return success;

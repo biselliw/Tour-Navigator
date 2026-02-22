@@ -16,6 +16,8 @@ import tim.prune.data.FieldList;
 import de.biselliw.tour_navigator.stubs.UpdateMessageBroker;
 import de.biselliw.tour_navigator.tim_prune.gui.MapUtils.MapUtils;
 
+import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.OUT_OF_TRACK;
+
 /**
  * Class to hold all track information,
  * including track points and waypoints
@@ -25,13 +27,12 @@ import de.biselliw.tour_navigator.tim_prune.gui.MapUtils.MapUtils;
 public class Track {
     // Data points
     protected DataPoint[] _dataPoints;
-    // Scaled x, y values
-    protected double[] _xValues = null;
-    protected double[] _yValues = null;
+    /** Scaled x, y values (0 ... 1) */
+    protected double[] _xValues = null, _yValues = null;
     protected boolean _scaled = false;
     protected int _numPoints;
-    private boolean _hasTrackpoint = false;
-    private boolean _hasWaypoint = false;
+    protected boolean _hasTrackpoint = false;
+    protected boolean _hasWaypoint = false;
     protected FieldList _masterFieldList;
     // variable ranges
     private DoubleRange _latRange = null, _longRange = null;
@@ -339,7 +340,7 @@ public class Track {
 
 
     /**
-     * Search for the given Point in the track and return the index
+     * Search for the given point in the track and return its index
      *
      * @param inPoint Point to look for
      * @return index of Point, if any or DataPoint.INVALID_INDEX if not found
@@ -348,15 +349,10 @@ public class Track {
 	public int getPointIndex(DataPoint inPoint)
 	{
 		if (inPoint != null)
-		{
 			// Loop over points in track
-			for (int i=0; i<=_numPoints-1; i++)
-			{
-				if (_dataPoints[i] == inPoint) {
+			for (int i = 0; i < _numPoints; i++)
+				if (_dataPoints[i] == inPoint)
 					return i;
-				}
-			}
-		}
 		// not found
         return DataPoint.INVALID_INDEX;
     }
@@ -437,10 +433,10 @@ public class Track {
 	 * @param inX x coordinate
 	 * @param inY y coordinate
 	 * @param inMaxDist maximum distance from selected coordinates
-	 * @param inIsProtectedWayPoint true if waypoints should be used always
-	 * @return index of nearest point or -1 if not found
+	 * @param inIsProtectedWayPoint true if the waypoint should be used always
+	 * @return index of nearest point or OUT_OF_TRACK if not found
 	 */
-	public int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inIsProtectedWayPoint)
+	protected int getNearestPointIndex(double inX, double inY, double inMaxDist, boolean inIsProtectedWayPoint)
 	{
 		int nearestPoint = 0;
 		double nearestDist = -1.0;
@@ -466,19 +462,19 @@ public class Track {
 		} catch (ArrayIndexOutOfBoundsException obe) {
 			return -1; // probably moving the mouse while data is changing
 		}
-		// Check whether it's within required distance
+        // Check whether it's within required distance
         if (!inIsProtectedWayPoint)
-		    if (nearestDist > inMaxDist && inMaxDist > 0.0) {
-			    return -1;
-		    }
-		return nearestPoint;
+            if (nearestDist > inMaxDist && inMaxDist > 0.0)
+                return OUT_OF_TRACK;
+
+        return nearestPoint;
 	}
 
 	/**
 	 * @param inX x value of point
 	 * @return minimum wrapped value
 	 */
-	private static double getMinXDist(double inX) {
+	protected static double getMinXDist(double inX) {
 		return Math.min(Math.min(Math.abs(inX), Math.abs(inX-1.0)), Math.abs(inX+1.0));
 	}
 
@@ -571,13 +567,14 @@ public class Track {
 	}
 
 
-	/**
+    /**
 	 * Append the given point to the end of the track
 	 * @param inPoint point to append
 	 * @return true if successful
 	 */
 	public boolean appendPoint(DataPoint inPoint) {
-		return insertPoint(inPoint, _numPoints);
+        inPoint.setIndex(_numPoints);
+        return insertPoint(inPoint, _numPoints);
 	}
 
 	/**
@@ -635,7 +632,7 @@ public class Track {
 		_numPoints = _dataPoints.length;
 		_scaled = false;
 		return true;
-	}
+    }
 
     /**
      * Check if the track already contains a point
