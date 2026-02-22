@@ -1,45 +1,57 @@
 package de.biselliw.tour_navigator.dialogs;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+
+    replaced by OSM_DialogFragment
+*/
+
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.widget.TextView;
 
+import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmPoisFunction;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
+import de.biselliw.tour_navigator.tim_prune.function.search.SearchOsmFunction;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
+/**
+ * Search dialog to add waypoints provided by OSM
+ */
 public class OSM_Dialog extends SearchResultDialog {
 
-    public OSM_Dialog(Context context, DataPoint inPoint) {
-        super(context, inPoint);
+    public OSM_Dialog(ControlElements inActivity, DataPoint inPoint) {
+        super(inActivity, inActivity.getString(R.string.osm_title), inPoint);
 
-        TextView view = findViewById(R.id.search_title);
-        view.setText(context.getString(R.string.find_nearby_osm));
-        view = findViewById(R.id.bt_show);
-        view.setText(context.getString(R.string.osm_poi_show));
-
-        SearchOsmPoisFunction searchOsmPoisFunction = new SearchOsmPoisFunction((MainActivity) context, _trackListModel);
-        searchOsmPoisFunction.getOSM(inPoint, lang);
-        _searchFunction = searchOsmPoisFunction;
-        _waypointType = "OSM";
-        _protectWaypoint = true;
+        SearchOsmFunction searchOsmPoisFunction = new SearchOsmFunction(inActivity, trackListModel);
+        prefixWaypointType = searchOsmPoisFunction.getOSM(inPoint, lang);
+        searchFunction = searchOsmPoisFunction;
     }
 
+    /**
+     * Get keys for column titles
+     * @param inColNum index of column, 0 or 1
+     * @return key for this column
+     * @implNote: not used
+     */
     @Override
-    protected String getColumnKey(int inColNum) {
+    protected String getColumnKey(int inColNum)
+    {
         return "";
-    }
-
-    @Override
-    void showSelected(int selected) {
-        SearchResult searchResult = _trackListModel.getTrack(selected);
-        if (searchResult != null) {
-            String url = searchResult.getWebUrl();
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            _context.startActivity(Intent.createChooser(intent, "Open with"));
-        }
     }
 }
