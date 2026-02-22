@@ -34,6 +34,7 @@ public class DataPoint
 	private final FieldList _fieldList;
 	/** Special fields for coordinates */
 	private Coordinate _latitude = null, _longitude = null;
+    /** Altitude */
 	private Altitude _altitude = null;
 
     // @todo use Speed
@@ -60,9 +61,19 @@ public class DataPoint
 	private static FieldList _sharedLatLonAltFieldList = null;
 
 	/** extensions:
-	 * @since 22.2.005
 	 */
-	public static final int INVALID_INDEX = -32000;
+	public static final int INVALID_INDEX = -32000, OUT_OF_TRACK = -1;
+    public static final double INVALID_VALUE = -9999.9999;
+    /** index of the track point within the array of track points */
+    private int _index = INVALID_INDEX;
+    /** index of a track point linked to a waypoint:<br>
+     * - for trackpoints: index of the waypoint<br>
+     * - for waypoints: index of the first trackpoint which links to this waypoint */
+    private  int _linkIndex = INVALID_INDEX;
+    /** index of the next trackpoint which links to the same waypoint */
+    private  int _linkIndexNext = INVALID_INDEX;
+    /** for waypoints: counter for the number of trackpoints which link to this waypoint */
+    private int _linkCount = 0;
 	private String _routePointName = null;
 	private boolean _isWaypoint;
     private boolean _isProtectedWaypoint;
@@ -71,18 +82,16 @@ public class DataPoint
 	private double _distance_km;
 	/** Time since start [s] */
 	private long _time_s;
-	/** pause time [min] at this trackpoint */
+	/** break time [min] at this trackpoint */
 	private int _duration = 0;
 	private String _wptType = null;
 	private String _symbol = null;
-	/** way point or trackpoint comment */ 
+	/** waypoint or trackpoint comment */
 	private String _comment = null;
-	/** way point or trackpoint description */
+	/** waypoint or trackpoint description */
 	private String _description = null;
-	/** way point or trackpoint link */
+	/** waypoint or trackpoint link */
 	private String _webLink = null;
-	/** index of the track point linked to the way point */
-	private  int _linkIndex = INVALID_INDEX;
 
 
 	/**
@@ -226,7 +235,6 @@ public class DataPoint
 		// Only these three fields are available
 		_fieldValues = new String[3];
 		_fieldList = getSharedLatLonFieldList();
-		// TODO: Check if either latitude or longitude is null - in which case do what?
 		_latitude = inLatitude;
 		_fieldValues[0] = inLatitude.toString();
 		_longitude = inLongitude;
@@ -436,10 +444,6 @@ public class DataPoint
 		return _vSpeed;
 	}
 
-    /**
-     * @return true if the point is valid
-     */
-
     /** @return true if point has timestamp */
 	public boolean hasTimestamp() {
 		return _timestamp != null && _timestamp.isValid();
@@ -461,14 +465,6 @@ public class DataPoint
 	}
 
 	/**
-	 * @return true if point has a waypoint name
-	 */
-	public boolean isWaypoint() {
-        if (_waypointName == null) return false;
-		return !_waypointName.isEmpty();
-	}
-
-	/**
 	 * @return true if point has been modified since loading
 	 */
 	public boolean isModified() {
@@ -478,33 +474,46 @@ public class DataPoint
 	/**
 	 * Compare two DataPoint objects to see if they are duplicates
 	 * @param inOther other object to compare
+     * @implNote biselliw: compare longitude/latitude using min. allowed difference
 	 * @return true if the points are equivalent
 	 */
 	public boolean isDuplicate(DataPoint inOther)
-	{
-		if (inOther == null) return false;
-		if (_longitude == null || _latitude == null
-			|| inOther._longitude == null || inOther._latitude == null)
-		{
-			return false;
-		}
+    {
+        if (inOther == null) return false;
+        if (_longitude == null || _latitude == null
+                || inOther._longitude == null || inOther._latitude == null)
+        {
+            return false;
+        }
 		/* Make sure photo points aren't specified as duplicates
-		 * @todo use media
-		 * /
+		 *
 		if (_photo != null) return false;
 		*/
-		// Compare latitude and longitude
-		if (!_longitude.equals(inOther._longitude) || !_latitude.equals(inOther._latitude))
-		{
-			return false;
-		}
-		// Note that conversion from decimal to dms can make non-identical points into duplicates
-		// Compare waypoint name (if any)
-		if (!isWaypoint()) {
-			return !inOther.isWaypoint();
-		}
-		return (inOther._waypointName != null && inOther._waypointName.equals(_waypointName));
-	}
+        // Compare latitude and longitude
+        double diffLong = _longitude.getDouble() - inOther.getLongitude().getDouble();
+        if (Math.abs(diffLong) > 0.0001)
+            return false;
+        double diffLat = _latitude.getDouble() - inOther.getLatitude().getDouble();
+        if (Math.abs(diffLat) > 0.0001)
+            return false;
+
+//		if (!_longitude.equals(inOther._longitude) || !_latitude.equals(inOther._latitude)) return false;
+
+        // Note that conversion from decimal to dms can make non-identical points into duplicates
+
+        if (inOther._waypointName != null && !inOther._waypointName.equals(_waypointName))
+            return false;
+
+        // Compare waypoint types (if any)
+        if (_wptType != null && inOther._wptType != null && _wptType.contains(inOther._wptType))
+                return true;
+
+        // Compare waypoint name (if any)
+        if (!isWaypoint()) {
+            return !inOther.isWaypoint();
+        }
+        return false;
+    }
 
 	/**
 	 * Set the altitude including units
@@ -665,7 +674,15 @@ public class DataPoint
 		return _originalIndex;
 	}
 
-	/**
+    public void setIndex(int inIndex) {
+        _index = inIndex;
+    }
+
+    public int getIndex() {
+        return _index;
+    }
+
+    /**
 	 * Remove all single and double quotes surrounding each value
 	 * @param inValues array of values
 	 */
@@ -710,20 +727,22 @@ public class DataPoint
 	@NonNull
     public String toString() {
         String type = _isWaypoint ? "WP " : "TP ";
+        if (_isProtectedWaypoint) type = "p" + type;
         String name = !getWaypointName().isEmpty() ? getWaypointName() :
                 (_routePointName != null) ? _routePointName : "";
         String lat = getLatitude() != null ? getLatitude().toString() : "null";
         String lon = getLongitude() != null ? getLongitude().toString() : "null";
         String res = "[Lat=" + lat + ", Lon=" + lon + "]";
         if (name != null) res = name + ": " + res;
-		return type + res;
+        return type + res;
 	}
 	
 	/** 
-	 * @return way point or trackpoint comment, if any 
+	 * @return  or trackpoint comment, if any
 	 * @author BiselliW
 	 * @since 22.2.005
 	*/
+    @NonNull
 	public String getComment()
 	{
 		if (_comment == null) return "";
@@ -731,7 +750,7 @@ public class DataPoint
 	}
 
     /**
-     * @param inDescription way point or trackpoint description
+     * @param inDescription waypoint or trackpoint description
      * @author BiselliW
      * @since 22.2.005
      */
@@ -740,10 +759,11 @@ public class DataPoint
         _description = inDescription;
     }
 	/** 
-	 * @return way point or trackpoint description, if any 
+	 * @return waypoint or trackpoint description, if any
 	 * @author BiselliW
 	 * @since 22.2.005
 	*/
+    @NonNull
 	public String getDescription()
 	{
 		if (_description == null) return "";
@@ -751,7 +771,7 @@ public class DataPoint
 	}
 
     /**
-     * @param inWebLink way point or trackpoint weblink
+     * @param inWebLink waypoint or trackpoint weblink
      * @author BiselliW
      * @since 22.2.005
      */
@@ -761,10 +781,11 @@ public class DataPoint
     }
 
     /**
-	 * @return way point or trackpoint weblink, if any
+	 * @return waypoint or trackpoint weblink, if any
 	 * @author BiselliW
 	 * @since 22.2.005
 	*/
+    @NonNull
 	public String getWebLink()
 	{
 		if (_webLink == null) return "";
@@ -774,33 +795,61 @@ public class DataPoint
 	/**
 	 * unmark a point as Route Point
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public void clearWayPointLink()
 	{
 		if (_linkIndex > 0)
-		{
 			_routePointName = "";
-		}
-		_linkIndex = INVALID_INDEX;
+		_linkIndex = _linkIndexNext = INVALID_INDEX;
 	}
 
 	/**
 	 * set the link index of a point
-	 * @param inIndex index of a waypoint to which the current point shall be linked
+	 * @param inIndex for trackpoints: index of the waypoint<br>
+     *                - for waypoints: index of the first trackpoint which links to this waypoint
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
-	public void setLinkIndex (int inIndex)
+	public void setLinkIndex(int inIndex)
 	{
 		_linkIndex = inIndex;
+        _linkCount = 1;
 	}
+
+    /**
+     * set the link index of a point
+     * @param inIndex index of the next trackpoint which links to the same waypoint
+     * @author BiselliW
+     */
+    public void setLinkIndexNext (int inIndex)
+    {
+        _linkIndexNext = inIndex;
+        _linkCount++;
+    }
+
+    /**
+     * get the link index of a point
+     * @return - for trackpoints: index of the waypoint<br>
+     *         - for waypoints: index of the first trackpoint which links to this waypoint
+     * @author BiselliW
+     */
+    public int getLinkIndex()
+    {
+        return _linkIndex;
+    }
+
+    /**
+     * get the link index of a point
+     * @return index of the next trackpoint which links to the same waypoint
+     * @author BiselliW
+     */
+    public int getLinkIndexNext()
+    {
+        return _linkIndexNext;
+    }
 
 	/**
 	 * @return true if point is a track point
-	 * @author Walter Biselli
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public boolean isTrackPoint()
 	{
@@ -810,18 +859,23 @@ public class DataPoint
 	/**
 	 * @return true if the trackpoint has a name
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public boolean isNamedTrackpoint()
 	{
-		return !_isWaypoint && ((_waypointName != null) && !_waypointName.equals(""));
+		return !_isWaypoint && ((_waypointName != null) && !_waypointName.isEmpty());
 	}
 
+    /**
+     * @return true if point has a waypoint name
+     */
+    public boolean isWaypoint() {
+        if (_waypointName == null) return false;
+        return !_waypointName.isEmpty();
+    }
 
-	/**
+    /**
 	 * @return true if point is a waypoint 
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public boolean isWayPoint()
 	{
@@ -838,31 +892,30 @@ public class DataPoint
     }
 
 	/**
-	 * checks if a point is a Route Point:
-	 * - a track point with name
+	 * checks if a point is a Route Point:<br>
+	 * - a track point with name<br>
 	 * - a track point linked to a waypoint
 	 * @return true if the point is a Route Point
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public boolean isRoutePoint()
 	{
-		return !getRoutePointName().equals("");
+		return !getRoutePointName().isEmpty();
 	}
 	
 	/** 
-	 * @return Route Point name, either the internal name or the name of the track point (no way point!)  
+	 * @return Route Point name, either the internal name or the name of the track point (no waypoint!)
 	 * @author BiselliW
 	 * @see #makeRoutePoint(String, int)
-	 * @since 22.2.006
 	*/
+    @NonNull
 	public String getRoutePointName()
 	{
 		if (_isWaypoint) return "";
 		
-		if ((_routePointName != null) && !_routePointName.equals("")) return _routePointName;
+		if ((_routePointName != null) && !_routePointName.isEmpty()) return _routePointName;
 
-		if ((_waypointName != null) && !_waypointName.equals("")) return _waypointName;
+		if ((_waypointName != null) && !_waypointName.isEmpty()) return _waypointName;
 		
 		return "";
 	}
@@ -870,32 +923,84 @@ public class DataPoint
 	/**
 	 * mark a point as Route Point
 	 * @param  inName name to be assigned to the route point
-	 * @param  inLinkIndex index of the linked way point within the track
+	 * @param  inLinkIndex index of the linked waypoint within the track
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public void makeRoutePoint(String inName, int inLinkIndex)
 	{
 		_isWaypoint = false;
 		_routePointName = inName;
 		_linkIndex = inLinkIndex;
+        _linkIndexNext = INVALID_INDEX;
 	}
+
+    /**
+     * mark a point as Route Point with data from another point
+     * @param  fromOther source point
+     * @author BiselliW
+     */
+    public void makeRoutePointFrom(DataPoint fromOther)
+    {
+        _isWaypoint = false;
+        _routePointName = fromOther._waypointName;
+        if (_routePointName.isBlank())
+            _routePointName = fromOther._routePointName;
+        setFieldValue(Field.WAYPT_NAME,_routePointName,false);
+        _linkIndex = INVALID_INDEX;
+        _linkIndexNext = INVALID_INDEX;
+        setFieldValue(Field.WAYPT_TYPE, fromOther._wptType, false);
+        _wptType = fromOther._wptType;
+        setFieldValue(Field.SYMBOL, fromOther._symbol == null ? fromOther._wptType : fromOther._symbol, false);
+        setFieldValue(Field.COMMENT, fromOther._comment, false);
+        _comment = fromOther._comment;
+        setFieldValue(Field.DESCRIPTION, fromOther._description, false);
+        _description = fromOther._description;
+        setFieldValue(Field.WAYPT_LINK, fromOther._webLink, false);
+        _webLink = fromOther._webLink;
+    }
+
+
+    /**
+     * downgrade a route point to a simple trackpoint
+     * @author BiselliW
+     */
+    public void removeRoutePoint() {
+        setWaypointName("");
+        _waypointName = _routePointName = null;
+        _linkIndex = _linkIndexNext = INVALID_INDEX;
+        _isWaypoint = _isProtectedWaypoint = false;
+    }
+
+    /**
+     * todo mark a point as invalid (for deletion)
+     * @author BiselliW
+     */
+    public void makePointInvalid() {
+        _latitude = _longitude = null;
+        _waypointName = _routePointName = null;
+//        _linkIndex = INVALID_INDEX;
+        _isWaypoint = _isProtectedWaypoint = false;
+        _duration = 0;
+    }
 
     /**
      * @implNote only internal use for tour navigator
      * @param inSymbol waypoint symbol
      * @author BiselliW
+     * @todo delete?
      */
     public void setWaypointSymbol(String inSymbol)
     {
         _symbol = inSymbol;
     }
+
 	/**
-	 * @implNote only internal use for tour navigator
+	 * @implNote only internal use for Tour Navigator
 	 * @return waypoint symbol, if any
 	 * @author BiselliW
 	*/
-	public String getWaypointSymbol()
+    @NonNull
+    public String getWaypointSymbol()
 	{
 		if (_symbol == null) return "";
 		return _symbol;
@@ -905,6 +1010,7 @@ public class DataPoint
      * @implNote only internal use for tour navigator
      * @param inType waypoint type
      * @author BiselliW
+     * @todo delete?
      */
     public void setWaypointType(String inType)
     {
@@ -916,6 +1022,7 @@ public class DataPoint
 	 * @return waypoint type, if any
 	 * @author BiselliW
 	 */
+    @NonNull
 	public String getWaypointType()
 	{
 		if (_wptType == null) return "";
@@ -923,19 +1030,9 @@ public class DataPoint
 	}
 
 	/**
-	 * @return index of a point to which the current point is linked
+     * Get the break time at a route point
+	 * @return waypoint duration (break) [min]
 	 * @author BiselliW
-	 * @since 22.2.006
-	 */
-	public int getLinkIndex ()
-	{
-		return _linkIndex;
-	}
-
-	/** 
-	 * @return waypoint duration (pause) [min]
-	 * @author BiselliW
-	 * @since 22.2.006
 	*/
 	public int getWaypointDuration()
 	{
@@ -943,10 +1040,9 @@ public class DataPoint
 	}
 
 	/**
-	 * Set waypoint duration
-	 * @param inDuration pause) [min]
+     * Set the break time at a route point
+	 * @param inDuration break [min]
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public void setWaypointDuration(int inDuration)
 	{
@@ -958,7 +1054,6 @@ public class DataPoint
 	 * @param inTimestamp Time stamp
 	 * @param inTimezone  Time zone 
 	 * @author BiselliW
-	 * @since 22.2.006
 	*/
 	public void setTimestamp(Timestamp inTimestamp, TimeZone inTimezone)
 	{
@@ -970,7 +1065,6 @@ public class DataPoint
 	 * Set distance since start
 	 * @param distance_km distance since start [km]
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public void setDistance(double distance_km)
 	{
@@ -980,7 +1074,6 @@ public class DataPoint
 	/**
 	 * @return distance since start [km] 
 	 * @author BiselliW
-	 * @since 22.2.006
 	 */
 	public double getDistance() { return _distance_km; }
 
@@ -1005,7 +1098,6 @@ public class DataPoint
 	 * @param inLatitude Latitude in degrees
 	 * @param inLongitude Longitude in degrees
 	 * @return angular distance between points in radians
-	 * @since 22.2.006
 	 */
 	public double calculateRadiansBetween(double inLatitude, double inLongitude)
 	{
@@ -1027,39 +1119,8 @@ public class DataPoint
 
 // ###############################################
 
-	/**
-	 * Clear distance and time since start of the track
-	 * @implNote only internal use for tour navigator
-	 * @author BiselliW
-	 */
-	public void _clearRealtimeData()
-	{
-		if (_distance_km > 0) {
-			_distance_km = 0;
-		}
-		_time_s = 0;
-	}
-
-	/**
-	 * Set distance since start
-	 * @implNote only internal use for tour navigator
-	 *
-	 * @param distance_km distance since start [km]
-	 * @author BiselliW
-	 */
-	public void _setRealtimeDataDist(double distance_km)	{ _distance_km = distance_km; }
-
-	/**
-	 * Set Time since start [s]
-	 *
-	 * @param time_s Time since start [s]
-	 * @implNote only internal use for tour navigator
-	 * @author BiselliW
-	 */
-	public void _setRealtimeDataTime(long time_s) { _time_s = time_s; }
-
     /**
-     * mark a point as protected way point
+     * mark a point as protected waypoint
      * @author BiselliW
      */
     public void makeProtectedWaypoint()

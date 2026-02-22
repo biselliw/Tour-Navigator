@@ -4,50 +4,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.biselliw.tour_navigator.App;
-import tim.prune.data.FieldList;
-import tim.prune.data.PointCreateOptions;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlHandler;
+import tim.prune.data.FieldList;
+import tim.prune.data.PointCreateOptions;
 
 /**
  * Superclass of all the type-specific file loaders
  */
-public class FileTypeLoader
-{
-	/** App for callback of file loading */
-	private final App _app;
+public class FileTypeLoader {
+    final String ACTION_LOAD_DATA = "ACTION_LOAD_DATA";
 
-	public FileTypeLoader(App inApp) {
-		_app = inApp;
-	}
+    /**
+     * App for callback of file loading
+     */
+    private final App _app;
 
-	protected App getApp() {
-		return _app;
-	}
+    public FileTypeLoader(App inApp) {
+        _app = inApp;
+    }
 
-	/**
-	 * Subclasses call this method to create the command and execute it
-	 * @param inPointList list of points created from data
-	 * @param inSourceInfo information about the data source
-	 * @param inAppend true to append, false to replace
-	 */
-	protected void loadData(List<DataPoint> inPointList, SourceInfo inSourceInfo, boolean inAppend)
-	{
-		// Set the source info on each of the created points
-		int index = 0;
-		for (DataPoint point : inPointList) {
-			point.setSourceInfo(inSourceInfo);
-			point.setOriginalIndex(index++);
-		}
-		if (inSourceInfo != null) {
-			inSourceInfo.setNumPoints(inPointList.size());
-		}
-
-        _app.onLoadData(inPointList, inSourceInfo, inAppend);
-	}
-
+    /**
+     * Subclasses call this method to create the command and execute it
+     *
+     * @param inPointList  list of points created from data
+     * @param inSourceInfo information about the data source
+     * @param inAppend     true to append, false to replace
+     */
+    protected void loadData(List<DataPoint> inPointList, SourceInfo inSourceInfo, boolean inAppend) {
+        // Set the source info on each of the created points
+        int index = 0;
+        for (DataPoint point : inPointList) {
+            point.setSourceInfo(inSourceInfo);
+            point.setOriginalIndex(index++);
+        }
+        if (inSourceInfo != null) {
+            inSourceInfo.setNumPoints(inPointList.size());
+        }
+        // FIXME potential memory leak
+        _app.onLoadData(inPointList);
+    }
+    
 	/**
 	 * @return filename from the source info
 	 */
@@ -71,7 +70,7 @@ public class FileTypeLoader
 	 * @return list of created points
 	 */
 	protected List<DataPoint> createPoints(Field[] inFields, Object[][] inData,
-		PointCreateOptions inOptions)
+                                           PointCreateOptions inOptions)
 	{
 		ArrayList<DataPoint> points = new ArrayList<>();
 		boolean firstTrackPoint = true;
@@ -99,7 +98,7 @@ public class FileTypeLoader
 	 * @param inAutoAppend true to auto-append
 	 * // @param inMediaLinks media links, if any
 	 */
-	public void loadData(XmlHandler inHandler, SourceInfo inSourceInfo,boolean inAutoAppend)
+	public void loadData(XmlHandler inHandler, SourceInfo inSourceInfo, boolean inAutoAppend)
 	{
 		// give data to App
 		List<DataPoint> points = createPoints(inHandler.getFieldArray(),
@@ -107,3 +106,4 @@ public class FileTypeLoader
 		loadData(points, inSourceInfo, inAutoAppend);
 	}
 }
+

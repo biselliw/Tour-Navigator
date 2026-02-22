@@ -27,7 +27,7 @@ public abstract class XmlHandler extends DefaultHandler
 	// meta data
 	public String metaDescription = "";
 	public String metaAuthor = "";
-	public String metaTime = "";
+	protected String metaTime = "";
 	public String metaLink = "";
 
 	/**
@@ -157,9 +157,11 @@ public abstract class XmlHandler extends DefaultHandler
 	 * Can be overridden (eg by gpx handler) to provide the description of the file
 	 * @return file description, or null
 	 */
-	public String getFileDescription() {
-		return null;
-	}
+	public String getFileDescription() { return null; }
+    /** @return track description, or null */
+    public String getTrackDescription() { return null; }
+
+    public String getMetaTime() { return null; }
 
 	/**
 	 * @return the information about the Xml extensions, or null
@@ -185,4 +187,5 @@ public abstract class XmlHandler extends DefaultHandler
     public abstract String getLink();
 
     public abstract String getAuthor();
+    public abstract void setMetaTime(String time);
 }

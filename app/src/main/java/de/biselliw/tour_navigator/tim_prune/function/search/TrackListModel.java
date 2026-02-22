@@ -1,43 +1,50 @@
 package de.biselliw.tour_navigator.tim_prune.function.search;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import de.biselliw.tour_navigator.stubs.Config;
-import tim.prune.data.Unit;
-import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+
 
 /**
  * Model for list of tracks from a search result (eg geonames, overpass)
  */
 public class TrackListModel // extends AbstractTableModel
 {
-	/** List of tracks */
-	private ArrayList<SearchResult> _trackList = null;
-	/** Column heading for track name */
-	private String _nameColLabel = null;
-	/** Column heading for length */
-	private String _lengthColLabel = null;
-	/** Number of columns */
-	private int _numColumns = 2;
-	/** Normally this model shows distances / lengths, except when this flag is true */
-	private boolean _showPointTypes = false;
-	/** Formatter for distances */
-	private NumberFormat _distanceFormatter = NumberFormat.getInstance();
+    /**
+     * column keys for interpretation of contents
+     * */
+    public static final int KEY_NAME = 1;
+    public static final int KEY_TYPE = 2;
+    public static final int COL_KEY_DISTANCE = 3;
+    public static final int KEY_DISTANCE_TO_TRACK_M = 4;
+    public static final int KEY_DISTANCE_FROM_START_KM = 5;
+    public static final int COL_KEY_REF = 6;
 
-    /**BiselliW */
+    /** status message */
+    public String message = "";
+
+    /** notification for change of data */
     public boolean changed = false;
 
-	/**
+    /** List of tracks */
+    private ArrayList<SearchResult> _trackList = null;
+
+    /** Number of columns */
+    private int _numColumns = 2;
+
+    /**
 	 * Constructor
-	 * @param inColumn1Key key for first column
-	 * @param inColumn2Key key for second column
+	 * @param inColumnCount total number of columns
 	 */
-	public TrackListModel(String inColumn1Key, String inColumn2Key)
+	public TrackListModel(int inColumnCount)
 	{
-		_numColumns = (_lengthColLabel != null ? 2 : 1);
-		_distanceFormatter.setMaximumFractionDigits(1);
+		_numColumns = inColumnCount;
+        /** Formatter for distances */
+        NumberFormat _distanceFormatter = NumberFormat.getInstance();
+        _distanceFormatter.setMaximumFractionDigits(1);
 	}
 
 	/**
@@ -64,44 +71,39 @@ public class TrackListModel // extends AbstractTableModel
 	}
 
 	/**
-	 * @param inColNum column number
-	 * @return column label for given column
-	 */
-	public String getColumnName(int inColNum)
-	{
-		if (inColNum == 0) {return _nameColLabel;}
-		return _lengthColLabel;
-	}
-
-	/**
-	 * @param inShowTypes true to show point types, false for distances
-	 */
-	public void setShowPointTypes(boolean inShowTypes)
-	{
-		_showPointTypes = inShowTypes;
-	}
-
-	/**
 	 * @param inRowNum row number
-	 * @param inColNum column number
+	 * @param inKey column key
 	 * @return cell entry at given row and column
 	 */
-	public Object getValueAt(int inRowNum, int inColNum)
+	public String getValueAt(int inRowNum, int inKey)
 	{
-		SearchResult track = _trackList.get(inRowNum);
-		if (inColNum == 0) {
-			return track.getTrackName();
-		}
-		if (_showPointTypes)
-		{
-			return track.getPointType();
-		}
-		double lengthM = track.getLength();
-		// convert to current distance units
-		Unit distUnit = Config.getUnitSet().getDistanceUnit();
-		double length = lengthM * distUnit.getMultFactorFromStd();
-		// Make text
-		return _distanceFormatter.format(length) + " km";
+        SearchResult track = _trackList.get(inRowNum);
+        if (track != null) {
+            switch (inKey) {
+                case KEY_NAME:
+                    return track.getTrackName();
+                case KEY_TYPE:
+                    return track.getPointType();
+                case COL_KEY_REF:
+                    if (track.getRef() != null)
+                        return track.getRef();
+                    break;
+                case KEY_DISTANCE_TO_TRACK_M: {
+                    return new DecimalFormat("#").format(track.getDistance() * 1000.0) + " m";
+                }
+                case KEY_DISTANCE_FROM_START_KM: {
+                    return new DecimalFormat("#0.0").format(track.getDistance()) + " km";
+/*
+                    DataPoint dataPoint = track.getDataPoint();
+                    if (dataPoint != null)
+                        return new DecimalFormat("#0.0").format(dataPoint.getDistance()) + " km";
+                    break;
+ */
+                }
+            }
+        }
+
+        return "";
 	}
 
 	/**
@@ -129,7 +131,6 @@ public class TrackListModel // extends AbstractTableModel
 				Collections.sort(_trackList);
 			}
 		}
-		final int updatedCount = _trackList.size();
         changed = true;
 	}
 
