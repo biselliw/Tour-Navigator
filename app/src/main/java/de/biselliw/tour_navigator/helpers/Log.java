@@ -1,6 +1,25 @@
 package de.biselliw.tour_navigator.helpers;
-import android.app.ActivityManager;
-import android.content.Context;
+
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
+
 import android.os.Build;
 import android.text.format.Time;
 
@@ -12,23 +31,24 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 
 import de.biselliw.tour_navigator.BuildConfig;
 
-import static androidx.core.content.ContextCompat.getSystemService;
 import static de.biselliw.tour_navigator.files.FileUtils.getDownloadsDir;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
 
-/// class for sending log output.
-/// @link <a href="https://developer.android.com/reference/android/util/Log">https://developer.android.com</a>
+/**
+ * class for sending log output
+ * @link <a href="https://developer.android.com/reference/android/util/Log">https://developer.android.com</a>
+ */
 public final class Log {
     private static boolean _writing_enabled = false;
     private static String _prefix = "";
     private static FileWriter _writer = null;
 
-    private static String _HTML_String = "";
+    private static String _debugHTML = "";
     /**
      * Enable writing to log file
      * @param enabled true if writing is enabled
@@ -40,7 +60,24 @@ public final class Log {
         if (!enabled)
             Close ();
     }
-    public static boolean isWritingEnabled() { return _writing_enabled; }
+
+    /**
+     * format a given time stamp
+     * @param inTime time in seconds
+     * @return formatted string: HH:mm:ss
+     */
+    public static String formatHourMinSecs (long inTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.GERMANY); // .GERMAN);;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.SECOND, (int) (inTime % 60L));
+        inTime /= 60L;
+        calendar.set(Calendar.MINUTE, (int) (inTime % 60));
+        inTime /= 60L;
+        calendar.set(Calendar.HOUR, (int) inTime);
+        String formatted = sdf.format(calendar.getTime());
+        return formatted;
+    }
 
     /**
      * Create a log file
@@ -63,9 +100,9 @@ public final class Log {
                         else {
                             Time now = new Time(); now.setToNow();
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-                            Calendar calender = Calendar.getInstance();
-                            calender.setTimeInMillis(now.toMillis(true));
-                            date_time = sdf.format(calender.getTime());
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTimeInMillis(now.toMillis(true));
+                            date_time = sdf.format(calendar.getTime());
                         }
 
                         File _file = new File(dir, _prefix + date_time + ".log");
@@ -83,10 +120,12 @@ public final class Log {
 
     /**
      * Write to log file
+     * @param tag  String: Used to identify the source of a log message.
+     * @param type Log type: "D", "I", "W", "E"
      * @param msg string to log
      * @return 1 if successful
      */
-    private static int Write (String msg)
+    private static int Write (String tag, String type, String msg)
     {
         int result = 0;
         if (CreateLogFile () )
@@ -97,14 +136,14 @@ public final class Log {
                     date_time = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS: "));
                 }
                 else {
-                    Time now = new Time(); now.setToNow();
+                    // todo To get local formatting use getDateInstance(), getDateTimeInstance(), or getTimeInstance(), or use new SimpleDateFormat(String template, Locale locale) with for example Locale.US for ASCII dates.
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS: ");
-                    Calendar calender = Calendar.getInstance();
-                    calender.setTimeInMillis(now.toMillis(true));
-                    date_time = sdf.format(calender.getTime());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    date_time = sdf.format(calendar.getTime());
                 }
 
-                _writer.write (date_time + msg + "\r\n");
+                _writer.write (date_time + "\t" + tag + "\t" + type + "\t"+ msg + "\r\n");
                 _writer.flush();
                 result = 1;
             } catch (Exception e) {
@@ -133,7 +172,7 @@ public final class Log {
      */
     public static int d(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled)
-            Write("D " + tag + " - " + msg);
+            Write(tag,"D", msg);
         if (BuildConfig.DEBUG) {
             return android.util.Log.d(tag, msg);
         }
@@ -149,7 +188,7 @@ public final class Log {
      */
     public static int i(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled)
-            Write("I " + tag + " - " + msg);
+            Write(tag, "I", msg);
         if (BuildConfig.DEBUG) {
             return android.util.Log.i(tag, msg);
         }
@@ -165,10 +204,8 @@ public final class Log {
      */
     public static int e(java.lang.String tag, java.lang.String msg) {
         if (_writing_enabled) {
-            String _msg = "E " + tag + " - " + msg;
-//            control.showErrorMessage(_msg);
-            Write(_msg);
-            addHTML(tag, "<b> E " + msg+ "</b>");
+            Write(tag, "E", msg);
+            addDebugHTML(tag, "E", msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg);
@@ -185,15 +222,11 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int e(java.lang.String tag, java.lang.String msg, @NonNull Throwable tr) {
-        String _msg = "E " + tag + " - " + msg + ": "
-                + tr.toString()
-                + " called by "
-                + Arrays.toString(tr.getStackTrace());
+        msg = msg + ": " + tr
+                + " called by " + Arrays.toString(tr.getStackTrace());
         if (_writing_enabled) {
-            addHTML("<red> E " + _msg + "</red>");
-
-            Write(_msg);
-            control.showErrorMessage(_msg);
+            addDebugHTML(tag, "E", msg);
+            Write(tag, "E", msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.e(tag, msg, tr);
@@ -209,10 +242,9 @@ public final class Log {
      * @return      A positive value if the message was loggable
      */
     public static int w(java.lang.String tag, java.lang.String msg) {
-        String _msg = "W " + tag + " - " + msg;
         if (_writing_enabled) {
-            addHTML(_msg);
-            Write(_msg);
+            addDebugHTML(tag, "W", msg);
+            Write(tag,"W", msg);
         }
         if (BuildConfig.DEBUG) {
             return android.util.Log.w(tag, msg);
@@ -220,57 +252,31 @@ public final class Log {
         return 0;
     }
 
-    public static void clearHTML () { _HTML_String = ""; }
-    public static void addHTML (java.lang.String msg) {
-        _HTML_String = _HTML_String + msg + "<br>";
-    }
-    public static void addHTML (java.lang.String tag, java.lang.String msg) {
-        _HTML_String = _HTML_String + tag + ": " + msg + "<br>";
+    public static void clearDebugHTML() { _debugHTML = ""; }
+
+    /**
+     * Add log to HTML string
+     * @param tag  String: Used to identify the source of a log message.
+     * @param type Log type: "D", "I", "W", "E"
+     * @param msg string to log
+     */
+    private static void addDebugHTML (String tag, String type, String msg) {
+        if (type.equals("E"))
+            msg = "<red>E " + msg + "</red>";
+        else
+            msg = type + " " + msg;
+        _debugHTML = _debugHTML + tag + " " + msg + "<br>";
     }
 
-    public static String getHTML () { return getHTML(""); }
-    public static boolean isLoggedHTML () { // return false;
-        return !_HTML_String.isEmpty();
+    public static String getDebugHTML() { return getDebugHTML(""); }
+    public static boolean isLoggedDebugHTML() { // return false;
+        return !_debugHTML.isEmpty();
     }
-    public static String getHTML (java.lang.String title)
+    public static String getDebugHTML(java.lang.String title)
     {
         String msg = "";
         if (!title.isEmpty()) msg = "<b>" + title + "</b><br>";
-        return msg + _HTML_String;
-    }
-
-
-    private static long available = 0;   // free RAM
-    private static long total = 0;       // total RAM
-    private static boolean low = false;     // if Android is in "Low Memory"-Mode
-    private static ActivityManager.MemoryInfo memInfo = null;
-    private static ActivityManager activityManager = null;
-
-    private static String mem_log = "";
-
-    /**
-     * Return general information about the memory state of the system.
-     *
-     * @return
-     */
-    public static void getMemoryInfo() {
-        memInfo = new ActivityManager.MemoryInfo();
-        activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-   }
-
-    private static Object getSystemService(String activityService) {
-        activityManager.getMemoryInfo(memInfo);
-
-        long MB = 1024 * 1024;
-        available = memInfo.availMem / MB;       // free RAM (MB)
-        long total = memInfo.totalMem / MB;      // total RAM
-        boolean low = memInfo.lowMemory;    // if Android is in "Low Memory"-Mode
-
-        mem_log = "available RAM : " + available + "MB / " + total + "MB " +
-                (low ? "low Memory-Mode" : "");
-
-        d ("", mem_log);
-        return null;
+        return msg + _debugHTML;
     }
 }
 
