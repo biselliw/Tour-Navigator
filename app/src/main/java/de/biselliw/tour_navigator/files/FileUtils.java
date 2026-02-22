@@ -142,8 +142,7 @@ public class FileUtils {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
-        }  catch (Exception e) {
-    // TODO ? Timber.e(e);
+        }  catch (Exception ignored) {
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -233,12 +232,11 @@ public class FileUtils {
                         if (path != null) {
                             return path;
                         }
-                    } catch (Exception e) {}
+                    } catch (Exception ignored) {}
                 }
 
                 // path could not be retrieved using ContentResolver, therefore copy file to accessible cache using streams
                 String fileName = getFileName(context, uri);
-// todo
                 File cacheDir = getDocumentCacheDir(context);
 
                 File file = generateFileName(fileName, cacheDir);
@@ -249,8 +247,6 @@ public class FileUtils {
                 }
 
                 return destinationPath;
- 
-// todo                return fileName;
             }
         }
         // MediaStore (and general)
@@ -282,15 +278,17 @@ public class FileUtils {
     }
 
     private static boolean deleteDir(File dir) {
+        boolean result = true;
         if (dir != null && dir.isDirectory()) {
             File[] children = dir.listFiles();
             if (children != null) {
                 for (File child : children) {
-                    deleteDir(child);
+                    result &= deleteDir(child);
                 }
             }
         }
-        return dir != null && dir.delete();
+        result &= dir != null && dir.delete();
+        return result;
     }
 
     /**
@@ -410,6 +408,38 @@ public class FileUtils {
         int index = filename.lastIndexOf('/');
         return filename.substring(index + 1);
     }
+
+    /**
+     * Build Fragment-String for Intent
+     * @param area
+     * @param filter
+     * @param zc
+     * @return
+     */
+    public static String buildFragment(
+            String area,
+            String filter,
+            String zc
+    ) {
+        StringBuilder fragment = new StringBuilder();
+
+        if (area != null) {
+            fragment.append("area=").append(area);
+        }
+
+        if (filter != null) {
+            if (fragment.length() > 0) fragment.append("&");
+            fragment.append("filter=").append(filter);
+        }
+
+        if (zc != null) {
+            if (fragment.length() > 0) fragment.append("&");
+            fragment.append("zc=").append(zc);
+        }
+
+        return fragment.toString();
+    }
+
 
     /**
      * todo delete files in advance
