@@ -1,83 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Tour Navigator – Help Mobile</title>
-    <style>
-        body { font-family: sans-serif; padding: 1em; line-height: 1.55; }
-        details { margin: 1em 0; border: 1px solid #ccc; border-radius: 8px; padding: .7em; }
-        summary { font-weight: bold; cursor: pointer; }
-        img { max-width: 100%; height: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: .4em; vertical-align: top; }
-        hr { margin: 1em 0; }
-    </style>
+    <meta charset="utf-8" content=""/>
+    <title>Tour Navigator – Mobile Help</title>
 </head>
+
 <body>
 <h1>Tour Navigator – Help</h1>
 
-
-<details open><summary>Overview</summary>
+<details open><summary><h1>Overview</h1></summary>
     <h2>What does the Tour Navigator app do?</h2>
+
     <p>
-        The privacy-friendly app "Tour Navigator" helps you perfectly plan any hike in advance and enjoy it calmly while on the way.<br>
-        The app creates a clear schedule from an existing GPX file – with realistic walking times, intermediate times, and a clearly structured sequence just the way a tour guide would want it for an optimal hiking day.
+        The privacy-friendly "Tour Navigator" app helps you perfectly plan every hike in advance and enjoy it relaxed on the go.<br>
+        The app creates a clear schedule from an existing GPX file – with realistic Walking times, split times, and a clearly
+        structured itinerary—just as a tour guide would want for the perfect day of hiking.
     </p>
 
     <h2>What does the GPX file contain?</h2>
     <p>
-        GPX files are the standard for tours and geographical data. They contain the exact course of a route, including elevation data and – ideally – named waypoints.
+        GPX files are the standard for tours and geographical data. They contain the exact route, including elevation data and—ideally—named waypoints.
     </p>
     <p>
-        You can easily obtain GPX files from tour portals such as
-        <a href="https://www.outdooractive.com/de/">Outdooractive</a> or the
-        <a href="https://www.schwarzwaldverein-tourenportal.de/">Schwarzwaldverein</a>.
-        The better the file is prepared, the more precisely Tour Navigator works.
-    </p>
-    <p><b>Tip:</b> It is especially easy with the
-        <a href="https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal">tour planner of the Schwarzwaldverein</a>.
-    </p>
+        You can easily obtain GPX files from tour portals, such as Outdooractive (www.outdooractive.com) or the
+        Black Forest Association (www.schwarzwaldverein-tourenportal.de).
 
-    <p><b>Note:</b> Many GPX files contain no named points – such files do not work with this app.</p>
+        The better prepared the file, the better Tour Navigator will work.
+    </p>
+    <p><b>Tip:</b> It's especially easy with the
+        <a href="https://www.schwarzwaldverein.de/schwarzwald/wandern-outdoor/tourenportal">Black Forest Association Tour Planner</a>.
+    </p>
+    <p><b>Attention:</b> Many GPX files do not contain named points – such files will not work with this app.</p>
 
-    <h2>How does the walking time calculation work?</h2>
+    <h2>How does the hiking time calculation work?</h2>
+
     <p>
-        Tour Navigator uses the proven DIN 33466 – the official basis for reliable hiking time calculation.
-        The formula considers speed, ascent, and descent and delivers a realistic time model.
+        Tour Navigator uses the proven DIN 33466 standard – the official basis for reliable hiking time calculation.
+        The formula takes speed, incline, and decline into account and provides a realistic time model.
     </p>
-    <details><summary>Details of the hiking time calculation</summary>
-        <p>It assumes that an average hiker covers a flat distance of four kilometers in one hour.
-            In one hour they manage a direct ascent of 300 vertical meters, and in the same time a descent of 500 vertical meters.
-            For mixed sections with horizontal and vertical components, all times are calculated individually first.
-            The walking time for each segment is then calculated by adding the longer time and half of the shorter time.</p>
 
-        <p>Example: A path segment consists of a flat portion of 1 km and an ascent of 300 m.
-            The horizontal part results in 15 min, the vertical part in 60 min.
-            The sum of the longer part (60 min) + half of the shorter (15 min) gives a total time of 67.5 min.</p>
+    <details><summary><h3>Details of the hiking time calculation</h3></summary>
+
+        <p>It assumes that an average hiker covers a flat distance of four kilometers in one hour. In one hour, they can ascend 300 meters in altitude directly and descend 500 meters in the same time. For mixed sections with horizontal and vertical components, all times are calculated separately first.
+            The longer walking time for each section of the route is then calculated by adding the longer time to half the shorter time.</p>
+        <p>Example: A route consists of a 1 km flat section and a 300 m ascent. The horizontal section takes 15 minutes to walk, while the vertical section takes 60 minutes. The sum of the longer section (60 minutes) and half the shorter section (15 minutes) results in a total walking time of 67.5 minutes.</p>
+
     </details>
 
-    <p>You can adjust the calculated walking times to your individual performance by changing the three parameters of the formula in the app settings. These are stored permanently.</p>
+    <p>To adjust the calculated walking times to your individual fitness level, you can change the three parameters for the formula in the app's settings. These are permanently saved.</p>
 
-    <p>After entering the start time, the app calculates the tour schedule in the form of a table based on the GPX data and your individual parameters.</p>
-    <p>An elevation profile also shows the vertical progression of the tour.</p>
+    <p>After entering the start time, the app calculates the tour itinerary in the form of a table, based on the available data in the GPX file and your individual parameters.</p>
 
-    <h2>Breaks are important too</h2>
+    <p>An elevation profile also shows the vertical route of the tour.</p>
+
+    <h2>Breaks are also important</h2>
+
     <p>
-        For each waypoint you can add a short comment and define an individual break time – ideal for photo stops, snacks, or viewpoints.
+        For each waypoint, you can add a short comment and set a custom break time – ideal for photo stops, snacks, or scenic viewpoints.
     </p>
 
     <h2>Navigation to the starting point of the route</h2>
-    <p>
-        Tour Navigator supports you even before starting:
-        The app can transfer coordinates directly to other navigation apps, such as Google Maps – for driving from home.
-        Navigation takes place entirely within the chosen target app.
-        (Please note privacy information!)
-    </p>
-    <p>
-        This helps you easily find the starting point of your tour.
-    </p>
 
+    <p>
+        Tour Navigator supports you even before you start: The app can transfer coordinates directly to other navigation apps, e.g.,
+
+        Google Maps – for directions from your home. Navigation is then handled entirely within the selected target app.
+
+        (Please note the privacy policy!)</p>
+    <p>
+        This way, you can easily find the starting point of your tour.
+        This way, you can easily find your way to the starting point of your tour.
+    </p>
     <h2>Real-time navigation</h2>
     <p>
         During your tour, the app accompanies you in real time.
@@ -108,199 +101,326 @@
     <ul>
         <li>Access to precise GPS location – exclusively for navigation and time planning.</li>
     </ul>
+    <p>
+        You can access additional information from the internet (if available) via the context menu for individual waypoints, such as Wikipedia articles or points from the OpenStreetMap database.
+
+        The app only needs internet access permission for this.
+    </p>
 </details>
 
-<details><summary>Instructions</summary>
-    The app is operated through these menus:
-    <details><summary>Main Menu</summary>
-        The main menu offers these global functions:
+<details><summary><h1>User Manual</h1></summary>
+
+    The app is operated via these menus:
+
+    <details><summary><h2>Main Menu</h2></summary>
+        The following global functions are available in the main menu:
+
         <table style="width: 100%">
+
             <tr>
                 <td width=55"><img src="img/file_open.jpg" alt=""/></td>
-                <td>This opens a GPX file.</td>
+                <td>Opens a GPX file</td>
             </tr>
             <tr>
-                <td width=55"><img src="img/description.png" alt=""/></td>
-                <td>Shows the information loaded from the GPX file.
-                    If available, this includes the title and description of the tour.
-                    The app also provides a web link to the tour to open it directly in the default browser.</td>
+
+            <td width=55"><img src="img/description.png" alt=""/></td>
+
+            <td>Displays the information loaded from the GPX file.
+                If available, this includes the title and description of the tour.
+                The app also presents a web link to the tour, allowing you to view it directly in your standard browser.</td>
             </tr>
-            <tr>
-                <td width=55"><img src="img/swap_horiz.png" alt=""/></td>
-                <td>Reverses the direction of the tour.
-                    Using the menu item <a href="#start_from_here">"Start from here"</a>, you can even change the starting point.</td>
-            </tr>
+
             <tr>
                 <td width=55"><img src="img/schedule.png" alt=""/></td>
-                <td>Sets the start time of the tour. It is required for calculating the schedule.
-                    Via the menu item <a href="#pause_time">"Break time"</a> you can also define a break for each waypoint.</td>
+
+                <td>This sets the start time of the tour. It is required for calculating travel times.
+
+                    Using the menu item "Break Time", you can also specify a break time for each waypoint.</td>
             </tr>
+
+            <tr>
+                <td width=55"><img src="img/swap_horiz.png" alt=""/></td>
+
+                <td>This allows you to reverse the direction of the tour.
+                    The menu item "Start from here" even lets you change the starting point.
+                </td>
+            </tr>
+
+            <tr>
+            <td width=55"></td>
+
+            <td>Add waypoints (if function is available) ...
+                <ul>
+                    <li>from the GPX file: POIs that lie outside the track and would therefore not be included.</li>
+
+                    <li>from OpenStreetMap: All waypoints along the track. </li>
+                    <li>from OpenStreetMap: Points Of Interest (POIs) along the track.</li>
+                    <li>from Wikipedia: All articles within the bounding box of the tour.</li>
+                </ul>
+            </td>
+            </tr>
+
             <tr>
                 <td width=55"><img src="img/table_rows.png" alt=""/></td>
-                <td>The schedule table is the core functionality of the app.
-                    Using the GPX coordinates, waypoints, your walking-time parameters, start time, and breaks, the app generates a timeline for the tour.</td>
+
+                <td>The travel time table is the core functionality of the app. From the geocoordinates and waypoints of the loaded GPX file,
+
+                    the parameters you specified for calculating travel time, and the start and break times, the app creates a table showing the timeline of the tour and displays it here.
+                </td>
             </tr>
+
             <tr>
                 <td width=55"><img src="img/file_save.png" alt=""/></td>
-                <td>You can export the currently loaded GPX file including your comments and break times in GPX format.
-                    You can load this file again later so no information is lost.</td>
+
+                <td>In GPX format, you can export the previously loaded GPX file with the additional comments and break times you added for individual waypoints of the tour.
+
+                    You can reload this file later. This way, no information is lost.</td>
             </tr>
+
             <tr>
                 <td width=55"><img src="img/html.png" alt=""/></td>
-                <td>You can export the extended schedule table with all tour information in HTML format.
-                    Each waypoint in the table links to an additional table containing extra info.</td>
+
+                <td>In HTML format, you can export the extended travel time table with all the collected information about the tour.
+
+                    Each waypoint in the table is linked to an existing entry containing supplementary information in another table.
+                </td>
             </tr>
+
             <tr>
                 <td colspan="2"><hr /></td>
             </tr>
+
             <tr>
                 <td width=55"><img src="img/settings.png" alt=""/></td>
-                <td>In the settings you define, among other things, the parameters for walking-time calculation.</td>
+                <td>In the settings, you define the parameters for travel time calculation and control the permission of functions that access the internet.</td>
             </tr>
+
             <tr>
                 <td width=55"><img src="img/help.png" alt=""/></td>
                 <td>This opens this help file in the internal browser.</td>
             </tr>
+
             <tr>
                 <td width=55"><img src="img/info.png" alt=""/></td>
-                <td>Shows copyright information about the app.</td>
+                <td>Information about the app's copyright is displayed here.</td>
             </tr>
+
         </table>
-    </details>
 
-    <details><summary>Context Menu</summary>
-        <p>Depending on the selected point of the tour, these functions are available:</p>
+        <details><summary><h2>Context Menu</h2></summary>
 
-        <table style="width: 100%">
-            <tr>
-                <td valign="top"><a name="pause_time"></a>Break time</td>
-                <td>You can define an individual break time for each waypoint, which is included in the schedule.</td>
-            </tr>
-            <tr>
-                <td valign="top">Comment waypoint</td>
-                <td>You can add an individual comment to each waypoint. It appears in the schedule table.</td>
-            </tr>
-            <tr>
-                <td valign="top"><a name="navigate"></a>Navigate to waypoint</td>
-                <td>You can forward the geo-coordinates of each waypoint to a suitable app that displays them on a map, e.g.:
-                    <ul>
+            <p>Depending on the selected point of the tour, the following functions are available:</p>
+
+            <table style="width: 100%">
+
+                <tr>
+                    <td valign="top"><a name="break_time"></a>Break Time</td>
+
+                    <td>You can set an individual break time for each waypoint, which will be taken into account in the schedule.</td>
+                </tr>
+
+                <tr>
+                    <td valign="top">Comment on Waypoint</td>
+
+                    <td>You can add an individual comment for each waypoint, which will appear in the travel time table.</td>
+                </tr>
+
+                <tr>
+                    <td valign="top">Nearby Wikipedia Articles</td>
+
+                    <td>Georeferenced Wikipedia articles within a 10 km radius of the waypoint are listed in a table. You can view their content via the Wikipedia app and add selected points to your route.
+
+                        This feature is only visible if you have previously enabled internet access via the settings!</td>
+                </tr>
+
+                <tr>
+                    <td valign="top">OSM POIs Nearby</td>
+
+                    <td>OpenStreetMap points (nodes) within a 500 m radius of the waypoint are listed in a table. You can view the details of the nodes in a web browser and add selected points to your route.
+                        The database query is limited to a selection of node types. The server is regularly overloaded and then returns no results!
+                        This function is only visible if you have previously enabled internet access via the settings!</td>
+                </tr>
+
+                <tr>
+                    <td valign="top"><a name="navigate"></a>Navigate to waypoint</td>
+
+                    <td>At each waypoint, you can forward its geo-coordinates to a suitable app that can display them on a map, e.g.:<ul>
+
                         <li>Organic Maps, a privacy-friendly offline map and GPS app for hiking, cycling, and driving:
+
                             <a href="https://organicmaps.app">organicmaps.app</a> </li>
+
                         <li>Locus Maps: <a href="https://www.locusmap.app/de/">www.locusmap.app</a> </li>
                     </ul>
-                </td>
-            </tr>
-            <tr>
-                <td valign="top"><a name="Google_Navigation"></a>Google Navigation</td>
-                <td>You can forward the geo-coordinates of any waypoint to Google Maps to generate a route from your current location or simply explore the map.
-                    Beforehand, you must read and accept the displayed Google privacy policy once. This is stored in the app settings.
-                    How "privacy-friendly" Google processes your data is entirely your responsibility.</td>
-            </tr>
-            <tr>
-                <td colspan="2"><hr /></td>
-            </tr>
-            <tr>
-                <td><img src="img/warning.png" alt=""></td>
-                <td>These actions cannot be undone:</td>
-            </tr>
-            <tr>
-                <td valign="top"><a name="start_from_here"></a>Start from here</td>
-                <td>You can choose any waypoint as the starting point of the route. The track is reorganized so that it begins at the selected waypoint.</td>
-            </tr>
-            <tr>
-                <td valign="top">Remove waypoint</td>
-                <td>You can remove any waypoint from the table. Comments and break times assigned to it will also be deleted.</td>
-            </tr>
-            <tr>
-                <td valign="top">Remove all points after this</td>
-                <td>You can delete all waypoints and track points after the current one, including all assigned comments and break times.</td>
-            </tr>
-        </table>
-    </details>
 
-    <details><summary>Control and status elements in the footer</summary>
-        The footer provides the most important controls and status information:
-        <details><summary>Controls</summary>
-            <table style="width: 100%">
-                <tr>
-                    <td width=55"><img src="img/file_open.jpg" alt=""/></td>
-                    <td>Opens a GPX file.</td>
-                </tr>
-                <tr>
-                    <td width=55"><img src="img/follow_the_signs.jpg" alt=""/></td>
-                    <td>Starts or resumes tracking.</td>
-                </tr>
-                <tr>
-                    <td><img src="img/accessibility_new.jpg" alt=""/></td>
-                    <td>Pauses tracking</td>
-                </tr>
-                <tr>
-                    <td><img src="img/expand_more.jpg" alt=""/></td>
-                    <td>Show more information about the point</td>
-                </tr>
-                <tr>
-                    <td><img src="img/expand_less.jpg" alt=""/></td>
-                    <td>Show less information about the point</td>
-                </tr>
-                <tr>
-                    <td><img src="img/text_to_speech.png" alt=""/></td>
-                    <td>Present the informationen with human voice</td>
-                </tr>
-                <tr>
-                    <td><img src="img/voice_selection_off.png" alt=""/></td>
-                    <td>Stop voice output</td>
-                </tr>
-                <tr>
-                    <td><img src="img/show_chart.jpg" alt=""/></td>
-                    <td>Show elevation profile</td>
-                </tr>
-                <tr>
-                    <td><img src="img/open_in_full.jpg" alt=""/></td>
-                    <td>Hide elevation profile</td>
-                </tr>
-            </table>
-        </details>
-
-        <details><summary>Status icons</summary>
-            <table style="width: 100%">
-                <tr>
-                    <td width=55"><img src="img/alarm_on.jpg" alt=""/></td>
-                    <td>The alert when leaving the path is activated in the app settings.</td>
-                </tr>
-                <tr>
-                    <td width=55"><img src="img/alarm_off.jpg" alt=""/></td>
-                    <td>The alert when leaving the path is deactivated.</td>
-                </tr>
-                <tr>
-                    <td width=55"><img src="img/location_disabled.jpg" alt=""/></td>
-                    <td>Precise location permission is not granted.
-                        On first launch, you must allow the app to access precise device location.
-                        Without this, you cannot use the app.
-                        Alternatively, you can manage this in
-                        "Settings → Apps → Tour Navigator → App permissions → Location".
-                        Afterward, you must restart the app.
                     </td>
                 </tr>
+
                 <tr>
-                    <td width=55"><img src="img/satellite.jpg" alt=""/></td>
-                    <td>Device-wide location is disabled. You can enable it in the system settings under "Settings → Location". Without it, the app cannot function.</td>
+                    <td valign="top"><a name="Google_Navigation"></a>Google Navigation</td>
+
+                    <td>At each waypoint, you can send its geo-coordinates to Google Maps to generate a route from your current location
+                        to the selected waypoint using various modes of transportation, or simply to view the map.
+                        This feature is only visible if you have previously enabled internet access via the settings and have read and agreed to the displayed Google privacy policy.
+                        This will be saved in the app's settings.
+                        How "privacy-friendly" Google's handling of your data is then solely your responsibility!
+                    </td>
                 </tr>
+
                 <tr>
-                    <td width=55"><img src="img/location_off.png" alt=""/></td>
-                    <td>GPS is enabled – waiting for GPS fix</td>
+                    <td colspan="2"><hr /></td>
                 </tr>
+
                 <tr>
-                    <td width=55"><img src="img/sync_problem.jpg" alt=""/></td>
-                    <td>Only approximate GPS location data are available</td>
+                    <td><img src="img/warning.png" alt=""></td>
+
+                    <td>These actions cannot be undone:</td>
                 </tr>
+
                 <tr>
-                    <td width=55"><img src="img/location_on.png" alt=""/></td>
-                    <td>Precise GPS location data are available (GPS fix)</td>
+                    <td valign="top"><a name="start_from_here"></a>Start from here</td>
+
+                    <td>You can choose any waypoint as the starting point of the route. This function reorganizes the track so that it starts at the selected waypoint.</td>
                 </tr>
+
+                <tr>
+                    <td valign="top">Remove waypoint</td>
+
+                    <td>You can delete any waypoint from the table. However, this also deletes the associated comment and break time.</td>
+                </tr>
+
+                <tr>
+                    <td valign="top">Remove all points after</td>
+
+                    <td>You can delete all waypoints and track points of the route from the current waypoint in the table, but this will also delete their associated comments and break times.</td>
+                </tr>
+
             </table>
+
+        </details>
+        <details><summary><h2>Controls and Status Elements in the Footer</h2></summary>
+
+            The footer provides the most important buttons and status information:
+
+            <details><summary><h3>Controls</h3></summary>
+
+                <table style="width: 100%">
+                    <tr>
+                        <td width=55"><img src="img/file_open.jpg" alt=""/></td>
+
+                        <td>Opens a GPX file</td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/follow_the_signs.jpg" alt=""/></td>
+
+                        <td>Starts or continues tracking.</td>
+                    </tr>
+
+                    <tr>
+                        <td><img src="img/accessibility_new.jpg" alt=""/></td>
+
+                        <td>Pauses tracking</td>
+                    </tr>
+
+                    <td>
+
+                    <tr>
+                        <td><img src="img/expand_more.jpg" alt=""/></td>
+
+                        <td>Shows more information about the point</td>
+                    </tr>
+
+                    <tr>
+                        <td><img src="img/expand_less.jpg" alt=""/></td>
+
+                        <td>Shows less information about the point</td>
+                    </tr>
+
+                    <tr>
+                        <td><img src="img/text_to_speech.jpg" alt=""/></td>
+
+                        <td>Reads the information aloud</td>
+                    </tr>
+
+                    <tr>
+                        <td><img src="img/voice_selection_off.jpg" alt=""/></td>
+
+                        <td>Stops speech output</td>
+                    </tr>
+
+                    <tr>
+                        <td><img src="img/show_chart.jpg" alt=""/></td>
+
+                        <td>Displays the elevation profile</td>
+                    </tr>
+
+                    <tr>
+                        <td><img src="img/open_in_full.jpg" alt=""/></td>
+
+                        <td>Hides the elevation profile</td>
+                    </tr>
+
+                </table>
+
+            </details>
+
+            <details><summary><h3>Status icons</h3></summary>
+
+                <table style="width: 100%">
+
+                    <tr>
+                        <td width=55"><img src="img/alarm_on.jpg" alt=""/></td>
+
+                        <td>Alarm notification when leaving the trail is activated via the app settings</td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/alarm_off.jpg" alt=""/></td>
+
+                        <td>The alert when leaving the trail is disabled</td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/location_disabled.jpg" alt=""/></td>
+
+                        <td>Precise location permission is not granted to the app.
+                            The first time you launch Tour Navigator, you must allow it to access your device's precise location.
+                            Without this permission, you cannot use the app.
+                            Alternatively, you can manage the app's permissions on your device via:
+                            Settings -> Apps -> "Tour Navigator" -> App permissions -> Location".
+                            Then you must restart the app.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/satellite.jpg" alt=""/></td>
+
+                        <td>Location permission is not enabled for your device. You can grant it via your system's "Settings -> Location". The app cannot function without this.</td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/location_off.png" alt=""/></td>
+
+                        <td>GPS is enabled - Waiting for GPS fix</td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/sync_problem.jpg" alt=""/></td>
+
+                        <td>Only inaccurate GPS location data is available</td>
+                    </tr>
+
+                    <tr>
+                        <td width=55"><img src="img/location_on.png" alt=""/></td>
+
+                        <td>Precise GPS location data is available (GPS fix)</td>
+                    </tr>
+
+                </table>
+
+            </details>
+
         </details>
     </details>
-</details>
-
-</body>
 </html>

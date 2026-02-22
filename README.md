@@ -1,31 +1,35 @@
-<div align="center">
-  <img src="doc/screenshots/main.jpg" alt=""/>
-</div>
+# Tour Navigator
 
-# Tour-Navigator
-Timetable of a hiking tour
+![](info/img/Tour-Navigator.png)
 
-Tour Navigator is a Privacy Friendly App for Android which presents hikers a timetable of a planned GPX route containing wayponts.
 
-It's development is based on
-- Privacy Friendly Apps developed by the Technical University of Darmstadt: a group of Android applications which are optimized regarding privacy. Further information can be found on https://secuso.org/pfa
+Tour Navigator is a Privacy Friendly Android App which presents hikers a timetable of a planned 
+tour based on a GPX route containing wayponts.
 
-- GpsPrune is a map-based application for viewing, editing and converting coordinate data from GPS systems. Further information and Java runnables can be found on  https://gpsprune.activityworkshop.net .
+It's development is primary based on GpsPrune - a map-based Java application for viewing, editing and 
+converting coordinate data from GPS systems. Further information and Java runnables can be found on
+https://gpsprune.activityworkshop.net.
 
 ## Motivation
 
-This application has been developed to be used for hiking. 
+This application has been developed for tour guides.
+
+Details are presented here:
+
+- ![English](info/img/flag-en.png) [Overview](info/README.md)
+- ![Deutsch](info/de/img/flag-de.png) [Übersicht](info/de/README.md)
 
 ## Download and more Information
 
-You can freely download the Android app from [GitHub](https://github.com/biselliw/HikingNavigatorApp/app/build/outputs/apk/debug/HikingNavigatorApp-debug-v1.0.apk)
+You can freely download the Android app here from [GitHub](/app/release/TourNavigator.apk)
 
-Further development requires Android Studio, we recommend to use at least version 3.1.1
+Further development requires Android Studio
  
 ### API Reference
 
-Mininum SDK: 21
-Target SDK: 27 
+Mininum supported SDK Version: API level 33 (year: 2022, Codename: Tiramisu, Android 13)
+
+Target SDK Version: API level 34 
 
 ## License
 
@@ -51,8 +55,5 @@ The program uses:
 - sources from [Nick Fellows (halfhp)](https://github.com/halfhp/androidplot) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 - sources from [coltoscosmin](https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 - icons from [Google Material Design Icons](https://fonts.google.com/icons) licensed under [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
-- web services from [GeoNames geographical database](https://www.geonames.org/) to access Wikipedia articles; licensed under a [Creative Commons Attribution 4.0 License[(https://creativecommons.org/licenses/by/4.0/)
-- web services from [Overpass API](https://overpass-api.de/) to access Open Street Map (OSM) data; licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence)
-
-
-
+- web services from [Overpass API](https://overpass-api.de/) to access OpenStreetMap (OSM) data; licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence)
+- web services from [GeoNames geographical database](https://www.geonames.org/) to access OpenStreetMap (OSM) data, licensed under [Open Database License, "ODbL" 1.0[(https://osmfoundation.org/wiki/Licence) and Wikipedia articles, licensed under a [Creative Commons Attribution 4.0 License[(https://creativecommons.org/licenses/by/4.0/)
