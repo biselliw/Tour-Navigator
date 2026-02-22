@@ -32,7 +32,7 @@ public class FileToBeLoaded
 	public synchronized void release()
 	{
 		_ownerCounter--;
-		if (_ownerCounter == 0) {
+		if (_ownerCounter == 0 && _afterwards != null) {
 			_afterwards.run();
 		}
 	}
