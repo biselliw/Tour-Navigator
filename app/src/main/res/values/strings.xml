@@ -1,14 +1,17 @@
 <resources>
     <!-- Common MANIFEST -->
+    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2026 by Walter Biselli (tournavigator@online.de)</string>
+    <string name="app_donate">created with Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
     <string name="app_name">Tour Navigator</string>
     <string name="app_short_description">Timetable of hiking tour</string>
 
-    <string name="app_copyright" translatable="false">Copyright &#x24B8; 2026 by Walter Biselli</string>
     <string name="app_description">Timetable of hiking tour</string>
     <string name="app_description2">Timetable of hiking tour</string>
     <string name="app_author">Author</string>
-    <string name="app_donate">created with Tour Navigator (©2026 Walter Biselli)</string>
     <string name="lang">en</string>
+
+    <string name="notify_gps_active">Tour Navigator accesses your location in background</string>
+    <string name="notify_gps_reason">The fine location is only required for tracking the time table of the tour</string>
 
     <!-- Common LICENSE -->
     <string name="title_eula">End-user license agreement</string>
@@ -24,11 +27,16 @@
     <string name="wait">Please wait ...</string>
     <string name="description">Description</string>
 
-    <!-- ###DRAWER###-->
+    <!-- ### DRAWER ###-->
     <string name="action_main">Main</string>
     <string name="action_open_gpx">Open GPX</string>
     <string name="action_file_info">Tour Info</string>
     <string name="action_reverse_route">Reverse route</string>
+    <string name="action_add_waypoints">Add waypoints</string>
+    <string name="action_remote_waypoints">- from GPX file</string>
+    <string name="action_osm_guideposts">- OpenStreetMap guide posts</string>
+    <string name="action_osm_pois">- OpenStreetMap POIs</string>
+    <string name="action_wikipedia">- Wikipedia</string>
     <string name="action_start_time">Start Time</string>
     <string name="action_timetable">Time Table</string>
     <string name="action_download_gpx">Save as GPX</string>
@@ -41,15 +49,12 @@
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
-    <!-- ###MAIN### -->
-    <string name="main_button_text">Full Width Button</string>
-    <string name="main_button_disabled_text">Inactive Button</string>
-    <string name="main_text_title"> - </string>
+    <!-- ### MAIN ### -->
 
-    <!-- ###Activities at Status### -->
+    <!-- ### Activities at Status ### -->
     <string name="load_gpx_file">Please load a GPX file</string>
     <string name="set_start_time">Please set the start time</string>
-    <string name="permit_location">Permission for GPS has been rejected before!</string>
+    <string name="permit_location">Please permit GPS fine location in app settings</string>
     <string name="activate_gps">Please activate GPS</string>
     <string name="wait_for_gps_fix">Waiting for GPS fix</string>
     <string name="gps_fix_lost">No GPS fix</string>
@@ -62,21 +67,22 @@
     <string name="dest_failed">You failed the destination!</string>
     <string name="pausing">"BREAK: Continue in "</string>
 
-    <!-- ###Menu Items###-->
+    <!-- ### Menu Items ###-->
     <string name="pause_time">Break Time</string>
     <string name="comment_waypoint">Comment Waypoint</string>
     <string name="find_nearby_wikipedia">Find nearby Wikipedia</string>
     <string name="find_nearby_osm">Find nearby OSM POIs</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
+    <string name="nav_swv_tourenportal" translatable="false">Zum Schwarzwaldverein Tourenportal</string>
     <string name="nav_google">Google-Navigate</string>
     <string name="action_set_new_start">Start from here</string>
     <string name="delete_waypoint">Remove Waypoint</string>
     <string name="delete_trackpoints">Remove all trackpoints to the end</string>
 
-    <!--###HELP###-->
+    <!--### HELP ###-->
     <string name="help">Help</string>
 
-    <!--###ABOUT###-->
+    <!--### ABOUT ###-->
     <string name="about">About</string>
     <string name="version_number">Version </string>
     <string name="about_author">Authors: </string>
@@ -90,40 +96,56 @@
     <string name="title_add_licenses">Used Licenses</string>
     <string name="used_licenses">This app uses licensed content of these developers:</string>
     <string name="attribution" translatable="false">
-        Activity Workshop:\n
+        <ul>
+            <li><b>Activity Workshop:</b>\n
         GpsPrune, a map-based cross-platform java application for viewing, editing and converting coordinate data from GPS systems:\n
         https://activityworkshop.net/software/gpsprune\n
-        https://github.com/activityworkshop/GpsPrune/\n
+        https://github.com/activityworkshop/GpsPrune\n
         Licensed under GNU General Public License v2.0.\n
-        \n
-        Forschungsgruppe SECUSO\n
+        </li>
+            <li><b>Forschungsgruppe SECUSO</b>\n
         (Security • Usability • Society)\n
         Karlsruher Institut für Technologie (KIT):\n
         Privacy Friendly Apps:\n
         https://secuso.org/pfa\n
         https://github.com/secuso\n
         Licensed under GNU General Public License v3.\n
-        \n
-        Nick Fellows (halfhp)\n
+        </li>
+            <li><b>Nick Fellows (halfhp)</b>\n
         androidplot: Charts and plots for Android\n
         https://github.com/halfhp/androidplot\n
         Licensed under Apache License Version 2.0\n
         www.apache.org/licenses/LICENSE-2.0\n
-        \n
-        coltoscosmin\n
+        </li>
+            <li><b>coltoscosmin</b>\n
         FileUtils:\n
         https://github.com/coltoscosmin/FileUtils/blob/master/FileUtils.java\n
-        Copyright © 2018 OpenIntents.org
+        Copyright © 2018 OpenIntents.org\n
         Licensed under Apache License v2.0\n
         www.apache.org/licenses/LICENSE-2.0\n
-        \n
-        Google Design Material Icons\n
+        </li>
+            <li><b>Google Design Material Icons</b>\n
         https://fonts.google.com/icons\n
         Licensed under Apache License Version 2.0\n
         www.apache.org/licenses/LICENSE-2.0\n
+        </li>
+        <li><b>Overpass API</b>\n
+            web services to access OpenStreetMap (OSM) data\n
+            https://overpass-api.de\n
+            Licensed under Open Database License, "ODbL" 1.0\n
+            https://osmfoundation.org/wiki/Licence\n
+        </li>
+        <li><b>GeoNames geographical database</b>\n
+            web services to access OpenStreetMap data and Wikipedia articles\n
+            www.geonames.org\n
+            Licensed under Open Database License, "ODbL" 1.0\n
+            Licensed under a Creative Commons Attribution 4.0 License\n
+            https://creativecommons.org/licenses/by/4.0\n
+        </li>
+        </ul>
     </string>
 
-    <!-- ###SETTINGS### -->
+    <!-- ### SETTINGS ### -->
     <string name="title_activity_settings">Settings</string>
     <string name="pref_header_general">General</string>
     <string name="pref_header_hiking_parameters">Hiking Parameters</string>
@@ -138,13 +160,31 @@
     <string name="consent">Consent</string>
     <string name="decline">Decline</string>
     <string name="consent_internet">Access to Wikipedia articles and OSM POIs</string>
-    <string name="consent_GoogleMaps">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
+    <string name="consent_swv_tourenportal" translatable="false">Zugang zum Schwarzwaldverein Tourenportal</string>
+    <string name="consent_swv_tourenportal_policy" translatable="false">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten des ausgewählten Wegpunktes an das externe Schwarzwaldverein Tourenportal.
+        Dies erfolgt ausschliesslich durch das Anklicken der aktuell gesperrten Funktion <i>zum Schwarzwaldverein Tourenportal</i> navigieren.
+        \nDabei wird eine Karte mit Tourenvorschlägen in der Umgebung angezeigt.
+        \nBeim Laden der Website www.schwarzwaldverein-tourenportal.de werden Daten an Drittanbieter weitergegeben. Um die Inhalte des Portals anzusehen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.
+        Mit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung von Schwarzwaldverein Tourenportal.\n
+        \n<b>Provider-Informationen</b>\n
+        \n<b>Provider-Name: </b>Schwarzwaldverein e.V.
+        \n<b>Beschreibung</b>
+        \nDer Schwarzwaldverein e.V. bietet Wander- und Naturschutzaktivitäten, pflegt ein umfangreiches Wanderwegenetz im Schwarzwald und engagiert sich für den Erhalt von Natur und Kulturlandschaft.
+        \n<b>Adresse: </b>Schlossbergring 15, 79098 Freiburg
+        \n<b>Web: </b>https://schwarzwaldverein.de
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nhttps://www.schwarzwaldverein-tourenportal.de/de/datenschutz.html
+        \n<b>Service</b>
+        \nDas Schwarzwaldverein Tourenportal bietet redaktionell geprüfte Wander‑ und Radtouren inklusive detaillierter Infos, Kartenausgabe und Track‑Downloads, sowie eigenem Tourenplaner zur Offline‑Navigation
+    </string>
+    <string name="consent_google_maps_policy">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
+    <string name="set_to_default">Set to default</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Welcome on tour!</string>
     <string name="slide1_text">This App ...</string>
 
-    <string name="slide2_heading">Prerequisizes</string>
+    <string name="slide2_heading">Prerequisites</string>
     <string name="slide2_text">...</string>
 
     <string name="slide3_heading">Time management</string>
@@ -186,8 +226,8 @@
     <string name="next_place">Next Place</string>
     <string name="altitude_m">Altitude<br>[m]</br></string>
     <string name="dist_km">Diff<br>[km]</br></string>
-    <string name="climb_m">Up<br>[m]</br></string>
-    <string name="descent_m">Down<br>[m]</br></string>
+    <string name="climb_m">Up<br>[hm]</br></string>
+    <string name="descent_m">Down<br>[hm]</br></string>
     <string name="duration">Duration</string>
     <string name="pause">Pause</string>
     <string name="pause_min">Pause<br>[min]</br></string>
@@ -197,8 +237,11 @@
     <string name="summary">Summary</string>
 
     <string name="wpt_type">Type</string>
+    <string name="wpt_ref">ID</string>
     <string name="wpt_desc">Description</string>
     <string name="wpt_take_comment">Take It</string>
+
+    <string name="wpt_wikipedia">Wikipedia article</string>
 
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"turn right"</string>
@@ -206,17 +249,64 @@
     <string name="waypointUpComb">"straight forward"</string>
     <string name="waypointFlagComb">"Trackpoint"</string>
 
+    <!-- Open Street Map waypoints -->
+
+    <string name="restaurant">restaurant</string>
+    <string name="bbq">bbq</string>
+    <string name="bench">bench</string>
+    <string name="lounger">lounger</string>
+    <string name="guidepost">guidepost</string>
+    <string name="bus_stop">bus stop</string>
+    <string name="stop">stop</string>
+    <string name="station">station</string>
+    <string name="turning_circle">turning_circle</string>
     <string name="profile">"Profile"</string>
+    <string name="map">"map"</string>
+    <string name="cafe">"Cafe"</string>
+    <string name="drinking_water">drinking water</string>
+    <string name="toilets">"toilets"</string>
+    <string name="place_of_worship">place of worship</string>
+    <string name="shelter">shelter</string>
+    <string name="office">office</string>
+    <string name="board">board</string>
+    <string name="ice_cream">ice_cream</string>
+    <string name="viewpoint">viewpoint</string>
+    <string name="museum">museum</string>
+
+    <!-- ### Search Results ###-->
+    <string name="server_not_found">The server is currently not reachable or cannot handle your request</string>
+    <string name="server_replacement_not_found">All servers are currently not reachable or cannot handle your request</string>
+    <string name="server_replacement">Reduced data from geonames</string>
+    <string name="btn_load">Load</string>
+    <string name="btn_load_all">Load all</string>
+    <string name="btn_show">Show</string>
 
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_articles_nonefound">No Wikipedia articles found nearby!</string>
+    <string name="wikipedia_title">Wikipedia Articles</string>
+    <string name="wikipedia_articles_none_found">No (further) Wikipedia articles found nearby!</string>
     <string name="wikipedia_article_name">Article Name</string>
     <string name="wikipedia_article_show">Show article</string>
 
     <string name="point_already_loaded">The track already contains the point!</string>
+    <string name="distance_from_track">from track</string>
 
-    <!-- ### OSM POIs ###-->
-    <string name="osm_pois_nonefound">No OSM POIs found nearby!</string>
+    <!-- ### OpenStreetMap guideposts ###-->
+    <string name="osm_guide_posts_title">OpenStreetMap Guideposts along the route</string>
+    <string name="guide_post_name">Guidepost name</string>
+
+    <!-- ### OpenStreetMap POIs ###-->
+    <string name="osm_pois_title">OpenStreetMap POIs along the route</string>
+    <string name="poi_name">POI name</string>
+    <string name="osm_data_cache_error">OpenStreetMap data could not be loaded from app cache</string>
+    <string name="osm_data_from_cache">OpenStreetMap data from app cache</string>
+
+    <!-- ### OpenStreetMap Nearby POIs ###-->
+    <string name="osm_nearby_pois_title">Nearby OSM POIs</string>
+    <string name="osm_pois_none_found">No further OSM POIs found nearby!</string>
     <string name="osm_poi_show">Show POI</string>
-    <string name="osm_timeout">The server is probably too busy to handle your request</string>
+
+    <!-- ### Remote POIs ###-->
+    <string name="wpts_out_of_track">Waypoints out of track</string>
+    <string name="waypoint_name">Waypoint name</string>
+
 </resources>

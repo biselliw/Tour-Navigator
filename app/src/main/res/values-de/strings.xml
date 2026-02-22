@@ -1,16 +1,19 @@
 <resources>
     <!-- Common MANIFEST -->
     <string name="app_name">Tour Navigator</string>
+    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
     <string name="app_short_description">Ablaufplan einer Tour</string>
 
     <string name="app_description">Tour Navigator ist eine quelloffene App, die sich auf Privatsphäre und Sicherheit konzentriert.</string>
     <string name="app_description2">Es werden nur diejenigen Rechte benötigt, welche die App für die beschriebene Funktionalität erfordert.</string>
     <string name="app_author">Autor</string>
-    <string name="app_donate">erzeugt von Tour Navigator (©2026 Walter Biselli)</string>
     <string name="lang">de</string>
 
     <string name="title_eula">Endbenutzer-Lizenzvereinbarung</string>
     <string name="title_license">Quelloffene Lizenz</string>
+
+    <string name="notify_gps_active">Tour Navigator greift im Hintergrund auf deinen Standort zu</string>
+    <string name="notify_gps_reason">Der genaue Standort wird nur für die Kontrolle des Zeitplans der Tour benötigt</string>
 
     <!-- Common UI strings -->
     <string name="ok">OK</string>
@@ -18,11 +21,16 @@
     <string name="wait">In Bearbeitung ...</string>
     <string name="description">Beschreibung</string>
 
-    <!-- ###DRAWER###-->
+    <!-- ### DRAWER ###-->
     <string name="action_main">Hauptmenü</string>
-    <string name="action_open_gpx">GPX-File öffnen</string>
+    <string name="action_open_gpx">GPX-Datei öffnen</string>
     <string name="action_file_info">Infos zur Tour</string>
     <string name="action_reverse_route">Route umkehren</string>
+    <string name="action_add_waypoints">Wegpunkte hinzufügen</string>
+    <string name="action_remote_waypoints">- von der GPX-Datei</string>
+    <string name="action_osm_guideposts">- OpenStreetMap Wegweiser</string>
+    <string name="action_osm_pois">- OpenStreetMap POIs</string>
+    <string name="action_wikipedia">- Wikipedia</string>
     <string name="action_start_time">Startzeit setzen</string>
     <string name="action_timetable">Wegzeittabelle</string>
     <string name="action_download_gpx">Speichern als GPX</string>
@@ -33,14 +41,11 @@
     <string name="action_tutorial">Tutorial</string>
 
     <!-- ###MAIN### -->
-    <string name="main_button_text">Test</string>
-    <string name="main_button_disabled_text">Inaktiver Button</string>
-    <string name="main_text_title"> - </string>
 
     <!-- ###Activities at Status### -->
     <string name="load_gpx_file">Lade eine GPX Datei</string>
     <string name="set_start_time">Setze die Startzeit</string>
-    <string name="permit_location">Berechtigung für GPS-Position wurde verweigert</string>
+    <string name="permit_location">Erteile die Berechtigung für die genaue GPS-Position in den App-Einstellungen</string>
     <string name="activate_gps">Aktiviere GPS auf dem Gerät</string>
     <string name="wait_for_gps_fix">Warten auf GPS fix</string>
     <string name="gps_fix_lost">Kein GPS fix</string>
@@ -57,7 +62,7 @@
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="find_nearby_wikipedia">Wikipedia-Artikel in der Nähe</string>
-    <string name="find_nearby_osm">Benachbarte OSM POIs</string>
+    <string name="find_nearby_osm">OpenStreetMap POIs in der Nähe</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
     <string name="nav_google">Google-Navigation</string>
     <string name="action_set_new_start">Starte von hier</string>
@@ -93,12 +98,13 @@
     <string name="pref_header_consent_parameters">Zustimmungen</string>
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>
-    <string name="consent_internet">Zugang zu Wikipedia-Artikeln und OSM POIs</string>
-    <string name="consent_GoogleMaps">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
+    <string name="consent_internet">Zugang u.a. zu Wikipedia-Artikeln und OpenStreetMap POIs</string>
+    <string name="consent_google_maps_policy">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
         Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
         Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
         Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://privacy.google.com/businesses/gdprcontrollerterms/ und https://privacy.google.com/businesses/gdprcontrollerterms/sccs/.\n
         Mehr Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Google: https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy?hl=de.\nDas Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework“ (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll.\nJedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/s/participant-search/participant-detail?contact=true&amp;id=a2zt000000001L5AAI&amp;status=Active </string>
+    <string name="set_to_default">Auf Standardwert gesetzt</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
     <string name="slide1_heading">Auf zum Wandern!</string>
@@ -149,8 +155,8 @@
     <string name="next_place">Nächster Ort</string>
     <string name="altitude_m">Höhe [m]</string>
     <string name="dist_km">Diff [km]</string>
-    <string name="climb_m">Auf [m]</string>
-    <string name="descent_m">Ab [m]</string>
+    <string name="climb_m">Auf [hm]</string>
+    <string name="descent_m">Ab [hm]</string>
     <string name="duration">Dauer</string>
     <string name="pause">Pause</string>
     <string name="pause_min">Pause<br>[min]</br></string>
@@ -160,8 +166,11 @@
     <string name="summary">Zusammenfassung</string>
 
     <string name="wpt_type">Typ</string>
+    <string name="wpt_ref">ID</string>
     <string name="wpt_desc">Beschreibung</string>
     <string name="wpt_take_comment">Übernehmen</string>
+
+    <string name="wpt_wikipedia">Wikipedia-Artikel</string>
 
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"rechts abbiegen"</string>
@@ -169,21 +178,66 @@
     <string name="waypointUpComb">"geradeaus"</string>
     <string name="waypointFlagComb">"Trackpunkt"</string>
 
+    <!-- Open Street Map waypoints -->
+    <string name="restaurant">Restaurant</string>
+    <string name="bbq">Grillplatz</string>
+    <string name="bench">Parkbank</string>
+    <string name="lounger">Liege</string>
+    <string name="guidepost">Wegweiser</string>
+    <string name="bus_stop">Bushaltestelle</string>
+    <string name="stop">Haltestelle</string>
+    <string name="station">Station</string>
+    <string name="turning_circle">Wendeplatz</string>
+    <string name="map">"Karte"</string>
+    <string name="cafe">"Café"</string>
+    <string name="drinking_water">Trinkwasser</string>
+    <string name="toilets">"Toiletten"</string>
+    <string name="place_of_worship">Andachtsstätte</string>
+    <string name="shelter">Schutzhütte</string>
+    <string name="office">Büro</string>
+    <string name="board">Infotafel</string>
+    <string name="ice_cream">Eisdiele</string>
+    <string name="viewpoint">Aussichtspunkt</string>
+    <string name="museum">Museum</string>
+
+
     <string name="profile">"Höhenprofil"</string>
     <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
     <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
     <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
+    <!-- ### Search Results ###-->
+    <string name="server_not_found">Der Server ist gerade nicht erreichbar oder kann die Anfrage nicht bearbeiten!</string>
+    <string name="server_replacement_not_found">Alle Server sind gerade nicht erreichbar oder können die Anfrage nicht bearbeiten!</string>
+    <string name="server_replacement">POIs ohne Inhalt vom alternativen geonames Server</string>
+    <string name="btn_load">Laden</string>
+    <string name="btn_load_all">Lade alle</string>
+    <string name="btn_show">Anzeigen</string>
+
     <!-- ### Wikipedia articles ###-->
-    <string name="wikipedia_articles_nonefound">Keine Wikipedia-Artikel in der Nähe gefunden!</string>
+    <string name="wikipedia_title">Wikipedia-Artikel</string>
+    <string name="wikipedia_articles_none_found">Keine (weiteren) Wikipedia-Artikel in der Nähe gefunden!</string>
     <string name="wikipedia_article_name">Artikelname</string>
     <string name="wikipedia_article_show">Artikel zeigen</string>
 
     <string name="point_already_loaded">Der Track enthält bereits diesen Punkt!</string>
+    <string name="distance_from_track">vom Track entfernt</string>
 
-    <!-- ### OSM POIs ###-->
-    <string name="osm_pois_nonefound">Keine OSM POIs in der Nähe gefunden!</string>
+    <!-- ### OpenStreetMap Wegweiser ###-->
+    <string name="osm_guide_posts_title">OpenStreetMap Wegweiser entlang des Tracks</string>
+    <string name="guide_post_name">Wegweisername</string>
+
+    <!-- ### OpenStreetMap POIs ###-->
+    <string name="osm_pois_title">OpenStreetMap POIs entlang des Tracks</string>
+    <string name="poi_name">POI Name</string>
+    <string name="osm_data_cache_error">OpenStreetMap Daten konnten nicht vom App cache geladen werden!</string>
+    <string name="osm_data_from_cache">OpenStreetMap Daten vom App cache</string>
+
+    <string name="osm_nearby_pois_title">OpenStreetMap POIs in der Nähe</string>
+    <string name="osm_pois_none_found">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
-    <string name="osm_timeout">Der Server ist vermutlich gerade zu stark ausgelastet um die Anfrage zu bearbeiten!</string>
 
+    <!-- ### Remote POIs ###-->
+    <string name="wpts_out_of_track">Wegpunkte außerhalb des Tracks</string>
+    <string name="waypoint_name">Wegpunktname</string>
 </resources>

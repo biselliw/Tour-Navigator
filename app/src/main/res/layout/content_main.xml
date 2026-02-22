@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/main_content"
-    style="@style/AlertDialog.AppCompat"
+    style="@style/AppTheme.NoActionBar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,6 +14,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activities.MainActivity"
+    android:textColor="?attr/colorOnSurface"
+    android:background="@color/colorBackground"
     tools:showIn="@layout/activity_main">
 
     <TableLayout
@@ -22,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="0dp"
         android:minHeight="25dp"
+        android:textColor="@color/colorText"
         android:visibility="invisible">
 
         <TableRow
@@ -33,24 +36,21 @@
                 android:layout_width="100dp"
                 android:layout_height="20dp"
                 android:fontFamily="serif"
-                android:text="@string/arrive"
-                android:textColor="@color/black" />
+                android:text="@string/arrive"/>
 
             <TextView
                 android:id="@+id/h_track_place"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:fontFamily="serif"
-                android:text="@string/next_place"
-                android:textColor="@color/black" />
+                android:text="@string/next_place" />
 
             <TextView
                 android:id="@+id/h_track_distance"
                 android:layout_width="70dp"
                 android:layout_height="20dp"
                 android:fontFamily="serif"
-                android:text="@string/distance"
-                android:textColor="@color/black" />
+                android:text="@string/distance"/>
 
             <TextView
                 android:id="@+id/h_track_dist_to_dest"
@@ -58,8 +58,7 @@
                 android:layout_height="20dp"
                 android:fontFamily="serif"
                 android:text="@string/DTD"
-                android:textAlignment="viewEnd"
-                android:textColor="@color/black" />
+                android:textAlignment="viewEnd" />
         </TableRow>
 
         <TableRow
@@ -70,22 +69,19 @@
             <TextView
                 android:id="@+id/track_arrive"
                 android:layout_height="20dp"
-                android:fontFamily="serif"
-                android:textColor="@color/black" />
+                android:fontFamily="serif"/>
 
             <TextView
                 android:id="@+id/track_place"
                 android:layout_height="match_parent"
-                android:fontFamily="serif"
-                android:textColor="@color/black" />
+                android:fontFamily="serif"/>
 
             <TextView
                 android:id="@+id/track_distance"
                 android:layout_height="20dp"
                 android:fontFamily="serif"
                 android:text=""
-                android:textAlignment="viewEnd"
-                android:textColor="@color/black" />
+                android:textAlignment="viewEnd"/>
 
             <TextView
                 android:id="@+id/track_dist_to_dest"
@@ -93,7 +89,6 @@
                 android:fontFamily="serif"
                 android:text=""
                 android:textAlignment="viewEnd"
-                android:textColor="@color/black"
                 tools:ignore="HardcodedText" />
         </TableRow>
     </TableLayout>
@@ -103,8 +98,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:text="@string/main_text_title"
-        android:textColor="@color/black"
+        android:text=""
+        android:textColor="@color/colorText"
+        android:background="@color/color_background"
         android:textSize="16sp" />
 
     <LinearLayout
@@ -113,7 +109,8 @@
         android:layout_height="match_parent"
         android:layout_weight="10"
         android:orientation="vertical"
-        android:textColor="@color/black">
+        android:textColor="@color/colorText"
+        android:background="?attr/colorSurface">
 
         <WebView
             android:id="@+id/web_view"
@@ -135,6 +132,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="25dp"
+            android:textColor="@color/colorText"
+            android:background="@color/color_background"
             android:visibility="invisible">
 
             <TableRow
@@ -149,16 +148,14 @@
                     android:layout_width="45dp"
                     android:layout_height="20dp"
                     android:fontFamily="serif"
-                    android:text="@string/time"
-                    android:textColor="@color/black" />
+                    android:text="@string/time"/>
 
                 <TextView
                     android:id="@+id/record_delay"
                     android:layout_width="45dp"
                     android:layout_height="20dp"
                     android:fontFamily="serif"
-                    android:text=""
-                    android:textColor="@color/black" />
+                    android:text=""/>
 
                 <TextView
                     android:id="@+id/record_distance"
@@ -166,7 +163,6 @@
                     android:layout_height="25dp"
                     android:fontFamily="serif"
                     android:text="km"
-                    android:textColor="@color/black"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -174,14 +170,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="25dp"
                     android:fontFamily="serif"
-                    android:text="@string/place"
-                    android:textColor="@color/black" />
+                    android:text="@string/place"/>
             </TableRow>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="3dip"
-                android:background="#ff0000" />
+                android:background="?attr/colorSurface" />
         </TableLayout>
 
         <ListView
@@ -189,7 +184,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:layout_weight="2"/>
+            android:layout_weight="2"
+            android:textColor="@color/colorText"
+            android:background="@color/transparent"  />
 
         <TextView
             android:id="@+id/comment_view"
@@ -203,11 +200,12 @@
             android:scrollbarAlwaysDrawVerticalTrack="true"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="vertical"
-            android:textColor="@color/black"
             android:textSize="16sp"
             android:verticalScrollbarPosition="right"
             android:visibility="visible"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:textColor="@color/colorText"
+            android:background="?attr/colorSurface" />
 
     </LinearLayout>
 
@@ -241,14 +239,14 @@
             android:layout_height="0dp"
             android:layout_weight="10"
             android:orientation="vertical"
-            android:textColor="@color/black">
+            android:textColor="@color/colorText"
+            android:background="?attr/colorSurface" >
 
             <TextView
                 android:id="@+id/description_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autoLink="web"
-                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:scrollbarSize="5dp"
                 android:scrollbars="vertical"
@@ -270,7 +268,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="3dip"
-            android:background="#ff0000" />
+            android:background="?attr/colorSurface" />
     </LinearLayout>
 
     <LinearLayout
@@ -354,7 +352,7 @@
         <View
             android:layout_width="1dip"
             android:layout_height="match_parent"
-            android:background="#000000" />
+            android:background="?attr/colorSurface" />
 
         <ImageView
             android:id="@+id/image_alarm_off"
