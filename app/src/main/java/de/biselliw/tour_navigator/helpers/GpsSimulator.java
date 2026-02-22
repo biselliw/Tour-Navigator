@@ -1,12 +1,12 @@
 package de.biselliw.tour_navigator.helpers;
 
 import android.location.Location;
-import android.os.Build;
 import android.util.Log;
 
 import java.util.TimeZone;
 
 import de.biselliw.tour_navigator.BuildConfig;
+import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
@@ -35,7 +35,7 @@ public class GpsSimulator {
     public static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
     /* GPX data loaded from recorded track for GPS simulation */
-    private static DataPoint[] gpsData;
+    private static GpsSimulationData[] gpsData;
     private static int numPoints;
 
     // current index used for simulation
@@ -45,21 +45,36 @@ public class GpsSimulator {
     private static Location location;
     private static TimeZone timeZone;
 
+    public static class GpsSimulationData {
+        final double longitude, latitude, altitude;
+        final float accuracy;
+        final long time;
+
+        public GpsSimulationData(DataPoint fromOther)
+        {
+            longitude = fromOther.getLongitude().getDouble();
+            latitude = fromOther.getLatitude().getDouble();
+            altitude = fromOther.getAltitude().getValue();
+            accuracy = 5.0F;
+            time = fromOther.getTimestamp().getMilliseconds(timeZone);
+        }
+    }
+
     /**
      * constructor for class GpsSimulator
      * @param track track data from a recorded track
      */
-    public GpsSimulator(Track track)
+    public GpsSimulator(TrackDetails track)
     {
         location = new Location("");
         timeZone = getSelectedTimezone();
 
         // Copy track points including GPS coordinates and time stamps to use as GPS locations
-        numPoints = track.getNumPoints();
-        gpsData = new DataPoint[numPoints];
-        for (int i=0; i<numPoints; i++)
+        numPoints = track.getNumTrackPoints();
+        gpsData = new GpsSimulationData[numPoints];
+        for (int i = 0; i < numPoints; i++)
         {
-            gpsData[i] = track.getPoint(i);
+            gpsData[i] = new GpsSimulationData(track.getPoint(i));
         }
     }
 
@@ -96,10 +111,12 @@ public class GpsSimulator {
                 Log.d(TAG, "getLocation() for gpsIndex = " + gpsIndex);
             }
             /* get location information from the loadedGPX track points */
-            DataPoint dataPoint = gpsData[gpsIndex++];
-            location.setLongitude(dataPoint.getLongitude().getDouble());
-            location.setLatitude(dataPoint.getLatitude().getDouble());
-            location.setTime(dataPoint.getTimestamp().getMilliseconds(timeZone));
+            GpsSimulationData dataPoint = gpsData[gpsIndex++];
+            location.setLongitude(dataPoint.longitude);
+            location.setLatitude(dataPoint.latitude);
+            location.setAltitude(dataPoint.altitude);
+            location.setTime(dataPoint.time);
+            location.setAccuracy(dataPoint.accuracy);
             return location;
         }
         else

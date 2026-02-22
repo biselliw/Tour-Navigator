@@ -19,42 +19,8 @@ package de.biselliw.tour_navigator.helpers;
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
- */
-
-/*
- * Copyright (C) 2025 Walter Biselli
- *
- *  This file is based on Privacy Friendly App Example:
- *
- *      https://github.com/SecUSo/privacy-friendly-app-example
- *
- * Tour Navigator App (the "Software") is free software:
- *
- * you can redistribute it and/or modify it under the terms of the
- * GNU General Public License as published by the Free Software Foundation,
- * either version 3 of the License, or any later version.
- *
- * The Software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details.
- *
- * Licensed under the GNU General Public License along with this (the "License");
- * you may not use this file except in compliance with the License.
- * You should have received a copy of the License along with Tour Navigator App.
- * If not, you may obtain a copy of the License at
- *
- *      http://www.gnu.org/licenses
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
  *
  */
-
-
 import android.graphics.Color;
 import android.graphics.Paint;
 
@@ -77,10 +43,12 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
-import de.biselliw.tour_navigator.data.Segment;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
+/**
+ *  @link <a href="https://github.com/halfhp/androidplot/blob/master/demoapp/src/main/java/com/androidplot/demos/DynamicXYPlotActivity.java">DynamicXYPlotActivity.java on github.com</a>
+ */
 public class ProfileAdapter {
 
     private final MainActivity _activity;
@@ -90,10 +58,10 @@ public class ProfileAdapter {
     Number lastDistance = 0;
     double prevDistance;
     int prevIndex;
-    double startAltitude = 0.0;
-    Number lastAltitude = 0;
+    double lastAltitude = 0.0;
     TrackDetails _trackDetails = null;
 
+    private static final boolean SHOW_SERIES_SEGMENTS = true;
     private XYPlot dynamicPlot;
     DynamicXYDatasource data;
     DynamicXYDatasource bar;
@@ -129,9 +97,37 @@ public class ProfileAdapter {
 
     final static int SERIES_ALTITUDES = 0, SERIES_CURSOR = 1, SERIES_SEGMENTS = 2;
     public void createPlot() {
-        // get handles to our View defined in layout.xml:
-        dynamicPlot = (XYPlot) _activity.findViewById(R.id.plot);
+        /*
+         * @todo Material3 conform:
+         * val surface = MaterialColors.getColor(plot, R.attr.plotSurfaceColor)
+         * val grid = MaterialColors.getColor(plot, R.attr.plotGridLineColor)
+         * val text = MaterialColors.getColor(plot, R.attr.plotTextColor)
+         *
+         * plot.graph.backgroundPaint.color = surface
+         * plot.graph.gridBackgroundPaint.color = surface
+         * plot.graph.domainGridLinePaint.color = grid
+         * plot.graph.rangeGridLinePaint.color = grid
+         * plot.title.labelPaint.color = text
+         */
 
+        // get handles to our View defined in layout.xml:
+        dynamicPlot = _activity.findViewById(R.id.plot);
+        if (dynamicPlot == null) return;
+/*
+            int surface = MaterialColors.getColor(dynamicPlot, R.attr.plotSurfaceColor);
+            // todo Unable to start activity ComponentInfo{de.biselliw.tour_navigator/de.biselliw.tour_navigator.activities.MainActivity}:
+                java.lang.IllegalArgumentException: com.androidplot.xy.XYPlot requires a value for the de.biselliw.tour_navigator:attr/plotSurfaceColor attribute
+                to be set in your app theme. You can either set the attribute in your theme or update your theme to inherit from Theme.MaterialComponents (or a descendant).
+            int grid = MaterialColors.getColor(dynamicPlot, R.attr.plotGridLineColor);
+            int text = MaterialColors.getColor(dynamicPlot, R.attr.plotTextColor);
+
+            dynamicPlot.getGraph().getBackgroundPaint().setColor(surface);
+            dynamicPlot.getGraph().getGridBackgroundPaint().setColor(surface);
+            dynamicPlot.getGraph().getDomainGridLinePaint().setColor(grid);
+            dynamicPlot.getGraph().getRangeGridLinePaint().setColor(grid);
+//            dynamicPlot.getGraph().labelPaint.color = text;
+
+ */
         MyPlotUpdater plotUpdater = new MyPlotUpdater(dynamicPlot);
 
         // only display whole numbers in domain labels
@@ -141,36 +137,39 @@ public class ProfileAdapter {
         data = new DynamicXYDatasource();
         bar = new DynamicXYDatasource();
 
-        AltitudeSeries altitudeSeries = new AltitudeSeries(data, SERIES_ALTITUDES, "");
-        AltitudeSeries barSeries = new AltitudeSeries(data, SERIES_CURSOR, "");
-        AltitudeSeries segmentSeries = new AltitudeSeries(data, SERIES_SEGMENTS, "");
-
+        /* SERIES_ALTITUDES */
+        AltitudeSeries altitudeSeries = new AltitudeSeries(data,    SERIES_ALTITUDES, "");
         lineFormatter = new LineAndPointFormatter(
                 Color.rgb(0, 200, 0), null, null, null);
         lineFormatter.getLinePaint().setStrokeJoin(Paint.Join.ROUND);
         lineFormatter.getLinePaint().setStrokeWidth(10);
         dynamicPlot.addSeries(altitudeSeries, lineFormatter);
 
+        /* SERIES_CURSOR */
+        AltitudeSeries barSeries      = new AltitudeSeries(data,    SERIES_CURSOR, "");
         LineAndPointFormatter cursorFormatter = new LineAndPointFormatter(
                 Color.rgb(200, 0, 0), null, null, null);
         cursorFormatter.setLegendIconEnabled(false);
         dynamicPlot.addSeries(barSeries, cursorFormatter);
         dynamicPlot.getLegend().setVisible(false);
 
-        segmentFormatter =
-                new LineAndPointFormatter(
-                        Color.rgb(0, 0, 200),   // line color
-                        Color.rgb(0, 0, 200),   // vertex (point) color
-                        null,
-                        null);
+        if (SHOW_SERIES_SEGMENTS) {
+            AltitudeSeries segmentSeries = new AltitudeSeries(data, SERIES_SEGMENTS, "");
+            segmentFormatter =
+                    new LineAndPointFormatter(
+                            Color.rgb(0, 0, 200),   // line color
+                            Color.rgb(0, 0, 200),   // vertex (point) color
+                            null,
+                            null);
 
-        /* --- Line --- */
-        Paint linePaint = segmentFormatter.getLinePaint();
-        linePaint.setStrokeWidth(6f);
-        linePaint.setStrokeCap(Paint.Cap.ROUND);
-        linePaint.setAntiAlias(true);
+            /* --- Line --- */
+            Paint linePaint = segmentFormatter.getLinePaint();
+            linePaint.setStrokeWidth(6f);
+            linePaint.setStrokeCap(Paint.Cap.ROUND);
+            linePaint.setAntiAlias(true);
 
-        dynamicPlot.addSeries(segmentSeries, this.segmentFormatter);
+            dynamicPlot.addSeries(segmentSeries, this.segmentFormatter);
+        }
 
         // hook up the plotUpdater to the data model:
         data.addObserver(plotUpdater);
@@ -216,8 +215,7 @@ public class ProfileAdapter {
                     Thread.sleep(10); // decrease or remove to speed up the refresh rate.
                     notifier.notifyObservers();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignored) {
             }
         }
 
@@ -296,16 +294,21 @@ public class ProfileAdapter {
             switch (series) {
                 case SERIES_ALTITUDES:
                 case SERIES_CURSOR: {
-                    if (index >= numPoints) {
+                    if (index == 0)
+                        lastAltitude = -999.99;
+                    else if (index >= numPoints)
                         throw new IllegalArgumentException();
-                    }
 
                     if (_trackDetails != null) {
-                        DataPoint currPoint = _trackDetails.getPoint(index);
-                        if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
-                            altitude = (int) currPoint.getAltitude().getValue();
-                            if (altitude > 0)
-                                lastAltitude = altitude;
+                        for (int i = index; i <= (lastAltitude < 0.0 ? numPoints - 1 : index); i++) {
+                            DataPoint currPoint = _trackDetails.getPoint(i);
+                            if ((currPoint != null) && !currPoint.isWayPoint() && currPoint.hasAltitude()) {
+                                altitude = (int) currPoint.getAltitude().getValue();
+                                if (altitude > 0) {
+                                    lastAltitude = altitude;
+                                    break;
+                                }
+                            }
                         }
                     }
                     break;
@@ -316,7 +319,7 @@ public class ProfileAdapter {
             switch (series) {
                 case SERIES_ALTITUDES:
                     return lastAltitude;
-                case SERIES_CURSOR:
+                case SERIES_CURSOR: {
                     // draw cursor
                     if (index == _plotX) {
                         // show current altitude
@@ -325,28 +328,20 @@ public class ProfileAdapter {
                         return TrackSegments.getMaxAltitude();
                     }
                     break;
-                case SERIES_SEGMENTS:
+                }
+                case SERIES_SEGMENTS: {
                     if (numPoints == 0)
                         return 0;
                     else if (_trackDetails != null) {
-                        if (index == 0) {
-                            startAltitude = _trackDetails.getPoint(0).getAltitude().getValue();
-                            return startAltitude;
-                        }
-                        else {
-                            double alt = startAltitude;
-                            Segment segment;
-                            if (index < _trackDetails.getSegmentsCount()) {
-                                segment = _trackDetails.getSegment(index);
-                                alt += segment.getStartAltitudeSum();
-                            } else {
-                                segment = _trackDetails.getSegment(index - 1);
-                                alt += segment.getEndAltitudeSum();
-                            }
-                            return alt;
-                        }
+                        double elevation;
+                        if (index < _trackDetails.getSegmentsCount())
+                            elevation = _trackDetails.getSegmentStartElevation(index);
+                        else
+                            elevation = _trackDetails.getSegmentEndElevation(index - 1);
+                        return elevation;
                     }
                     break;
+                }
             }
             return 0;
         }
