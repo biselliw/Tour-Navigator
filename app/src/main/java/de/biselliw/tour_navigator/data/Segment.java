@@ -1,12 +1,35 @@
 package de.biselliw.tour_navigator.data;
 
+/*
+    This file is part of Tour Navigator
+
+    Tour Navigator is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    Tour Navigator is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    If not, see
+            <http://www.gnu.org/licenses/>.
+
+    Copyright 2026 Walter Biselli (BiselliW)
+*/
+
 import androidx.annotation.NonNull;
 
 import static de.biselliw.tour_navigator.data.TrackSegments.formatDouble;
 
+/**
+ * linear segment of a track
+ */
 public class Segment {
 
-    enum type {
+    public enum type {
         SEG_INVALID,
         SEG_FLAT,
         SEG_UP,
@@ -17,39 +40,64 @@ public class Segment {
         SEG_DOWN_STEEP
     }
 
-    type segmentType;
-    int startIndex, endIndex;
-    double startDistance_km, startClimb_m, startDescent_m;
-    long startSeconds;
-    double distance_km;
-    /** Total climb in metres */
-    double climb_m;
-    /** Total descent in metres */
-    double descent_m;
-    int gradient;
-    boolean steep;
-    double altitudeDiff;
-    long totalSeconds, totalBreakTime_s;
+    /** type of the segment: flat, ascending, descending */
+    public type segmentType;
 
-    public Segment () {
+    /** index range with regard to original track */
+    private int startIndex, endIndex;
+    public boolean segmentEndForced;
+
+    /** Distance since start [km] */
+    private double distance;
+
+    /** Elevation (altitude) [m] */
+    private double elevation;
+
+    /** horizontal distance within the segment [km] */
+    private double deltaX;
+
+    /** vertical distance within the segment [m] */
+    private double deltaY;
+
+    /** active time within the segment [s] */
+    private long activeTime_s;
+
+    /** break time within the segment [s] */
+    private long breakTime_s;
+
+    /** gradient (dY/dX) [0 ... 100] */
+    private int gradient;
+
+
+    public Segment() {
         segmentType = type.SEG_INVALID;
     }
 
-    public Segment (Segment fromOther) {
+    public Segment(double distance, double elevation, double deltaX, double deltaY) {
         segmentType = type.SEG_INVALID;
+        this.distance = distance;
+        this.elevation = elevation;
+        this.deltaX = deltaX;
+        this.deltaY = deltaY;
+    }
+
+    public Segment(Segment fromOther) {
+        segmentType = type.SEG_INVALID;
+        distance = fromOther.distance + fromOther.deltaX;
+        elevation = fromOther.elevation + fromOther.deltaY;
+        deltaX = deltaY = 0.0;
+        activeTime_s = breakTime_s = 0;
+        gradient = 0;
+
         startIndex = fromOther.endIndex;
         endIndex = startIndex;
-        startDistance_km = fromOther.startDistance_km + fromOther.distance_km;
-        startClimb_m   = fromOther.startClimb_m   + fromOther.climb_m;
-        startDescent_m = fromOther.startDescent_m + fromOther.descent_m;
     }
 
     /**
-     * Get the status of the navigation
-     * @return status string
+     * @return segment type as string
      */
     public String getSegmentType() {
-        int segment_type= 0;
+        int segment_type = 0;
         String[] segment_typeStr = {
                 "SEG_INVALID",
                 "SEG_FLAT",
@@ -58,7 +106,7 @@ public class Segment {
                 "SEG_UP_STEEP",
                 "SEG_DOWN",
                 "SEG_DOWN_MODERATE",
-                "SEG_DOWN_STEEP" };
+                "SEG_DOWN_STEEP"};
 
         if (segmentType != null) {
             segment_type = segmentType.ordinal();
@@ -68,11 +116,58 @@ public class Segment {
 
     @NonNull
     public String toString() {
-        return "Type: " + getSegmentType() + "; altDiff = " + (int)(altitudeDiff+0.5) + "; speed: " + formatDouble(distance_km / (totalSeconds - totalBreakTime_s) *3600.0);
+        return "Type: " + getSegmentType() + "; speed: " + formatDouble(deltaX / activeTime_s * 3600.0);
     }
 
+    public void setStartIndex(int startIndex) { this.startIndex = startIndex; }
     public int getStartIndex () { return startIndex; }
+    public void setEndIndex(int endIndex) { this.endIndex = endIndex; }
     public int getEndIndex () { return endIndex; }
-    public double getStartAltitudeSum () { return startClimb_m - startDescent_m; }
-    public double getEndAltitudeSum () { return startClimb_m - startDescent_m + climb_m - descent_m; }
+    public void setDistance (double distance) { this.distance = distance; }
+    public double getDistance() { return distance; }
+
+    public void setElevation(double elevation) {
+        this.elevation = elevation;
+    }
+    public double getElevation() { return elevation; }
+
+    public void setDeltaX(double deltaX) {
+        this.deltaX = deltaX;
+    }
+
+    public double getDeltaX() {
+        return deltaX;
+    }
+
+    public void setDeltaY(double deltaY) {
+        this.deltaY = deltaY;
+    }
+
+    public double getDeltaY() {
+        return deltaY;
+    }
+
+    public void setActiveTime_s(long activeTime_s) {
+        this.activeTime_s = activeTime_s;
+    }
+
+    public long getActiveTime_s() {
+        return activeTime_s;
+    }
+
+    public void setBreakTime_s(long breakTime_s) {
+        this.breakTime_s = breakTime_s;
+    }
+
+    public long getBreakTime_s() {
+        return breakTime_s;
+    }
+
+    public void setGradient(int gradient) {
+        this.gradient = gradient;
+    }
+
+    public int getGradient() {
+        return gradient;
+    }
 }

@@ -17,7 +17,7 @@ package de.biselliw.tour_navigator.data;
     If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
@@ -25,17 +25,22 @@ import android.content.res.Resources;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
+import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
+import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
+import tim.prune.data.Distance;
 
 public class TourDetails {
 
     public static TourDetails details = null;
+    // FIXME potential memory leak
     App app;
     RecordAdapter recordAdapter;
+    // FIXME potential memory leak
     private final Resources res;
 
     public TourDetails(Context inContext, App app, RecordAdapter recordAdapter)
@@ -46,7 +51,6 @@ public class TourDetails {
         this.recordAdapter = recordAdapter;
     }
 
-    // todo move ?
     /**
      * provide the comment and description linked to a place
      *
@@ -54,14 +58,16 @@ public class TourDetails {
      * @param inPlace row index of the table
      */
     public AdditionalInfo getAdditionalInfo(boolean logErrors, int inPlace) {
-
-        if (inPlace >= 0)
-            return  getWaypointInfo(inPlace);
-        else
-            if (logErrors)
+        if (inPlace >= 0) {
+            return getWaypointInfo(inPlace);
+        }
+        else {
+            if (logErrors) {
                 return getErrorInfo();
-            else
+            } else {
                 return getFileInfo();
+            }
+        }
     }
 
     public int getWptCount () {
@@ -72,28 +78,48 @@ public class TourDetails {
     }
 
     /**
-     * Interpret the Waypoint symbol provided by outdooractive GPX files
-     * @param symbol outdooractive specific waypoint symbol
-     * @return interpreted string
+     * Interpret the Waypoint symbol provided by outdooractive
+     * @param symbol specific waypoint symbol
+     * @return translated string
      */
     public String interpretWaypointSymbol(String symbol)
     {
-        if (res == null) return "";
-        switch (symbol) {
-            case "waypointDirRightComb":
-                symbol = res.getString(R.string.waypointDirRightComb);
-                break;
-            case "waypointDirLeftComb":
-                symbol = res.getString(R.string.waypointDirLeftComb);
-                break;
-            case "waypointUpComb":
-                symbol = res.getString(R.string.waypointUpComb);
-                break;
-            case "waypointFlagComb":
-                symbol = res.getString(R.string.waypointFlagComb);
-                break;
+        if (res != null) {
+            switch (symbol) {
+                /* outdooractive types */
+                case "waypointDirRightComb":
+                    symbol = res.getString(R.string.waypointDirRightComb);
+                    break;
+                case "waypointDirLeftComb":
+                    symbol = res.getString(R.string.waypointDirLeftComb);
+                    break;
+                case "waypointUpComb":
+                    symbol = res.getString(R.string.waypointUpComb);
+                    break;
+                case "waypointFlagComb":
+                    symbol = res.getString(R.string.waypointFlagComb);
+                    break;
+            }
         }
         return symbol;
+    }
+
+    /**
+     * Interpret the Waypoint type provided by the GPX file and OSM
+     * @param type specific waypoint type
+     * @return translated string
+     */
+    private String interpretWaypointType(String type)
+    {
+        if (type.equals(GetWikipediaFunction.WAYPOINT_TYPE)) {
+            if (res != null)
+                return res.getString(R.string.wpt_wikipedia);
+        }
+        else if (type.startsWith(GetWaypointsFunction.WAYPOINT_TYPE))
+            return GetWaypointsFunction.interpretWaypointType(type);
+        else if (type.startsWith(GetOpenStreetMapFunction.WAYPOINT_TYPE))
+            return GetOpenStreetMapFunction.interpretWaypointSymbol(type);
+        return GetOpenStreetMapFunction.translateTag(type);
     }
 
     /**
@@ -107,11 +133,14 @@ public class TourDetails {
         info.comment = "";
         info.title = "";
         info.description = "";
+// todo        info.trackDescription = "";
         info.link = "";
         SourceInfo sourceInfo = App.getSourceInfo();
         if (sourceInfo != null) {
             info.title = sourceInfo.getFileTitle();
-            info.description = sourceInfo.getFileDescription();
+            info.description = sourceInfo.getTrackDescription();
+            if (info.description.isEmpty())
+                info.description = sourceInfo.getFileDescription();
             info.author = sourceInfo.getAuthor();
             info.link = sourceInfo.getMetaLink();
         }
@@ -119,15 +148,14 @@ public class TourDetails {
     }
 
     /**
-     * provide Error information
-     *
+     * @return Error information
      */
     public AdditionalInfo getErrorInfo() {
         AdditionalInfo info = new AdditionalInfo();
         /* provide info from HTML error log*/
         info.comment     = "";
         info.title       = "Error Log";
-        info.description = Log.getHTML();
+        info.description = Log.getDebugHTML();
         info.link        = "";
         return info;
     }
@@ -145,7 +173,7 @@ public class TourDetails {
             if (inPlace < recordAdapter.getCount()) {
                 RecordAdapter.Record record = recordAdapter.getItem(inPlace);
                 if (record == null) return null;
-                DataPoint point = record.getTrackPoint();
+                DataPoint point = record.trackPoint;
                 if (point == null) return null;
 
                 info.title = point.getRoutePointName();
@@ -156,34 +184,44 @@ public class TourDetails {
 
                 if (info.description.isEmpty()) {
                     if (point.getLinkIndex() >= 0) {
-                        point = app.getPoint(point.getLinkIndex());
-                        if (point != null) {
-                            info.type = point.getWaypointType();
-                            info.description = point.getDescription();
-                            info.link = point.getWebLink();
+                        DataPoint linkedPoint = app.getPoint(point.getLinkIndex());
+                        if (linkedPoint != null) {
+                            info.type = linkedPoint.getWaypointType();
+                            if (linkedPoint.isProtectedWayPoint()) {
+                                // translate type
+                                info.type = interpretWaypointType(info.type);
+                                // calculate distance between track and waypoint
+                                double radians = DataPoint.calculateRadiansBetween(point,linkedPoint);
+                                double distance_km = Distance.convertRadiansToDistance(radians);
+                                // add distance to type
+                                if (distance_km > 0.1)
+                                    info.type += " (" + (int)(distance_km * 1000.0) + " m " + res.getString(R.string.distance_from_track) +")";
+                            }
+                            info.description = linkedPoint.getDescription();
+                            info.link = linkedPoint.getWebLink();
                         }
                     }
                 }
                 if (!info.type.isEmpty()) {
-                    if (info.comment.isEmpty())
+                    if (info.comment.isEmpty()) {
                         info.comment = info.type;
-                    else
+                    }
+                    else {
                         info.comment = info.type + ": " + info.comment;
+                    }
                 } else if (!info.symbol.isEmpty()) {
                     /* Handle outdooractive GPX infos */
                     info.symbol = interpretWaypointSymbol(info.symbol);
 
-                    if (!info.comment.isEmpty())
+                    if (!info.comment.isEmpty()) {
                         info.comment = info.symbol + ": " + info.comment;
-                        /*
-                        else if (!info.description.equals(""))
-                            info.comment = info.symbol + ": " + info.description;
-
-                         */
-                    else
+                    }
+                    else {
                         info.comment = info.symbol;
-                } else
+                    }
+                } else {
                     info.comment = "";
+                }
             }
         }
         return info;
@@ -197,7 +235,7 @@ public class TourDetails {
         if (recordAdapter == null) return null;
         RecordAdapter.Record record = recordAdapter.getItem(inPlace);
         if (record == null) return null;
-        return record.getTrackPoint();
+        return record.trackPoint;
     }
 
     public String getPlannedArriveTime(int inPlace) {
@@ -211,11 +249,11 @@ public class TourDetails {
         public String title = "";
         public String comment = "";
         public String description = "";
+// todo        public String trackDescription = "";
         public String type;
         public String author = "";
         public String symbol;
         public String sourceLink = "";
         public String link = "";
     }
-
 }

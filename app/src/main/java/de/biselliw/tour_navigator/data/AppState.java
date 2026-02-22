@@ -1,7 +1,6 @@
 package de.biselliw.tour_navigator.data;
 
 import android.net.Uri;
-import android.os.Bundle;
 
 import de.biselliw.tour_navigator.activities.LocationActivity;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
@@ -16,7 +15,7 @@ public abstract class AppState {
     private static boolean _paused = false;
 
     /**
-     * values to app state
+     * app state values
      */
     private static LocationActivity.gpsStatus _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
     private static LocationActivity.locationStatus _LocationStatus = LocationActivity.locationStatus.INITIAL;
@@ -30,23 +29,21 @@ public abstract class AppState {
     private static Uri _GpxSimulationUri = null;
     private static int _GpxSimulationIndex = 0;
     private static boolean _GpxFileCached = false;
-    // static int gpxInitialPlace = -1;
+    private static boolean _GpxFileGuidePostsCached = false;
+    private static boolean _GpxFilePOIsCached = false;
 
     /**
      * GPS simulator with replay functionality
      */
     public static GpsSimulator gpsSimulation = null;
 
+    public static int MainActivityInstanceCount = 0;
 
     public static boolean destroyed = false;
     public static boolean restarted = false;
     public static boolean stopped = false;
     public static boolean lowMemory = false;
     public static long trimMemoryLevel = 0;
-
-
-    public AppState () {
-    }
 
     /**
      * Clear the app states on normal start
@@ -61,6 +58,9 @@ public abstract class AppState {
      */
     public static void clearNavigationState() {
         _GpxFileCached = false;
+        _GpxFileGuidePostsCached = false;
+        _GpxFilePOIsCached = false;
+
         _StartGpsIndex = 0;
         _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
         _LocationStatus = LocationActivity.locationStatus.INITIAL;
@@ -92,6 +92,22 @@ public abstract class AppState {
     public static void setGpxFileCached(boolean cached) {
         _GpxFileCached = cached;
         if (cached) _valid = true;
+    }
+
+    public static boolean isGpxFileGuidePostsCached() {
+        return _GpxFileGuidePostsCached;
+    }
+
+    public static void setGpxFileGuidePostsCached(boolean inValue) {
+        _GpxFileGuidePostsCached = inValue;
+    }
+
+    public static boolean isGpxFilePOIsCached() {
+        return _GpxFilePOIsCached;
+    }
+
+    public static void setGpxFilePOIsCached(boolean inValue) {
+        _GpxFilePOIsCached = inValue;
     }
 
     public static int getStartGpsIndex() { return _StartGpsIndex; }
