@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_primary">#D0BCFF</color>
+    <color name="md_theme_onPrimary">#381E72</color>
+
+    <color name="md_theme_background">#D0BCFF</color>
+    <color name="md_theme_onBackground">#E6E1E5</color>
+
+    <color name="md_theme_surface">#1E1E1E</color>
+    <color name="md_theme_onSurface">#E6E1E5</color>
+
+    <!-- MyApp -->
+    <color name="toolbar">@color/black</color>
+    <color name="toolbarTitle">@color/white</color>
+    <color name="colorText">#FFFFFFFF</color>
+    <color name="tracking">#AA317335</color>
+    <color name="approaching">#FF8000</color>
+
+
+    <color name="COLOR_BG_SELECTED">@color/middleblue</color>
+    <color name="COLOR_BG_RECORD">@color/grey</color>
+
+    <!-- don't show the presumable arrival time -->
+    <color name="COLOR_NONE">#AA000000</color>
+    <!-- text colors depending on the current delay -->
+    <color name="COLOR_DELAY_NONE">#AA0000ff</color>
+    <color name="COLOR_DELAY_MIN">#AA008000</color>
+    <color name="COLOR_DELAY_MAX">#AAB71C1C</color>
+
+    <color name="colorBackground">#0274B2</color>
+    <color name="color_background">#0274B2</color>
+    <color name="color_on_background">#1C1B1F</color>
+
+
+    <color name="colorPrimary">#0274B2</color>
+    <color name="colorPrimaryDark">#024265</color>
+    <color name="colorAccent">#0274B2</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="grey">#14d0d0d0</color>
+    <color name="material_grey_900">#ff212121</color>
+
+    <color name="black">#FF000000</color>
+    <color name="lightblue">#0274B2</color>
+    <color name="middleblue">#8aa5ce</color>
+    <color name="darkblue">#024265</color>
+    <color name="middlegrey">#A8A8A8</color>
+    <color name="yellow">#f6d126</color>
+    <color name="red">#B71C1C</color>
+    <color name="green">#388E3C</color>
+
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+    <!-- ### TutorialActivity ### -->
+    <!-- dots inactive colors -->
+    <color name="dot_dark_screen">#026499</color>
+
+    <!-- dots active colors -->
+    <color name="dot_light_screen">#448bb2</color>
+
+    <array name="array_dot_active">
+        <item>@color/dot_light_screen</item>
+        <item>@color/dot_light_screen</item>
+        <item>@color/dot_light_screen</item>
+    </array>
+
+    <array name="array_dot_inactive">
+        <item>@color/dot_dark_screen</item>
+        <item>@color/dot_dark_screen</item>
+        <item>@color/dot_dark_screen</item>
+    </array>
+</resources>
