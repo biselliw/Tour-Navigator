@@ -118,23 +118,25 @@
                     Dazu präsentiert die App einen Web-Link zur Tour, um diese direkt über den Standard-Browser anzuzeigen.</td>
             </tr>
             <tr>
+                <td width=55"><img src="img/schedule.png" alt=""/></td>
+                <td>Damit legst du die Startzeit der Tour fest. Sie wird für die Berechnung der Wegzeiten benötigt.
+                    Über den Menüpunkt <a href="#break_time">"Pausenzeit"</a> kannst du zudem für jeden Wegpunkt eine Pausenzeit vorgeben.</td>
+            </tr>
+            <tr>
                 <td width=55"><img src="img/swap_horiz.png" alt=""/></td>
                 <td>Damit kannst du die Richtung der Tour umkehren.
                     Über den Menüpunkt <a href="#start_from_here">"Starte von hier"</a> lässt sich sogar der Startpunkt ändern.</td>
             </tr>
             <tr>
-                <td width=55"><img src="img/signpost.jpg" alt=""/></td>
-                <td>Damit kannst du Wegpunkte hinzufügen ...
+                <td width=55"></td>
+                <td>Wegpunkte hinzufügen (wenn verfügbar) ...
                 <ul>
-                    <li>vom GPX-File: POIs, die ausserhalb des Tracks liegen und daher nicht berücksichtigt würden.</li>
-                    <li>aus OpenStreetMap: alle Wegweiser der Datenbank die entlang des Tracks liegen. Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast!</li>
+                    <li>von der GPX-Datei: POIs außerhalb des Tracks.</li>
+                    <li>aus OpenStreetMap: alle Wegweiser entlang des Tracks.</li>
+                    <li>aus OpenStreetMap: interessante Punkte entlang des Tracks</li>
+                    <li>Wikipedia-Artikel im Bereich der Tour</li>
                 </ul>
                 </td>
-            </tr>
-            <tr>
-                <td width=55"><img src="img/schedule.png" alt=""/></td>
-                <td>Damit legst du die Startzeit der Tour fest. Sie wird für die Berechnung der Wegzeiten benötigt.
-                    Über den Menüpunkt <a href="#break_time">"Pausenzeit"</a> kannst du zudem für jeden Wegpunkt eine Pausenzeit vorgeben.</td>
             </tr>
             <tr>
                 <td width=55"><img src="img/table_rows.png" alt=""/></td>
@@ -173,7 +175,7 @@
     </details>
 
     <details><summary><h2>Kontextmenü</h2></summary>
-        <p>Abhängig vom ausgewählten Punkt der Tour stehen diese Funktionen zur Verfügung:</p>
+        <p>Abhängig vom ausgewählten Punkt der Tour und der Freigabe in den Einstellungen stehen diese Funktionen zur Verfügung:</p>
 
         <table style="width: 100%">
             <tr>
@@ -185,17 +187,6 @@
                 <td>Für jeden Wegpunkt kannst du einen individuellen Kommentar hinzufügen, der in der Wegzeittabelle erscheint.</td>
             </tr>
             <tr>
-                <td valign="top">Wikipedia-Artikel in der Nähe</td>
-                <td>Georeferenzierte Wikipedia-Artikel im Umkreis von 10 km um den Wegpunkt werden tabellarisch aufgelistet. Du kannst ihren Inhalt über die Wikipedia app anzeigen und ausgewählte Punkte der Route hinzufügen.
-                    Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast!</td>
-            </tr>
-            <tr>
-                <td valign="top">OSM POIs in der Nähe</td>
-                <td>OpenStreetMap Punkte (Knoten) im Umkreis von 500 m um den Wegpunkt werden tabellarisch aufgelistet. Du kannst die Details der Knoten in einem Web-Browser anzeigen und ausgewählte Punkte der Route hinzufügen.
-                Die Datenbankabfrage beschränkt sich auf eine Auswahl von Knotentypen. Der Server ist regelmässig überlastet und liefert dann keine Ergebnisse!
-                    Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast!</td>
-            </tr>
-            <tr>
                 <td valign="top"><a name="navigate"></a>Zum Wegpunkt navigieren</td>
                 <td>Bei jedem Wegpunkt kannst Du dessen Geo-Koordinaten an eine geeignete App weiterleiten, die diese auf einer Karte anzeigen kann, z.B.:<ul>
                     <li>Organic Maps, eine datenschutzfreundliche Offline-Karten- und GPS-App zum Wandern, Radfahren und Autofahren:
@@ -205,13 +196,19 @@
                 </td>
             </tr>
             <tr>
+                <td valign="top">Zum Schwarzwaldverein Tourenportal</td>
+                <td>Für jeden Wegpunkt wird eine Karte mit Tourenvorschlägen in dessen Umgebung angezeigt.</td>
+            </tr>
+            <tr>
                 <td valign="top"><a name="Google_Navigation"></a>Google-Navigation</td>
                 <td>Bei jedem Wegpunkt kannst du dessen Geo-Koordinaten an Google Maps weiterleiten um eine Route von deinem aktuellen Standort
                     zum gewählten Wegpunkt mit verschiedenen Verkehrsmitteln zu generieren oder einfach nur die Karte zu studieren.
-                    Die Funktion ist nur sichtbar, wenn du zuvor den Internet-Zugriff über die Einstellungen freigegeben hast und die angezeigte Datenschutzrichtlinie
-                    von Google gelesen und ihr einmalig zugestimmt hast. Dies wird in den Einstellungen der App gespeichert.
-                    Wie "privatsphärefreundlich" Google deine Daten verarbeitet liegt dann allein in deiner Verantwortung!
                 </td>
+            </tr>
+            <tr>
+                <td valign="top">OpenStreetMap POIs in der Nähe</td>
+                <td>OpenStreetMap Punkte (Knoten) im Umkreis von 150 m um den Wegpunkt werden tabellarisch aufgelistet. Du kannst die Details der Knoten in einem Web-Browser anzeigen und ausgewählte Punkte der Route hinzufügen.
+                Die Datenbankabfrage beschränkt sich auf eine Auswahl von Knotentypen. Der Server ist regelmäßig überlastet und liefert dann keine Ergebnisse! Von einem alternativen Server werden dann weniger Informationen geladen.</td>
             </tr>
             <tr>
                 <td colspan="2"><hr /></td>

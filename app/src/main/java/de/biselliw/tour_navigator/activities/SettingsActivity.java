@@ -146,10 +146,10 @@ public class SettingsActivity extends BaseActivity {
             setPreferencesFromResource(R.xml.preferences, rootKey);
 
             // hide Debug setting in releases
-            if (!BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 SwitchPreferenceCompat switchPref = findPreference("pref_debug");
                 if (switchPref != null)
-                    switchPref.setVisible(false);
+                    switchPref.setVisible(true);
             }
 
             // Bind the summaries of EditText preferences to their values. When their values change,

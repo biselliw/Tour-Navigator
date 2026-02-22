@@ -43,17 +43,14 @@ import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.files.FileUtils;
 import de.biselliw.tour_navigator.function.OpenStreetMapXmlHandler;
 import de.biselliw.tour_navigator.helpers.Log;
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.ui.ControlElements;
-import tim.prune.data.Distance;
 import tim.prune.data.DoubleRange;
 
 import static de.biselliw.tour_navigator.data.AppState.isGpxFileGuidePostsCached;
 import static de.biselliw.tour_navigator.data.AppState.isGpxFilePOIsCached;
 import static de.biselliw.tour_navigator.data.AppState.setGpxFileGuidePostsCached;
 import static de.biselliw.tour_navigator.data.AppState.setGpxFilePOIsCached;
-import static de.biselliw.tour_navigator.function.search.SearchOsmFunction.translateTag;
 
 /**
  * Function to load nearby point information from OpenStreetMap (OSM) using the <a href="overpass-api.de">Overpass-API</a>.
@@ -76,7 +73,7 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     /**
      * Enable simulation of overpass-api query by loading a test file instead
      */
-    private static final boolean SIMULATE_QUERY = false;
+    private static final boolean SIMULATE_QUERY = true;
 
     /**
      * Maximum distance between track and point in km
@@ -99,6 +96,15 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     public boolean findGuideposts = false;
     public boolean findPOIs = false;
 
+    /** Translation table fpr OSM POIs */
+    static String[] symbols =   {"restaurant",       "bbq",        "bench", "lounger", "guidepost",
+            "bus_stop", "stop", "station", "turning_circle",
+            "map", "cafe", "drinking_water", "toilets", "place_of_worship", "shelter", "office",
+            "board", "ice_cream", "viewpoint", "museum"};
+    static int[] ids = {R.string.restaurant, R.string.bbq, R.string.bench,R.string.lounger, R.string.guidepost,
+            R.string.bus_stop, R.string.stop, R.string.station, R.string.turning_circle,
+            R.string.map, R.string.cafe, R.string.drinking_water, R.string.toilets, R.string.place_of_worship,
+            R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum};
 
     /**
      * Constructor
@@ -123,7 +129,6 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
         new Thread(this).start();
         return WAYPOINT_TYPE;
     }
-
 
     /**
      * Query guideposts only / all hiking relevant POIs except of guideposts
@@ -516,7 +521,6 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                 // Update single search result
                 searchResult.update();
 
-//                    if (findGuideposts || !searchResult.isGuidePost)
                 // Check if a point is already loaded
                 if (!searchResultIsDuplicate(searchResult)) {
                     boolean usePoint = false;
@@ -546,5 +550,33 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
             _errorMessage = Resources.getString(R.string.osm_pois_none_found);
 
         trackListModel.addTracks(reducedTrackList, true);
+    }
+
+    /**
+     * Interpret the Waypoint symbol provided by OSM
+     * @param symbol specific waypoint symbol
+     * @return translated string
+     */
+    public static String interpretWaypointSymbol(String symbol) {
+        try {
+            symbol = symbol.substring(WAYPOINT_TYPE.length() + 2);
+            return translateTag(symbol);
+        }
+        catch (Exception e) {
+            return symbol;
+        }
+    }
+
+    /**
+     * Translate waypoint types
+     * @param symbol waypoint symbol
+     * @return Translated waypoint symbol
+     */
+    public static String translateTag(String symbol) {
+        for (int i = 0; i < symbols.length; i++)
+            if (symbols[i].equals(symbol)) {
+                return Resources.getString(ids[i]);
+            }
+        return symbol;
     }
 }

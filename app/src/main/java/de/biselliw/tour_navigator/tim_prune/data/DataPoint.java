@@ -505,8 +505,8 @@ public class DataPoint
             return false;
 
         // Compare waypoint types (if any)
-        if (_wptType != null && inOther._wptType != null && !_wptType.equals(inOther._wptType))
-                return false;
+        if (_wptType != null && inOther._wptType != null && _wptType.contains(inOther._wptType))
+                return true;
 
         // Compare waypoint name (if any)
         if (!isWaypoint()) {

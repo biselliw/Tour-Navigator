@@ -3,37 +3,37 @@ Die Bedienung der App erfolgt über diese Menüs:
 
 <details><summary><h2>Hauptmenü</h2></summary>
 
-| Symbol                                           | Funktion |
-|--------------------------------------------------|----------|
-| ![](../../app/src/main/assets/img/file_open.jpg) | Öffnet eine GPX-Datei |
-| ![](../../app/src/main/assets/img/description.png)                         | Zeigt Titel, Beschreibung und Web-Link der Tour |
-| ![](../../app/src/main/assets/img/swap_horiz.png)                          | Kehrt die Richtung der Tour um |
-| ![](../../app/src/main/assets/img/signpost.jpg)                            | Wegpunkte aus GPX oder OpenStreetMap hinzufügen |
-| ![](../../app/src/main/assets/img/schedule.png)                            | Startzeit festlegen |
-| ![](../../app/src/main/assets/img/table_rows.png)                          | Wegzeittabelle anzeigen |
-| ![](../../app/src/main/assets/img/file_save.png)                           | Erweiterte GPX-Datei exportieren |
-| ![](../../app/src/main/assets/img/html.png)                                | Wegzeittabelle als HTML exportieren |
-| ![](../../app/src/main/assets/img/settings.png)                            | Einstellungen |
-| ![](../../app/src/main/assets/img/help.png)                                | Hilfe anzeigen |
-| ![](../../app/src/main/assets/img/info.png)                                | Copyright-Informationen |
+| Symbol                                           | Funktion                                                   |
+|--------------------------------------------------|------------------------------------------------------------|
+| ![](../../app/src/main/assets/img/file_open.jpg) | Öffnet eine GPX-Datei                                      |
+| ![](../../app/src/main/assets/img/description.png)                         | Zeigt Titel, Beschreibung und Web-Link der Tour            |
+| ![](../../app/src/main/assets/img/schedule.png)                            | Startzeit festlegen                                        |
+| ![](../../app/src/main/assets/img/swap_horiz.png)                          | Kehrt die Richtung der Tour um                             |
+| ![](../../app/src/main/assets/img/signpost.jpg)                            | Wegpunkte aus GPX, OpenStreetMap oder Wikipedia hinzufügen |
+| ![](../../app/src/main/assets/img/table_rows.png)                          | Wegzeittabelle anzeigen                                    |
+| ![](../../app/src/main/assets/img/file_save.png)                           | Erweiterte GPX-Datei exportieren                           |
+| ![](../../app/src/main/assets/img/html.png)                                | Wegzeittabelle als HTML exportieren                        |
+| ![](../../app/src/main/assets/img/settings.png)                            | Einstellungen                                              |
+| ![](../../app/src/main/assets/img/help.png)                                | Hilfe anzeigen                                             |
+| ![](../../app/src/main/assets/img/info.png)                                | Copyright-Informationen                                    |
 
 </details>
 
 <details><summary><h2>Kontextmenü</h2></summary>
 Abhängig vom ausgewählten Punkt der Tour stehen diese Funktionen zur Verfügung:
 
-| Funktion                         | Beschreibung                             |
-|----------------------------------|------------------------------------------|
-| Pausenzeit                       | Individuelle Pausenzeit je Wegpunkt      |
-| Wegpunkt kommentieren            | Kommentar in Wegzeittabelle              |
-| Wikipedia-Artikel                | Artikel im Umkreis von 10 km hinzufügen  |
-| OSM-POIs                         | OpenStreetMap-POIs im Umkreis von 500 m hinzufügen |
-| Zum Wegpunkt navigieren          | Übergabe an externe Karten-Apps          |
-| Google-Navigation                | Navigation mit Google Maps               |
-| Nicht rückgängig zu machen:      |
-| **Starte von hier**              |                                          |
-| **Wegpunkt entfernen**           |                                          |
-| **Alle Punkte danach entfernen** |                                          |
+| Funktion                           | Beschreibung                           |
+|------------------------------------|----------------------------------------|
+| Pausenzeit                         | Individuelle Pausenzeit je Wegpunkt    |
+| Wegpunkt kommentieren              | Kommentar in Wegzeittabelle            |
+| Zum Wegpunkt navigieren            | Übergabe an externe Karten-Apps        |
+| Zum Schwarzwaldverein Tourenportal | Zeigt eine Karte mit Tourenvorschlägen |
+| Google-Navigation                  | Navigation mit Google Maps             |
+| OpenStreetMap POIs in der Nähe     | POIs im Umkreis von 150 m hinzufügen  |
+| Nicht rückgängig zu machen:        |
+| **Starte von hier**                |                                        |
+| **Wegpunkt entfernen**             |                                        |
+| **Alle Punkte danach entfernen**   |                                        |
 
 </details>
 

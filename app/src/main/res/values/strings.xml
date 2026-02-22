@@ -129,17 +129,18 @@
         Licensed under Apache License Version 2.0\n
         www.apache.org/licenses/LICENSE-2.0\n
         </li>
-        <li><b>GeoNames geographical database</b>\n
-            web services to access OpenStreetMap data and Wikipedia articles\n
-            www.geonames.org\n
-            Licensed under a Creative Commons Attribution 4.0 License\n
-            https://creativecommons.org/licenses/by/4.0\n
-        </li>
         <li><b>Overpass API</b>\n
             web services to access OpenStreetMap (OSM) data\n
             https://overpass-api.de\n
             Licensed under Open Database License, "ODbL" 1.0\n
             https://osmfoundation.org/wiki/Licence
+        </li>
+        <li><b>GeoNames geographical database</b>\n
+            web services to access OpenStreetMap data and Wikipedia articles\n
+            www.geonames.org\n
+            Licensed under Open Database License, "ODbL" 1.0\n
+            Licensed under a Creative Commons Attribution 4.0 License\n
+            https://creativecommons.org/licenses/by/4.0\n
         </li>
         </ul>
     </string>

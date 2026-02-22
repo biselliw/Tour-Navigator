@@ -26,12 +26,12 @@ import android.content.res.Resources;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
 import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
-import de.biselliw.tour_navigator.function.search.SearchOsmFunction;
 import tim.prune.data.Distance;
 
 public class TourDetails {
@@ -117,9 +117,9 @@ public class TourDetails {
         }
         else if (type.startsWith(GetWaypointsFunction.WAYPOINT_TYPE))
             return GetWaypointsFunction.interpretWaypointType(type);
-        else if (type.startsWith(SearchOsmFunction.WAYPOINT_TYPE))
-            return SearchOsmFunction.interpretWaypointSymbol(type);
-        return SearchOsmFunction.translateTag(type);
+        else if (type.startsWith(GetOpenStreetMapFunction.WAYPOINT_TYPE))
+            return GetOpenStreetMapFunction.interpretWaypointSymbol(type);
+        return GetOpenStreetMapFunction.translateTag(type);
     }
 
     /**
