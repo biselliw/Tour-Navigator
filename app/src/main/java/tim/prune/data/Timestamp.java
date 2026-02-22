@@ -20,7 +20,7 @@ public abstract class Timestamp
 
 	protected static final DateFormat DEFAULT_DATETIME_FORMAT = DateFormat.getDateTimeInstance();
 
-	protected static final DateFormat ISO_8601_FORMAT
+	public static final DateFormat ISO_8601_FORMAT
 		= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.GERMAN);
 	protected static final DateFormat ISO_8601_FORMAT_WITH_MILLIS
 		= new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.GERMAN);
