@@ -16,16 +16,12 @@ package de.biselliw.tour_navigator.files;
     You should have received a copy of the GNU General Public License. If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.content.Context;
 import android.content.res.Resources;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -34,22 +30,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
-import static de.biselliw.tour_navigator.App.app;
-
 public class HTML_File {
 
-    public static StringBuffer html;
-
-    private static Resources res;
-    // todo Do not place Android context classes in static fields (static reference to `RecordAdapter` which has field `recordContext` pointing to `Context`); this is a memory leak
-    private final RecordAdapter recordAdapter;
-    private final TourDetails details;
-    final DecimalFormat decFormat = new DecimalFormat("#0.0");
+    private Resources res;
+    // Do not place Android context classes in static fields (static reference to `RecordAdapter` which has field `recordContext` pointing to `Context`); this is a memory leak
+    private TourDetails details;
+    DecimalFormat decFormat = new DecimalFormat("#0.0");
 
     final int COL_NR = 0, COL_ARRIVE = 1, COL_DISTANCE = 2, COL_WPT_NAME = 3, COL_HEIGHT = 4, COL_DIST = 5, COL_CLIMB = 6, COL_DESCENT = 7, COL_DURATION = 8, COL_PAUSE = 9, COL_COMMENT = 10;
     final int _colCount = COL_COMMENT + 1;
@@ -76,49 +67,30 @@ public class HTML_File {
         else return "";
     }
 
-    public HTML_File(Context inContext, RecordAdapter inRecordAdapter) {
+    public HTML_File(Context inContext) {
         res = inContext.getResources();
-        recordAdapter = inRecordAdapter;
-        details = TourDetails.details; // todo new TourDetails(inContext, app,inRecordAdapter);
+        details = TourDetails.details;
         addInfo = details.getFileInfo();
     }
 
     /**
      * Copy the time table to the clipboard
      */
-    public StringBuffer formatTimetableToHTML(boolean addLinks) {
+    public StringBuffer formatTimetableToHTML(RecordAdapter inRecordAdapter, boolean addLinks) {
         html_buffer = new StringBuffer();
         desc_buffer = new StringBuffer();
         descItems = 0;
 
         writeHtmlHeader();
         writeTimeTableHeader();
-        writeTimeTableRows(addLinks);
+        writeTimeTableRows(inRecordAdapter, addLinks);
         writeTimeTableFooter(addLinks);
         if (addLinks) {
             writeDescriptionHeader();
             writeDescriptionTable();
         }
 
-        html = html_buffer;
-        return html_buffer;
-    }
-
-    /*
-     *  Save HTML file
-     */
-    public void SaveFileHTML(OutputStream _xmlStream) {
-        formatTimetableToHTML(true);
-        OutputStreamWriter writer;
-        try {
-            writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
-            // write file
-            writer.write(html.toString());
-
-            // close file
-            writer.close();
-            _xmlStream.close();
-        } catch (IOException ignored) { }
+        return new StringBuffer().append(html_buffer);
     }
 
     /**
@@ -204,7 +176,7 @@ public class HTML_File {
      * @param inPlace row index of the table
      * @return true if description is available
      */
-    public boolean makeDescriptionAvailable(int inPlace) {
+    private boolean makeDescriptionAvailable(int inPlace) {
         boolean descAvailable = false;
         if (details == null) return false;
 
@@ -277,7 +249,7 @@ public class HTML_File {
      * @param inText original plain text
      * @return formatted HTML text
      */
-    public String UrlToHtmlConverter (String inText) {
+    private String UrlToHtmlConverter (String inText) {
 
         // Matches complete <a ...>...</a> so we can protect them
         final Pattern HTML_LINK =
@@ -367,14 +339,14 @@ public class HTML_File {
     /**
      * write Time Table rows
      */
-    private void writeTimeTableRows(boolean addLinks) {
+    private void writeTimeTableRows(RecordAdapter inRecordAdapter, boolean addLinks) {
         // write table rows
         if (details == null) return;
 
         for (int row = 0; row < details.getWptCount(); row++) {
             TourDetails.AdditionalInfo wptInfo = details.getWaypointInfo(row);
             if (wptInfo != null) {
-                RecordAdapter.Record record = recordAdapter.getItem(row);
+                RecordAdapter.Record record = inRecordAdapter.getItem(row);
                 DataPoint recPoint = details.getDataPoint(row);
 
                 html_buffer.append("<tr>");
@@ -418,11 +390,11 @@ public class HTML_File {
                             }
                             break;
                         case COL_CLIMB:
-                            if (row > 0)
+                            if (row > 0 && record.Sclimb > 0)
                                 html_buffer.append(roundToInt(record.Sclimb));
                             break;
                         case COL_DESCENT:
-                            if (row > 0)
+                            if (row > 0 && record.Sdescent > 0)
                                 html_buffer.append(roundToInt(record.Sdescent));
                             break;
                         case COL_DURATION:
@@ -499,7 +471,7 @@ public class HTML_File {
             html_buffer.append("</body></html>");
     }
 
-    public String formatIntToTime(int inMinutes) {
+    private String formatIntToTime(int inMinutes) {
         // separate minutes and hours
         int minute = inMinutes % 60;
         int hour = (inMinutes / 60) % 60;
@@ -516,7 +488,7 @@ public class HTML_File {
                 arguments);
     }
 
-    int roundToInt(double inValue) {
+    private int roundToInt(double inValue) {
         return (int)(inValue + 0.5);
     }
 
@@ -575,4 +547,20 @@ public class HTML_File {
         }
     }
 
+    public void destroy () {
+        if (html_buffer != null) {
+            html_buffer.setLength(0);
+            html_buffer = null;
+        }
+
+        if (desc_buffer != null) {
+            desc_buffer.setLength(0);
+            desc_buffer = null;
+        }
+
+        res = null;
+        details = null;
+        decFormat = null;
+        addInfo = null;
+    }
 }
