@@ -14,48 +14,37 @@ package de.biselliw.tour_navigator.activities;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import de.biselliw.tour_navigator.files.HTML_File;
-
-import android.webkit.WebView;
+import de.biselliw.tour_navigator.activities.helper.WebViewActivity;
 
 /**
- * @see <a href="https://developer.android.com/develop/ui/views/layout/webapps/webview">developer.android.com</a>
+ * Show the time table of the tour
  */
-public class TimeTableActivity extends BaseActivity {
+public class TimeTableActivity extends WebViewActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_web_view);
-        WebView view = findViewById(R.id.timetable);
-
-        StringBuffer html = HTML_File.html;
-        String htmlStr = html.toString();
-        view.loadData(htmlStr,"text/html","utf-8");
-
-        overridePendingTransition(0, 0);
+        // Handle a received intent
+        Intent intent = getIntent();
+        if (intent != null) {
+            String html = intent.getStringExtra("contents");
+            loadData(html);
+        }
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Respond to the action bar's Up/Home button
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
 }

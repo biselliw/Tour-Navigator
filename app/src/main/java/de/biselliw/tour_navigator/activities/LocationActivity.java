@@ -14,14 +14,18 @@ package de.biselliw.tour_navigator.activities;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -30,13 +34,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.speech.tts.TextToSpeech;
-import android.text.format.Time;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 import de.biselliw.tour_navigator.App;
@@ -50,11 +55,14 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_DELAY_MAX;
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.COLOR_DELAY_MIN;
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MAX;
-import static de.biselliw.tour_navigator.activities.adapter.RecordAdapter.DELAY_MIN;
+import static de.biselliw.tour_navigator.Notifications.ACTION_LOCATION_UPDATE;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.COLOR_DELAY_MAX;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.COLOR_DELAY_MIN;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.DELAY_MAX;
+import static de.biselliw.tour_navigator.adapter.RecordAdapter.DELAY_MIN;
 import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
+import static de.biselliw.tour_navigator.helpers.Log.formatHourMinSecs;
+import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 
 /**
  * Activity handling the timing of a tour
@@ -73,6 +81,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     static final String TAG = "LocationActivity";
     private static final boolean _DEBUG = true; // Set to true to enable logging
     public static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
+    private static Location _location = null;
 
     /** status of the GPS location provider */
     public enum gpsStatus {
@@ -96,16 +106,17 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         TRACKING,
         APPROACHING,
         OUT_OF_TRACK,
+        BREAK,
         DESTINATION_REACHED,
         DESTINATION_FAILED
     }
 
-    private static final int COLOR_RED                 = 0xAAB71C1C;
-    private static final int COLOR_WHITE               = 0xFFFFFFFF;
-    private static final int COLOR_MESSAGE             = COLOR_WHITE;
-    private static final int COLOR_NO_GPX              = COLOR_RED;
-    private static final int COLOR_TRACKING            = 0xAA317335;
-    private static final int COLOR_APPROACHING         = COLOR_RED;
+    private static final int COLOR_RED                  = R.color.red;
+    private static final int BG_COLOR                   = R.color.md_theme_surface;
+    private static final int BG_COLOR_MESSAGE           = BG_COLOR;
+    private static final int COLOR_NO_GPX               = COLOR_RED;
+    private static final int COLOR_TRACKING             = R.color.tracking;
+    private static final int COLOR_APPROACHING          = R.color.approaching;
     private static final int COLOR_OUT_OF_TRACK        = COLOR_RED;
     private static final int COLOR_DESTINATION_REACHED = COLOR_TRACKING;
     private static final int COLOR_DESTINATION_FAILED  = COLOR_RED;
@@ -113,9 +124,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     final static double maxOffsetStart_km = 0.100;
     final static double maxOffsetTrack_km = 0.030;
-    final static int outOfTrackCountAlarm = 10;
-    final static int alarmInterval = 100;
-    final static int maxAlarms = 10;
 
     /**
      * important app data for saving/restoring the application state after relaunching the app on
@@ -132,42 +140,49 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     int remainBreakTime_min = 0;
     long _endBreakTime = 0;
-    int outOfTrackCount = 0;
-    int alarmCount = 0;
-    int alarmTtsCount = 0;
 
     private double dist_from_start = 0.0;
 
-    public Time CurrentTime = new Time();
-
+    /** period of the runnable timer [ms] */
+    protected int timerPeriod_ms;
     /** timeout counter to detect GPS location timeout */
     private int _timerGps_ms = 0;
     final static int _timeoutGps_ms = 3000;
-    int _timerPeriod_ms;
 
+    /** timeout counter to warn "out of track" */
+    private int _timerOutOfTrack_ms = 0;
+    final static int MAX_ALARMS_OUT_OF_TRACK = 10;
+    final static int TIMEOUT_OUT_OF_TRACK_ALARM_MS = 10000;
+    final static int INTERVAL_OUT_OF_TRACK_ALARM_MS = 10000;
+    private int _counterOutOfTrackAlarms = 0;
 
     /** index of the lst place to search for the nearest GPS location */
     private int endIndex = 0;
+
+    private int _arrivedPlace = -1, _nextPlace = -1;
 
     /** max. allowed offset between a track point and the GPS location */
     private double maxOffset_km = maxOffsetStart_km;
     /** nearest distance of the track point to the received GPS location */
     private double nearestDistance = 0.0;
 
-    /** start time of the tour in UTC milliseconds since the epoch.*/
-    private long _startTime_ms = 0;
+    /**
+     * start time of the tour in [min] since midnight
+     */
+    private int _startTime_min = 0;
 
     private double _distanceAtBreak = 0.0;
 
+    private boolean _updateLogTimerGPS = false;
     private boolean _updateRecordAdapter = false;
     /** Request to update the status of the navigation */
     private boolean _updateStatus = false;
 
     /** Request to update the status of the GPS */
-    private  boolean _updateGpsStatus = false;
+    private static boolean _updateGpsStatus = false;
 
-    private gpsStatus _newGpsStatus = gpsStatus.NOT_REGISTERED;
-    private gpsStatus _GpsStatus = gpsStatus.NOT_REGISTERED;
+    private static gpsStatus _newGpsStatus = gpsStatus.NOT_REGISTERED;
+    private static gpsStatus _GpsStatus = gpsStatus.NOT_REGISTERED;
     private static boolean _destinationReached = false;
 
     public static final int TASK_COMPLETE = 4;
@@ -175,6 +190,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     // An object that manages Messages in a Thread
     private Handler mainHandler;
 
+    private BroadcastReceiver locationReceiver = null;
 
     /**
      * Constructor of the class
@@ -183,16 +199,23 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestForegroundPermissionIfNeeded();
 
-        LocationService.locationActivity = this;
-
+        locationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // handle the intent ACTION_LOCATION_UPDATE
+//                if (intent.getIdentifier().equals(ACTION_LOCATION_UPDATE))
+                    _location = intent.getParcelableExtra("location");
+            }
+        };
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
-        super.tourDetails = new TourDetails(this, super.app, recordAdapter);
+        super.tourDetails = new TourDetails(this, app, recordAdapter);
 
         /* Check if the ACCESS_FINE_LOCATION permission has been granted */
          setLocationStatus(locationStatus.NO_GPX_FILE_LOADED);
@@ -272,6 +295,28 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        /* register a GPS location receiver */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // One of RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED should be specified when a receiver isn't being registered exclusively for system broadcasts
+            registerReceiver(locationReceiver, new IntentFilter(ACTION_LOCATION_UPDATE), Context.RECEIVER_EXPORTED );
+        } else
+            registerReceiver(
+                locationReceiver,
+                new IntentFilter(ACTION_LOCATION_UPDATE)
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        // important: unregister the GPS location receiver
+        unregisterReceiver(locationReceiver);
+        super.onStop();
+    }
+
+    @Override
     /**
      * This method is called when the app is no longer in the foreground and is partially visible.
      * This can happen when the user switches to another app or when the screen is turned off.
@@ -286,7 +331,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         AppState.setGpsStatus(_GpsStatus);
         AppState.setLocationStatus(_locationStatus);
         AppState.setStartGpsIndex(_startGpsIndex);
-        AppState.setTracking(control.isTracking());
+        AppState.setTracking(isTracking());
     }
 
     @Override
@@ -301,11 +346,12 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      */
     public void onBackPressed()
     {
-        control.setExpandViewStatus(false);
+        setExpandViewStatus(false);
     }
 
     @Override
     protected void onDestroy() {
+        tts.stop();
         tts.shutdown();
         super.onDestroy();
     }
@@ -352,7 +398,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             completeMessage.sendToTarget();
 
 //            profileAdapter.initPlot();
-            control.setupUserInterface();
+            setupUserInterface();
         }
         else
             // In all other cases, pass along the message without any other action.
@@ -367,7 +413,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * @param inLongitude GPS longitude
      * @param inAccuracy  horizontal accuracy [m] / 0
      */
-    public void handleGpsData(Time inGPStime, double inLatitude, double inLongitude, float inAccuracy) {
+    public void handleGpsData(long inGPStime, double inLatitude, double inLongitude, float inAccuracy) {
         recordAdapter.setRealtime(true);
 
         _timerGps_ms = 0;
@@ -414,32 +460,53 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     endIndex = recordAdapter.getEndIndex(endIndex);
 
                     /* Find nearest track point to the received GPS location */
-                    int nearestGPSindex = super.app.getNearestTrackpointIndex(_startGpsIndex, endIndex, inLatitude, inLongitude, maxOffset_km);
+                    int nearestGPSindex = app.getNearestTrackpointIndex(_startGpsIndex, endIndex, inLatitude, inLongitude, maxOffset_km);
                     /* Return the nearest distance of this track point to the received GPS location */
-                    nearestDistance = super.app.getNearestDistance();
+                    nearestDistance = app.getNearestDistance();
 
                     if (DEBUG) {
+                        if (nearestGPSindex >= 0) {
+                            while (_arrivedPlace < recordAdapter.getCount()) {
+                                if (_startGpsIndex >= recordAdapter.getItem(_arrivedPlace+1).trackPointIndex) {
+                                    _arrivedPlace++;
+                                    Log.i(TAG, "handleGPSdata(): arrived at: " +
+                                            recordAdapter.getItem(_arrivedPlace).trackPoint.getRoutePointName()
+                                            + " @ " + formatHourMinSecs(inGPStime / 1000L));
+                                }
+                                else
+                                    break;
+                            }
+                        }
                         String simGPSindex = (gpsSimulation != null) ? ", simGPSindex = " + gpsSimulation.getGpsIndex() : "";
-                        Log.d(TAG, "HandleGPSdata(): _locationStatus = " + getLocationStatus(_locationStatus) +
-                                ", place =  + startPlace" + simGPSindex +
+                        Log.d(TAG, "handleGPSdata(): _locationStatus = " + getLocationStatus(_locationStatus) +
+                                simGPSindex +
                                 ", startGPSindex = " + _startGpsIndex + ", endIndex = " + endIndex +
                                 ": nearestGPSindex = " + nearestGPSindex +
                                 ", nearestDist = " + (int) (nearestDistance * 1000.0) + " m");
                     }
-                    // no GPS location found ?
-                    if (nearestGPSindex == DataPoint.INVALID_INDEX)
-                        // extend the search by one location
-                        endIndex++;
-                        // nearby GPS location found ?
-                    else if (nearestGPSindex >= 0)
+                    // nearby GPS location found ?
+                    if (nearestGPSindex >= 0) {
+                        switch (_locationStatus) {
+                            case GOTO_START_POS:
+                            case APPROACHING:
+                            case OUT_OF_TRACK: {
+                                if (nearestDistance < maxOffsetTrack_km)
+                                    setLocationStatus(locationStatus.TRACKING);
+                                break;
+                            }
+                        }
                         // handle it
                         handlePosition(nearestGPSindex, inGPStime);
+                    }
+                    else if (nearestGPSindex == DataPoint.INVALID_INDEX)
+                        // extend the search by one location
+                        endIndex++;
                     else {
-                        // no valid GPS location found - depending on the location status:
+                        // no valid GPS location found: extend the search by one location
+                        endIndex++;
+                        // depending on the location status:
                         switch (_locationStatus) {
                             case OUT_OF_TRACK:
-                                // extend the search by one location
-                                endIndex++;
                             case GOTO_START_POS:
                             case DESTINATION_REACHED:
                                 requestStatusUpdate();
@@ -459,20 +526,26 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     /**
      * Notify the application of the changed start time of the tour
+     * @param inStartTime start time in [min] since midnight
      */
-    protected void onStartTimeChanged(Time inStartTime) {
+    protected void onStartTimeChanged(int inStartTime) {
+        _startTime_min = inStartTime;
         recordAdapter.setStartTime(inStartTime);
-        recordAdapter.notifyDataSetChanged();
 
-        _startTime_ms = recordAdapter.getStartTime().toMillis(true);
         requestStatusUpdate();
     }
 
-
+    /**
+     *
+     * @return true if tracking can start
+     */
     public boolean isTrackingEnabled() {
+        if (gpsSimulation == null && !getPermissionsGranted())
+            return false;
         switch (_locationStatus) {
+            case GPX_FILE_LOADED:
             case WAIT_USER_START:
-                return (_startTime_ms > 0);
+                return (_startTime_min > 0);
             case GOTO_START_POS:
             case TRACKING:
             case APPROACHING:
@@ -495,9 +568,9 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Notify the application of a loaded GPX file
      */
     public void notifyGpsFileLoaded() {
-        _startTime_ms = SettingsActivity.getStartTime();
-        if (_startTime_ms > 0) recordAdapter.setStartTime(_startTime_ms);
-        recordAdapter.notifyDataSetChanged();
+        _startTime_min = SettingsActivity.getStartTime(sharedPref);
+        if (_startTime_min > 0) recordAdapter.setStartTime(_startTime_min);
+// todo        recordAdapter.notifyDataSetChanged();
         setLocationStatus(locationStatus.GPX_FILE_LOADED);
     }
 
@@ -508,10 +581,18 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * --------------------------------------------------------------------------------------------
      */
 
-    protected void runner () {
-        _timerGps_ms += _timerPeriod_ms;
+    public static void setLocation(Location inLocation) {
+        if (gpsSimulation == null)
+            _location = inLocation;
+    }
 
-        if (DEBUG) Log.d(TAG,"runner: _timerGps_ms = " + _timerGps_ms);
+    protected void runner () {
+        if (DEBUG) if (_updateLogTimerGPS) {
+            Log.d(TAG,"runner: _timerGps_ms = " + _timerGps_ms);
+            _updateLogTimerGPS = false;
+        }
+        _timerGps_ms += timerPeriod_ms;
+
         recordAdapter.onDataSetChanged();
         if (_updateRecordAdapter) {
             recordAdapter.notifyDataSetChanged();
@@ -519,24 +600,38 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
 
         // Request to update the status of the navigation ?
-        if (_updateStatus)
+        if (_updateStatus) {
             onUpdateStatus();
+        }
 
-        if (control.isTracking())
+        if (isTracking())
             checkGpsStatus();
 
-        if (_updateGpsStatus)
+        if (_updateGpsStatus) {
+            if (DEBUG) _updateLogTimerGPS = true;
             onUpdateGpsStatus();
+        }
 
         gpsStatus prevGpsStatus = _GpsStatus;
-        if (control.isTracking() && (gpsSimulation != null)) {
-            /** Handle GPS simulation */
-            Location location = gpsSimulation.getLocation();
-            if (location != null) {
+        if (isTracking()) {
+            long now = 0;
+            if (gpsSimulation != null) {
+                /** Handle GPS simulation */
+                _location = gpsSimulation.getLocation();
                 /* use time from GPS simulation data */
-                CurrentTime.set(location.getTime());
-                handleGpsData(CurrentTime, location.getLatitude(), location.getLongitude(), 5);
+                if (_location != null) {
+                    // todo replace Time
+                    now = _location.getTime();
+                }
             }
+            else
+                /* use system time instead of time from real Location provider */
+                now = System.currentTimeMillis();; // todo replace all CurrentTime.setToNow();
+            if (_location != null) {
+                handleGpsData(now, _location.getLatitude(), _location.getLongitude(), _location.getAccuracy());
+                _location = null;
+            }
+
         } else if (prevGpsStatus != gpsStatus.GPS_FIX) {
             requestStatusUpdate();
         }
@@ -546,6 +641,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             case PROVIDER_DISABLED:
             case PROVIDER_ENABLED:
             case WAIT_FOR_GPS_FIX:
+                _updateLogTimerGPS = true;
                 requestStatusUpdate();
                 break;
             case GPS_FIX:
@@ -553,24 +649,39 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 break;
             default:
         }
-        _timerPeriod_ms = 100 * (gpsSimulation != null ? 1 : 10);
+        timerPeriod_ms = 100 * (gpsSimulation != null ? 1 : 1);
     }
 
-    /** Check if the ACCESS_FINE_LOCATION FOREGROUND_SERVICE_LOCATION permissions have been granted */
+    /** @return true if both the ACCESS_FINE_LOCATION and FOREGROUND_SERVICE_LOCATION permissions have been granted */
     private boolean getPermissionsGranted() {
         int perm1 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         int perm2 = ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION);
-        return (perm1 == PackageManager.PERMISSION_GRANTED) && (perm2 == PackageManager.PERMISSION_GRANTED);
+        return (perm1 == PackageManager.PERMISSION_GRANTED) ; // todo && (perm2 == PackageManager.PERMISSION_GRANTED);
+    }
+
+    /**
+     * Start/Stop the foreground Location service
+     *
+     * @param inStart true if the GPS provider shall controls the tracking
+     */
+    public void startForegroundLocationService(boolean inStart) {
+        if (!inStart)
+            stopService(new Intent(this, LocationService.class));
+        else {
+            requestForegroundPermissionIfNeeded();
+
+            Intent intent = new Intent(this, LocationService.class);
+            ContextCompat.startForegroundService(this, intent);
+        }
     }
 
     /** Check if the FOREGROUND_SERVICE_LOCATION permission has been granted;
      * if not : request it
      **/
     public void requestForegroundPermissionIfNeeded() {
-        /* Check if the ACCESS_FINE_LOCATION permission has been granted */
+        /* Check if the FOREGROUND_SERVICE_LOCATION permission has been granted */
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE_LOCATION)
            == PackageManager.PERMISSION_GRANTED) {
-//            setGpsStatus(gpsStatus.PERMISSION_GRANTED);
         }
         else {
             /* ⚠️ Do NOT request both at the same time or background permission will be denied. */
@@ -606,7 +717,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Update the status of the navigation
      */
     private void onUpdateStatus() {
-        control.updateTrackingStatus();
+        updateTrackingStatus();
 
         String time;
         String activity ="";
@@ -614,24 +725,27 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
         if (_newLocationStatus != _locationStatus)
         {
+            _updateLogTimerGPS = true;
             _locationStatus = _newLocationStatus;
             _newLocationStatus = _locationStatus;
         }
 
         if (_prevLocationStatus != _locationStatus) {
-            if (DEBUG)
+            if (DEBUG) {
+                _updateLogTimerGPS = true;
                 Log.d(TAG, "onUpdateStatus() changed _locationStatus: " +
-                        getLocationStatus(_prevLocationStatus) + " -> "+ getLocationStatus(_locationStatus));
+                        getLocationStatus(_prevLocationStatus) + " -> " + getLocationStatus(_locationStatus));
+            }
             switch (_locationStatus) {
                 case NO_GPX_FILE_LOADED: {
                     activity = getString(R.string.load_gpx_file);
-                    bgColor = COLOR_MESSAGE;
+                    bgColor = BG_COLOR_MESSAGE;
                     break;
                 }
                 case GPX_FILE_LOADED: {
-                    if (_startTime_ms == 0) {
+                    if (_startTime_min == 0) {
                         activity = getString(R.string.set_start_time);
-                        bgColor = COLOR_MESSAGE;
+                        bgColor = BG_COLOR_MESSAGE;
                     }
                     if ((_initialLocationStatus != locationStatus.INITIAL)
                             && (_initialLocationStatus != locationStatus.WAIT_USER_START)
@@ -641,15 +755,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                         _initialLocationStatus = locationStatus.INITIAL;
                         if (_initialTrackingStatus) {
                             if (DEBUG) Log.d(TAG, " set initial tracking status: active");
-                            control.setTrackingStatus(true);
+                            setTrackingStatus(true);
                             _initialTrackingStatus = false;
                         }
-
-                        // todo return;
                     }
                     else
-                        control.setTrackingStatus(false);
-                    if (!app.getTrack().isValidRecordedTrackFile())
+                        setTrackingStatus(false);
+                    if (app.getTrack().isValid()) // !app.getTrack().isValidRecordedTrackFile())
                         setLocationStatus(locationStatus.WAIT_USER_START);
                     break;
                 }
@@ -662,24 +774,25 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 }
             }
         }
-        else if (control.isTracking()) {
+        else if (isTracking()) {
             switch (_locationStatus) {
                 case WAIT_USER_START: {
                     // show first place
                     int startPlace = recordAdapter.getInitialPlace();
-                    recordAdapter.setPlace(startPlace, false);
+                    recordAdapter.setPlace(this, startPlace, false);
                     /* start tracking from first track point */
                     if (recordAdapter.getCount() > startPlace)
-                        setStartGpsIndex(super.app.getPointIndex(recordAdapter.getItem(startPlace).getTrackPoint()));
+                        setStartGpsIndex(recordAdapter.getItem(startPlace).trackPoint.getIndex());
                     setLocationStatus(locationStatus.GOTO_START_POS);
                     break;
                 }
                 case GOTO_START_POS: {
+                    _arrivedPlace = -1;
                     _destinationReached = false;
                     activity = getString(R.string.goto_start_pos);
                     if (_GpsStatus == gpsStatus.GPS_FIX) {
                         activity = activity + getNearestDistance();
-                        bgColor = COLOR_MESSAGE;
+                        bgColor = BG_COLOR_MESSAGE;
                     } else {
                         activity = getString(R.string.gps_fix_lost);
                         bgColor = COLOR_NO_GPX;
@@ -695,15 +808,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                         activity = getString(R.string.gps_fix_lost);
 
                     if (raiseAlarm) {
-                        outOfTrackCount++;
-                        if ((outOfTrackCount > outOfTrackCountAlarm) && (alarmCount < maxAlarms)) {
+                        _timerOutOfTrack_ms += timerPeriod_ms;
+                        if ((_timerOutOfTrack_ms > TIMEOUT_OUT_OF_TRACK_ALARM_MS) && (_counterOutOfTrackAlarms < MAX_ALARMS_OUT_OF_TRACK)) {
                             // play alarm?
-                            if (alarmTtsCount == 0) {
+                            if (((_timerOutOfTrack_ms - TIMEOUT_OUT_OF_TRACK_ALARM_MS) % INTERVAL_OUT_OF_TRACK_ALARM_MS) == 0) {
                                 tts.speak(getString(R.string.return_to_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
-                                alarmCount++;
+                                _counterOutOfTrackAlarms++;
                             }
-                            if (alarmTtsCount++ > alarmInterval)
-                                alarmTtsCount = 0;
                         }
                     }
                     break;
@@ -739,11 +850,10 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                             }
                         }
                     }
-                    if (outOfTrackCount > outOfTrackCountAlarm)
+                    if (_timerOutOfTrack_ms > TIMEOUT_OUT_OF_TRACK_ALARM_MS)
                         tts.speak(getString(R.string.on_track), TextToSpeech.QUEUE_FLUSH, null, getString(R.string.app_name));
-                    outOfTrackCount = 0;
-                    alarmCount = 0;
-                    alarmTtsCount = 0;
+                    _timerOutOfTrack_ms = 0;
+                    _counterOutOfTrackAlarms = 0;
                     break;
                 }
                 case DESTINATION_REACHED: {
@@ -768,14 +878,15 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         else {
             switch (_locationStatus) {
                 case WAIT_USER_START: {
-                    if (_startTime_ms == 0) {
+                    if (_startTime_min == 0)
                         activity = getString(R.string.set_start_time);
-                        bgColor = COLOR_MESSAGE;
+                    else if (!getPermissionsGranted()) {
+                        activity = getString(R.string.permit_location);
+                        requestLocationPermissionIfNeeded();
                     }
-                    else {
+                    else
                         activity = getString(R.string.wait_user_start);
-                        bgColor = COLOR_MESSAGE;
-                    }
+                    bgColor = BG_COLOR_MESSAGE;
                     break;
                 }
                 default: {
@@ -784,30 +895,35 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
         }
 
-        if (!control.getExpandViewStatus()) {
+        if (!getExpandViewStatus()) {
             if (!isErrorMessage()) {
                 if (!activity.isEmpty()) {
-/*
                     // show current system time
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss ");
-                    Calendar calender = Calendar.getInstance();
-                    calender.setTimeInMillis(CurrentTime.toMillis(true));
-                    time = sdf.format(calender.getTime());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(System.currentTimeMillis());
+                    time = sdf.format(calendar.getTime());
 
-                    /** @todo 00:00:00 Die Tour kann starten! */
-                    // if (_GpsStatus == gpsStatus.GPS_FIX)
-                    // activity = time + activity;
+                    /** add real time, ex. 00:00:00 Die Tour kann starten! */
+                    if (_GpsStatus == gpsStatus.GPS_FIX)
+                        activity = time + activity;
 
-                    setTitleText(activity, bgColor);
+                    try {
+                        long color = getColor(bgColor);
+                        setTitleText(activity, getColor(bgColor));
+                    }
+                    catch (Exception e)
+                    {
+                        if (DEBUG) Log.e(TAG,"color resource not fpund: " + bgColor);
+                    }
                 }
             }
-            if (control.isTracking())
+            if (isTracking())
                 recordAdapter.scrollToListPosition();
-            recordAdapter.notifyDataSetChanged();
+// todo            recordAdapter.notifyDataSetChanged();
         }
         _prevLocationStatus = _locationStatus;
         _updateStatus = false;
-        // todo        if (DEBUG) Log.d(TAG,"onUpdateStatus end");
     }
 
     /**
@@ -816,17 +932,21 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private void onUpdateGpsStatus() {
         if (_newGpsStatus != _GpsStatus) {
             if (DEBUG) Log.d (TAG, "onUpdateGpsStatus() _gpsStatus = " + _GpsStatus);
-            control.showGpsStatus(_newGpsStatus);
             _GpsStatus = _newGpsStatus;
+            showGpsStatus();
         }
         _updateGpsStatus = false;
+    }
+
+    public static gpsStatus getGpsStatus() {
+        return _GpsStatus;
     }
 
     /**
      * Set the status of the GPS location provider
      * @param inGpsStatus status of the GPS location provider
      */
-    public void setGpsStatus(gpsStatus inGpsStatus) {
+    public static void setGpsStatus(gpsStatus inGpsStatus) {
         if (inGpsStatus != _GpsStatus) {
             switch (inGpsStatus) {
                 case PERMISSION_DENIED:
@@ -849,7 +969,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                             break;
                     }
             }
-
         }
     }
 
@@ -920,13 +1039,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Handle a nearby found GPS location
      *
      * @param inPosition index of the nearest track point
-     * @param inTime     local time from the GPS receiver
+     * @param inTime     local time from the GPS receiver [ms]
      */
-    private void handlePosition(int inPosition, Time inTime) {
+    private void handlePosition(int inPosition, long inTime) {
         // use this position to start navigation
         setStartGpsIndex(inPosition);
 
-        DataPoint point = super.app.getPoint(inPosition);
+        DataPoint point = app.getPoint(inPosition);
         if (point != null) {
             /* Show current distance since start and the remaining distance to destination */
             dist_from_start = point.getDistance();
@@ -938,28 +1057,36 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             long destTime_s = point.getTime();
             int place = recordAdapter.getPlace();
             boolean setNextPlace = true;
-            if ((_startTime_ms > 0) && ((inPosition == 0) || (destTime_s > 0))) {
+            if ((_startTime_min > 0) && ((inPosition == 0) || (destTime_s > 0))) {
 
                 // calculate delay
                 long delay_s;
                 if (gpsSimulation != null) {
+                    Calendar calendar = Calendar.getInstance();
+//                    calendar.setTimeZone(getSelectedTimezone());
+//                    calendar.setTimeInMillis(System.currentTimeMillis());
+//                    String time = calendar.toString();
+//                    calendar.set(0, 0, 0, 0, 0);
+                    calendar.setTimeInMillis(inTime);
+//                    time = calendar.toString();
+
                     // ignore the day in simulation
-                    long gpsTime_s = inTime.second + 60 * (inTime.minute + 60L * inTime.hour);
-                    Time start = recordAdapter.getStartTime();
-                    long start_Time_s = (start.minute + 60L * start.hour) * 60L;
-                    delay_s = gpsTime_s - (start_Time_s + destTime_s);
-                    /*
-                    if (DEBUG) {
-                        Log.d(TAG, "handlePosition() - gpsTime_s  = " + gpsTime_s);
-                        Log.d(TAG, "                 - destTime_s = " + destTime_s);
-                        Log.d(TAG, "                 - distance   = " + dist_from_start);
-                        Log.d(TAG, "                 - delay_min  = " + delay_s / 60);
-                    }
-                     */
+                    long gpsTime_s = calendar.get(Calendar.SECOND) + 60 * (calendar.get(Calendar.MINUTE) + 60L * calendar.get(Calendar.HOUR_OF_DAY));
+                    delay_s = gpsTime_s - (_startTime_min * 60 + destTime_s);
+
+                    if (DEBUG)
+                        Log.d(TAG, "handlePosition(): gpsTime_s = " + gpsTime_s
+                            + "; destTime_s = " + destTime_s
+                            + "; distance = " + dist_from_start
+                            + "; delay_min = " + delay_s / 60);
                 } else {
-                    long gpsTime_ms = inTime.toMillis(true);
-                    delay_s = (gpsTime_ms - _startTime_ms) / 1000;
+                    long gpsTime_ms = inTime;
+                    delay_s = (gpsTime_ms - _startTime_min) / 1000;
                     delay_s = (delay_s - destTime_s);
+                }
+                if (DEBUG) {
+                    if (point.isRoutePoint())
+                        Log.i(TAG,"reached: " + point.getRoutePointName());
                 }
 
                 if (remainBreakTime_min <= 0)
@@ -978,7 +1105,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                         if (remainBreakTime_min > 0)
                         {
                             // calc time stamp of end of break
-                            _endBreakTime = inTime.toMillis(true) + (long) remainBreakTime_min * 60000L;
+                            _endBreakTime = inTime + (long) remainBreakTime_min * 60000L;
                             setNextPlace = false;
                         }
                     }
@@ -986,7 +1113,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 else
                 {
                     /* calc remaining time of break */
-                    long remainBreakTime_ms = _endBreakTime - inTime.toMillis(true);
+                    long remainBreakTime_ms = _endBreakTime - inTime;
                     if (remainBreakTime_ms > 0)
                         remainBreakTime_min = (int)(remainBreakTime_ms / 60000L);
                     else{
@@ -1006,7 +1133,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             {
                 _distanceAtBreak = 0.0;
                 remainBreakTime_min = 0;
-                place = recordAdapter.setNextPlace(dist_from_start,false);
+                place = recordAdapter.setNextPlace(this, dist_from_start,false);
             }
             if (place < recordAdapter.getCount()) {
                 recordAdapter.notifyDataSetChanged();
@@ -1016,6 +1143,9 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 else
                     switch (_locationStatus) {
                         case GOTO_START_POS:
+// todo
+  break;
+  /*
                         case TRACKING:
                         case APPROACHING:
                             setLocationStatus(locationStatus.TRACKING);
@@ -1024,6 +1154,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                             setLocationStatus(locationStatus.APPROACHING);
                             break;
                         case DESTINATION_REACHED:
+   */
                         default:
                             requestStatusUpdate();
                     }
@@ -1036,7 +1167,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     private void resetStartGpsIndex(int inIndex) {
         _updateRecordAdapter = true;
         int place = recordAdapter.indexOf(inIndex);
-        recordAdapter.setPlace(place, false);
+        recordAdapter.setPlace(this, place, false);
         setStartGpsIndex(inIndex);
     }
 
