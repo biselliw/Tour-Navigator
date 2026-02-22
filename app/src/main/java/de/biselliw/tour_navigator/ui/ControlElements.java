@@ -280,7 +280,7 @@ public class ControlElements extends BaseActivity {
                     }
                 }
             }
-            else if (id == R.id.nav_osm_guideposts || id == R.id.nav_osm_pois)
+            else if (id == R.id.nav_osm_guideposts || id == R.id.nav_osm_pois || id == R.id.nav_wikipedia)
                 item.setVisible(getConsentInternet());
             else
                 item.setVisible(true);

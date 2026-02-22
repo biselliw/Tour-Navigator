@@ -16,7 +16,7 @@ Erforderlich ist nur:
 
 Optional (nur bei Nutzung entsprechender und zuvor von dir freigegebener Funktionen):
 
-- Internetzugriff für Wikipedia-Artikel und OpenStreetMap-POIs
+- Internetzugriff für OpenStreetMap-POIs, Wikipedia-Artikel und zum Schwarzwaldverein Tourenportal 
 - Routenplanung mit Google Maps
 
 ### Echtzeit-Navigation

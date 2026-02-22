@@ -65,6 +65,20 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
         }
     }
 
+    /* lists of values */
+    String[] values_amenity = new String[]{"bbq", "bench", "biergarten", "cafe", "drinking_water",
+            "fountain", "ice_cream", "lounger", "place_of_worship", "restaurant", "shelter", "toilets", "water_point"};
+    String[] values_information = new String[]{"board", "guidepost", "map"};
+    String[] values_tourism = new String[]{"museum","viewpoint",
+            "artwork" // todo translate
+    };
+    String[] values_natural = new String[]{"rock", "spring"};
+
+    /* list of keys */
+    String[] keys = new String[]{"amenity", "information", "tourism", "natural"};
+    /* list of value lists */
+    String[][] values = new String[][]{values_amenity,values_information, values_tourism, values_natural};
+
     /**
      * Check if key / value match
      * @param inKey key from startElement attributes
@@ -72,19 +86,6 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
      * @return true if OSM item shall be used
      */
     private boolean match (String inKey, String inValue) {
-        /* lists of values */
-        String[] values_amenity = new String[]{"bbq", "bench", "biergarten", "cafe", "drinking_water",
-                "fountain", "ice_cream", "lounger", "place_of_worship", "restaurant", "shelter", "toilets", "water_point"};
-        String[] values_information = new String[]{"board", "guidepost", "map"};
-        String[] values_tourism = new String[]{"museum","viewpoint",
-            "artwork" // todo translate
-        };
-        String[] values_natural = new String[]{"rock", "spring"};
-
-        /* list of keys */
-        String[] keys = new String[]{"amenity", "information", "tourism", "natural"};
-        /* list of value lists */
-        String[][] values = new String[][]{values_amenity,values_information, values_tourism, values_natural};
 
         return match(inKey, keys, inValue, values);
     }
@@ -126,7 +127,8 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
      * @return true if the lists contain the key / value pair
      */
     private boolean match (String inKey) {
-        String[] keys = new String[]{"highway","hiking",
+        String[] keys = new String[]{"highway", // todo reduce, remove street_lamp
+                "hiking",
 
             "historic", // todo translate "historic", "monument", "memorial", "wayside_shrine", "wayside_cross"
             "man_made", // todo translate "street_cabinet", "surveillance" "webcam"

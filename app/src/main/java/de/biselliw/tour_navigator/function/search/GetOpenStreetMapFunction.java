@@ -73,7 +73,7 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     /**
      * Enable simulation of overpass-api query by loading a test file instead
      */
-    private static final boolean SIMULATE_QUERY = true;
+    private static final boolean SIMULATE_QUERY = false;
 
     /**
      * Maximum distance between track and point in km
