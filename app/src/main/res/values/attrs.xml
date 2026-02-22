@@ -1,8 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="plotStyle" format="reference" />
+
+    <!-- ================================================= -->
+    <!-- App-specific Theme-Attribute (Material 3 safe)    -->
+    <!-- ================================================= -->
+
+    <!-- Plot / Chart -->
+    <attr name="plotGridLineColor" format="color" />
+    <attr name="plotTextColor" format="color" />
+
+
+    <!-- Cards -->
+    <attr name="cardStrokeColor" format="color" />
+    <attr name="cardElevationSmall" format="dimension" />
+    <attr name="cardCornerRadiusMedium" format="dimension" />
+
+    <!-- Status / State Colors -->
+    <attr name="colorSuccess" format="color" />
+    <attr name="colorWarning" format="color" />
+    <attr name="colorErrorMuted" format="color" />
+
+    <!-- Icon / Indicator States -->
+    <attr name="iconActiveColor" format="color" />
+    <attr name="iconInactiveColor" format="color" />
+
     <declare-styleable name="AppTheme">
         <attr name="colorPrimaryDark" format="color" />
         <attr name="colorPrimary" format="color" />
+
+        <attr name="colorSurface" format="color" />
+        <attr name="colorOnSurface" format="color" />
+
         <attr name="activityBackgroundColor" format="color" />
         <attr name="headingTextColor" format="color" />
         <attr name="cardBackgroundColor" format="color" />
