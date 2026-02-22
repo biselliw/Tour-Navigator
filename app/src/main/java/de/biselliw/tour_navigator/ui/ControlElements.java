@@ -14,19 +14,22 @@ package de.biselliw.tour_navigator.ui;
     See the GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with FairEmail. If not, see
+    If not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
+import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -38,18 +41,15 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.List;
 
-import androidx.core.content.ContextCompat;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
-import de.biselliw.tour_navigator.LocationService;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.LocationActivity;
-import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
+import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.EstimateParams;
 import de.biselliw.tour_navigator.data.TourDetails;
-import de.biselliw.tour_navigator.data.TrackTiming;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
@@ -57,10 +57,15 @@ import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import static android.view.View.VISIBLE;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentInternet;
+import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentSwvTourenportal;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
+import static de.biselliw.tour_navigator.data.AppState.isGpxFileGuidePostsCached;
+import static de.biselliw.tour_navigator.data.AppState.isGpxFilePOIsCached;
 
 public class ControlElements extends BaseActivity {
+
+    protected App app;
 
     /**
      * TAG for log messages.
@@ -69,39 +74,35 @@ public class ControlElements extends BaseActivity {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    public static ControlElements control = null;
-    public App app = null;
-    public MainActivity main = null;
-
-    protected WebView webView = null;
+    protected SharedPreferences sharedPref = null;
 
     public ProfileAdapter profileAdapter = null;
 
-    private LocationActivity la = null;
     protected TourDetails tourDetails = null;
 
-    public RecordAdapter recordAdapter = null;
+    protected RecordAdapter recordAdapter = null;
 
     public TextToSpeech tts;
 
     boolean _initUserInterface = false;
     boolean _setupUserInterface = false;
-    boolean _updateTrackingStatus = false;
+    static boolean _updateTrackingStatus = false;
+    static boolean _updateAdditionalInfo = false;
     protected static boolean raiseAlarm = true;
 
     boolean _updateGpsStatus = false;
     boolean _updateExpandViewStatus = false;
     boolean _updateSpeakStatus = false;
-    boolean _updateErrorMessage = false;
+    static boolean _updateErrorMessage = false;
     boolean _updateExpandView = false;
-    boolean _updateFileInfo = false;
-    boolean _updateWaypointType = false;
-    boolean _initProfile = false, _updateProfile = false;
+    static boolean _updateFileInfo = false;
+    static boolean _updateWaypointType = false;
+    static boolean _initProfile = false;
+    boolean _updateProfile = false;
     boolean _rescalePlaceView = true;
 
-
-    public static boolean _isViewExpanded = false;
-    private static boolean _fileInfoAvailable = false;
+    private boolean _isViewExpanded = false;
+    private static boolean _tourInfoAvailable = false;
 
     private static final int COLOR_MESSAGE = 0xFFFFFFFF;
     private static final int COLOR_RED = 0xAAB71C1C;
@@ -112,30 +113,30 @@ public class ControlElements extends BaseActivity {
     private static boolean _isTracking;
 
     protected boolean firstStart = false;
-    Handler timerHandler = new Handler();
+    private final Handler _timerHandler = new Handler();
+    private Runnable _timerRunnable;
+    private final int _timerPeriod_ms = 100;
 
-    LocationActivity.gpsStatus _gpsStatus;
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
     boolean _speakEnabled = false;
     private TourDetails.AdditionalInfo _additionalInfo = null;
-    String errorMessage = "";
+    static String errorMessage = "";
     private String _distanceToPlace = "";
     int _profileViewVisibility = View.GONE;
 
-    public boolean updateGpxFile = false;
+    public static boolean updateGpxFile = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        la = (LocationActivity) this;
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
-        control = this;
         super.onPostCreate(savedInstanceState);
 
         // Initialize the user interface before loading a new GPX track
@@ -143,31 +144,36 @@ public class ControlElements extends BaseActivity {
 
         /* Install a timer to update control elements */
         //runs without a timer by reposting this handler at the end of the runnable
-        Runnable timerRunnable = new Runnable() {
+        _timerRunnable = new Runnable() {
             @Override
             public void run() {
+                if (stopped)
+                    return;
+
                 if (_initUserInterface) {
                     // Disable a group of navigation items
                     onPrepareNavigationMenu(mNavigationView.getMenu());
                     _initUserInterface = false;
                 }
+                else // todo fix onPrepareNavigationMenu(
+                    onPrepareNavigationMenu(mNavigationView.getMenu());
+
+
                 if (_setupUserInterface) {
                     // Enable a group of navigation items
                     onPrepareNavigationMenu(mNavigationView.getMenu());
                     onSetupUserInterface();
                 }
+
+                onPrepareButtons();
+                onUpdateStatusIcons();
+
                 if (_updateFileInfo)
                     showFileInfo();
-                if (_updateTrackingStatus)
-                    onShowTrackingStatus();
-                if (_updateGpsStatus)
-                    onShowGpsStatus();
-                if (_updateExpandViewStatus)
-                    onShowExpandViewStatus();
-                if (_updateSpeakStatus)
-                    onShowSpeakStatus();
                 if (_updateErrorMessage)
                     onShowErrorMessage();
+                if (_updateAdditionalInfo)
+                    showAdditionalInfo();
                 if (_updateExpandView)
                     onShowAdditionalInfo(_additionalInfo, _isViewExpanded);
                 if (_updateWaypointType)
@@ -176,85 +182,133 @@ public class ControlElements extends BaseActivity {
                     profileAdapter.initPlot();
                     _initProfile = false;
                 }
-                if (_updateProfile)
-                    onShowProfile();
                 if (_rescalePlaceView)
                     onRescalePlaceView();
 
-                timerHandler.postDelayed(this, 100);
+                _timerHandler.postDelayed(this, _timerPeriod_ms);
             }
         };
-        timerHandler.postDelayed(timerRunnable, 100);
+        _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if (!stopped)
+            _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
     }
 
+    @Override
+    protected void onDestroy() {
+        AppState.destroyed = true;
+        _timerHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
+    }
+
+    /**
+     *
+     * @see #onOptionsItemSelected in #MainActivity
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
-            switch (id) {
-                case R.id.itm_pause_time:
-                case R.id.itm_comment_waypoint:
-                case R.id.itm_nav_waypoint:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    break;
-                case R.id.itm_nav_google:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    item.setVisible(getConsentGoogleMaps());
-                    break;
-                case R.id.itm_find_nearby_wikipedia:
-                case R.id.itm_find_nearby_osm:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    item.setVisible(getConsentInternet());
-                    break;
-                case R.id.itm_set_new_start:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    break;
-                case R.id.itm_delete_waypoint:
-                case R.id.itm_delete_trackpoints:
-                    item.setEnabled(!_isViewExpanded && (_place >= 0));
-                    break;
-                case R.id.itm_separator:
-                    item.setEnabled(true);
-                    item.setVisible(true);
-                    break;
-                default:
-                    item.setVisible(false);
-            }
+            if ((id == R.id.itm_break_time) ||
+                (id == R.id.itm_comment_waypoint) ||
+                (id == R.id.itm_delete_routepoint) ||
+                (id == R.id.itm_delete_trackpoints) ||
+                (id == R.id.itm_set_new_start))
+                        item.setEnabled(!_isViewExpanded && recordAdapter != null && (_place > 0) && (_place < recordAdapter.getCount()-1));
+            else if (id == R.id.itm_nav_waypoint)
+                        item.setEnabled(!_isViewExpanded && (_place >= 0));
+            else if (id == R.id.itm_nav_google) {
+                        item.setEnabled(!_isViewExpanded && (_place >= 0));
+                        item.setVisible(getConsentGoogleMaps());
+            } else if ( // id == R.id.itm_find_nearby_wikipedia ||
+                    id == R.id.itm_find_nearby_osm) {
+                        item.setEnabled(!_isViewExpanded && (_place >= 0));
+                        item.setVisible(getConsentInternet());
+            } else if (id == R.id.itm_nav_swv_tourenportal) {
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+                item.setVisible(getConsentSwvTourenportal());
+            } else if (id == R.id.itm_separator) {
+                        item.setEnabled(true);
+                        item.setVisible(true);
+            } else
+                        item.setVisible(false);
         }
-
         return true;
     }
 
     public void onPrepareNavigationMenu(Menu menu) {
-        boolean gpxFileValid = app.getTrack().isValid();
+        boolean gpxFileValid = App.getTrack().isValid();
 
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             int id = item.getItemId();
             if (id == R.id.nav_file_info)
-                item.setEnabled(
-                        Log.isLoggedHTML() ||
-                                (!_initUserInterface && _fileInfoAvailable) ||
-                                app.getTrack().isValidRecordedTrackFile()
+                item.setEnabled(Log.isLoggedDebugHTML() ||
+                    (!_initUserInterface && _tourInfoAvailable) ||
+                    App.getTrack().isValidRecordedTrackFile()
                 );
             else if (
                     (id == R.id.nav_reverse_route) ||
-                            (id == R.id.nav_start_time) ||
-                            (id == R.id.nav_download_html) ||
-                            (id == R.id.nav_timetable))
+                    (id == R.id.nav_start_time) ||
+                    (id == R.id.nav_download_html)
+                    )
                 item.setEnabled(!_initUserInterface && gpxFileValid);
-            else if
-                    (id == R.id.nav_download_gpx)
-                item.setEnabled(!_initUserInterface && gpxFileValid || app.getTrack().isValidRecordedTrackFile());
+            else if (id == R.id.nav_timetable)
+                item.setEnabled(!_initUserInterface && App.getTrack().hasAltitudes());
+            else if (id == R.id.nav_download_gpx)
+                item.setEnabled(!_initUserInterface && gpxFileValid || App.getTrack().isValidRecordedTrackFile());
+            else if (id == R.id.nav_add_waypoints) {
+                if (item.hasSubMenu()) {
+                    SubMenu subMenu = item.getSubMenu();
+                    if (subMenu != null) {
+                        MenuItem mitem = subMenu.findItem(R.id.nav_remote_waypoints);
+                        if (mitem != null)
+                            mitem.setVisible(App.getTrack().hasWayPointsOutOfTrack());
+                        mitem = subMenu.findItem(R.id.nav_osm_guideposts);
+                        if (mitem != null)
+                            mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
+                                    (getConsentInternet() || isGpxFileGuidePostsCached()));
+                        mitem = subMenu.findItem(R.id.nav_osm_pois);
+                        if (mitem != null)
+                            mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
+                                    (getConsentInternet() || isGpxFilePOIsCached()));
+                        mitem = subMenu.findItem(R.id.nav_wikipedia);
+                        if (mitem != null)
+                            mitem.setVisible(!_initUserInterface && (getConsentInternet()));
+                    }
+                }
+            }
             else
                 item.setVisible(true);
         }
+    }
+
+    public void onPrepareButtons() {
+        // Update the controls showing the tracking status
+        if (_updateTrackingStatus) {
+            onShowTrackingStatus();
+            _updateGpsStatus = true;
+        }
+        // Show one of the images expand more/less depending on the state of expandView
+        if (_updateExpandViewStatus)
+            onShowExpandViewStatus();
+        // Show one of the images expand more/less depending on the state of expandView
+        if (_updateSpeakStatus)
+            onShowSpeakStatus();
+        // Show/hide the profile
+        if (_updateProfile)
+            onShowProfile();
+    }
+
+    public void onUpdateStatusIcons() {
+        // Show the GPS status
+        if (_updateGpsStatus)
+            onShowGpsStatus();
     }
 
     /**
@@ -305,13 +359,14 @@ public class ControlElements extends BaseActivity {
         _setupUserInterface = false;
     }
 
+
     /**
      * Show the tracking status
      */
     private void onShowTrackingStatus() {
         _updateTrackingStatus = false;
 
-        if (la.isTrackingEnabled() && App.getTrack().isValid())
+        if (((LocationActivity)this).isTrackingEnabled() && App.getTrack().isValid())
         {
             if (_isTracking) {
                 setViewVisibility(R.id.image_tracking_pause,VISIBLE);
@@ -368,9 +423,9 @@ public class ControlElements extends BaseActivity {
         }
 
         if (!_speakEnabled) {
-            if (tts.isSpeaking()){
+            if (tts.isSpeaking())
                 stopSpeaking();
-            }
+
             image_text_to_speech.setVisibility(View.GONE);
             image_voice_selection_off.setVisibility(View.GONE);
         }
@@ -398,7 +453,7 @@ public class ControlElements extends BaseActivity {
         }
 
         if (_profileViewVisibility == VISIBLE) {
-            la.requestStatusUpdate();
+            ((LocationActivity)this).requestStatusUpdate();
             profileAdapter.setCursor(0);
         }
     }
@@ -444,7 +499,7 @@ public class ControlElements extends BaseActivity {
         image_location_on.setVisibility(View.GONE);
         image_location_wait.setVisibility(View.GONE);
 
-        switch (_gpsStatus) {
+        switch (LocationActivity.getGpsStatus ()) {
             case PERMISSION_DENIED:
                 image_location_disabled.setVisibility(VISIBLE);
                 break;
@@ -500,31 +555,28 @@ public class ControlElements extends BaseActivity {
         if ((inAdditionalInfo != null)
                 // && (!Log.isWritingEnabled() || !isErrorMessage())
          ){
+            if (!isErrorMessage())
+                setTitleText(inAdditionalInfo.title,COLOR_MESSAGE);
+
+            TextView commentView = findViewById(R.id.comment_view);
+            commentView.setText(inAdditionalInfo.comment);
+
             if (inViewExpanded) {
-                if (!isErrorMessage()) {
-                    setTitleText(inAdditionalInfo.title,COLOR_MESSAGE);
-                }
-
-                TextView commentView = findViewById(R.id.comment_view);
-                commentView.setText(inAdditionalInfo.comment);
-
                 TextView descriptionView = findViewById(R.id.description_view);
                 String html = inAdditionalInfo.description;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    descriptionView.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY));
-                } else {
-                    descriptionView.setText(Html.fromHtml(html));
-                }
+                Spanned fromHTML;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
+                    fromHTML = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+                else
+                    fromHTML = Html.fromHtml(html);
+                descriptionView.setText(fromHTML);
                 descriptionView.scrollTo(0, 0);
 
                 TextView linkView = findViewById(R.id.link_view);
                 String link = inAdditionalInfo.link;
                 String swvLink = HTML_File.getSwvLink(link);
                 if (!swvLink.isEmpty())
-                {
-                    link = link + "\n" + // this.getResources().getString(R.string.tour_link_swv) + ":\n" +
-                        swvLink;
-                }
+                    link = link + "\n" + swvLink;
                 linkView.setText(link);
             }
         }
@@ -535,9 +587,8 @@ public class ControlElements extends BaseActivity {
         location_content.setVisibility(inViewExpanded ? View.GONE : VISIBLE);
         description_content.setVisibility(inViewExpanded ? VISIBLE : View.GONE);
 
-        if (!inViewExpanded) {
-            la.requestStatusUpdate();
-        }
+        if (!inViewExpanded)
+            ((LocationActivity)this).requestStatusUpdate();
     }
 
     /**
@@ -548,14 +599,12 @@ public class ControlElements extends BaseActivity {
     private void onShowWaypointType(String inDistanceToPlace, TourDetails.AdditionalInfo inAdditionalInfo) {
         _updateWaypointType = false;
         String comment = inDistanceToPlace;
-        if (inAdditionalInfo != null) {
+        if (inAdditionalInfo != null)
             comment = comment + inAdditionalInfo.comment;
-        }
 
         TextView commentView = findViewById(R.id.comment_view);
         commentView.setText(comment);
     }
-
 
     private int getViewWidth(int id) {
         TextView view = findViewById(id);
@@ -563,23 +612,20 @@ public class ControlElements extends BaseActivity {
     }
 
     private void setViewVisibility(int id, int visibility) {
-        if (main != null) {
-            View view = findViewById(id);
-            if (view != null)
-                view.setVisibility(visibility);
-        }
+        View view = findViewById(id);
+        if (view != null)
+            view.setVisibility(visibility);
     }
 
     /**
      * Initialize the user interface before loading a new GPX track
      */
     private void initUserInterface() {
-        _fileInfoAvailable = false;
+        _tourInfoAvailable = false;
 
         setTrackingStatus(false);
 
         activateProfile(View.GONE);
-//        setExpandViewStatus(getExpandView());
         setViewVisibility(R.id.image_expand_more, View.GONE);
         showAlarmPreference();
         _initUserInterface = true;
@@ -589,64 +635,34 @@ public class ControlElements extends BaseActivity {
      * Setup the user interface after loading a new GPX track
      */
     public void setupUserInterface() {
-        _fileInfoAvailable = !tourDetails.getFileInfo().description.isEmpty();
+        _tourInfoAvailable =
+                !tourDetails.getFileInfo().description.isEmpty() ||
+                !tourDetails.getFileInfo().link.isEmpty() ||
+                !tourDetails.getFileInfo().sourceLink.isEmpty();
         showAdditionalInfo(-1);
 
         // use stored state of profile view visibility
-        activateProfile(getProfileViewVisibility());
+        activateProfile(getProfileViewVisibility(sharedPref));
         _setupUserInterface = true;
-    }
-
-    public void notifyDataSetChanged(List<RecordAdapter.Record> records) {
-        _updateWaypointType = false;
-        if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
-        recordAdapter.notifyDataSetChanged(records);
-    }
-
-    /**
-     * Get the tracking status
-     *
-     * @return true if the GPS provider controls the tracking
-     */
-    public boolean isTracking() {
-        return _isTracking;
     }
 
     /**
      * Set the tracking status
      *
-     * @param inTracking true if the GPS provider shall controls the tracking
+     * @param inTracking true if the GPS location provider shall be started
      */
     public void setTrackingStatus(boolean inTracking) {
-        clearErrorMessage();
-        if (!inTracking)
-            stopService(new Intent(this, LocationService.class));
-        else {
-            la.requestForegroundPermissionIfNeeded();
-
-            Intent intent = new Intent(this, LocationService.class);
-            ContextCompat.startForegroundService(this, intent);
-        }
-
+// todo
+  ((LocationActivity)this).startForegroundLocationService(inTracking);
         _isTracking = inTracking;
         setExpandViewStatus(false);
         updateTrackingStatus();
     }
 
     /**
-     * Update the controls showing the tracking status
-     */
-    public void updateTrackingStatus() {
-        _updateTrackingStatus = true;
-    }
-
-
-    /**
      * Show the GPS location provider status
-     * @param inGpsStatus status of the GPS location provider
      */
-    public void showGpsStatus(LocationActivity.gpsStatus inGpsStatus) {
-        _gpsStatus = inGpsStatus;
+    public void showGpsStatus() {
         _updateGpsStatus = true;
         updateTrackingStatus();
     }
@@ -659,7 +675,7 @@ public class ControlElements extends BaseActivity {
      * @return true if view will be expanded
      */
     public boolean showExpandViewStatus(int inPlace, boolean inExpand) {
-        boolean isExpandableView = false;;
+        boolean isExpandableView = false;
         _speakEnabled = false;
         if (App.getTrack().isValidRecordedTrackFile()) {
             // view shall be not available
@@ -668,10 +684,10 @@ public class ControlElements extends BaseActivity {
         else if (tourDetails != null) {
             _place = inPlace;
             if (inPlace < 0) {
-                isExpandableView = _fileInfoAvailable || Log.isLoggedHTML();
-                _speakEnabled = _fileInfoAvailable && inExpand;
+                isExpandableView = _tourInfoAvailable || Log.isLoggedDebugHTML();
+                _speakEnabled = _tourInfoAvailable && inExpand;
             } else {
-                TourDetails.AdditionalInfo info = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
+                TourDetails.AdditionalInfo info = tourDetails.getAdditionalInfo(Log.isLoggedDebugHTML(), inPlace);
                 _speakEnabled = !info.description.isEmpty();
                 isExpandableView = _speakEnabled ||
                         ((info.link != null) && !info.link.isEmpty());
@@ -694,7 +710,6 @@ public class ControlElements extends BaseActivity {
         }
         _updateExpandViewStatus = true;
         _updateSpeakStatus = true;
-        _updateProfile = true;
 
         return isExpandableView;
     }
@@ -725,7 +740,9 @@ public class ControlElements extends BaseActivity {
         if (App.getTrack().isValidRecordedTrackFile()) {
             // todo übersetzen: "Informationen zum aufgezeichneten Track"
             setTitleText("Informationen zum aufgezeichneten Track", COLOR_MESSAGE);
-            webView.loadData(EstimateParams.getRecordedTrackFileInfo(),
+            WebView webView = findViewById(R.id.web_view);
+            if (webView != null)
+                    webView.loadData(EstimateParams.getRecordedTrackFileInfo(),
                                "text/html","utf-8");
         } else {
             // update the expansion mode
@@ -736,19 +753,25 @@ public class ControlElements extends BaseActivity {
         _updateFileInfo = false;
     }
 
-    public void updateFileInfo() {
-        _updateFileInfo = true;
+
+    /**
+     * Show additional info for the selected place
+     */
+    public void showAdditionalInfo() {
+        showAdditionalInfo(recordAdapter.getPlace());
     }
 
     /**
      * Show additional info if available
+     * @param inPlace place
      */
     public void showAdditionalInfo(int inPlace) {
         if (tourDetails != null) {
-            _additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedHTML(), inPlace);
+            _additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedDebugHTML(), inPlace);
             _updateExpandView = !App.getTrack().isValidRecordedTrackFile();
         } else
             _additionalInfo = null;
+        _updateAdditionalInfo = false;
     }
 
     /**
@@ -793,9 +816,6 @@ public class ControlElements extends BaseActivity {
         _updateWaypointType = true;
     }
 
-    public void initProfile() {
-        _initProfile = true;
-    }
 
     /**
      * Show/hide the profile
@@ -808,7 +828,7 @@ public class ControlElements extends BaseActivity {
                 state = View.GONE;
             _profileViewVisibility = state;
             if (state != View.GONE)
-                setProfileViewVisibility(state);
+                setProfileViewVisibility(sharedPref, state);
 
             _updateProfile = true;
         }
@@ -828,9 +848,49 @@ public class ControlElements extends BaseActivity {
         return !errorMessage.isEmpty();
     }
 
-    public void clearErrorMessage()
+    public  void clearErrorMessage()
     {
         errorMessage = "";
         _updateErrorMessage = false;
     }
+
+    /**
+     * todo Update the controls showing the tracking status
+     */
+    public void updateTrackingStatus() {
+        if (!((LocationActivity)this).isTrackingEnabled()) {
+
+        }
+
+        _updateTrackingStatus = true;
+    }
+
+    public static void updateFileInfo() {
+        _updateFileInfo = true;
+    }
+
+    /**
+     * Get the tracking status
+     *
+     * @return true if the GPS provider controls the tracking
+     */
+    public static boolean isTracking() {
+        return _isTracking;
+    }
+
+    public static void initProfile() {
+        _initProfile = true;
+    }
+
+    public void notifyDataSetChanged(List<RecordAdapter.Record> records) {
+        _updateWaypointType = false;
+        if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
+        recordAdapter.notifyDataSetChanged(records);
+    }
+
+    public boolean isViewExpanded() { return _isViewExpanded; }
+
+    public RecordAdapter getRecordAdapter () { return recordAdapter; }
+
+    public static void updateAdditionalInfo() { _updateAdditionalInfo = true; }
 }
