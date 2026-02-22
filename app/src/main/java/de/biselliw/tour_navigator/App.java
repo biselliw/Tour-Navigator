@@ -15,29 +15,32 @@ package de.biselliw.tour_navigator;
     You should have received a copy of the GNU General Public LicenseIf not, see
             <http://www.gnu.org/licenses/>.
 
-    Copyright 2025 Walter Biselli (BiselliW)
+    Copyright 2026 Walter Biselli (BiselliW)
 */
-import android.content.res.Resources;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.List;
 
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.activities.adapter.RecordAdapter;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
+import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
 
+import tim.prune.cmd.Command;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
 import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
+import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static de.biselliw.tour_navigator.activities.LocationActivity.TASK_COMPLETE;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentDebug;
 import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
-import static de.biselliw.tour_navigator.ui.ControlElements.control;
+
 
 /**
  * @author BiselliW
@@ -47,50 +50,52 @@ public class App {
      * TAG for log messages.
      */
     static final String TAG = "App";
-    private static final boolean _DEBUG = false; // Set to true to enable logging
+    private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    static public Resources resources = null;
 
     public static Uri gpxUri = null;
 
     private static SourceInfo _sourceInfo = null;
     private static TrackDetails _track = null;
 
-
+    /** reference to the loaded track data */
     private static List<DataPoint> _refPointList = null;
-    private static SourceInfo _refSourceInfo = null;
-    private static boolean _refAppend = false;
-
     private TrackInfo _trackInfo = null;
-    private final MainActivity _main;
+    // FIXME potential memory leak
+    private MainActivity _main;
 
+    // NO memory leak
     public static App app = null;
 
-
-
-    public App(MainActivity main)  {
+    public App(MainActivity main) {
         app = this;
         _main = main;
-        resources = main.getResources();
 
         // create empty track
         _track = new TrackDetails();
-//        _trackInfo = new TrackInfo(_track);
+    }
+
+    public SharedPreferences getDefaultSharedPreferences() {
+        if (_main != null)
+            return PreferenceManager.getDefaultSharedPreferences(_main);
+        return null;
     }
 
     /**
      * @return the current TrackInfo
      */
-    public TrackInfo getTrackInfo()
-    {
+    public TrackInfo getTrackInfo() {
         return _trackInfo;
     }
 
-    public void onLoadData(List<DataPoint> inPointList, SourceInfo inSourceInfo, boolean inAppend) {
+    /**
+     * Callback routine after successfully loading the GPX file
+     *
+     * @param inPointList reference to the loaded track data
+     */
+    public void onLoadData(List<DataPoint> inPointList) {
         _refPointList = inPointList;
-        _refSourceInfo = inSourceInfo;
-        _refAppend = inAppend;
     }
 
     /**
@@ -98,6 +103,21 @@ public class App {
      */
     public void informUriFileLoadComplete() {
         if (DEBUG) Log.i(TAG, "informUriFileLoadComplete");
+
+        _sourceInfo = null;
+
+        /* Check whether loaded array can be properly parsed into a Track */
+        // delete all points of the current track
+        _track = new TrackDetails();
+        _trackInfo = new TrackInfo(_track);
+        _track.deleteAllPoints();
+
+        // append loaded points of the track
+        _track.appendRange(_refPointList);
+        if (_refPointList != null) {
+            _refPointList.clear();
+            _refPointList = null;
+        }
 
         Track loadedTrack = _track;
         if (loadedTrack.getNumPoints() > 0) {
@@ -110,50 +130,49 @@ public class App {
 
             gpsSimulation = new GpsSimulator(_track);
 
-            _main.OpenCachedFileGPX();
+            if (_main != null)
+                _main.OpenCachedFileGPX();
         }
     }
 
     /**
      * Inform the app that a file load process is complete, either successfully or cancelled
      */
-    public synchronized void informDataLoadComplete()
-    {
+    public synchronized void informDataLoadComplete() {
         boolean gpxFileValid = false;
         _sourceInfo = null;
         if (DEBUG) Log.d(TAG, "informDataLoadComplete");
-
-        _sourceInfo = _refSourceInfo; _refSourceInfo = null;
 
         /* Check whether loaded array can be properly parsed into a Track */
         // delete all points of the current track
         _track = new TrackDetails();
         _trackInfo = new TrackInfo(_track);
-        _track.deleteAllPoints();
 
         // append loaded points of the track
-        _trackInfo.clearFileInfo();
-        _track.appendRange(_refPointList); _refPointList = null;
+        _track.appendRange(_refPointList);
+        if (_refPointList != null) {
+            _refPointList.clear();
+            _refPointList = null;
+        }
+
+        if (_main == null) return;
 
         if (_track.getNumPoints() <= 0) {
-            control.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
-        }
-        else if (!_track.hasTrackPoints()) {
-            control.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
-        }
-        else if (!_track.hasAltitudes()) {
-            control.showErrorMessage(_main.getString(R.string.gpx_error_no_altitudes));
-        }
-        else if (_track.isValid())// if (loadedTrack.hasWaypoints())
+            _main.showErrorMessage(_main.getString(R.string.gpx_error_no_points));
+        } else if (!_track.hasTrackPoints()) {
+            _main.showErrorMessage(_main.getString(R.string.gpx_error_no_trackpoints));
+        } else if (!_track.hasAltitudes()) {
+            _main.showErrorMessage(_main.getString(R.string.gpx_error_no_altitudes));
+        } else if (_track.isValid())// if (loadedTrack.hasWaypoints())
         {
             gpxFileValid = true;
-        }
-        else if (getConsentDebug()) {
+        } else // if (getConsentDebug())
             gpxFileValid = true;
-        }
+        /*
         else {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_waypoints));
         }
+*/
 
         if (gpxFileValid) {
             if (_track.getNumPoints() > 0) {
@@ -165,20 +184,16 @@ public class App {
         }
 
         if (gpxFileValid) {
-            if (!_track.hasWaypoints() && !_track.hasNamedTrackpoints())
-            {
+            if (!_track.hasWaypoints() && !_track.hasNamedTrackpoints() && _track.hasTimestamps()) {
                 // GPS simulation can only be used after initial loading of a GPX file after opening
                 // the app
-                if (gpsSimulation == null)
-                {
-                    control.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
+                if (gpsSimulation == null) {
+                    _main.showErrorMessage(_main.getString(R.string.gpx_info_simulation));
                     // remember the uri of the loaded file in case of automatic reload
                     AppState.setGpxSimulationUri(gpxUri);
                     gpsSimulation = new GpsSimulator(_track);
                 }
-            }
-            else
-            {
+            } else {
                 if (gpsSimulation != null)
                     gpsSimulation.Reset(AppState.getGpxSimulationIndex());
             }
@@ -190,17 +205,18 @@ public class App {
     /**
      * Recalculate all track points
      */
-    public void recalculate() {
+    private void recalculate() {
+        if (_main == null) return;
         List<RecordAdapter.Record> recordList = _track.recalculate();
-        control.notifyDataSetChanged(recordList);
-        control.updateGpxFile = true;
+        _main.notifyDataSetChanged(recordList);
+        ControlElements.updateGpxFile = true;
         if (recordList == null)
-            control.updateFileInfo();
-        control.initProfile();
+            ControlElements.updateFileInfo();
+        ControlElements.initProfile();
     }
 
 
-    public void Update() {
+    public synchronized void Update() {
         if (_track == null) return;
 
         int numPoints = _track.getNumPoints();
@@ -211,7 +227,15 @@ public class App {
         if (numPoints > 0) {
             recalculate();
         }
-//        _recordAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * update all places in the records view
+     */
+    public synchronized void updateRecords() {
+        if (_track == null) return;
+        if (_main == null) return;
+        _main.notifyDataSetChanged(_track.updateRecords());
     }
 
     public static SourceInfo getSourceInfo() {
@@ -222,45 +246,33 @@ public class App {
         return _track.getPoint(ptIndex);
     }
 
-    public static TrackDetails getTrack()
-    {
+    public static TrackDetails getTrack() {
         return _track;
     }
 
     /**
      * Reverse the route
      */
-    public void reverseRoute()
-    {
-        if (_track != null)
-        {
+    public void reverseRoute() {
+        if (_track != null) {
             _track.reverseRoute();
             Update();
         }
     }
 
     /**
-     * Search for the given Point in the track and return the index
-     * @param inPoint Point to look for
-     * @return index of Point, if any or -1 if not found
-     */
-    public int getPointIndex(DataPoint inPoint) {
-        return _track.getPointIndex(inPoint);
-    }
-
-    /**
      * Find the nearest track point to the specified Latitude and Longitude coordinates
      * within a given range of track points
      *
-     * @param inStart       start index
-     * @param inEnd         end index
-     * @param inLatitude    Latitude in degrees
-     * @param inLongitude   Longitude in degrees
-     * @param inMaxDist     maximum tolerated distance [km] between geo location and point
+     * @param inStart     start index
+     * @param inEnd       end index
+     * @param inLatitude  Latitude in degrees
+     * @param inLongitude Longitude in degrees
+     * @param inMaxDist   maximum tolerated distance [km] between geo location and point
      * @return <ul>
-     * 	<li>&gt;= 0: index of nearest track point within the specified max distance</li>
-     * 	<li>&lt; 0: index of nearest track point outside the specified max distance</li>
-     * 	<li>&nbsp;DataPoint.INVALID_INDEX if no point is within the specified max distance </li>
+     * <li>&gt;= 0: index of nearest track point within the specified max distance</li>
+     * <li>&lt; 0: index of nearest track point outside the specified max distance</li>
+     * <li>&nbsp;DataPoint.INVALID_INDEX if no point is within the specified max distance </li>
      * </ul>
      * @author BiselliW
      */
@@ -271,6 +283,7 @@ public class App {
     /**
      * Return the nearest distance of a track point to the specified Latitude and Longitude coordinates.
      * Index of nearest track point must have been calculated using @see "getNearestPointIndex2()"
+     *
      * @return distance of nearest track point [km], negated if not within the specified max distance
      * @since BiselliW
      * - all coordinates in [km]
@@ -279,6 +292,9 @@ public class App {
         return _track.getNearestDistance();
     }
 
+    public void destroy() {
+        _main = null;
+    }
 
 }
 
