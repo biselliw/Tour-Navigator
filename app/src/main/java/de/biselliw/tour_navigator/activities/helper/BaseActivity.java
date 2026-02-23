@@ -67,6 +67,7 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
         mHandler = new Handler();
 
         if (_DEBUG) {

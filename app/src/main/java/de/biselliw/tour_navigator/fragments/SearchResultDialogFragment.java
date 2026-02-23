@@ -178,13 +178,13 @@ public class SearchResultDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
-        return dialog;
+        return super.onCreateDialog(savedInstanceState);
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         _dialog = this;
+        /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
         _timerHandler = new Handler();
         _numColumns = getColumnCount();
 

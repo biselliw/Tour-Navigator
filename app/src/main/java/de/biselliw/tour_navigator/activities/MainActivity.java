@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.view.Menu;
@@ -76,6 +75,7 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
+import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
@@ -105,49 +105,19 @@ public class MainActivity extends LocationActivity  implements
     private final boolean _autoAppend = false;
     private String gpxFileName = "";
 
-    /**
-     * hiking parameters used for walking time calculation
-     */
-    public static ArrayList<MainActivity.Parameter> hikingParameters;
 
     /**
      * if >= 0; change start time of the tour in [min] since midnight
      */
     int _changeStartTime = -1;
 
+    /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
     private final Handler _timerHandler = new Handler();
     private Runnable _timerRunnable;
 
     static boolean timerRunnableIsRunning = false;
 
     private boolean _updateRecords = false;
-    /**
-     * class for hiking parameters used for walking time calculation
-     */
-    public static class Parameter {
-        /** key for preference setting */
-        public final String key;
-        /** minimum, maximum, default values [m/h] */
-        public final int minValue, mavValue, defaultValue;
-
-        public Parameter (String key, int minValue, int mavValue, int defaultValue) {
-            this.key = key;
-            this.minValue = minValue;
-            this.mavValue = mavValue;
-            this.defaultValue = defaultValue;
-        }
-    }
-
-    /**
-     * Define hiking parameters for walking time calculation
-     */
-    private static void defineHikingParameters () {
-        hikingParameters = new ArrayList<>();
-        hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4500));
-        hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_speedClimb", 100, 1000, 350));
-        hikingParameters.add(new MainActivity.Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
-    }
-
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     /*
@@ -196,11 +166,11 @@ public class MainActivity extends LocationActivity  implements
 
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
-        profileAdapter = new ProfileAdapter(this, app);
+        profileAdapter = new ProfileAdapter(this);
         /* create a table of route points */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
-        defineHikingParameters();
+        // FIXME getDefaultSharedPreferences(android.content.Context)' is deprecated
         SettingsActivity.getPreferences(PreferenceManager.getDefaultSharedPreferences(this));
 
         /* Install a timer to handle all activities */
@@ -654,7 +624,7 @@ public class MainActivity extends LocationActivity  implements
      */
     private void changeStartTime() {
         if (recordAdapter.getCount() > 0) {
-            StartTimeDialog startTimeDialog = new StartTimeDialog(MainActivity.this);
+            StartTimeDialog startTimeDialog = new StartTimeDialog(this);
             startTimeDialog.show();
         }
     }
@@ -675,7 +645,7 @@ public class MainActivity extends LocationActivity  implements
      */
     void changeBreakTime() {
         if (recordAdapter.getPlace() > 0) {
-            BreakTimeDialog breakTimeDialog = new BreakTimeDialog(MainActivity.this, recordAdapter, super.app);
+            BreakTimeDialog breakTimeDialog = new BreakTimeDialog(this, recordAdapter, super.app);
             breakTimeDialog.show();
         }
     }
@@ -765,7 +735,7 @@ public class MainActivity extends LocationActivity  implements
                     track.deleteRange(record.trackPointIndex+1,track.getNumTrackPoints()-1);
                     // todo create intent ?
                     App.app.Update();
-                    super.profileAdapter.initPlot();
+                    super.profileAdapter.initPlot(track);
                 }
             }
         }
@@ -994,7 +964,7 @@ public class MainActivity extends LocationActivity  implements
         } else if (id == R.id.nav_settings) {
             // open settings page
             intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
+            // todo intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_help) {

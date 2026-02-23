@@ -20,6 +20,7 @@ package de.biselliw.tour_navigator.ui;
     Copyright 2026 Walter Biselli (BiselliW)
 */
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +41,7 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Locale;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
@@ -82,7 +84,7 @@ public class ControlElements extends BaseActivity {
 
     protected RecordAdapter recordAdapter = null;
 
-    public TextToSpeech tts;
+    protected TextToSpeech tts;
 
     boolean _initUserInterface = false;
     boolean _setupUserInterface = false;
@@ -113,6 +115,7 @@ public class ControlElements extends BaseActivity {
     private static boolean _isTracking;
 
     protected boolean firstStart = false;
+    /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
     private final Handler _timerHandler = new Handler();
     private Runnable _timerRunnable;
     private final int _timerPeriod_ms = 100;
@@ -141,6 +144,13 @@ public class ControlElements extends BaseActivity {
 
         // Initialize the user interface before loading a new GPX track
         initUserInterface();
+
+        /* Create TextToSpeech */
+        tts = new TextToSpeech(getApplicationContext(), status -> {
+            if(status != TextToSpeech.ERROR) {
+                tts.setLanguage(Locale.getDefault());
+            }
+        });
 
         /* Install a timer to update control elements */
         //runs without a timer by reposting this handler at the end of the runnable
@@ -179,7 +189,7 @@ public class ControlElements extends BaseActivity {
                 if (_updateWaypointType)
                     onShowWaypointType(_distanceToPlace, _additionalInfo);
                 if (_initProfile) {
-                    profileAdapter.initPlot();
+                    profileAdapter.initPlot(App.app.getTrackInfo().getTrack());
                     _initProfile = false;
                 }
                 if (_rescalePlaceView)
@@ -189,6 +199,25 @@ public class ControlElements extends BaseActivity {
             }
         };
         _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
+    }
+
+    @Override
+    protected void onStop() {
+        // stop text to speech
+        tts.stop();
+        super.onStop();
+    }
+
+
+    @SuppressLint("MissingSuperCall")
+    @Override
+    /*
+     * Prevent closing the App here when user pressed the Back key
+     * @see https://developer.android.com/guide/components/activities/tasks-and-back-stack
+     */
+    public void onBackPressed()
+    {
+        setExpandViewStatus(false);
     }
 
     @Override
@@ -202,6 +231,7 @@ public class ControlElements extends BaseActivity {
     protected void onDestroy() {
         AppState.destroyed = true;
         _timerHandler.removeCallbacksAndMessages(null);
+        tts.shutdown();
         super.onDestroy();
     }
 
@@ -564,11 +594,7 @@ public class ControlElements extends BaseActivity {
             if (inViewExpanded) {
                 TextView descriptionView = findViewById(R.id.description_view);
                 String html = inAdditionalInfo.description;
-                Spanned fromHTML;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N)
-                    fromHTML = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
-                else
-                    fromHTML = Html.fromHtml(html);
+                Spanned fromHTML = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
                 descriptionView.setText(fromHTML);
                 descriptionView.scrollTo(0, 0);
 
