@@ -1244,17 +1244,30 @@ public class MainActivity extends LocationActivity  implements
             onStartTimeChanged(_changeStartTime);
             _changeStartTime = -1;
         }
+//        if (stopped)            return;
 
-        if (App.getTrack() != null) {
-            if (!App.getTrack().isValidRecordedTrackFile())
-                super.runner();
+        if (!timerRunnableIsRunning)
+        {
+            timerRunnableIsRunning = true;
 
-            if (_updateRecords) {
-                if (App.getTrack() != null)
-                    notifyDataSetChanged(App.getTrack().updateRecords());
-                recordAdapter.notifyDataSetChanged();
-                _updateRecords = false;
+            if (_changeStartTime >= 0) {
+                onStartTimeChanged(_changeStartTime);
+                _changeStartTime = -1;
             }
+
+            if (App.getTrack() != null) {
+                if (!App.getTrack().isValidRecordedTrackFile())
+                    super.runner();
+
+                if (_updateRecords) {
+                    if (App.getTrack() != null)
+                        notifyDataSetChanged(App.getTrack().updateRecords());
+                    recordAdapter.notifyDataSetChanged();
+                    _updateRecords = false;
+                }
+            }
+
+            timerRunnableIsRunning = false;
         }
     }
 }
