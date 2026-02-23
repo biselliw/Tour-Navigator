@@ -102,7 +102,7 @@ public class SettingsActivity extends BaseActivity {
      */
     public static void defineHikingParameters () {
         hikingParameters = new ArrayList<>();
-        hikingParameters.add(new Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4500));
+        hikingParameters.add(new Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4200));
         hikingParameters.add(new Parameter("pref_hiking_par_speedClimb", 100, 1000, 350));
         hikingParameters.add(new Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
     }
