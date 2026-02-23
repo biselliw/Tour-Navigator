@@ -209,23 +209,25 @@ public class BaseActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override
-    protected void onDestroy() {
-        mHandler.removeCallbacksAndMessages(null);
-        stopTimer();
-        scheduler.shutdownNow();
-        super.onDestroy();
-    }
+    /**
+     * callback function to periodically update the user interface
+     */
+    protected void updateUI() {}
 
-    protected void updateUi() {}
-
+    /**
+     * Start timer
+     * @param inInterval period [ms]
+     */
     protected void startTimer(int inInterval) {
         timerPeriod_ms = inInterval;
         timerFuture = scheduler.scheduleWithFixedDelay(() -> {
-            runOnUiThread(this::updateUi);
+            runOnUiThread(this::updateUI);
         }, 200, inInterval, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Stop timer
+     */
     protected void stopTimer() {
         if (timerFuture != null) {
             timerFuture.cancel(true);
@@ -233,4 +235,11 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        mHandler.removeCallbacksAndMessages(null);
+        stopTimer();
+        scheduler.shutdownNow();
+        super.onDestroy();
+    }
 }
