@@ -25,13 +25,11 @@ import android.util.Log;
 import java.util.List;
 
 import de.biselliw.tour_navigator.activities.MainActivity;
-import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
 
-import tim.prune.cmd.Command;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
