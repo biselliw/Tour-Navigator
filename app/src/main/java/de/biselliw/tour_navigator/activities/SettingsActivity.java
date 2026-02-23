@@ -268,7 +268,6 @@ public class SettingsActivity extends BaseActivity {
         lang = getString(R.string.lang);
 
         // set default value on first time launch
-// todo        ArrayList<Parameter> hikingParameters = hikingParameters;
         // FIXME android.preference.PreferenceManager' is deprecated as of API 29 ("Q"; Android 10.0)
         _sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         if (_sharedPref != null) {
@@ -286,30 +285,33 @@ public class SettingsActivity extends BaseActivity {
                 }
             }
         }
-
-        /* Install a timer to handle all activities */
-        Runnable timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (_updateGooglePrefs) {
-                    _updateGooglePrefs = false;
-                    if (_settingsFragment != null)
-                        _settingsFragment.pref_consent_google_maps.setChecked(_consentGoogleMaps);
-                }
-                if (_updateSwvTourenportal) {
-                    _updateSwvTourenportal = false;
-                    if (_settingsFragment != null)
-                        _settingsFragment.pref_consent_swv_tourenportal.setChecked(_consentSwvTourenportal);
-                }
-                mHandler.postDelayed(this, 100);
-            }
-        };
-        mHandler.postDelayed(timerRunnable, 200);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+    }
+
+    public void onStart() {
+        super.onStart();
+        startTimer(100);
+    }
+
+    /**
+     * callback function to periodically update the user interface
+     */
+    @Override
+    protected void updateUI() {
+        if (_updateGooglePrefs) {
+            _updateGooglePrefs = false;
+            if (_settingsFragment != null)
+                _settingsFragment.pref_consent_google_maps.setChecked(_consentGoogleMaps);
+        }
+        if (_updateSwvTourenportal) {
+            _updateSwvTourenportal = false;
+            if (_settingsFragment != null)
+                _settingsFragment.pref_consent_swv_tourenportal.setChecked(_consentSwvTourenportal);
+        }
     }
 
     @Override
@@ -381,7 +383,6 @@ public class SettingsActivity extends BaseActivity {
      */
     public static void getHikingParameters(TrackSegments inSegments)
     {
-// todo        ArrayList<Parameter> hikingParameters = hikingParameters;
         SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
         if (hikingParameters != null && sharedPref != null) {
             /* hiking speed parameters */
