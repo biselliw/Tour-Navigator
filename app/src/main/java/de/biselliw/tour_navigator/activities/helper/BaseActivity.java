@@ -36,6 +36,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.helpers.Log;
@@ -60,8 +65,16 @@ public class BaseActivity extends AppCompatActivity {
     protected NavigationView mNavigationView;
     protected Handler mHandler;
 
+    /** period of the runnable timer [ms] */
+    protected int timerPeriod_ms;
+
     protected boolean stopped = false;
     protected boolean isDark = false;
+
+    /** life cycle conform scheduler */
+    private final ScheduledExecutorService scheduler =
+            Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> timerFuture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,10 +209,37 @@ public class BaseActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    /**
+     * callback function to periodically update the user interface
+     */
+    protected void updateUI() {}
+
+    /**
+     * Start timer
+     * @param inInterval period [ms]
+     */
+    protected void startTimer(int inInterval) {
+        timerPeriod_ms = inInterval;
+        timerFuture = scheduler.scheduleWithFixedDelay(() -> {
+            runOnUiThread(this::updateUI);
+        }, 200, inInterval, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Stop timer
+     */
+    protected void stopTimer() {
+        if (timerFuture != null) {
+            timerFuture.cancel(true);
+            timerFuture = null;
+        }
+    }
+
     @Override
     protected void onDestroy() {
         mHandler.removeCallbacksAndMessages(null);
+        stopTimer();
+        scheduler.shutdownNow();
         super.onDestroy();
     }
-
 }

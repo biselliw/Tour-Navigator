@@ -187,15 +187,14 @@ public class TrackDetails extends Track {
             }
         }
         else {
-            if (index_min_h2 >= 0) {
+            if (index_min_h2 > 0) {
                 if (min_h2 <= max_h2) {
                     return index_min_h2;
-                } else {
+                } else if (min_h2 != 0) {
                     return -index_min_h2;
                 }
-            } else {
-                return INVALID_INDEX;
             }
+            return INVALID_INDEX;
         }
     }
 

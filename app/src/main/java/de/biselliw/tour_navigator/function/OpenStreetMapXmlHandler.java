@@ -142,7 +142,8 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
         return false;
     }
 
-    final static String[] ignoreValues = new String[]{"street_lamp"};
+    final static String[] ignoreValues = new String[]{"route_marker", // todo use way mark sign?
+            "street_lamp"};
 
     /**
      * Check if not wanted value matches

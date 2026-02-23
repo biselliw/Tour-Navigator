@@ -47,6 +47,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -111,13 +115,8 @@ public class MainActivity extends LocationActivity  implements
      */
     int _changeStartTime = -1;
 
-    /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
-    private final Handler _timerHandler = new Handler();
-    private Runnable _timerRunnable;
-
-    static boolean timerRunnableIsRunning = false;
-
     private boolean _updateRecords = false;
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     /*
@@ -128,19 +127,18 @@ public class MainActivity extends LocationActivity  implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AppState.MainActivityInstanceCount++;
+        if (DEBUG)
+            AppState.MainActivityInstanceCount++;
 
         Resources.activity = this;
         Resources.resources = getResources();
         Resources.getResources();
 
-//        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+// todo       AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
-
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this,
                 drawerLayout,
@@ -148,7 +146,6 @@ public class MainActivity extends LocationActivity  implements
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close
         );
-
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -172,30 +169,6 @@ public class MainActivity extends LocationActivity  implements
 
         // FIXME getDefaultSharedPreferences(android.content.Context)' is deprecated
         SettingsActivity.getPreferences(PreferenceManager.getDefaultSharedPreferences(this));
-
-        /* Install a timer to handle all activities */
-        _timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (DEBUG) {
-                    if (_destroyed) {
-                        Log.e(TAG,"leakage in timerRunnable");
-                        return;
-                    }
-                }
-                if (stopped)
-                    return;
-
-                if (!timerRunnableIsRunning)
-                {
-                    timerRunnableIsRunning = true;
-                    main_runner();
-                    timerRunnableIsRunning = false;
-                    _timerHandler.postDelayed(this, timerPeriod_ms);
-                }
-            }
-        };
-        _timerHandler.postDelayed(_timerRunnable, 200);
     }
 
     @Override
@@ -209,6 +182,7 @@ public class MainActivity extends LocationActivity  implements
     public void onStart() {
         if (DEBUG) Log.i(TAG,"onStart");
         super.onStart();
+        startTimer(100);
     }
 
     @Override
@@ -279,7 +253,7 @@ public class MainActivity extends LocationActivity  implements
         if (DEBUG) Log.i(TAG,"onResume");
         if (stopped) {
             stopped = false;
-            _timerHandler.postDelayed(_timerRunnable, timerPeriod_ms);
+            // todo _timerHandler.postDelayed(_timerRunnable, timerPeriod_ms);
         }
         recordAdapter.notifyDataSetChanged();
         super.onResume();
@@ -315,6 +289,9 @@ public class MainActivity extends LocationActivity  implements
     public void onStop() {
         if (DEBUG) Log.i(TAG,"onStop");
         super.onStop();
+        stopTimer();
+        startTimer(500);
+
         AppState.stopped = true;
     }
 
@@ -342,17 +319,17 @@ public class MainActivity extends LocationActivity  implements
     protected void onDestroy() {
         Log.e(TAG,"onDestroy");
 
-        AppState.MainActivityInstanceCount--;
-
-        htmlFile.destroy();  htmlFile = null;
+        htmlFile.destroy(); htmlFile = null;
 
         recordAdapter.destroy ();
 
-        if (DEBUG) _destroyed = true;
+        if (DEBUG) {
+            _destroyed = true;
+            AppState.MainActivityInstanceCount--;
+        }
         app.destroy();
         AppState.destroyed = true;
 
-        _timerHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 
@@ -1250,8 +1227,19 @@ public class MainActivity extends LocationActivity  implements
      * --------------------------------------------------------------------------------------------
      * Private methods
      * --------------------------------------------------------------------------------------------
+     *
      */
-    private synchronized void main_runner() {
+
+    @Override
+    protected void updateUI() {
+        if (DEBUG) {
+            if (_destroyed) {
+                Log.e(TAG,"leakage in timerRunnable");
+                return;
+            }
+        }
+// todo       if (stopped)            return;
+
         if (_changeStartTime >= 0) {
             onStartTimeChanged(_changeStartTime);
             _changeStartTime = -1;
@@ -1269,5 +1257,4 @@ public class MainActivity extends LocationActivity  implements
             }
         }
     }
-
 }
