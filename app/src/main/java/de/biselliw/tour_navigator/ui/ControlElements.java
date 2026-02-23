@@ -679,7 +679,7 @@ public class ControlElements extends BaseActivity {
      */
     public void setTrackingStatus(boolean inTracking) {
 // todo
-  ((LocationActivity)this).startForegroundLocationService(inTracking);
+        ((LocationActivity)this).startForegroundLocationService(inTracking);
         _isTracking = inTracking;
         setExpandViewStatus(false);
         updateTrackingStatus();

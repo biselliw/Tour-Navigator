@@ -42,7 +42,6 @@ import androidx.core.content.ContextCompat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
@@ -62,7 +61,6 @@ import static de.biselliw.tour_navigator.adapter.RecordAdapter.DELAY_MAX;
 import static de.biselliw.tour_navigator.adapter.RecordAdapter.DELAY_MIN;
 import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
 import static de.biselliw.tour_navigator.helpers.Log.formatHourMinSecs;
-import static de.biselliw.tour_navigator.tim_prune.config.TimezoneHelper.getSelectedTimezone;
 
 /**
  * Activity handling the timing of a tour
@@ -141,10 +139,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     int remainBreakTime_min = 0;
     long _endBreakTime = 0;
 
-    private double dist_from_start = 0.0;
-
-    /** period of the runnable timer [ms] */
-    protected int timerPeriod_ms;
     /** timeout counter to detect GPS location timeout */
     private int _timerGps_ms = 0;
     final static int _timeoutGps_ms = 3000;
@@ -159,7 +153,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     /** index of the lst place to search for the nearest GPS location */
     private int endIndex = 0;
 
-    private int _arrivedPlace = -1, _nextPlace = -1;
+    private int _arrivedPlace = -1;
 
     /** max. allowed offset between a track point and the GPS location */
     private double maxOffset_km = maxOffsetStart_km;
@@ -194,6 +188,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     /**
      * Constructor of the class
+     * @deprecated FIXME getParcelableExtra(java.lang.String)' is deprecated as of API 33 ("Tiramisu"; Android 13.0)
      */
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -205,7 +200,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             @Override
             public void onReceive(Context context, Intent intent) {
                 // handle the intent ACTION_LOCATION_UPDATE
-//                if (intent.getIdentifier().equals(ACTION_LOCATION_UPDATE))
+// todo               if (intent.getIdentifier().equals(ACTION_LOCATION_UPDATE))
                     _location = intent.getParcelableExtra("location");
             }
         };
@@ -371,8 +366,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             // Gets a Message object, stores the state in it, and sends it to the Handler
             Message completeMessage = mainHandler.obtainMessage(state, gpsTask);
             completeMessage.sendToTarget();
-
-//            profileAdapter.initPlot();
             setupUserInterface();
         }
         else
@@ -392,7 +385,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         recordAdapter.setRealtime(true);
 
         _timerGps_ms = 0;
-        if (inAccuracy < 30.0)
+        if (inAccuracy < 15.0)
             setGpsStatus(gpsStatus.GPS_FIX);
         else
             setGpsStatus(gpsStatus.WAIT_FOR_GPS_FIX);
@@ -549,7 +542,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         setLocationStatus(locationStatus.GPX_FILE_LOADED);
     }
 
-
     /*
      * --------------------------------------------------------------------------------------------
      * Private methods
@@ -608,7 +600,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
 
         } else if (prevGpsStatus != gpsStatus.GPS_FIX) {
-            requestStatusUpdate();
+// todo            requestStatusUpdate();
         }
 
         switch (_GpsStatus) {
@@ -624,7 +616,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 break;
             default:
         }
-        timerPeriod_ms = 100 * (gpsSimulation != null ? 1 : 1);
     }
 
     /** @return true if both the ACCESS_FINE_LOCATION and FOREGROUND_SERVICE_LOCATION permissions have been granted */
@@ -893,8 +884,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     }
                 }
             }
-            if (isTracking())
-                recordAdapter.scrollToListPosition();
+// todo             if (isTracking())
+// todo                 recordAdapter.scrollToListPosition();
 // todo            recordAdapter.notifyDataSetChanged();
         }
         _prevLocationStatus = _locationStatus;
@@ -921,7 +912,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Set the status of the GPS location provider
      * @param inGpsStatus status of the GPS location provider
      */
-    public static void setGpsStatus(gpsStatus inGpsStatus) {
+    public void setGpsStatus(gpsStatus inGpsStatus) {
         if (inGpsStatus != _GpsStatus) {
             switch (inGpsStatus) {
                 case PERMISSION_DENIED:
@@ -944,6 +935,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                             break;
                     }
             }
+            requestStatusUpdate();
         }
     }
 
@@ -959,7 +951,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     _timerGps_ms = 0;
                     setGpsStatus(gpsStatus.GPS_TIMEOUT);
                 }
-                requestStatusUpdate();
                 break;
             case PROVIDER_DISABLED:
             case PROVIDER_ENABLED:
@@ -976,8 +967,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         {
             if (DEBUG) Log.d(TAG,"setLocationStatus: request "+getLocationStatus(_locationStatus)+" -> "+getLocationStatus(inStatus));
             _newLocationStatus = inStatus;
+            requestStatusUpdate();
         }
-        requestStatusUpdate();
     }
 
     public void resetLocationStatus() {
@@ -1023,7 +1014,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         DataPoint point = app.getPoint(inPosition);
         if (point != null) {
             /* Show current distance since start and the remaining distance to destination */
-            dist_from_start = point.getDistance();
+            double dist_from_start = point.getDistance();
             double dist_to_destin = TrackSegments.summary.totalDistance_km - dist_from_start;
             showDistances(dist_from_start);
             recordAdapter.setDistance(dist_from_start);
@@ -1111,7 +1102,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 place = recordAdapter.setNextPlace(this, dist_from_start,false);
             }
             if (place < recordAdapter.getCount()) {
-                recordAdapter.notifyDataSetChanged();
+// todo                recordAdapter.notifyDataSetChanged(); // FIXME
                 // destination reached?
                 if (dist_to_destin <= maxOffsetTrack_km)
                     setLocationStatus(locationStatus.DESTINATION_REACHED);
