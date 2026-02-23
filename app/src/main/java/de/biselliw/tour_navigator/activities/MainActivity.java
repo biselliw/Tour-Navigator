@@ -428,11 +428,6 @@ public class MainActivity extends LocationActivity  implements
             super.app.reverseRoute();
             return true;
         }
-        try {
-            goToNavigationItem(id);
-        } catch (IOException ignored) {
-        }
-/*
         // delay transition so the drawer can close
         mHandler.postDelayed(() -> {
             try {
@@ -446,7 +441,7 @@ public class MainActivity extends LocationActivity  implements
         if (mainContent != null) {
             mainContent.animate().alpha(0).setDuration(MAIN_CONTENT_FADEOUT_DURATION);
         }
-*/
+
         return true;
     }
 
@@ -1235,9 +1230,6 @@ public class MainActivity extends LocationActivity  implements
      *
      */
 
-    /**
-     * callback function to periodically update the user interface
-     */
     @Override
     protected void updateUI() {
         if (DEBUG) {
@@ -1255,7 +1247,7 @@ public class MainActivity extends LocationActivity  implements
 
         if (App.getTrack() != null) {
             if (!App.getTrack().isValidRecordedTrackFile())
-                super.updateUI();
+                super.runner();
 
             if (_updateRecords) {
                 if (App.getTrack() != null)
