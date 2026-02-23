@@ -57,6 +57,11 @@ public class SettingsActivity extends BaseActivity {
     //     └─ FrameLayout (settings_container)
     //         └─ SettingsFragment (PreferenceFragmentCompat)
     //             └─ preferences.xml
+    /**
+     * hiking parameters used for walking time calculation
+     */
+    public static ArrayList<Parameter> hikingParameters;
+
     private SharedPreferences _sharedPref = null;
     private SettingsFragment _settingsFragment = null;
     /**
@@ -75,6 +80,33 @@ public class SettingsActivity extends BaseActivity {
     static boolean hikingParametersChanged = false;
     static String lang = "";
 
+    /**
+     * class for hiking parameters used for walking time calculation
+     */
+    public static class Parameter {
+        /** key for preference setting */
+        public final String key;
+        /** minimum, maximum, default values [m/h] */
+        public final int minValue, mavValue, defaultValue;
+
+        public Parameter (String key, int minValue, int mavValue, int defaultValue) {
+            this.key = key;
+            this.minValue = minValue;
+            this.mavValue = mavValue;
+            this.defaultValue = defaultValue;
+        }
+    }
+
+    /**
+     * Define hiking parameters for walking time calculation
+     */
+    public static void defineHikingParameters () {
+        hikingParameters = new ArrayList<>();
+        hikingParameters.add(new Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4500));
+        hikingParameters.add(new Parameter("pref_hiking_par_speedClimb", 100, 1000, 350));
+        hikingParameters.add(new Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
+    }
+
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
         SettingsActivity activity;
@@ -86,7 +118,7 @@ public class SettingsActivity extends BaseActivity {
             public String key;
             public int defaultValue, minValue, maxValue;
 
-            public IntPreference(MainActivity.Parameter inParameter) {
+            public IntPreference(Parameter inParameter) {
                 this.key = inParameter.key;
                 this.defaultValue = inParameter.defaultValue;
                 this.minValue = inParameter.minValue;
@@ -154,9 +186,9 @@ public class SettingsActivity extends BaseActivity {
 
             // Bind the summaries of EditText preferences to their values. When their values change,
             // their summaries are updated to reflect the new value, per the Android Design guidelines.
-            if (MainActivity.hikingParameters != null)
-                for (int i = 0; i < MainActivity.hikingParameters.size(); i++)
-                    new IntPreference(MainActivity.hikingParameters.get(i));
+            if (hikingParameters != null)
+                for (int i = 0; i < hikingParameters.size(); i++)
+                    new IntPreference(hikingParameters.get(i));
 
             SwitchPreferenceCompat pref_consent_internet = findPreference("pref_consent_internet");
             pref_consent_google_maps = findPreference("pref_consent_google_maps");
@@ -236,9 +268,11 @@ public class SettingsActivity extends BaseActivity {
         lang = getString(R.string.lang);
 
         // set default value on first time launch
-        ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
+// todo        ArrayList<Parameter> hikingParameters = hikingParameters;
+        // FIXME android.preference.PreferenceManager' is deprecated as of API 29 ("Q"; Android 10.0)
         _sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         if (_sharedPref != null) {
+            defineHikingParameters();
             if (hikingParameters != null) {
                 String def = _sharedPref.getString(hikingParameters.get(0).key, "");
                 if (def.isEmpty()) {
@@ -347,7 +381,7 @@ public class SettingsActivity extends BaseActivity {
      */
     public static void getHikingParameters(TrackSegments inSegments)
     {
-        ArrayList<MainActivity.Parameter> hikingParameters = MainActivity.hikingParameters;
+// todo        ArrayList<Parameter> hikingParameters = hikingParameters;
         SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
         if (hikingParameters != null && sharedPref != null) {
             /* hiking speed parameters */

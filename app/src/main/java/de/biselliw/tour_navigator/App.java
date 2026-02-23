@@ -74,6 +74,11 @@ public class App {
         _track = new TrackDetails();
     }
 
+    /**
+     *
+     * @return
+     * @deprecated todo android.preference.PreferenceManager' is deprecated as of API 29 ("Q"; Android 10.0)
+     */
     public SharedPreferences getDefaultSharedPreferences() {
         if (_main != null)
             return PreferenceManager.getDefaultSharedPreferences(_main);

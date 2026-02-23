@@ -247,13 +247,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
         };
 
-        /* Create TextToSpeech */
-        tts = new TextToSpeech(getApplicationContext(), status -> {
-            if(status != TextToSpeech.ERROR) {
-                tts.setLanguage(Locale.getDefault());
-            }
-        });
-
         requestLocationPermissionIfNeeded();
     }
 
@@ -299,19 +292,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         super.onStart();
 
         /* register a GPS location receiver */
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // One of RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED should be specified when a receiver isn't being registered exclusively for system broadcasts
-            registerReceiver(locationReceiver, new IntentFilter(ACTION_LOCATION_UPDATE), Context.RECEIVER_EXPORTED );
-        } else
-            registerReceiver(
-                locationReceiver,
-                new IntentFilter(ACTION_LOCATION_UPDATE)
-        );
+        // One of RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED should be specified when a receiver isn't being registered exclusively for system broadcasts
+        registerReceiver(locationReceiver, new IntentFilter(ACTION_LOCATION_UPDATE), Context.RECEIVER_EXPORTED );
     }
 
     @Override
     protected void onStop() {
-        // important: unregister the GPS location receiver
+        // unregister the GPS location receiver
         unregisterReceiver(locationReceiver);
         super.onStop();
     }
@@ -340,19 +327,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
     }
 
     @Override
-    /**
-     * Prevent closing the App here when user pressed the Back key
-     * @see https://developer.android.com/guide/components/activities/tasks-and-back-stack
-     */
-    public void onBackPressed()
-    {
-        setExpandViewStatus(false);
-    }
-
-    @Override
     protected void onDestroy() {
-        tts.stop();
-        tts.shutdown();
         super.onDestroy();
     }
 

@@ -38,22 +38,16 @@ import java.text.DecimalFormat;
 import java.util.Observable;
 import java.util.Observer;
 
-import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.data.TrackDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 
 /**
  *  @link <a href="https://github.com/halfhp/androidplot/blob/master/demoapp/src/main/java/com/androidplot/demos/DynamicXYPlotActivity.java">DynamicXYPlotActivity.java on github.com</a>
  */
 public class ProfileAdapter {
-
-    private final MainActivity _activity;
-    private final App _app;
-
     int numPoints = 0;
     Number lastDistance = 0;
     double prevDistance;
@@ -73,16 +67,16 @@ public class ProfileAdapter {
 
     LineAndPointFormatter lineFormatter, segmentFormatter;
 
-    public ProfileAdapter(MainActivity activity, App app) {
-        this._activity = activity;
-        this._app = app;
-
-        createPlot();
-
+    public ProfileAdapter(MainActivity inActivity) {
+        createPlot(inActivity);
     }
 
-    // redraws a plot whenever an update is received:
+    /**
+     * redraws a plot whenever an update is received:
+     * @apiNote todo java.util.Observer' is deprecated as of API 33 ("Tiramisu"; Android 13.0)
+      */
     private static class MyPlotUpdater implements Observer {
+        // todo check Raw use of parameterized class 'Plot'
         Plot plot;
 
         public MyPlotUpdater(Plot plot) {
@@ -96,7 +90,7 @@ public class ProfileAdapter {
     }
 
     final static int SERIES_ALTITUDES = 0, SERIES_CURSOR = 1, SERIES_SEGMENTS = 2;
-    public void createPlot() {
+    public void createPlot(MainActivity inActivity) {
         /*
          * @todo Material3 conform:
          * val surface = MaterialColors.getColor(plot, R.attr.plotSurfaceColor)
@@ -111,7 +105,7 @@ public class ProfileAdapter {
          */
 
         // get handles to our View defined in layout.xml:
-        dynamicPlot = _activity.findViewById(R.id.plot);
+        dynamicPlot = inActivity.findViewById(R.id.plot);
         if (dynamicPlot == null) return;
 /*
             int surface = MaterialColors.getColor(dynamicPlot, R.attr.plotSurfaceColor);
@@ -212,7 +206,7 @@ public class ProfileAdapter {
             try {
                 keepRunning = true;
                 while (keepRunning) {
-                    Thread.sleep(10); // decrease or remove to speed up the refresh rate.
+                    Thread.sleep(10); // FIXME Call to 'Thread.sleep()' in a loop, probably busy-waiting: decrease or remove to speed up the refresh rate.
                     notifier.notifyObservers();
                 }
             } catch (InterruptedException ignored) {
@@ -245,7 +239,6 @@ public class ProfileAdapter {
                     if (index >= numPoints) {
                         throw new IllegalArgumentException();
                     }
-                    boolean error = false;
                     if (index == 0) {
                         lastDistance = 0.0;
                         prevDistance = 0.0;
@@ -259,15 +252,11 @@ public class ProfileAdapter {
                             Number distance = dist;
                             if (dist > 0) {
                                 lastDistance = distance;
-                                if (dist > prevDistance) {
+                                if (dist > prevDistance)
                                     prevDistance = dist;
-                                } else
-                                    error = true;
                             }
                             if (index > 0)
-                                if (index != prevIndex + 1)
-                                    error = true;
-                                else
+                                if (index == prevIndex + 1)
                                     prevIndex++;
                         }
                     }
@@ -390,52 +379,52 @@ public class ProfileAdapter {
     /**
      * Initialize the chart:
      */
-    public void initPlot() {
+    public void initPlot(TrackDetails inTrack) {
+        _trackDetails = inTrack;
+        initPlot();
+    }
+    private void initPlot() {
         numPoints = 0;
-        TrackInfo trackInfo = _app.getTrackInfo();
         clearXRange();
-        if (trackInfo != null)  {
-            _trackDetails = trackInfo.getTrack();
-            if (_trackDetails != null) {
-                numPoints = _trackDetails.getNumPoints();
-                // set the horizontal grid steps
-                if (numPoints > 0) {
-                    double totalDistance = TrackSegments.summary.totalDistance_km;
-                    if (totalDistance > 0.0) {
-                        double domainStepValue = 2.5;
-                        int domainSteps = (int) (totalDistance / domainStepValue);
-                        while (domainSteps > 8) {
-                            domainStepValue = domainStepValue * 2.0;
-                            domainSteps = domainSteps / 2;
-                        }
-                        if (domainSteps == 1)
-                        {
-                            domainStepValue = domainStepValue / 2.5;
-                        }
-                        dynamicPlot.setDomainStepValue(domainStepValue);
-                        dynamicPlot.setDomainBoundaries(0.0, totalDistance, BoundaryMode.FIXED);
-
-                        // set the vertical grid steps
-                        double rangeStepValue = 25.0;
-                        int minAltitude = (int) TrackSegments.getMinAltitude();
-                        int maxAltitude = (int) TrackSegments.getMaxAltitude();
-
-                        int rangeAltitude = maxAltitude - minAltitude;
-                        int rangeSteps = rangeAltitude / (int)rangeStepValue;
-                        while (rangeSteps > 5) {
-                            rangeStepValue = rangeStepValue * 2.0;
-                            rangeSteps = rangeSteps / 2;
-                        }
-                        if (rangeSteps == 1)
-                        {
-                            rangeStepValue = rangeStepValue / 2.5;
-                        }
-                        minAltitude = (minAltitude / (int)rangeStepValue) * (int)rangeStepValue;
-                        maxAltitude = ((maxAltitude + (int)rangeStepValue) / (int)rangeStepValue) * (int)rangeStepValue;
-                        dynamicPlot.setRangeStepValue(rangeStepValue);
-                        dynamicPlot.setRangeBoundaries(minAltitude, maxAltitude, BoundaryMode.FIXED);
-                        dynamicPlot.redraw();
+        if (_trackDetails != null) {
+            numPoints = _trackDetails.getNumPoints();
+            // set the horizontal grid steps
+            if (numPoints > 0) {
+                double totalDistance = TrackSegments.summary.totalDistance_km;
+                if (totalDistance > 0.0) {
+                    double domainStepValue = 2.5;
+                    int domainSteps = (int) (totalDistance / domainStepValue);
+                    while (domainSteps > 8) {
+                        domainStepValue = domainStepValue * 2.0;
+                        domainSteps = domainSteps / 2;
                     }
+                    if (domainSteps == 1)
+                    {
+                        domainStepValue = domainStepValue / 2.5;
+                    }
+                    dynamicPlot.setDomainStepValue(domainStepValue);
+                    dynamicPlot.setDomainBoundaries(0.0, totalDistance, BoundaryMode.FIXED);
+
+                    // set the vertical grid steps
+                    double rangeStepValue = 25.0;
+                    int minAltitude = (int) TrackSegments.getMinAltitude();
+                    int maxAltitude = (int) TrackSegments.getMaxAltitude();
+
+                    int rangeAltitude = maxAltitude - minAltitude;
+                    int rangeSteps = rangeAltitude / (int)rangeStepValue;
+                    while (rangeSteps > 5) {
+                        rangeStepValue = rangeStepValue * 2.0;
+                        rangeSteps = rangeSteps / 2;
+                    }
+                    if (rangeSteps == 1)
+                    {
+                        rangeStepValue = rangeStepValue / 2.5;
+                    }
+                    minAltitude = (minAltitude / (int)rangeStepValue) * (int)rangeStepValue;
+                    maxAltitude = ((maxAltitude + (int)rangeStepValue) / (int)rangeStepValue) * (int)rangeStepValue;
+                    dynamicPlot.setRangeStepValue(rangeStepValue);
+                    dynamicPlot.setRangeBoundaries(minAltitude, maxAltitude, BoundaryMode.FIXED);
+                    dynamicPlot.redraw();
                 }
             }
         }
