@@ -115,10 +115,6 @@ public class MainActivity extends LocationActivity  implements
      */
     int _changeStartTime = -1;
 
-    
-// todo remove
-    static boolean timerRunnableIsRunning = false;
-
     private boolean _updateRecords = false;
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -1235,37 +1231,30 @@ public class MainActivity extends LocationActivity  implements
      */
 
     @Override
-    protected void updateUi() {
+    protected void updateUI() {
         if (DEBUG) {
             if (_destroyed) {
                 Log.e(TAG,"leakage in timerRunnable");
                 return;
             }
         }
-//        if (stopped)            return;
+// todo       if (stopped)            return;
 
-        if (!timerRunnableIsRunning)
-        {
-            timerRunnableIsRunning = true;
+        if (_changeStartTime >= 0) {
+            onStartTimeChanged(_changeStartTime);
+            _changeStartTime = -1;
+        }
 
-            if (_changeStartTime >= 0) {
-                onStartTimeChanged(_changeStartTime);
-                _changeStartTime = -1;
+        if (App.getTrack() != null) {
+            if (!App.getTrack().isValidRecordedTrackFile())
+                super.runner();
+
+            if (_updateRecords) {
+                if (App.getTrack() != null)
+                    notifyDataSetChanged(App.getTrack().updateRecords());
+                recordAdapter.notifyDataSetChanged();
+                _updateRecords = false;
             }
-
-            if (App.getTrack() != null) {
-                if (!App.getTrack().isValidRecordedTrackFile())
-                    super.runner();
-
-                if (_updateRecords) {
-                    if (App.getTrack() != null)
-                        notifyDataSetChanged(App.getTrack().updateRecords());
-                    recordAdapter.notifyDataSetChanged();
-                    _updateRecords = false;
-                }
-            }
-
-            timerRunnableIsRunning = false;
         }
     }
 }
