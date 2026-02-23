@@ -115,6 +115,7 @@ public class MainActivity extends LocationActivity  implements
      */
     int _changeStartTime = -1;
 
+    
 // todo remove
     static boolean timerRunnableIsRunning = false;
 
