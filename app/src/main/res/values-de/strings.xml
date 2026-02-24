@@ -179,6 +179,7 @@
     <string name="waypointFlagComb">"Trackpunkt"</string>
 
     <!-- Open Street Map waypoints -->
+    <string name="archaeological_site">Historische Stätte</string>
     <string name="restaurant">Restaurant</string>
     <string name="bbq">Grillplatz</string>
     <string name="bench">Parkbank</string>
@@ -199,7 +200,7 @@
     <string name="ice_cream">Eisdiele</string>
     <string name="viewpoint">Aussichtspunkt</string>
     <string name="museum">Museum</string>
-
+    <string name="rock">Fels</string>
 
     <string name="profile">"Höhenprofil"</string>
     <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>

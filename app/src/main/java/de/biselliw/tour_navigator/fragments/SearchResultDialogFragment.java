@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,11 +35,16 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.adapter.TableAdapter;
 import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
@@ -55,6 +59,14 @@ import static androidx.core.content.ContextCompat.getColor;
 
 public class SearchResultDialogFragment extends DialogFragment {
 
+    /**
+     * TAG for log messages.
+     */
+    static final String TAG = "SearchResultDialogFragment";
+    private static final boolean _DEBUG = true; // Set to true to enable logging
+    private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
+
+
     protected static GenericSearchFunction searchFunction = null;
 
     /**
@@ -68,7 +80,11 @@ public class SearchResultDialogFragment extends DialogFragment {
     protected Runnable notification = null;
 
     private SearchResultDialogFragment _dialog = null;
-    private Handler _timerHandler = null;
+
+    /** life cycle conform scheduler */
+    private ScheduledExecutorService _scheduler;
+
+    private ScheduledFuture<?> timerFuture;
 
     /**
      * Load button(s)
@@ -184,8 +200,7 @@ public class SearchResultDialogFragment extends DialogFragment {
     @Override
     public void onAttach(@NonNull Context context) {
         _dialog = this;
-        /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
-        _timerHandler = new Handler();
+        _scheduler = Executors.newSingleThreadScheduledExecutor();
         _numColumns = getColumnCount();
 
         // Main panel with track list
@@ -194,8 +209,8 @@ public class SearchResultDialogFragment extends DialogFragment {
         if (searchFunction != null) {
             searchFunction.lang = getString(R.string.lang);
             searchFunction.trackListModel = trackListModel;
-            // todo only required for debugging
-            searchFunction.assetManager = this.requireContext().getAssets();
+            if (DEBUG)
+                searchFunction.assetManager = this.requireContext().getAssets();
         }
         super.onAttach(context);
     }
@@ -212,6 +227,7 @@ public class SearchResultDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        startTimer();
 
         Dialog dialog = getDialog();
         if (dialog == null) return;
@@ -282,49 +298,47 @@ public class SearchResultDialogFragment extends DialogFragment {
             dismiss();
         });
         cancelled = false;
+    }
 
-        /* Install a timer to handle all activities */
-        Runnable _timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (trackListModel.changed) {
-                    if (searchFunction.getErrorMessage().isEmpty()) {
-                        showStatus(trackListModel.message);
+    private void updateUi() {
+        View view = getView();
+        if (view == null) return;
 
-                        List<String[]> _results = new ArrayList<>();
-                        for (int row = 0; row < trackListModel.getRowCount(); row++) {
-                            switch (_numColumns) {
-                                case 1:
-                                    _results.add(new String[]{
-                                        trackListModel.getValueAt(row, getColumnKey(0))});
-                                    break;
-                                case 2:
-                                    _results.add(new String[]{
-                                        trackListModel.getValueAt(row, getColumnKey(0)),
-                                        trackListModel.getValueAt(row, getColumnKey(1))});
-                                    break;
-                                case 3:
-                                    _results.add(new String[]{
-                                        trackListModel.getValueAt(row, getColumnKey(0)),
-                                        trackListModel.getValueAt(row, getColumnKey(1)),
-                                        trackListModel.getValueAt(row, getColumnKey(2))});
-                                    break;
-                            }
-                        }
+        if (trackListModel.changed) {
+            if (searchFunction.getErrorMessage().isEmpty()) {
+                showStatus(trackListModel.message);
 
-                        // create new table holding the search results
-                        _adapter = new TableAdapter(_dialog, _results, _numColumns);
-                        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-                        recyclerView.setAdapter(_adapter);
-                    } else
-                        showErrorMessage(searchFunction.getErrorMessage());
-                    trackListModel.changed = false;
-                    loadButtonAll.setEnabled(!trackListModel.isEmpty());
+                List<String[]> _results = new ArrayList<>();
+                for (int row = 0; row < trackListModel.getRowCount(); row++) {
+                    switch (_numColumns) {
+                        case 1:
+                            _results.add(new String[]{
+                                    trackListModel.getValueAt(row, getColumnKey(0))});
+                            break;
+                        case 2:
+                            _results.add(new String[]{
+                                    trackListModel.getValueAt(row, getColumnKey(0)),
+                                    trackListModel.getValueAt(row, getColumnKey(1))});
+                            break;
+                        case 3:
+                            _results.add(new String[]{
+                                    trackListModel.getValueAt(row, getColumnKey(0)),
+                                    trackListModel.getValueAt(row, getColumnKey(1)),
+                                    trackListModel.getValueAt(row, getColumnKey(2))});
+                            break;
+                    }
                 }
-                _timerHandler.postDelayed(this, 100);
-            }
-        };
-        _timerHandler.postDelayed(_timerRunnable, 100);
+
+                // create new table holding the search results
+                _adapter = new TableAdapter(_dialog, _results, _numColumns);
+                RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
+                recyclerView.setAdapter(_adapter);
+            } else
+                showErrorMessage(searchFunction.getErrorMessage());
+            trackListModel.changed = false;
+            loadButtonAll.setEnabled(!trackListModel.isEmpty());
+        }
+     //   _timerHandler.postDelayed(this, 100);
     }
 
     protected void showStatus(String inStatus) {
@@ -480,11 +494,26 @@ public class SearchResultDialogFragment extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
+        stopTimer();
+    }
+
+    private void startTimer() {
+        timerFuture = _scheduler.scheduleWithFixedDelay(() -> {
+            if (isAdded()) {
+                requireActivity().runOnUiThread(this::updateUi);
+            }
+        }, 200, 100, TimeUnit.MILLISECONDS);
+    }
+
+    private void stopTimer() {
+        if (timerFuture != null) {
+            timerFuture.cancel(true);
+        }
     }
 
     @Override
     public void onDestroyView() {
-        _timerHandler.removeCallbacksAndMessages(null);
+        _scheduler.shutdownNow();
 
         _adapter = null;
         searchFunction = null;

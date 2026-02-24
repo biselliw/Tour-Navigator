@@ -1043,7 +1043,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
                     // ignore the day in simulation
                     long gpsTime_s = calendar.get(Calendar.SECOND) + 60 * (calendar.get(Calendar.MINUTE) + 60L * calendar.get(Calendar.HOUR_OF_DAY));
-                    delay_s = gpsTime_s - (_startTime_min * 60 + destTime_s);
+                    delay_s = gpsTime_s - (_startTime_min * 60L + destTime_s);
 
                     if (DEBUG)
                         Log.d(TAG, "handlePosition(): gpsTime_s = " + gpsTime_s

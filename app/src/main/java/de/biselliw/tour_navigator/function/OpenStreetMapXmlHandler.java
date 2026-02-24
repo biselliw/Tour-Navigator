@@ -40,7 +40,10 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
     protected SearchResult _currPoint = null;
 
     /** set to true if parser passed the filtered items */
-    protected boolean _useCurrPoint = true;
+    private boolean _useCurrPoint = true;
+
+    /** set to true if parser detected to ignore items */
+    private boolean _ignoreCurrPoint = false;
 
     private boolean _matchAll = false;
 
@@ -194,6 +197,7 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                 String link = "https://www.openstreetmap.org/" + inTagName + "/" + inAttributes.getValue("id");
                 _currPoint.setWebUrl(link);
                 _useCurrPoint = false;
+                _ignoreCurrPoint = false;
                 _hasTags = false;
                 if (inTagName.equals("node")) {
                     _currPoint.setID(inAttributes.getValue("id"));
@@ -204,7 +208,7 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                     _firstNodeRef = true;
                 }
             }
-            else if (inTagName.equals("tag") && _currPoint != null) {
+            else if (inTagName.equals("tag") && _currPoint != null && !_ignoreCurrPoint) {
                 processTag(inAttributes);
             }
             else if (inTagName.equals("nd") && _firstNodeRef) {
@@ -264,6 +268,10 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                 }
 
                 _currPoint.setDescription(_currPoint.getDescription() + "<p>" + key + ": " + value + "</p>");
+            }
+            else {
+                _ignoreCurrPoint = true;
+                _useCurrPoint = false;
             }
         }
     }

@@ -27,7 +27,6 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.view.Menu;
@@ -47,10 +46,6 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -79,7 +74,6 @@ import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.tim_prune.data.TrackInfo;
 import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
@@ -133,8 +127,6 @@ public class MainActivity extends LocationActivity  implements
         Resources.activity = this;
         Resources.resources = getResources();
         Resources.getResources();
-
-// todo       AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
 
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
@@ -253,7 +245,6 @@ public class MainActivity extends LocationActivity  implements
         if (DEBUG) Log.i(TAG,"onResume");
         if (stopped) {
             stopped = false;
-            // todo _timerHandler.postDelayed(_timerRunnable, timerPeriod_ms);
         }
         recordAdapter.notifyDataSetChanged();
         super.onResume();
@@ -432,21 +423,6 @@ public class MainActivity extends LocationActivity  implements
             goToNavigationItem(id);
         } catch (IOException ignored) {
         }
-/*
-        // delay transition so the drawer can close
-        mHandler.postDelayed(() -> {
-            try {
-                goToNavigationItem(id);
-            } catch (IOException ignored) {
-            }
-        }, NAVDRAWER_LAUNCH_DELAY);
-
-        // fade out the active activity
-        View mainContent = findViewById(R.id.main_content);
-        if (mainContent != null) {
-            mainContent.animate().alpha(0).setDuration(MAIN_CONTENT_FADEOUT_DURATION);
-        }
-*/
         return true;
     }
 
@@ -559,7 +535,6 @@ public class MainActivity extends LocationActivity  implements
         // will trigger exception if no  appropriate category passed
         intent.addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("application/gpx+xml")
-                // todo Field requires API level 26 (current min is 23): `android.provider.DocumentsContract#EXTRA_INITIAL_URI`
                 .putExtra(Intent.EXTRA_LOCAL_ONLY, true)
                 .putExtra(Intent.EXTRA_TITLE, gpxFileName);
         CreateDocumentGPXActivityResultLauncher.launch(intent);
@@ -583,7 +558,6 @@ public class MainActivity extends LocationActivity  implements
         // will trigger exception if no  appropriate category passed
         intent.addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("text/html")
-                // todo Field requires API level 26 (current min is 23): `android.provider.DocumentsContract#EXTRA_INITIAL_URI`
                 .putExtra(DocumentsContract.EXTRA_INITIAL_URI, Environment.DIRECTORY_DOCUMENTS)
                 .putExtra(DocumentsContract.EXTRA_INITIAL_URI, DIRECTORY_DOWNLOADS)
                 .putExtra(Intent.EXTRA_TITLE, gpxFileName.replace("gpx", "html"));
@@ -1254,7 +1228,7 @@ public class MainActivity extends LocationActivity  implements
         }
 
         if (App.getTrack() != null) {
-            if (!App.getTrack().isValidRecordedTrackFile())
+// todo            if (!App.getTrack().isValidRecordedTrackFile())
                 super.updateUI();
 
             if (_updateRecords) {

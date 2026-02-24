@@ -589,7 +589,7 @@ public class ControlElements extends BaseActivity {
                 // && (!Log.isWritingEnabled() || !isErrorMessage())
          ){
             if (!isErrorMessage())
-                setTitleText(inAdditionalInfo.title,R.color.colorText);
+                setTitleText(inAdditionalInfo.title,R.color.md_theme_surface);
 
             TextView commentView = findViewById(R.id.comment_view);
             commentView.setText(inAdditionalInfo.comment);
