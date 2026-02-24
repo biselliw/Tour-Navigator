@@ -1,17 +1,14 @@
 ## Download
 
-The Tour Navigator app is not available in the Google Play Store, but can be downloaded here on GitHub.
+The binary file TourNavigator.apk for the app is not available in the Google Play Store, but can be downloaded here in the [Releases](../../releases) directory under **Assets**.
 
-Please follow these steps:
+Please note the following procedure:
 
-- When you click on the file **TourNavigator.apk**, the error message ![](../img/view_raw.png) will initially appear.
+- When clicking on **TourNavigator.apk**, you must first select the destination directory for the file.
 
-- To download the app, you must click on ["View raw"](../../app/release/TourNavigator.apk) and select the destination folder for the executable file.
-
-- Return to this page.
-
-- When you click on the file **TourNavigator.apk**, the Android operating system will initially block the installation, 
+- Within the Android directory, clicking on the **TourNavigator.apk** file will initially cause Android to block the installation,
 e.g., with this message: "For security reasons, your smartphone is not allowed to install apps from this source."
+
 
 - Tap on "Settings"
 
@@ -23,7 +20,7 @@ e.g., with this message: "For security reasons, your smartphone is not allowed t
 
 - Tap "Install"
 
-- Wait until the app is installed (it may be scanned for harmful content by Google Play Protect beforehand, but it won't find any since there isn't any)
+- Wait until the app is installed (it may be checked by Google Play Protect beforehand)
 
 - Tap "Open" to launch the app
 
