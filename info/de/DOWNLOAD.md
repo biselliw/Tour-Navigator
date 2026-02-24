@@ -1,6 +1,6 @@
 ## Download
 
-Die Binärdatei TourNavigator.apk der App ist nicht im Google PlayStore verfügbar, kann aber hier im [Releases](../../releases)-Verzeichnis unter **Assets** heruntergeladen werden.
+Die Binärdatei TourNavigator.apk der App ist nicht im Google PlayStore verfügbar, kann aber hier im [Releases](https://github.com/biselliw/Tour-Navigator/releases)-Verzeichnis unter **Assets** heruntergeladen werden.
 
 Dabei ist folgender Ablauf zu beachten:
 
