@@ -10,8 +10,7 @@ Please follow these steps:
 
 - Return to this page.
 
-- When you click on the file **TourNavigator.apk**, the Android operating system will initially block the installation,
-
+- When you click on the file **TourNavigator.apk**, the Android operating system will initially block the installation, 
 e.g., with this message: "For security reasons, your smartphone is not allowed to install apps from this source."
 
 - Tap on "Settings"
