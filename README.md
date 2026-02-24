@@ -21,7 +21,7 @@ Details are presented here:
 
 ## Download and more Information
 
-You can freely download the Android app here from [GitHub](/app/release/TourNavigator.apk)
+You can freely download the Android app here from [GitHub](info/DOWNLOAD.md)
 
 Further development requires Android Studio
  
