@@ -97,14 +97,15 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     public boolean findPOIs = false;
 
     /** Translation table fpr OSM POIs */
-    static String[] symbols =   {"restaurant",       "bbq",        "bench", "lounger", "guidepost",
+    static String[] symbols =   { "archaeological_site", "restaurant",       "bbq",        "bench", "lounger", "guidepost",
             "bus_stop", "stop", "station", "turning_circle",
             "map", "cafe", "drinking_water", "toilets", "place_of_worship", "shelter", "office",
-            "board", "ice_cream", "viewpoint", "museum"};
-    static int[] ids = {R.string.restaurant, R.string.bbq, R.string.bench,R.string.lounger, R.string.guidepost,
+            "board", "ice_cream", "viewpoint", "museum", "rock"};
+    static int[] ids = {R.string.archaeological_site, // todo ignore error message,
+            R.string.restaurant, R.string.bbq, R.string.bench,R.string.lounger, R.string.guidepost,
             R.string.bus_stop, R.string.stop, R.string.station, R.string.turning_circle,
             R.string.map, R.string.cafe, R.string.drinking_water, R.string.toilets, R.string.place_of_worship,
-            R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum};
+            R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum, R.string.rock}; // todo ignore error message,
 
     /**
      * Constructor
@@ -410,19 +411,22 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
 
     /**
      * Fetch overpass api OSM data from simulation file
+     * @implNote only used for debugging
      * @return stream with overpass API data
      */
     private InputStream getSimulatedQuery() {
         InputStream inputStream = null;
-        try {
-            if (assetManager != null) {
-                inputStream = assetManager.open(getSimulationFileName());
-                trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
+        if (DEBUG) {
+            try {
+                if (assetManager != null) {
+                    inputStream = assetManager.open(getSimulationFileName());
+                    trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
+                _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
+                trackListModel.changed = true;
             }
-        } catch (IOException e) {
-            Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
-            _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
-            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -475,14 +479,15 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                         trackListModel.message = Resources.getString(R.string.osm_data_from_cache);
                 }
             } else {
-                // fetch overpass api OSM data from file in assets directory
-                inputStream = getSimulatedQuery();
+                if (DEBUG)
+                    // fetch overpass api OSM data from file in assets directory
+                    inputStream = getSimulatedQuery();
             }
         }
 
         /* use fallback geonames.org server on timeout of overpass api */
         if (inputStream == null && !queryBoundingBox) {
-            _errorMessage = "";
+// todo            _errorMessage = "";
             inputStream = submitQueryGeonames();
         }
 

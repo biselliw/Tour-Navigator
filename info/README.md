@@ -39,7 +39,7 @@ This requires GPS location services to be enabled with precise position data.
 Tour Navigator deliberately **does not calculate alternative routes**, but guides you reliably along the planned track.
 
 
-### Real-time Navigation ## App Features
+### Functionality of the app
 
 - [Overview](OVERVIEW.md)
 
