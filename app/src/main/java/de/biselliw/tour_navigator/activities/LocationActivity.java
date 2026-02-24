@@ -553,7 +553,11 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             _location = inLocation;
     }
 
-    protected void runner () {
+    /**
+     * callback function to periodically update the user interface
+     */
+    @Override
+    protected void updateUI() {
         if (DEBUG) if (_updateLogTimerGPS) {
             Log.d(TAG,"runner: _timerGps_ms = " + _timerGps_ms);
             _updateLogTimerGPS = false;
@@ -616,6 +620,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 break;
             default:
         }
+
+        super.updateUI();
     }
 
     /** @return true if both the ACCESS_FINE_LOCATION and FOREGROUND_SERVICE_LOCATION permissions have been granted */
@@ -875,8 +881,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                         activity = time + activity;
 
                     try {
-                        long color = getColor(bgColor);
-                        setTitleText(activity, getColor(bgColor));
+                        setTitleText(activity, bgColor);
                     }
                     catch (Exception e)
                     {
