@@ -251,6 +251,7 @@
 
     <!-- Open Street Map waypoints -->
 
+    <string name="archaeological_site">archaeological site</string>
     <string name="restaurant">restaurant</string>
     <string name="bbq">bbq</string>
     <string name="bench">bench</string>
@@ -272,6 +273,7 @@
     <string name="ice_cream">ice_cream</string>
     <string name="viewpoint">viewpoint</string>
     <string name="museum">museum</string>
+    <string name="rock">rock</string>
 
     <!-- ### Search Results ###-->
     <string name="server_not_found">The server is currently not reachable or cannot handle your request</string>

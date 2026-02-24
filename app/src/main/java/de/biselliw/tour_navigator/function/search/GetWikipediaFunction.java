@@ -171,19 +171,22 @@ public class GetWikipediaFunction extends GenericSearchFunction
 
     /**
      * Fetch geonames data from simulation file
+     * @implNote only used for debugging
      * @return stream with geonames data
      */
     private InputStream getSimulatedQuery() {
         InputStream inputStream = null;
-        try {
-            if (assetManager != null) {
-                inputStream = assetManager.open(getSimulationFileName());
-                trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
+        if (DEBUG) {
+            try {
+                if (assetManager != null) {
+                    inputStream = assetManager.open(getSimulationFileName());
+                    trackListModel.message = "Simulation data from file assets/" + getSimulationFileName();
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
+                _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
+                trackListModel.changed = true;
             }
-        } catch (IOException e) {
-            Log.e(TAG, "run():" + e.getClass().getName() + " - " + e.getMessage());
-            _errorMessage = "file assets/" + getSimulationFileName() + " could not be opened";
-            trackListModel.changed = true;
         }
         return inputStream;
     }
@@ -218,8 +221,9 @@ public class GetWikipediaFunction extends GenericSearchFunction
                 // Submit a query to the geonames server
                 inputStream = submitQuery();
             } else {
-                // fetch geonames data from file in assets directory
-                inputStream = getSimulatedQuery();
+                if (DEBUG)
+                    // fetch geonames data from file in assets directory
+                    inputStream = getSimulatedQuery();
             }
         }
 

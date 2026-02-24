@@ -175,7 +175,7 @@ public class App {
         else {
             control.showErrorMessage(_main.getString(R.string.gpx_error_no_waypoints));
         }
-*/
+        */
 
         if (gpxFileValid) {
             if (_track.getNumPoints() > 0) {
