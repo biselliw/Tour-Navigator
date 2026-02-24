@@ -63,7 +63,7 @@ public class BaseActivity extends AppCompatActivity {
     // Navigation drawer:
     protected DrawerLayout mDrawerLayout;
     protected NavigationView mNavigationView;
-    protected Handler mHandler;
+//    protected Handler mHandler;
 
     /** period of the runnable timer [ms] */
     protected int timerPeriod_ms;
@@ -81,7 +81,7 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
-        mHandler = new Handler();
+//        mHandler = new Handler();
 
         if (_DEBUG) {
             // query night mode
@@ -237,7 +237,7 @@ public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        mHandler.removeCallbacksAndMessages(null);
+//        mHandler.removeCallbacksAndMessages(null);
         stopTimer();
         scheduler.shutdownNow();
         super.onDestroy();

@@ -106,19 +106,16 @@ public class ControlElements extends BaseActivity {
     private boolean _isViewExpanded = false;
     private static boolean _tourInfoAvailable = false;
 
-    private static final int COLOR_MESSAGE = 0xFFFFFFFF;
-    private static final int COLOR_RED = 0xAAB71C1C;
-
     /**
      * if true: the GPS provider controls the tracking
      */
     private static boolean _isTracking;
 
     protected boolean firstStart = false;
-    /* FIXME 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
-    private final Handler _timerHandler = new Handler();
-    private Runnable _timerRunnable;
-    private final int _timerPeriod_ms = 100;
+    /* 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
+// todo   private final Handler _timerHandler = new Handler();
+    // todo   private Runnable _timerRunnable;
+// todo       private final int _timerPeriod_ms = 100;
 
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
@@ -152,7 +149,7 @@ public class ControlElements extends BaseActivity {
             }
         });
 
-        /* Install a timer to update control elements */
+        /* // todo   Install a timer to update control elements * /
         //runs without a timer by reposting this handler at the end of the runnable
         _timerRunnable = new Runnable() {
             @Override
@@ -160,45 +157,54 @@ public class ControlElements extends BaseActivity {
                 if (stopped)
                     return;
 
-                if (_initUserInterface) {
-                    // Disable a group of navigation items
-                    onPrepareNavigationMenu(mNavigationView.getMenu());
-                    _initUserInterface = false;
-                }
-                else // todo fix onPrepareNavigationMenu(
-                    onPrepareNavigationMenu(mNavigationView.getMenu());
-
-
-                if (_setupUserInterface) {
-                    // Enable a group of navigation items
-                    onPrepareNavigationMenu(mNavigationView.getMenu());
-                    onSetupUserInterface();
-                }
-
-                onPrepareButtons();
-                onUpdateStatusIcons();
-
-                if (_updateFileInfo)
-                    showFileInfo();
-                if (_updateErrorMessage)
-                    onShowErrorMessage();
-                if (_updateAdditionalInfo)
-                    showAdditionalInfo();
-                if (_updateExpandView)
-                    onShowAdditionalInfo(_additionalInfo, _isViewExpanded);
-                if (_updateWaypointType)
-                    onShowWaypointType(_distanceToPlace, _additionalInfo);
-                if (_initProfile) {
-                    profileAdapter.initPlot(App.app.getTrackInfo().getTrack());
-                    _initProfile = false;
-                }
-                if (_rescalePlaceView)
-                    onRescalePlaceView();
 
                 _timerHandler.postDelayed(this, _timerPeriod_ms);
             }
         };
-        _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
+        _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms); */
+    }
+
+    /**
+     * callback function to periodically update the user interface
+     */
+    @Override
+    protected void updateUI() {
+        if (_initUserInterface) {
+            // Disable a group of navigation items
+            onPrepareNavigationMenu(mNavigationView.getMenu());
+            _initUserInterface = false;
+        }
+        else // todo fix onPrepareNavigationMenu(
+            onPrepareNavigationMenu(mNavigationView.getMenu());
+
+
+        if (_setupUserInterface) {
+            // Enable a group of navigation items
+            onPrepareNavigationMenu(mNavigationView.getMenu());
+            onSetupUserInterface();
+        }
+
+        onPrepareButtons();
+        onUpdateStatusIcons();
+
+        if (_updateFileInfo)
+            showFileInfo();
+        if (_updateErrorMessage)
+            onShowErrorMessage();
+        if (_updateAdditionalInfo)
+            showAdditionalInfo();
+        if (_updateExpandView)
+            onShowAdditionalInfo(_additionalInfo, _isViewExpanded);
+        if (_updateWaypointType)
+            onShowWaypointType(_distanceToPlace, _additionalInfo);
+        if (_initProfile) {
+            profileAdapter.initPlot(App.app.getTrackInfo().getTrack());
+            _initProfile = false;
+        }
+        if (_rescalePlaceView)
+            onRescalePlaceView();
+
+        super.updateUI();
     }
 
     @Override
@@ -223,14 +229,13 @@ public class ControlElements extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        if (!stopped)
-            _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
+// todo        if (!stopped)             _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
     }
 
     @Override
     protected void onDestroy() {
         AppState.destroyed = true;
-        _timerHandler.removeCallbacksAndMessages(null);
+// todo       _timerHandler.removeCallbacksAndMessages(null);
         tts.shutdown();
         super.onDestroy();
     }
@@ -362,7 +367,6 @@ public class ControlElements extends BaseActivity {
     }
 
     private void onSetupUserInterface() {
- //       TableLayout tableLayoutHead = findViewById(R.id.table_head);
         TableLayout tableLayoutRecords = findViewById(R.id.table_records);
         ListView recordsView = findViewById(R.id.records_view);
         TextView commentView = findViewById(R.id.comment_view);
@@ -388,7 +392,6 @@ public class ControlElements extends BaseActivity {
         setTrackingStatus(false);
         _setupUserInterface = false;
     }
-
 
     /**
      * Show the tracking status
@@ -558,7 +561,7 @@ public class ControlElements extends BaseActivity {
     private void onShowErrorMessage() {
         _updateExpandView = false;
 
-        setTitleText(errorMessage,COLOR_RED);
+        setTitleText(errorMessage,R.color.red);
         Log.e("Error",errorMessage);
         _updateErrorMessage = false;
     }
@@ -566,11 +569,11 @@ public class ControlElements extends BaseActivity {
     /**
      * Set the title text
      * @param inTitle title
-     * @param inBackgroundColor background color
+     * @param inBackgroundColor resource id for background color
      */
     public void setTitleText (String inTitle, int inBackgroundColor) {
         TextView main_text_title = findViewById(R.id.main_text_title);
-        main_text_title.setBackgroundColor(inBackgroundColor);
+        main_text_title.setBackgroundColor(getColor(inBackgroundColor));
         main_text_title.setText(inTitle);
     }
 
@@ -586,7 +589,7 @@ public class ControlElements extends BaseActivity {
                 // && (!Log.isWritingEnabled() || !isErrorMessage())
          ){
             if (!isErrorMessage())
-                setTitleText(inAdditionalInfo.title,COLOR_MESSAGE);
+                setTitleText(inAdditionalInfo.title,R.color.colorText);
 
             TextView commentView = findViewById(R.id.comment_view);
             commentView.setText(inAdditionalInfo.comment);
@@ -765,7 +768,7 @@ public class ControlElements extends BaseActivity {
     public void showFileInfo() {
         if (App.getTrack().isValidRecordedTrackFile()) {
             // todo übersetzen: "Informationen zum aufgezeichneten Track"
-            setTitleText("Informationen zum aufgezeichneten Track", COLOR_MESSAGE);
+            setTitleText("Informationen zum aufgezeichneten Track", R.color.colorText);
             WebView webView = findViewById(R.id.web_view);
             if (webView != null)
                     webView.loadData(EstimateParams.getRecordedTrackFileInfo(),
@@ -778,7 +781,6 @@ public class ControlElements extends BaseActivity {
         }
         _updateFileInfo = false;
     }
-
 
     /**
      * Show additional info for the selected place
@@ -884,9 +886,7 @@ public class ControlElements extends BaseActivity {
      * todo Update the controls showing the tracking status
      */
     public void updateTrackingStatus() {
-        if (!((LocationActivity)this).isTrackingEnabled()) {
-
-        }
+// todo        if (!((LocationActivity)this).isTrackingEnabled()) { }
 
         _updateTrackingStatus = true;
     }
