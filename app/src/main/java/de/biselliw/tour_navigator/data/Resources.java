@@ -6,9 +6,9 @@ import de.biselliw.tour_navigator.helpers.Log;
 
 
 public class Resources {
-    public static AppCompatActivity activity;
-    // FIXME potential memory leak
-    public static android.content.res.Resources resources = null; // todo make resources non static
+    public static AppCompatActivity activity;   // Not Leaking
+
+    public static android.content.res.Resources resources = null;
 
     public static String resStrCreator = "";
     public static String resStrSetToDefault;

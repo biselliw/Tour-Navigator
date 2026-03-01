@@ -1,8 +1,9 @@
 <resources>
     <!-- Common MANIFEST -->
     <string name="app_copyright" translatable="false">Copyright &#x24B8; 2026 by Walter Biselli (tournavigator@online.de)</string>
-    <string name="app_donate">created with Tour Navigator (©2026 Walter Biselli, tournavigator@online.de)</string>
+    <string name="app_donate">created with Tour Navigator (©2026 Walter Biselli, tournavigator@online.de, <a href="https://github.com/biselliw/Tour-Navigator/">https://github.com/biselliw/Tour-Navigator</a>)</string>
     <string name="app_name">Tour Navigator</string>
+    <string name="app_web" translatable="false">https://github.com/biselliw/Tour-Navigator</string>
     <string name="app_short_description">Timetable of hiking tour</string>
 
     <string name="app_description">Timetable of hiking tour</string>

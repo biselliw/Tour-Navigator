@@ -112,10 +112,6 @@ public class ControlElements extends BaseActivity {
     private static boolean _isTracking;
 
     protected boolean firstStart = false;
-    /* 'Handler()' is deprecated as of API 30 ("R"; Android 11.0) */
-// todo   private final Handler _timerHandler = new Handler();
-    // todo   private Runnable _timerRunnable;
-// todo       private final int _timerPeriod_ms = 100;
 
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
@@ -148,20 +144,6 @@ public class ControlElements extends BaseActivity {
                 tts.setLanguage(Locale.getDefault());
             }
         });
-
-        /* // todo   Install a timer to update control elements * /
-        //runs without a timer by reposting this handler at the end of the runnable
-        _timerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (stopped)
-                    return;
-
-
-                _timerHandler.postDelayed(this, _timerPeriod_ms);
-            }
-        };
-        _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms); */
     }
 
     /**
@@ -174,9 +156,8 @@ public class ControlElements extends BaseActivity {
             onPrepareNavigationMenu(mNavigationView.getMenu());
             _initUserInterface = false;
         }
-        else // todo fix onPrepareNavigationMenu(
+        else
             onPrepareNavigationMenu(mNavigationView.getMenu());
-
 
         if (_setupUserInterface) {
             // Enable a group of navigation items
@@ -229,13 +210,11 @@ public class ControlElements extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-// todo        if (!stopped)             _timerHandler.postDelayed(_timerRunnable, _timerPeriod_ms);
     }
 
     @Override
     protected void onDestroy() {
         AppState.destroyed = true;
-// todo       _timerHandler.removeCallbacksAndMessages(null);
         tts.shutdown();
         super.onDestroy();
     }
@@ -681,7 +660,9 @@ public class ControlElements extends BaseActivity {
      * @param inTracking true if the GPS location provider shall be started
      */
     public void setTrackingStatus(boolean inTracking) {
-// todo
+        if (DEBUG)
+            Log.i(TAG,"setTrackingStatus("+ inTracking + ")");
+// todo setTrackingStatus
         ((LocationActivity)this).startForegroundLocationService(inTracking);
         _isTracking = inTracking;
         setExpandViewStatus(false);

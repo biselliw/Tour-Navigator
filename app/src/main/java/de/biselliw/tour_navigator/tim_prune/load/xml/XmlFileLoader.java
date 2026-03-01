@@ -235,7 +235,6 @@ public class XmlFileLoader extends DefaultHandler implements Runnable
 
                     }
                 // Show error message
-                // todo ControlElements.showErrorMessage(e.toString()); // .getMessage());
             }
         }
 		return success;

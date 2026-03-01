@@ -416,7 +416,7 @@ public class Track {
 		for (int p=0; p < getNumPoints(); p++)
 		{
 			DataPoint point = getPoint(p);
-			if (point != null)
+			if (point != null && point.isValid())
 			{
 				_xValues[p] = MapUtils.getXFromLongitude(point.getLongitude().getDouble());
 				_xRange.addValue(_xValues[p]);

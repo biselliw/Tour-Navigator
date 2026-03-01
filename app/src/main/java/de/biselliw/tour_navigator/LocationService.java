@@ -84,33 +84,37 @@ public class LocationService extends Service {
             return;
         }
 
-        createNotificationChannel();
-        startForeground(1, buildNotification());
-        Log.i(TAG,"foreground service started for Fused Location Provider");
+        try {
+            createNotificationChannel();
+            startForeground(1, buildNotification());
+            Log.i(TAG, "foreground service started for Fused Location Provider");
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Create a LocationRequest
-        LocationRequest locationRequest = new LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                1000
-        ).setMinUpdateDistanceMeters(0)
-         .build();
+            // Create a LocationRequest
+            LocationRequest locationRequest = new LocationRequest.Builder(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    1000
+            ).setMinUpdateDistanceMeters(0)
+                    .build();
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult result) {
-                for (Location location : result.getLocations()) {
-                    handleLocation(location);
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(@NonNull LocationResult result) {
+                    for (Location location : result.getLocations()) {
+                        handleLocation(location);
+                    }
                 }
-            }
-        };
+            };
 
-        fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-        );
+            fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+            );
+        } catch (Exception e) {
+            Log.e(TAG,"error: ",e);
+        }
     }
 
     /**
@@ -119,11 +123,17 @@ public class LocationService extends Service {
      */
     private void handleLocation(Location location) {
         if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
+/*
         // use system clock instead of GPS device time
         Intent intent = new Intent(ACTION_LOCATION_UPDATE);
         intent.putExtra("location", location);
         sendBroadcast(intent);
-    }
+*/
+
+        Intent intent = new Intent(ACTION_LOCATION_UPDATE);
+        intent.setPackage(getPackageName());   // wichtig für implizite Broadcasts
+        intent.putExtra("location", location);
+        sendBroadcast(intent);    }
 
     /**
      *  Notification needed to fulfill Androids security restrictions for background operations
@@ -133,7 +143,7 @@ public class LocationService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.notify_gps_active))
                 .setContentText(getString(R.string.notify_gps_reason))
-                .setSmallIcon(R.drawable.location_on) // R.id.image_location_on) //
+                .setSmallIcon(R.drawable.hiking) // R.id.image_location_on) //
                 .setOngoing(true)
                 .build();
     }
@@ -156,9 +166,7 @@ public class LocationService extends Service {
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-        }
+        stopForeground(STOP_FOREGROUND_REMOVE);
         super.onDestroy();
     }
 
