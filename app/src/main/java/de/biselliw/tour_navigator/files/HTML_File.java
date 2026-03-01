@@ -464,7 +464,8 @@ public class HTML_File {
         html_buffer.append("</table>");
 
         html_buffer.append("<caption>");
-        html_buffer.append(res.getString(R.string.app_donate));
+        String web_link = ": <a href=" + res.getString(R.string.app_web) + ">" + res.getString(R.string.app_web) + "</a>";
+        html_buffer.append(res.getString(R.string.app_donate)).append(web_link);
         html_buffer.append("</caption>");
 
         if (!addLinks)

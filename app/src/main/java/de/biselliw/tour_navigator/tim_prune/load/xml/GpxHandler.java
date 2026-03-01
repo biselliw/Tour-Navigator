@@ -30,9 +30,7 @@ package de.biselliw.tour_navigator.tim_prune.load.xml;
  *             - distinguish between loaded way points and trackpoints
  *             - load extra tags from gpx file: _metadata (name, author), _comment, _duration
  *             - reorder point fields
- * @since 26.1
- * @todo create parent class for project
-*/
+ */
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -53,7 +51,6 @@ import de.biselliw.tour_navigator.tim_prune.data.Field;
  * @see <a href="https://docs.oracle.com/javase/7/docs/api/org/xml/sax/package-summary.html">Package org.xml.sax</a>
  * @author tim.prune
  * @implNote BiselliW: new GPX tags (WAYPT_CMT), new order of point fields in class Field
- * @todo replace package org.xml.sax by the SAX2 Attributes interface
  *
  */
  /* new order of point fields (old one):<ul></ul>

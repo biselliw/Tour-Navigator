@@ -118,6 +118,7 @@ public class EstimateParams extends TrackSegments {
 
         addReport(getRecordedTrackFileInfo_Start());
 // todo        trackHasTimeStamps = false;
+        assert estimateResult != null;
         if (estimateResult.successful)
         {
             addReport(getRecordedTrackFileInfo_Success());

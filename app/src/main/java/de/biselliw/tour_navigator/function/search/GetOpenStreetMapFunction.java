@@ -101,11 +101,11 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
             "bus_stop", "stop", "station", "turning_circle",
             "map", "cafe", "drinking_water", "toilets", "place_of_worship", "shelter", "office",
             "board", "ice_cream", "viewpoint", "museum", "rock"};
-    static int[] ids = {R.string.archaeological_site, // todo ignore error message,
+    static int[] ids = {R.string.archaeological_site,
             R.string.restaurant, R.string.bbq, R.string.bench,R.string.lounger, R.string.guidepost,
             R.string.bus_stop, R.string.stop, R.string.station, R.string.turning_circle,
             R.string.map, R.string.cafe, R.string.drinking_water, R.string.toilets, R.string.place_of_worship,
-            R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum, R.string.rock}; // todo ignore error message,
+            R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum, R.string.rock};
 
     /**
      * Constructor
@@ -192,17 +192,18 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                     // + "node[tourism=information][information!=guidepost]" + boundingBox
                     + "node[amenity]" + boundingBox
                     + "node[natural]" + boundingBox
-                    + "node[man_made]" + boundingBox
                     + "node[wikipedia]" + boundingBox
                     + "node[wikimedia_commons]" + boundingBox
                     + "node[wikidata]" + boundingBox
                     + "node[website]" + boundingBox
 
                     + "node[historic]" + boundingBox
+/*
                     + "node[historic=memorial]" + boundingBox
                     + "node[historic=wayside_shrine]" + boundingBox
                     + "node[historic=wayside_cross]" + boundingBox
-
+*/
+                    + "node[\"ref:IFOPT\"]" + boundingBox
                     + "node[man_made]" + boundingBox;
 
         urlString = urlString
@@ -416,7 +417,7 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
      */
     private InputStream getSimulatedQuery() {
         InputStream inputStream = null;
-        if (DEBUG) {
+        if (SIMULATE_QUERY) {
             try {
                 if (assetManager != null) {
                     inputStream = assetManager.open(getSimulationFileName());
@@ -479,9 +480,8 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                         trackListModel.message = Resources.getString(R.string.osm_data_from_cache);
                 }
             } else {
-                if (DEBUG)
-                    // fetch overpass api OSM data from file in assets directory
-                    inputStream = getSimulatedQuery();
+                // fetch overpass api OSM data from file in assets directory
+                inputStream = getSimulatedQuery();
             }
         }
 

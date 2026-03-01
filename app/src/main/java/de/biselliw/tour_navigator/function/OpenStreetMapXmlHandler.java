@@ -131,6 +131,7 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
     final static String[] _keys = new String[]{"highway", // todo reduce, remove street_lamp
             "hiking",
             "historic", // todo translate "historic", "monument", "memorial", "wayside_shrine", "wayside_cross"
+            "ref:IFOPT", "ref:ibnr"
             };
 
     /**
@@ -246,16 +247,23 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                 if (_matchAll)
                     _useCurrPoint = true;
                 if (match_key(key)) {
-                    _useCurrPoint = true;
-                    _currPoint.setPointType(value);
+                    if (key.equals("ref:IFOPT") || key.equals("ref:ibnr")) {
+                        if (!_currPoint.getTrackName().isEmpty()) {
+                            _useCurrPoint = true;
+                            _currPoint.setPointType("Haltestelle");
+                            if (key.equals("ref:ibnr")) {
+                                value = value + " (https://www.bahnhof.de/bahnhof-de/id/" + value + ")";
+                            }
+                        }
+                    }
+                    else {
+                        _useCurrPoint = true;
+                        _currPoint.setPointType(value);
+                    }
                 } else if (match(key, value)) {
                     _useCurrPoint = true;
                     _currPoint.setPointType(value);
-                } else if (value.equals("webcam")) {
-                    _useCurrPoint = true;
-                    _currPoint.setPointType(value);
-                }
-                if (key.equals("wikimedia_commons")) {
+                } else if (key.equals("wikimedia_commons")) {
                     value = "https://commons.wikimedia.org/wiki/" + value.replace(" ", "_");
                 } else if (key.startsWith("wikipedia")) {
                     value = "https://de.wikipedia.org/wiki/" + value.replace(" ", "_");
@@ -265,6 +273,9 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                     _currPoint.setRef(value);
                 } else if (key.equals("name")) {
                     _currPoint.setTrackName(value);
+                } else if (value.equals("webcam")) {
+                    _useCurrPoint = true;
+                    _currPoint.setPointType(value);
                 }
 
                 _currPoint.setDescription(_currPoint.getDescription() + "<p>" + key + ": " + value + "</p>");

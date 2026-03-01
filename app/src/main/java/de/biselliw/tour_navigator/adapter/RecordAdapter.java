@@ -349,6 +349,17 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
+     * @return distance of the selected item since start
+     */
+    public double getDistance() {
+        double distance = 0.0;
+        DataPoint point = getItem(_selected).trackPoint;
+        if (point != null)
+            distance = point.getDistance();
+        return distance;
+    }
+
+    /**
      * Set the current distance since start
      *
      * @param inDistance inDistance
@@ -358,12 +369,26 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
+     * @return break time [min] at the selected item
+     */
+    public int getBreakTime() {
+        int breakTime = 0;
+        DataPoint point = getItem(_selected).trackPoint;
+        if (point != null)
+            breakTime = point.getWaypointDuration();
+        return breakTime;
+    }
+
+    /**
      * Set the current delay
      *
      * @param inDelay delay [min]
      */
     public void setDelay(int inDelay) {
-        _delay_min = inDelay;
+        if (_delay_min != inDelay) {
+            _delay_min = inDelay;
+            notifyDataSetChanged();
+        }
     }
 
     /**
@@ -414,7 +439,7 @@ public class RecordAdapter extends BaseAdapter {
         // use local calendar
         Calendar calendar = Calendar.getInstance();
 
-        /* get the formatted planned arrival time */
+        /* get the formatted planned arrival time */ // todo check UTC
         calendar.setTimeInMillis(_startTime_UTC + inPoint.getTime() * 1000L);
         String plannedTime_Str = "";
 
@@ -539,7 +564,6 @@ public class RecordAdapter extends BaseAdapter {
             inActivity.clearErrorMessage();
 
         if (showPlace(inPlace)) {
-            /* Set relative position in the seek bar */
             RecordAdapter.Record record = getItem(inPlace);
             if (record == null) return false;
             DataPoint point = record.trackPoint;
@@ -687,7 +711,5 @@ public class RecordAdapter extends BaseAdapter {
         }
         _calendar = null;;
     }
-
-
 
 }
