@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.function;
+package de.biselliw.tour_navigator.functions;
 
 import org.apache.commons.math3.linear.*;
 

@@ -26,7 +26,7 @@ import java.util.List;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.function.GpxAltitudeSmoother;
+import de.biselliw.tour_navigator.functions.GpxAltitudeSmoother;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 

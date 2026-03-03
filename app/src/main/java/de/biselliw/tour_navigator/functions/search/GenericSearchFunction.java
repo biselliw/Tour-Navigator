@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.function.search;
+package de.biselliw.tour_navigator.functions.search;
 
 /*
     This file is part of Tour Navigator

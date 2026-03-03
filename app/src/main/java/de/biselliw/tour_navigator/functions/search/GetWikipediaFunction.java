@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.function.search;
+package de.biselliw.tour_navigator.functions.search;
 
 /*
     This file is part of Tour Navigator
@@ -35,8 +35,7 @@ import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.data.Resources;
 import de.biselliw.tour_navigator.helpers.Log;
-import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.function.WikipediaXmlHandler;
+import de.biselliw.tour_navigator.functions.WikipediaXmlHandler;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.DoubleRange;

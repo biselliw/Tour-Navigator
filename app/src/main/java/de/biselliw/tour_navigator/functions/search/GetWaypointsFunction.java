@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.function.search;
+package de.biselliw.tour_navigator.functions.search;
 
 /*
     This file is part of Tour Navigator
@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import de.biselliw.tour_navigator.stubs.Config;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
-import de.biselliw.tour_navigator.tim_prune.function.search.TrackListModel;
 import de.biselliw.tour_navigator.ui.ControlElements;
 import tim.prune.data.Distance;
 import tim.prune.data.Unit;
