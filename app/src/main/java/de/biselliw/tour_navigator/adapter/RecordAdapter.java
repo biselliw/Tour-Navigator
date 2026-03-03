@@ -184,7 +184,7 @@ public class RecordAdapter extends BaseAdapter {
         while (place < getCount()) {
             RecordAdapter.Record record = getItem(place);
             assert (record != null);
-            if (inIndex <= record.trackPointIndex) {
+            if (inIndex >= record.trackPointIndex) { // todo check
                 result = place;
                 break;
             }
@@ -393,7 +393,7 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * @return the current delay [min]
-     */
+     * /
     public int getDelay() {
         return _delay_min;
     }
@@ -523,21 +523,20 @@ public class RecordAdapter extends BaseAdapter {
      * after the given distance
      *
      * @param inDistance current distance since start
-     * @param inUser     true if invoked by the user
      * @return index of the place within the list of places
      */
-    public int setNextPlace(LocationActivity inActivity, double inDistance, boolean inUser) {
+    public int setNextPlace(LocationActivity inActivity, double inDistance) {
         int place = 0;
         do {
             DataPoint recPoint = getItem(place).trackPoint;
             if (recPoint != null) {
                 double dist = recPoint.getDistance();
-                if (inDistance > dist) {
+                if (inDistance >= dist) { // todo check >=
                     place++;
                 }
                 else
                 {
-                    setPlace(inActivity, place, inUser);
+                    setPlace(inActivity, place, false);
                     break;
                 }
             }
@@ -555,7 +554,7 @@ public class RecordAdapter extends BaseAdapter {
      */
     public boolean setPlace(LocationActivity inActivity, int inPlace, boolean inUser) {
         // if (DEBUG) Log.d(TAG,"setPlace "+ inPlace);
-        double distanceToPlace = 0.0;
+//        double distanceToPlace = 0.0;
         if (inPlace < 0) inPlace = 0;
         _initialPlace = inPlace;
 
@@ -569,7 +568,7 @@ public class RecordAdapter extends BaseAdapter {
             DataPoint point = record.trackPoint;
             if (point == null) return false;
             double distance = point.getDistance();
-            distanceToPlace = distance - _distance; // dist_from_start;
+//            distanceToPlace = distance - _distance; // dist_from_start;
 
             /* Scroll to the place in the list */
             setPlace(inPlace);
@@ -588,7 +587,7 @@ public class RecordAdapter extends BaseAdapter {
                 }
 
                 record = getItem(inPlace + 1);
-                double nextDistance = distance + 1.0;
+                double nextDistance = distance + 1.0; // todo + 1.0?
                 if (record != null) {
                     point = record.trackPoint;
                     if (point != null)
@@ -598,7 +597,7 @@ public class RecordAdapter extends BaseAdapter {
             } else {
                 if (inPlace > 0) {
                     record = getItem(inPlace - 1);
-                    double prevDistance = distance - 1.0;
+                    double prevDistance = distance - 1.0;// todo - 1.0?
                     if (record != null) {
                         point = record.trackPoint;
                         if (point != null)
@@ -615,7 +614,7 @@ public class RecordAdapter extends BaseAdapter {
         }
 
         // Set the distance to the next place
-        inActivity.setDistanceToPlace(distanceToPlace);
+//        inActivity.setDistanceToPlace(distanceToPlace);
 
         if (inPlace != _lastPlace)
         {
@@ -666,13 +665,14 @@ public class RecordAdapter extends BaseAdapter {
         return (inPlace >= 0);
     }
 
+    /*
     public void scrollToListPosition() {
         notifyDataSetChanged();
         int inPlace = getPlace();
         if (inPlace >= 0)
             recordsView.smoothScrollToPosition(inPlace);
     }
-
+*/
     public int getInitialPlace () { return _initialPlace; }
 
     /* limit search to end of a record */

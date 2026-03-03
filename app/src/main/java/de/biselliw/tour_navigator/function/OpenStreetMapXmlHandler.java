@@ -252,7 +252,8 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                             _useCurrPoint = true;
                             _currPoint.setPointType("Haltestelle");
                             if (key.equals("ref:ibnr")) {
-                                value = value + " (https://www.bahnhof.de/bahnhof-de/id/" + value + ")";
+                                value = value + "<ul><li>Bahnhofsinfos: https://www.bahnhof.de/bahnhof-de/id/" + value +
+                                        "</li><li>Verbindungsanfrage: https://www.bahn.de/buchung/start?zo=" + value + "</li></ul>";
                             }
                         }
                     }
