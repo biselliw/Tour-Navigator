@@ -14,10 +14,10 @@ import javax.xml.parsers.SAXParserFactory;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.data.Resources;
-import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
+import de.biselliw.tour_navigator.functions.search.GenericSearchFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
-import de.biselliw.tour_navigator.function.WikipediaXmlHandler;
+import de.biselliw.tour_navigator.functions.WikipediaXmlHandler;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 /**

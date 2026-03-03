@@ -26,12 +26,12 @@ import android.content.res.Resources;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
-import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
+import de.biselliw.tour_navigator.functions.search.GetOpenStreetMapFunction;
+import de.biselliw.tour_navigator.functions.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
-import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
+import de.biselliw.tour_navigator.functions.search.GetWikipediaFunction;
 import tim.prune.data.Distance;
 
 public class TourDetails {

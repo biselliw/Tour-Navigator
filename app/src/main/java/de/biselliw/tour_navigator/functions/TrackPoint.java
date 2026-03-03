@@ -1,4 +1,4 @@
-package de.biselliw.tour_navigator.function;
+package de.biselliw.tour_navigator.functions;
 
 /**
  * holds a minimum set of values for a trackpoint
