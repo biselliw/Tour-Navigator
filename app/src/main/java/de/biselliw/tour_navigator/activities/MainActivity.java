@@ -386,7 +386,7 @@ public class MainActivity extends LocationActivity  implements
             // find OSM guideposts along the track
             OpenStreetMapDialogFragment dialog = OpenStreetMapDialogFragment.newInstance(this);
             dialog.setTitle (getString(R.string.osm_guide_posts_title));
-            dialog.queryBoundingBox();
+            dialog.queryBoundingBox(0.01);
             dialog.findGuideposts();
             dialog.setNotification(this::updateRecords);
             dialog.show(getSupportFragmentManager(),"OpenStreetMapDialogFragment");
@@ -397,7 +397,7 @@ public class MainActivity extends LocationActivity  implements
             // find OSM POIs along the track
             OpenStreetMapDialogFragment dialog = OpenStreetMapDialogFragment.newInstance(this);
             dialog.setTitle (getString(R.string.osm_pois_title));
-            dialog.queryBoundingBox();
+            dialog.queryBoundingBox(0.01);
             dialog.findPOIs();
             dialog.setNotification(this::updateRecords);
             dialog.show(getSupportFragmentManager(),"OpenStreetMapDialogFragment");
@@ -406,7 +406,7 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.nav_wikipedia) {
             WikipediaDialogFragment dialog = WikipediaDialogFragment.newInstance(this);
             dialog.setTitle(getString(R.string.wikipedia_title));
-            dialog.queryBoundingBox(0.05);
+            dialog.queryBoundingBox(0.02);
             dialog.setNotification(this::updateRecords);
             dialog.show(getSupportFragmentManager(), "WikipediaDialogFragment");
             return true;

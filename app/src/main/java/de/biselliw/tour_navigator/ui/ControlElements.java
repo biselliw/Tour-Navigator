@@ -23,7 +23,6 @@ package de.biselliw.tour_navigator.ui;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
@@ -39,7 +38,6 @@ import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -98,7 +96,7 @@ public class ControlElements extends BaseActivity {
     static boolean _updateErrorMessage = false;
     boolean _updateExpandView = false;
     static boolean _updateFileInfo = false;
-    static boolean _updateWaypointType = false;
+//    static boolean _updateWaypointType = false;
     static boolean _initProfile = false;
     boolean _updateProfile = false;
     boolean _rescalePlaceView = true;
@@ -116,9 +114,9 @@ public class ControlElements extends BaseActivity {
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
     boolean _speakEnabled = false;
-    private TourDetails.AdditionalInfo _additionalInfo = null;
+    protected TourDetails.AdditionalInfo additionalInfo = null;
     static String errorMessage = "";
-    private String _distanceToPlace = "";
+//    private String _distanceToPlace = "";
     int _profileViewVisibility = View.GONE;
 
     public static boolean updateGpxFile = false;
@@ -175,9 +173,8 @@ public class ControlElements extends BaseActivity {
         if (_updateAdditionalInfo)
             showAdditionalInfo();
         if (_updateExpandView)
-            onShowAdditionalInfo(_additionalInfo, _isViewExpanded);
-        if (_updateWaypointType)
-            onShowWaypointType(_distanceToPlace, _additionalInfo);
+            onShowAdditionalInfo(additionalInfo, _isViewExpanded);
+//        if (_updateWaypointType)            onShowWaypointType(_distanceToPlace, additionalInfo);
         if (_initProfile) {
             profileAdapter.initPlot(App.app.getTrackInfo().getTrack());
             _initProfile = false;
@@ -603,7 +600,7 @@ public class ControlElements extends BaseActivity {
      * Show the distance to the next point and its waypoint type
      * @param inDistanceToPlace formatted distance
      * @param inAdditionalInfo additional information containing the waypoint type
-     */
+     * /
     private void onShowWaypointType(String inDistanceToPlace, TourDetails.AdditionalInfo inAdditionalInfo) {
         _updateWaypointType = false;
         String comment = inDistanceToPlace;
@@ -613,7 +610,7 @@ public class ControlElements extends BaseActivity {
         TextView commentView = findViewById(R.id.comment_view);
         commentView.setText(comment);
     }
-
+*/
     private int getViewWidth(int id) {
         TextView view = findViewById(id);
         return view.getWidth();
@@ -776,10 +773,10 @@ public class ControlElements extends BaseActivity {
      */
     public void showAdditionalInfo(int inPlace) {
         if (tourDetails != null) {
-            _additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedDebugHTML(), inPlace);
+            additionalInfo = tourDetails.getAdditionalInfo(Log.isLoggedDebugHTML(), inPlace);
             _updateExpandView = !App.getTrack().isValidRecordedTrackFile();
         } else
-            _additionalInfo = null;
+            additionalInfo = null;
         _updateAdditionalInfo = false;
     }
 
@@ -795,7 +792,7 @@ public class ControlElements extends BaseActivity {
                         "[a-z0-9.-]+\\.[a-z]{2,}\\S*|" + // any-domain.anyTLD(/path)
                         "\\d{1,3}(?:\\.\\d{1,3}){3}\\S*" + // IPv4 URL-like
                         ")";
-        String html = _additionalInfo.description.replaceAll("<[^>]*>", " ");
+        String html = additionalInfo.description.replaceAll("<[^>]*>", " ");
 
         // Remove <a>...</a> tags but keep their text
         html = html.replaceAll("<a[^>]*>(.*?)</a>", "$1");
@@ -816,7 +813,7 @@ public class ControlElements extends BaseActivity {
     /**
      * Set the distance to the next place
      * @param inDistanceToPlace distance in km
-     */
+     * /
     public void setDistanceToPlace(double inDistanceToPlace) {
         if (inDistanceToPlace >= 1.0)
             _distanceToPlace = new DecimalFormat("in #0.0 km: ").format(inDistanceToPlace);
@@ -890,7 +887,7 @@ public class ControlElements extends BaseActivity {
     }
 
     public void notifyDataSetChanged(List<RecordAdapter.Record> records) {
-        _updateWaypointType = false;
+//        _updateWaypointType = false;
         if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
         recordAdapter.notifyDataSetChanged(records);
     }

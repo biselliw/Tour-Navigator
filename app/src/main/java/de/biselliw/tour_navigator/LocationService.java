@@ -120,20 +120,16 @@ public class LocationService extends Service {
     /**
      * handle a single location and send a broadcast message
      * @param location received location data
+     * todo store locations in background
      */
     private void handleLocation(Location location) {
         if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
-/*
-        // use system clock instead of GPS device time
-        Intent intent = new Intent(ACTION_LOCATION_UPDATE);
-        intent.putExtra("location", location);
-        sendBroadcast(intent);
-*/
 
         Intent intent = new Intent(ACTION_LOCATION_UPDATE);
-        intent.setPackage(getPackageName());   // wichtig für implizite Broadcasts
+        intent.setPackage(getPackageName());   // important for implicit broadcasts
         intent.putExtra("location", location);
-        sendBroadcast(intent);    }
+        sendBroadcast(intent);
+    }
 
     /**
      *  Notification needed to fulfill Androids security restrictions for background operations
