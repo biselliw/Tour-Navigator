@@ -36,8 +36,8 @@ import java.util.Locale;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.LocationActivity;
-import de.biselliw.tour_navigator.activities.MainActivity;
 import de.biselliw.tour_navigator.data.Resources;
+import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -89,7 +89,6 @@ public class RecordAdapter extends BaseAdapter {
     private int _initialPlace = -1;
     private int _lastPlace = -1;
     private String _debugLastPlace = "";
-    private int _endPlace = 0;
 
     /** start time of the tour in [min] since midnight */
     private int _startTime_min;
@@ -331,11 +330,11 @@ public class RecordAdapter extends BaseAdapter {
 
     /**
      * Sets an item in the list of places
-     *
      * @param inPlace Index (starting at 0) of the data item to be selected or -1 if nothing
      */
     public void setPlace(int inPlace) {
         _selected = Math.min(inPlace, recordList.size());
+        LocationHandler.setPlace(inPlace);
         notifyDataSetChanged();
     }
 
@@ -546,32 +545,55 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
+     * Force place index within given range
+     * @param inPlace place index
+     * @return valid index
+     */
+    private int fixPlace (int inPlace) {
+        if (inPlace < 0) return 0;
+        if (inPlace >= getCount()) return getCount();
+        return inPlace;
+    }
+
+    /**
+     * Set the position in list of places and update information
+     *
+     * @param inPlace row index of the table
+     * @ see RecordAdapter#setPlace(int)
+     */
+    public boolean setPlace(LocationActivity inActivity, int inPlace) {
+        setPlace(inPlace);
+        return setPlace(inActivity, inPlace, false);
+    }
+
+    /**
      * Set the position in list of places and update information
      *
      * @param inPlace row index of the table
      * @param inUser  true if invoked by the user
-     * @see RecordAdapter#setPlace(int)
+     * @ see RecordAdapter#setPlace(int)
      */
     public boolean setPlace(LocationActivity inActivity, int inPlace, boolean inUser) {
-        // if (DEBUG) Log.d(TAG,"setPlace "+ inPlace);
-//        double distanceToPlace = 0.0;
-        if (inPlace < 0) inPlace = 0;
+            // if (DEBUG) Log.d(TAG,"setPlace "+ inPlace);
         _initialPlace = inPlace;
+        inPlace = fixPlace(inPlace);
 
-        _endPlace = inPlace;
-        if (inUser)
+        if (inUser) {
             inActivity.clearErrorMessage();
-
-        if (showPlace(inPlace)) {
-            RecordAdapter.Record record = getItem(inPlace);
-            if (record == null) return false;
-            DataPoint point = record.trackPoint;
-            if (point == null) return false;
-            double distance = point.getDistance();
-//            distanceToPlace = distance - _distance; // dist_from_start;
-
             /* Scroll to the place in the list */
             setPlace(inPlace);
+        }
+        else
+            _selected = inPlace;
+
+        /* Show the place on the board */
+        RecordAdapter.Record record = getItem(inPlace);
+        if (record == null) return false;
+        DataPoint routePoint = record.trackPoint;
+        if (routePoint == null) return false;
+
+        if (showPresumableArriveTime(routePoint)) {
+            double distance = routePoint.getDistance();
 
             if (!inActivity.isViewExpanded()) {
                 if (!inUser)
@@ -581,27 +603,34 @@ public class RecordAdapter extends BaseAdapter {
             }
 
             if (inUser) {
-                inActivity.setStartGpsIndex(point.getIndex());
+                // start tracking at this point
+                inActivity.setStartGpsIndex(routePoint.getIndex());
                 if (inPlace == 0) {
                     inActivity.resetLocationStatus();
                 }
 
-                record = getItem(inPlace + 1);
-                double nextDistance = distance + 1.0; // todo + 1.0?
-                if (record != null) {
-                    point = record.trackPoint;
-                    if (point != null)
-                        nextDistance = point.getDistance();
+                /* Show the track segment between two route points:
+                  after the selected place */
+                double nextDistance = distance + 1.0;
+                if (inPlace < getCount() - 1) {
+                    record = getItem(inPlace + 1);
+                    if (record != null) {
+                        routePoint = record.trackPoint;
+                        if (routePoint != null)
+                            nextDistance = routePoint.getDistance();
+                    }
                 }
                 _profileAdapter.setXRange(distance, nextDistance);
             } else {
+                /* Show the track segment between two route points:
+                  before the selected place */
+                double prevDistance = distance - 1.0;
                 if (inPlace > 0) {
                     record = getItem(inPlace - 1);
-                    double prevDistance = distance - 1.0;// todo - 1.0?
                     if (record != null) {
-                        point = record.trackPoint;
-                        if (point != null)
-                            prevDistance = point.getDistance();
+                        routePoint = record.trackPoint;
+                        if (routePoint != null)
+                            prevDistance = routePoint.getDistance();
                     }
                     _profileAdapter.setXRange(prevDistance, distance);
                 } else
@@ -612,9 +641,6 @@ public class RecordAdapter extends BaseAdapter {
             _profileAdapter.clearXRange();
             setPlace(inPlace);
         }
-
-        // Set the distance to the next place
-//        inActivity.setDistanceToPlace(distanceToPlace);
 
         if (inPlace != _lastPlace)
         {
@@ -630,31 +656,22 @@ public class RecordAdapter extends BaseAdapter {
 
 
     /**
-     * Put the marker to a selected row within the table of places
+     * Show the presumable arrival time at a route point depending on the delay
      *
-     * @param inPlace row index of the table
+     * @param inRoutePoint selected route point
      * @return if shown
      */
-    public boolean showPlace(int inPlace) {
+    private boolean showPresumableArriveTime(DataPoint inRoutePoint) {
         String place = "", plannedTime_Str = "";
         track_arrive.setText("");
-        _endPlace = inPlace;
 
-        if (inPlace >= 0) {
-            if (inPlace < getCount()) {
-                /* Show the place on the board */
-                RecordAdapter.Record record = getItem(inPlace);
-                if (record == null) return false;
-                DataPoint point = record.trackPoint;
-                if (point == null) return false;
-                place = point.getRoutePointName();
+        place = inRoutePoint.getRoutePointName();
 
-                /* Show time of arrival at next place */
-                if (_startTime_min > 0) {
-                    // show the presumable arrival time depending on the delay
-                    plannedTime_Str = showPresumableArriveTime(true, true, track_arrive, point);
-                }
-            }
+        /* Show time of arrival at next place */
+        if (_startTime_min > 0) {
+            // show the presumable arrival time depending on the delay
+            plannedTime_Str = showPresumableArriveTime(true, true,
+                    track_arrive, inRoutePoint);
         }
         track_place.setText(place);
         if (DEBUG) {
@@ -662,40 +679,17 @@ public class RecordAdapter extends BaseAdapter {
                     "; planned arrival: " + plannedTime_Str);
             _debugLastPlace = place;
         }
-        return (inPlace >= 0);
+        return (_startTime_min > 0);
     }
 
-    /*
     public void scrollToListPosition() {
         notifyDataSetChanged();
         int inPlace = getPlace();
         if (inPlace >= 0)
             recordsView.smoothScrollToPosition(inPlace);
     }
-*/
+
     public int getInitialPlace () { return _initialPlace; }
-
-    /* limit search to end of a record */
-    public int getEndIndex (int prevEndIndex) {
-        int endIndex = prevEndIndex;
-
-        int startPlace = getPlace();
-        if (startPlace > _endPlace) _endPlace = startPlace;
-        for (int place = startPlace; place < getCount() - 1; place++) {
-            if (place <= _endPlace) {
-                RecordAdapter.Record nextRecord = getItem(place + 1);
-                int _endIndex = nextRecord.trackPointIndex - 1;
-                if (endIndex > _endIndex)
-                    _endPlace++;
-                if (_endIndex > endIndex)
-                    endIndex = _endIndex;
-                break;
-            }
-        }
-        return endIndex;
-    }
-
-    public void resetEndPlace() {  _endPlace = 0; }
 
     public void destroy () {
         _profileAdapter = null;
@@ -711,5 +705,4 @@ public class RecordAdapter extends BaseAdapter {
         }
         _calendar = null;;
     }
-
 }

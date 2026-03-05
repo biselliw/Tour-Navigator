@@ -26,31 +26,27 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.location.Location;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.text.format.Time;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.SettingsClient;
 
+import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 
 import static de.biselliw.tour_navigator.Notifications.ACTION_LOCATION_UPDATE;
+import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
 
 /**
  * service class for Fused Location Provider running in background
@@ -125,10 +121,17 @@ public class LocationService extends Service {
     private void handleLocation(Location location) {
         if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
 
+        // handle the location
+        if (gpsSimulation == null)
+            LocationHandler.handleLocation(location);
+
+        /* inform the main activity of the received location */
         Intent intent = new Intent(ACTION_LOCATION_UPDATE);
         intent.setPackage(getPackageName());   // important for implicit broadcasts
         intent.putExtra("location", location);
-        sendBroadcast(intent);
+        if (gpsSimulation == null)
+            sendBroadcast(intent);
+
     }
 
     /**
@@ -145,16 +148,14 @@ public class LocationService extends Service {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Location Tracking",
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            NotificationManager manager =
-                    getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Location Tracking",
+                NotificationManager.IMPORTANCE_LOW
+        );
+        NotificationManager manager =
+                getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(channel);
     }
 
     @Override
