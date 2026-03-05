@@ -38,6 +38,7 @@ import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -51,8 +52,10 @@ import de.biselliw.tour_navigator.data.AppState;
 import de.biselliw.tour_navigator.data.EstimateParams;
 import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.files.HTML_File;
+import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
+import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static android.view.View.VISIBLE;
 import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
@@ -549,7 +552,13 @@ public class ControlElements extends BaseActivity {
      */
     public void setTitleText (String inTitle, int inBackgroundColor) {
         TextView main_text_title = findViewById(R.id.main_text_title);
-        main_text_title.setBackgroundColor(getColor(inBackgroundColor));
+        try {
+            main_text_title.setBackgroundColor(getColor(inBackgroundColor));
+        }
+        catch (Exception e)
+        {
+            if (DEBUG) Log.e(TAG,"color resource not fpund: " + inBackgroundColor);
+        }
         main_text_title.setText(inTitle);
     }
 
@@ -598,8 +607,8 @@ public class ControlElements extends BaseActivity {
 
     /**
      * Show the distance to the next point and its waypoint type
-     * @param inDistanceToPlace formatted distance
-     * @param inAdditionalInfo additional information containing the waypoint type
+     * @ param inDistanceToPlace formatted distance
+     * @ param inAdditionalInfo additional information containing the waypoint type
      * /
     private void onShowWaypointType(String inDistanceToPlace, TourDetails.AdditionalInfo inAdditionalInfo) {
         _updateWaypointType = false;
@@ -812,7 +821,7 @@ public class ControlElements extends BaseActivity {
 
     /**
      * Set the distance to the next place
-     * @param inDistanceToPlace distance in km
+     * @ param inDistanceToPlace distance in km
      * /
     public void setDistanceToPlace(double inDistanceToPlace) {
         if (inDistanceToPlace >= 1.0)
@@ -889,7 +898,14 @@ public class ControlElements extends BaseActivity {
     public void notifyDataSetChanged(List<RecordAdapter.Record> records) {
 //        _updateWaypointType = false;
         if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
+        List<DataPoint> dataPoints = new ArrayList<>();
+        if (records != null)
+            for (RecordAdapter.Record record:records) {
+                if (record != null)
+                    dataPoints.add(record.trackPoint);
+            }
         recordAdapter.notifyDataSetChanged(records);
+        LocationHandler.notifyDataSetChanged(dataPoints);
     }
 
     public boolean isViewExpanded() { return _isViewExpanded; }
