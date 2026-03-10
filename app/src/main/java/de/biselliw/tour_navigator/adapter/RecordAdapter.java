@@ -20,6 +20,7 @@ package de.biselliw.tour_navigator.adapter;
 */
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -231,8 +232,8 @@ public class RecordAdapter extends BaseAdapter {
             DataPoint point = record.trackPoint;
             if (point != null) {
                 /* Mark selected row */
-                int bgColor = (i == _selected) ? COLOR_BG_SELECTED : COLOR_BG_RECORD;
-                view.setBackgroundColor(Resources.get_Color(bgColor)); // 0x14d0d0d0); // todo get_Color(bgColor));
+                int bgColor = view.getContext().getColor(i == _selected ? COLOR_BG_SELECTED : COLOR_BG_RECORD);
+                view.setBackgroundColor(bgColor);
 
                 /* get the formatted arrival time */
                 calendar.setTimeInMillis(_startTime_UTC + point.getTime() * 1000L);
@@ -329,25 +330,6 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * Sets an item in the list of places
-     * @param inPlace Index (starting at 0) of the data item to be selected or -1 if nothing
-     */
-    public void setPlace(int inPlace) {
-        _selected = Math.min(inPlace, recordList.size());
-        LocationHandler.setPlace(inPlace);
-        notifyDataSetChanged();
-    }
-
-    /**
-     * Get the selected item in the list of places
-     *
-     * @return Index (starting at 0) / -1 if nothing is selected
-     */
-    public int getPlace() {
-        return _selected;
-    }
-
-    /**
      * @return distance of the selected item since start
      */
     public double getDistance() {
@@ -386,15 +368,9 @@ public class RecordAdapter extends BaseAdapter {
     public void setDelay(int inDelay) {
         if (_delay_min != inDelay) {
             _delay_min = inDelay;
+            showPresumableArriveTime();
             notifyDataSetChanged();
         }
-    }
-
-    /**
-     * @return the current delay [min]
-     * /
-    public int getDelay() {
-        return _delay_min;
     }
 
     /**
@@ -463,10 +439,10 @@ public class RecordAdapter extends BaseAdapter {
                 calendar.add(Calendar.MINUTE, _delay_min);
                 plannedTime_Str = timeFormat.format(calendar.getTime());
             }
-            inView.setTextColor(getTextColorDelay());
+            inView.setTextColor(getTextColorDelay(inView.getContext()));
         } else {
             /* don't show the presumable arrival time */
-            inView.setTextColor(Resources.get_Color(COLOR_NONE));
+            inView.setTextColor(inView.getContext().getColor(COLOR_NONE));
             if (inShowPlanned) {
                 /* get the formatted planned arrival time */
                 plannedTime_Str = timeFormat.format(calendar.getTime());
@@ -479,13 +455,13 @@ public class RecordAdapter extends BaseAdapter {
     /**
      * @return the text color code depending on the current delay
      */
-    public int getTextColorDelay() {
+    public int getTextColorDelay(Context inContext) {
         if (_delay_min >= DELAY_MAX)
-            return Resources.get_Color(COLOR_DELAY_MAX);
+            return inContext.getColor(COLOR_DELAY_MAX);
         else if (_delay_min > 0)
-            return Resources.get_Color(COLOR_DELAY_MIN);
+            return inContext.getColor(COLOR_DELAY_MIN);
         else
-            return Resources.get_Color(COLOR_DELAY_NONE);
+            return inContext.getColor(COLOR_DELAY_NONE);
     }
 
     /**
@@ -517,34 +493,6 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     /**
-     * Set next place to arrive:
-     * Put he marker to the row within the table of places which shows the next place to arrive
-     * after the given distance
-     *
-     * @param inDistance current distance since start
-     * @return index of the place within the list of places
-     */
-    public int setNextPlace(LocationActivity inActivity, double inDistance) {
-        int place = 0;
-        do {
-            DataPoint recPoint = getItem(place).trackPoint;
-            if (recPoint != null) {
-                double dist = recPoint.getDistance();
-                if (inDistance >= dist) { // todo check >=
-                    place++;
-                }
-                else
-                {
-                    setPlace(inActivity, place, false);
-                    break;
-                }
-            }
-        }
-        while (place < getCount());
-        return place;
-    }
-
-    /**
      * Force place index within given range
      * @param inPlace place index
      * @return valid index
@@ -553,6 +501,25 @@ public class RecordAdapter extends BaseAdapter {
         if (inPlace < 0) return 0;
         if (inPlace >= getCount()) return getCount();
         return inPlace;
+    }
+
+    /**
+     * Get the selected item in the list of places
+     *
+     * @return Index (starting at 0) / -1 if nothing is selected
+     */
+    public int getPlace() {
+        return _selected;
+    }
+
+    /**
+     * Sets an item in the list of places
+     * @param inPlace Index (starting at 0) of the data item to be selected or -1 if nothing
+     */
+    public void setPlace(int inPlace) {
+        _selected = Math.min(inPlace, recordList.size());
+        LocationHandler.setPlace(inPlace);
+        notifyDataSetChanged();
     }
 
     /**
@@ -654,6 +621,20 @@ public class RecordAdapter extends BaseAdapter {
         return true;
     }
 
+    /**
+     * Show the presumable arrival time at the current route point depending on the delay
+     *
+     * @return if shown
+     */
+    private boolean showPresumableArriveTime() {
+        /* Show the place on the board */
+        RecordAdapter.Record record = getItem(_selected);
+        if (record == null) return false;
+        DataPoint routePoint = record.trackPoint;
+        if (routePoint == null) return false;
+
+        return showPresumableArriveTime(routePoint);
+    }
 
     /**
      * Show the presumable arrival time at a route point depending on the delay
@@ -682,12 +663,14 @@ public class RecordAdapter extends BaseAdapter {
         return (_startTime_min > 0);
     }
 
+    /*
     public void scrollToListPosition() {
         notifyDataSetChanged();
         int inPlace = getPlace();
         if (inPlace >= 0)
             recordsView.smoothScrollToPosition(inPlace);
     }
+*/
 
     public int getInitialPlace () { return _initialPlace; }
 

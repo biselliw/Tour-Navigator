@@ -78,7 +78,7 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     /**
      * Maximum distance between track and point in km
      */
-    private static final double MAX_DISTANCE = 0.050;
+    private static final double MAX_DISTANCE = 0.15;
 
     /**
      * Maximum distance between search point and point in m
@@ -198,6 +198,7 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
                     + "node[website]" + boundingBox
 
                     + "node[historic]" + boundingBox
+                    + "node[shop]" + boundingBox
 /*
                     + "node[historic=memorial]" + boundingBox
                     + "node[historic=wayside_shrine]" + boundingBox

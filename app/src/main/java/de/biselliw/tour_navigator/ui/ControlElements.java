@@ -548,16 +548,41 @@ public class ControlElements extends BaseActivity {
     /**
      * Set the title text
      * @param inTitle title
+     */
+    public void setTitleText (String inTitle) {
+        setTitleText (inTitle, R.color.colorText, R.color.md_theme_surface);
+    }
+
+    /**
+     * Set the title text
+     * @param inTitle title
      * @param inBackgroundColor resource id for background color
      */
     public void setTitleText (String inTitle, int inBackgroundColor) {
+        setTitleText (inTitle, R.color.colorText, inBackgroundColor);
+    }
+
+    /**
+     * Set the title text
+     * @param inTitle title
+     * @param inTextColor resource id for text color
+     * @param inBackgroundColor resource id for background color
+     */
+    public void setTitleText (String inTitle, int inTextColor, int inBackgroundColor) {
         TextView main_text_title = findViewById(R.id.main_text_title);
+        try {
+            main_text_title.setTextColor(getColor(inTextColor));
+        }
+        catch (Exception e)
+        {
+            if (DEBUG) Log.e(TAG,"color resource not found: " + inBackgroundColor);
+        }
         try {
             main_text_title.setBackgroundColor(getColor(inBackgroundColor));
         }
         catch (Exception e)
         {
-            if (DEBUG) Log.e(TAG,"color resource not fpund: " + inBackgroundColor);
+            if (DEBUG) Log.e(TAG,"color resource not found: " + inBackgroundColor);
         }
         main_text_title.setText(inTitle);
     }

@@ -41,15 +41,16 @@ public class LocationHandler {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     public static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    public static final int LOC_IDLE = 0;
-    public static final int LOC_GOTO_START = 1;
-    public static final int LOC_TRACKING = 2;
-    public static final int LOC_APPROACHING = 3;
-    public static final int LOC_OUT_OF_TRACK = 4;
-    public static final int LOC_BREAK = 5;
+    public static final int LOC_IDLE                = 0;
+    public static final int LOC_GOTO_START          = 1;
+    public static final int LOC_TRACKING            = 2;
+    public static final int LOC_APPROACHING         = 3;
+    public static final int LOC_OUT_OF_TRACK        = 4;
+    public static final int LOC_BREAK               = 5;
     public static final int LOC_DESTINATION_REACHED = 6;
 
 
+    public static final double INVALID_DISTANCE = 9999.9999;
     final public static double maxOffsetStart_km = 0.100;
     final public static double maxOffsetTrack_km = 0.030;
     final public static double maxOffsetPOI_km = 0.015;
@@ -227,23 +228,22 @@ public class LocationHandler {
         distanceFromPlace = trackPoint.getDistance() - startRoutePoint.getDistance();
 
         // calc distance between track point and next place along the route
-        if (nextRoutePoint != null)
+        String distToPlace = "";
+        if (nextRoutePoint != null && nearestDistance < maxOffsetStart_km) {
             distanceToNextPlace = nextRoutePoint.getDistance() - trackPoint.getDistance();
-        else
-            distanceToNextPlace = 0.0;
-
-        if (DEBUG) {
-            String simGPSindex = (gpsSimulation != null) ? ", simGPSindex = " + gpsSimulation.getGpsIndex() : "";
             /* arrived at the next place? */
-            String distToPlace = "";
-            double distanceToPlace = trackPoint.getDistance() - nextRoutePoint.getDistance();
-            distToPlace = ", to Place: " + (int)(distanceToPlace * 1000.0) + " m";
-            if (distanceToPlace >= 0.0) {
+            distToPlace = ", to Place: " + (int) (distanceToNextPlace * 1000.0) + " m";
+            if (distanceToNextPlace <= 0.0) {
                 if (setPlace(startPlace + 1))
                     Log.i(TAG, "arrived @" + nextRoutePoint.getRoutePointName());
             }
+        }
+        else
+            distanceToNextPlace = INVALID_DISTANCE;
 
-            Log.d(TAG, "handleGPSdata(): _locationStatus = " + getLocationStatus(_locStatus) +
+        if (DEBUG) {
+            String simGPSindex = (gpsSimulation != null) ? ", simGPSindex = " + gpsSimulation.getGpsIndex() : "";
+            Log.d(TAG, "handleGPSdata(): _locStatus = " + getLocationStatus(_locStatus) +
                     simGPSindex +
                     ", startGPSindex = " + startGpsIndex + ", endIndex = " + _endIndex +
                     ": nearestGPSindex = " + nearestGPSindex +
@@ -254,7 +254,6 @@ public class LocationHandler {
         /* don't leave the place in case of break */
         if (_locStatus == LOC_BREAK) {
             checkEndOfBreak(inGPStime);
-
             if (LocationResults.remainingBreakTime_min > 0) {
                 if (DEBUG)
                     Log.i(TAG, "BREAK: remainBreakTime_min = " + LocationResults.remainingBreakTime_min);
@@ -283,7 +282,7 @@ public class LocationHandler {
         }
 
         /* leave the place? */
-        if (distanceFromPlace > maxOffsetStart_km) {
+        if (distanceFromPlace > maxOffsetTrack_km) {
             setEndOfBreak();
             if (LocationResults.nextPlace == LocationResults.selectedPlace) {
                 LocationResults.nextPlace = LocationResults.selectedPlace + 1;
@@ -342,7 +341,6 @@ public class LocationHandler {
         DataPoint routePoint = app.getPoint(inPosition);
         if (routePoint == null) return;
         long destTime_s = routePoint.getTime();
-//            _setNextPlace = true;
         if ((_startTime_min > 0) && ((inPosition == 0) || (destTime_s > 0))) {
             // calculate delay
             Calendar calendar = Calendar.getInstance();
@@ -410,7 +408,8 @@ public class LocationHandler {
     }
 
     /**
-     * @return status of the location handler */
+     * @return status of the location handler
+     * */
     public static int getStatus () {
         return _locStatus;
     }
