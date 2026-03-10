@@ -124,7 +124,6 @@ public class MainActivity extends LocationActivity  implements
         if (DEBUG)
             AppState.MainActivityInstanceCount++;
 
-        Resources.activity = this;
         Resources.resources = getResources();
         Resources.getResources();
 
@@ -144,9 +143,6 @@ public class MainActivity extends LocationActivity  implements
         overridePendingTransition(0, 0);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        // todo check day/night mode
-//        AppCompatDelegate.setDefaultNightMode( AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM  );
 
         app = new App(this);
 

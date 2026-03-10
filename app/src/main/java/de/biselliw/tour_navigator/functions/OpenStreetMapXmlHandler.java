@@ -75,6 +75,7 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
     final static String[] values_man_made = new String[]{"bridge", "cairn", "cross", "obelisk", "reservoir_covered", "street_cabinet", "tower", "water_well", "watermill", "webcam", "wildlife_crossing", "windmill"};
     final static String[] values_natural = new String[]{"rock", "spring"};
     final static String[] values_railway = new String[]{"crossing", "level_crossing"};
+    final static String[] values_shop = new String[]{"general", "supermarket"};
     final static String[] values_tourism = new String[]{"museum","viewpoint",
             "artwork" // todo translate
     };
@@ -82,9 +83,9 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
 
 
     /* list of keys */
-    final static String[] keys = new String[]{"amenity", "information", "man_made", "natural", "railway", "tourism"};
+    final static String[] keys = new String[]{"amenity", "information", "man_made", "natural", "railway", "shop", "tourism"};
     /* list of value lists */
-    final static String[][] values = new String[][]{values_amenity, values_information, values_man_made, values_natural, values_railway, values_tourism};
+    final static String[][] values = new String[][]{values_amenity, values_information, values_man_made, values_natural, values_railway, values_shop, values_tourism};
 
     /**
      * Check if key / value match

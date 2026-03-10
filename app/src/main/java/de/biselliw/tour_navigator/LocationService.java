@@ -116,22 +116,20 @@ public class LocationService extends Service {
     /**
      * handle a single location and send a broadcast message
      * @param location received location data
-     * todo store locations in background
      */
     private void handleLocation(Location location) {
         if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
 
         // handle the location
-        if (gpsSimulation == null)
+        if (gpsSimulation == null) {
             LocationHandler.handleLocation(location);
 
-        /* inform the main activity of the received location */
-        Intent intent = new Intent(ACTION_LOCATION_UPDATE);
-        intent.setPackage(getPackageName());   // important for implicit broadcasts
-        intent.putExtra("location", location);
-        if (gpsSimulation == null)
+            /* inform the main activity of the received location after processing it */
+            Intent intent = new Intent(ACTION_LOCATION_UPDATE);
+            intent.setPackage(getPackageName());   // important for implicit broadcasts
+            intent.putExtra("location", location);
             sendBroadcast(intent);
-
+        }
     }
 
     /**
