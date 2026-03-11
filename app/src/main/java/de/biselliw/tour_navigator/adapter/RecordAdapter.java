@@ -184,7 +184,7 @@ public class RecordAdapter extends BaseAdapter {
         while (place < getCount()) {
             RecordAdapter.Record record = getItem(place);
             assert (record != null);
-            if (inIndex >= record.trackPointIndex) { // todo check
+            if (inIndex >= record.trackPointIndex) {
                 result = place;
                 break;
             }
@@ -283,7 +283,6 @@ public class RecordAdapter extends BaseAdapter {
             RemoveRecords();
         }
         if (DEBUG) Log.d(TAG,"notifyDataSetChanged(records)");
-// todo  notifyDataSetChanged();
     }
 
     /**
@@ -309,35 +308,8 @@ public class RecordAdapter extends BaseAdapter {
         _calendar.setTimeInMillis(_calendar.getTimeInMillis() + inStartTime * 60000L);
         _startTime_UTC = _calendar.getTimeInMillis();
 
-/*
-        Record record = getItem(0);
-        if (record != null) {
-            DataPoint point = record.trackPoint;
-            if (point != null) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTimeInMillis(System.currentTimeMillis());
-                calendar.set(Calendar.MINUTE, inStartTime % 60);
-                calendar.set(Calendar.HOUR, inStartTime / 60);
-                // replace inTime.format2445(); eg. "2024-09-07T07:39:27.290Z"
-                String time2445 = ISO_8601_FORMAT.format(calendar.getTime());
-                // todo check result
-                point.setFieldValue(Field.TIMESTAMP, time2445, false);
-            }
-        }
- */
         track_arrive.setText("");
         notifyDataSetChanged();
-    }
-
-    /**
-     * @return distance of the selected item since start
-     */
-    public double getDistance() {
-        double distance = 0.0;
-        DataPoint point = getItem(_selected).trackPoint;
-        if (point != null)
-            distance = point.getDistance();
-        return distance;
     }
 
     /**
@@ -347,17 +319,6 @@ public class RecordAdapter extends BaseAdapter {
      */
     public void setDistance(double inDistance) {
         _distance = inDistance;
-    }
-
-    /**
-     * @return break time [min] at the selected item
-     */
-    public int getBreakTime() {
-        int breakTime = 0;
-        DataPoint point = getItem(_selected).trackPoint;
-        if (point != null)
-            breakTime = point.getWaypointDuration();
-        return breakTime;
     }
 
     /**
@@ -662,15 +623,6 @@ public class RecordAdapter extends BaseAdapter {
         }
         return (_startTime_min > 0);
     }
-
-    /*
-    public void scrollToListPosition() {
-        notifyDataSetChanged();
-        int inPlace = getPlace();
-        if (inPlace >= 0)
-            recordsView.smoothScrollToPosition(inPlace);
-    }
-*/
 
     public int getInitialPlace () { return _initialPlace; }
 

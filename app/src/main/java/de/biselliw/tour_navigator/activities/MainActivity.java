@@ -916,7 +916,6 @@ public class MainActivity extends LocationActivity  implements
         } else if (id == R.id.nav_settings) {
             // open settings page
             intent = new Intent(this, SettingsActivity.class);
-            // todo intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_help) {
@@ -925,7 +924,7 @@ public class MainActivity extends LocationActivity  implements
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_timetable) {
-            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,false);
+            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,tourDetails,false);
             // open Time Table page
             intent = new Intent(this, TimeTableActivity.class);
             intent.putExtra("contents",html.toString());
@@ -1109,7 +1108,7 @@ public class MainActivity extends LocationActivity  implements
         try {
             assert uriFile != null;
             OutputStream _xmlStream = this.getContentResolver().openOutputStream(uriFile, "w");
-            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,true);
+            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter, tourDetails, true);
             OutputStreamWriter writer;
             try {
                 writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
@@ -1216,7 +1215,6 @@ public class MainActivity extends LocationActivity  implements
                 return;
             }
         }
-// todo       if (stopped)            return;
 
         if (_changeStartTime >= 0) {
             onStartTimeChanged(_changeStartTime);
@@ -1224,8 +1222,7 @@ public class MainActivity extends LocationActivity  implements
         }
 
         if (App.getTrack() != null) {
-// todo            if (!App.getTrack().isValidRecordedTrackFile())
-                super.updateUI();
+            super.updateUI();
 
             if (_updateRecords) {
                 if (App.getTrack() != null)

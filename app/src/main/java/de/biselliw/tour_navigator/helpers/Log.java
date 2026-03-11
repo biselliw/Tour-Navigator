@@ -131,17 +131,8 @@ public final class Log {
         if (CreateLogFile () )
             try {
                 String date_time;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    LocalDateTime now = LocalDateTime.now();
-                    date_time = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS: "));
-                }
-                else {
-                    // todo To get local formatting use getDateInstance(), getDateTimeInstance(), or getTimeInstance(), or use new SimpleDateFormat(String template, Locale locale) with for example Locale.US for ASCII dates.
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS: ");
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(System.currentTimeMillis());
-                    date_time = sdf.format(calendar.getTime());
-                }
+                LocalDateTime now = LocalDateTime.now();
+                date_time = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS: "));
 
                 _writer.write (date_time + "\t" + tag + "\t" + type + "\t"+ msg + "\r\n");
                 _writer.flush();

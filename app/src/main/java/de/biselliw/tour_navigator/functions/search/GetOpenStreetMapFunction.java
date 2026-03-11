@@ -354,19 +354,13 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
             File file = new File(cacheDir, cachedFileName);
             if (file.exists())
                 file.delete();
+            if (file.exists()) return false;
             // Open a FileOutputStream to write to the file
             FileOutputStream outputStream = new FileOutputStream(file, false);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            {
-                inputStream.transferTo(outputStream);
-                // remember cached file
-                osmFileCached = true;
-                setDataFileCached(true);
-            }
-            else
-            {
-                // FIXME inputStream.transferTo(outputStream); for SDK < TIRAMISU Call requires API level 33 (current min is 23): java.io.InputStream#transferT
-            }
+            inputStream.transferTo(outputStream);
+            // remember cached file
+            osmFileCached = true;
+            setDataFileCached(true);
             outputStream.close();
         } catch (IOException e) {
             Log.e(TAG, "run(): failed to write " + cachedFileName + " to cache", e);

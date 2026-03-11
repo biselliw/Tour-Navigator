@@ -22,11 +22,9 @@ package de.biselliw.tour_navigator.files;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -34,27 +32,20 @@ import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 
 
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
-import java.util.Comparator;
 
 public class FileUtils {
     public static final String DOCUMENTS_DIR = "documents";
     // configured android:authorities in AndroidManifest (https://developer.android.com/reference/android/support/v4/content/FileProvider)
     public static final String AUTHORITY =  "androidx.core.content.FileProvider";
-    public static final String HIDDEN_PREFIX = ".";
     /**
      * TAG for log messages.
      */
@@ -64,7 +55,7 @@ public class FileUtils {
     /**
      * Gets the extension of a file name, like ".png" or ".jpg".
      *
-     * @param uri
+     * @param uri URI of the file name
      * @return Extension including the dot("."); "" if there is no extension;
      * null if uri was null.
      */
@@ -164,12 +155,10 @@ public class FileUtils {
      */
     public static String getPath(final Context context, final Uri uri) {
         String absolutePath = getLocalPath(context, uri);
-// todo        String absolutePath = getLocalPath((Context) context, uri);
         return absolutePath != null ? absolutePath : uri.toString();
     }
     
 	/**
-	* @impl  Android API 29 uses msf: prefix for downloaded files uri id
     * @author BiselliW
 	*/
     private static String getLocalPath(final Context context, final Uri uri) {
@@ -185,10 +174,8 @@ public class FileUtils {
                             ", Segments: " + uri.getPathSegments().toString()
             );
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
         // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+        if (DocumentsContract.isDocumentUri(context, uri)) {
             // LocalStorageProvider
             if (isLocalStorageDocument(uri)) {
                 // The path is the id
@@ -214,7 +201,6 @@ public class FileUtils {
                 if (id != null && id.startsWith("raw:")) {
                     return id.substring(4);
                 }
-// TODO Android API 29 uses msf: prefix for downloaded files uri id ?
                 if (id != null && id.startsWith("msf:")) {
                     final String[] split = id.split(":");
                     // remove "msf:" from id
@@ -226,7 +212,7 @@ public class FileUtils {
                 };
 
                 for (String contentUriPrefix : contentUriPrefixesToTry) {
-                    Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                    Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.parseLong(id));
                     try {
                         String path = getDataColumn(context, contentUri, null, null);
                         if (path != null) {
@@ -268,9 +254,7 @@ public class FileUtils {
 
     public static File getDocumentCacheDir(@NonNull Context context) {
         File dir = new File(context.getCacheDir(), DOCUMENTS_DIR);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+        if (!dir.exists()) dir.mkdirs();
         logDir(context.getCacheDir());
         logDir(dir);
 
@@ -353,25 +337,20 @@ public class FileUtils {
 
 
     private static void saveFileFromUri(Context context, Uri uri, String destinationPath) {
-        InputStream is = null;
-        BufferedOutputStream bos = null;
-        try {
-            is = context.getContentResolver().openInputStream(uri);
-            bos = new BufferedOutputStream(new FileOutputStream(destinationPath, false));
-            byte[] buf = new byte[1024];
-            is.read(buf);
-            do {
-                bos.write(buf);
-            } while (is.read(buf) != -1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
+        try (
+                InputStream is = context.getContentResolver().openInputStream(uri);
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destinationPath, false))) {
             try {
-                if (is != null) is.close();
-                if (bos != null) bos.close();
+                byte[] buf = new byte[1024];
+                is.read(buf);
+                do {
+                    bos.write(buf);
+                } while (is.read(buf) != -1);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -379,14 +358,10 @@ public class FileUtils {
         String mimeType = context.getContentResolver().getType(uri);
         String filename = null;
 
-        if (mimeType == null && context != null) {
+        if (mimeType == null) {
             String path = getPath(context, uri);
-            if (path == null) {
-                filename = getName(uri.toString());
-            } else {
-                File file = new File(path);
-                filename = file.getName();
-            }
+            File file = new File(path);
+            filename = file.getName();
         } else {
             Cursor returnCursor = context.getContentResolver().query(uri, null,
                     null, null, null);

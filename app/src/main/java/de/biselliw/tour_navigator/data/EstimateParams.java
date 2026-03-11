@@ -115,7 +115,6 @@ public class EstimateParams extends TrackSegments {
         EstimateParams.EstimationResult estimateResult = estimateGradients(_segments);
 
         addReport(getRecordedTrackFileInfo_Start());
-// todo        trackHasTimeStamps = false;
         assert estimateResult != null;
         if (estimateResult.successful)
         {

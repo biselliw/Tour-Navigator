@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,8 +39,6 @@ import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 public class HTML_File {
 
     private Resources res;
-    // Do not place Android context classes in static fields (static reference to `RecordAdapter` which has field `recordContext` pointing to `Context`); this is a memory leak
-    private TourDetails details;
     DecimalFormat decFormat = new DecimalFormat("#0.0");
 
     final int COL_NR = 0, COL_ARRIVE = 1, COL_DISTANCE = 2, COL_WPT_NAME = 3, COL_HEIGHT = 4, COL_DIST = 5, COL_CLIMB = 6, COL_DESCENT = 7, COL_DURATION = 8, COL_PAUSE = 9, COL_COMMENT = 10;
@@ -49,7 +48,9 @@ public class HTML_File {
     private StringBuffer desc_buffer;
     private int descItems = 0;
 
-    TourDetails.AdditionalInfo addInfo;
+    public HTML_File(Context inContext) {
+        res = inContext.getResources();
+    }
 
     /**
      * Replace the link to an outdooractive tour with www.schwarzwaldverein-tourenportal.de if possible
@@ -61,33 +62,31 @@ public class HTML_File {
         final String outdooractiveLink = "https://www.outdooractive.com/";
         final String swvLink = "https://www.schwarzwaldverein-tourenportal.de/";
 
-        if (inLink.startsWith(outdooractiveLink)) {
+        if (inLink.startsWith(outdooractiveLink))
             return inLink.replace(outdooractiveLink, swvLink);
-        }
-        else return "";
-    }
-
-    public HTML_File(Context inContext) {
-        res = inContext.getResources();
-        details = TourDetails.details;
-        addInfo = details.getFileInfo();
+        else
+            return "";
     }
 
     /**
      * Copy the time table to the clipboard
+     * @param inRecordAdapter reference to time table
+     * @param inTourDetails details of the tour
+     * @param inAddLinks if true: add web links
      */
-    public StringBuffer formatTimetableToHTML(RecordAdapter inRecordAdapter, boolean addLinks) {
+    public StringBuffer formatTimetableToHTML(RecordAdapter inRecordAdapter, TourDetails inTourDetails, boolean inAddLinks) {
         html_buffer = new StringBuffer();
         desc_buffer = new StringBuffer();
         descItems = 0;
-
-        writeHtmlHeader();
-        writeTimeTableHeader();
-        writeTimeTableRows(inRecordAdapter, addLinks);
-        writeTimeTableFooter(addLinks);
-        if (addLinks) {
-            writeDescriptionHeader();
-            writeDescriptionTable();
+        if (inTourDetails != null) {
+            writeHtmlHeader(inTourDetails);
+            writeTimeTableHeader(inTourDetails);
+            writeTimeTableRows(inRecordAdapter, inTourDetails, inAddLinks);
+            writeTimeTableFooter(inAddLinks);
+            if (inAddLinks) {
+                writeDescriptionHeader(inTourDetails);
+                writeDescriptionTable();
+            }
         }
 
         return new StringBuffer().append(html_buffer);
@@ -95,9 +94,10 @@ public class HTML_File {
 
     /**
      * Write the HTML header
+     * @param inTourDetails details of the tour
      */
-    private void writeHtmlHeader() {
-        addInfo = details.getFileInfo();
+    private void writeHtmlHeader(TourDetails inTourDetails) {
+        TourDetails.AdditionalInfo addInfo = inTourDetails.getFileInfo();
         String title = (addInfo == null) ? "" : addInfo.title;
 
         html_buffer.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n")
@@ -118,12 +118,14 @@ public class HTML_File {
 
     /**
      * Write the Time Table header
+     * @param inTourDetails details of the tour
      */
-    private void writeTimeTableHeader() {
+    private void writeTimeTableHeader(TourDetails inTourDetails) {
         html_buffer.append("<table width=\"100%\" border=\"1\" cellpadding=\"0\" cellspacing=\"2\" summary=\"\">\n");
 
         html_buffer.append("<caption><b>");
         html_buffer.append(res.getString(R.string.timetable));
+        TourDetails.AdditionalInfo addInfo = inTourDetails.getFileInfo();
         String title = (addInfo == null) ? "" : addInfo.title;
         if (!title.isEmpty())
             html_buffer.append(": ").append(title);
@@ -174,13 +176,12 @@ public class HTML_File {
     /**
      * Create additional infos to a route point and link them forward/back to the time table
      * @param inPlace row index of the table
+     * @param inTourDetails details of the tour
      * @return true if description is available
      */
-    private boolean makeDescriptionAvailable(int inPlace) {
+    private boolean makeDescriptionAvailable(int inPlace, TourDetails inTourDetails) {
         boolean descAvailable = false;
-        if (details == null) return false;
-
-        TourDetails.AdditionalInfo wptInfo = details.getWaypointInfo(inPlace);
+        TourDetails.AdditionalInfo wptInfo = inTourDetails.getWaypointInfo(inPlace);
         if (wptInfo == null) return false;
 
         StringBuilder tmp_buffer = new StringBuilder();
@@ -196,7 +197,6 @@ public class HTML_File {
         tmp_buffer.append("<td class=\"cell\">");
         if (!type.isEmpty())
             tmp_buffer.append(type);
-//        tmp_buffer.append(details.interpretWaypointSymbol(symbol));
         tmp_buffer.append("</td>");
 
         // row "Description":
@@ -288,8 +288,8 @@ public class HTML_File {
         StringBuffer mdOut = new StringBuffer();
 
         while (mdMatcher.find()) {
-            String title = mdMatcher.group(1).trim();
-            String url = mdMatcher.group(2).trim();
+            String title = Objects.requireNonNull(mdMatcher.group(1)).trim();
+            String url = Objects.requireNonNull(mdMatcher.group(2)).trim();
 
             // Add https:// if missing
             if (url.startsWith("www.")) {
@@ -338,16 +338,18 @@ public class HTML_File {
 
     /**
      * write Time Table rows
+     * @param inRecordAdapter reference to time table
+     * @param inTourDetails details of the tour
+     * @param inAddLinks if true: add web links
      */
-    private void writeTimeTableRows(RecordAdapter inRecordAdapter, boolean addLinks) {
+    private void writeTimeTableRows(RecordAdapter inRecordAdapter, TourDetails inTourDetails, boolean inAddLinks) {
         // write table rows
-        if (details == null) return;
 
-        for (int row = 0; row < details.getWptCount(); row++) {
-            TourDetails.AdditionalInfo wptInfo = details.getWaypointInfo(row);
+        for (int row = 0; row < inTourDetails.getWptCount(); row++) {
+            TourDetails.AdditionalInfo wptInfo = inTourDetails.getWaypointInfo(row);
             if (wptInfo != null) {
                 RecordAdapter.Record record = inRecordAdapter.getItem(row);
-                DataPoint recPoint = details.getDataPoint(row);
+                DataPoint recPoint = inTourDetails.getDataPoint(row);
 
                 html_buffer.append("<tr>");
                 for (int col = 0; col < _colCount; col++) {
@@ -366,14 +368,14 @@ public class HTML_File {
                             html_buffer.append(row + 1);
                             break;
                         case COL_ARRIVE:
-                            html_buffer.append(details.getPlannedArriveTime(row));
+                            html_buffer.append(inTourDetails.getPlannedArriveTime(row));
                             break;
                         case COL_DISTANCE:
                             html_buffer.append(decFormat.format(recPoint.getDistance()));
                             break;
                         case COL_WPT_NAME:
                             // is extended description available?
-                            if (makeDescriptionAvailable(row) && addLinks) {
+                            if (makeDescriptionAvailable(row, inTourDetails) && inAddLinks) {
                                 html_buffer.append("<a name=\"wp").append(descItems)
                                         .append("\"><a href=\"#poi").append(descItems).append("\">")
                                         .append(recPoint.getRoutePointName()).append("</a></a>");
@@ -422,8 +424,9 @@ public class HTML_File {
 
     /**
      * write Time table footer
+     * @param inAddLinks if true: add web links
      */
-    private void writeTimeTableFooter(boolean addLinks) {
+    private void writeTimeTableFooter(boolean inAddLinks) {
         TrackSegments.SummarySegments summary = TrackSegments.summary;
         html_buffer.append("<tr>");
         for (int col = 0; col < _colCount; col++) {
@@ -468,7 +471,7 @@ public class HTML_File {
         html_buffer.append(res.getString(R.string.app_donate)).append(web_link);
         html_buffer.append("</caption>");
 
-        if (!addLinks)
+        if (!inAddLinks)
             html_buffer.append("</body></html>");
     }
 
@@ -495,14 +498,16 @@ public class HTML_File {
 
     /**
      * write Description header
+     * @param inTourDetails details of the tour
      */
-    private void writeDescriptionHeader() {
+    private void writeDescriptionHeader(TourDetails inTourDetails) {
         html_buffer.append("<p><b>").append(res.getString(R.string.tour_add_info)).append("</b></p>");
 
         html_buffer.append("<table width=\"100%\" border=\"0\" cellpadding=\"0\" cellspacing=\"2\" summary=\"\">\n");
 
-        String author = "", link = "", time = "", desc = "";
+        String author = "", link = "", desc = "";
 
+        TourDetails.AdditionalInfo addInfo = inTourDetails.getFileInfo();
         if (addInfo != null) {
             author = addInfo.author;
             link = addInfo.link;
@@ -523,11 +528,6 @@ public class HTML_File {
                 html_buffer.append("<tr><td class=\"cell\" class=\"cell\">").append(res.getString(R.string.tour_link_swv)).append(":</td><td class=\"cell\" class=\"cell\"><a href=\"")
                     .append(swvLink).append("\" target=_blank>").append(swvLink).append("</a></td></tr>\n");
             }
-        }
-
-        if (!time.isEmpty()) {
-            html_buffer.append("<tr><td class=\"cell\" class=\"cell\">").append(res.getString(R.string.tour_updated)).append(":</td><td class=\"cell\" class=\"cell\">")
-                    .append(time).append("</td></tr>\n");
         }
 
         html_buffer.append("</table>\n");
@@ -560,8 +560,6 @@ public class HTML_File {
         }
 
         res = null;
-        details = null;
         decFormat = null;
-        addInfo = null;
     }
 }
