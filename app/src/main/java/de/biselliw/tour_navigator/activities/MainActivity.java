@@ -27,7 +27,6 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +70,7 @@ import de.biselliw.tour_navigator.fragments.WaypointsDialogFragment;
 import de.biselliw.tour_navigator.fragments.WikipediaDialogFragment;
 import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -78,7 +78,7 @@ import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
+import static de.biselliw.tour_navigator.helpers.Prefs.defineHikingParameters;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 
 /**
@@ -146,17 +146,17 @@ public class MainActivity extends LocationActivity  implements
 
         app = new App(this);
 
-        // Load preferences
-        firstStart = SettingsActivity.isFirstTimeLaunch();
-
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
         profileAdapter = new ProfileAdapter(this);
         /* create a table of route points */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
-        // FIXME getDefaultSharedPreferences(android.content.Context)' is deprecated
-        SettingsActivity.getPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        // Load preferences
+        Prefs.getPreferences(Prefs.get(this));
+
+        defineHikingParameters();
+        Prefs.setDefaultHikingParameters (Prefs.get(this));
     }
 
     @Override
@@ -195,7 +195,7 @@ public class MainActivity extends LocationActivity  implements
             onActivityResult(REQUEST_OPEN_GPX, RESULT_OK, intent);
         }
 
-        if (firstStart)
+        if (Prefs.isFirstTimeLaunch())
         {
             Intent mainIntent = new Intent(this, TutorialActivity.class);
             startActivity(mainIntent);
@@ -845,7 +845,7 @@ public class MainActivity extends LocationActivity  implements
         if (recordAdapter.getCount() > 0) {
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
-                if (getConsentGoogleMaps())
+                if (Prefs.getConsentGoogleMaps())
                     runGoogleMaps();
             }
         }

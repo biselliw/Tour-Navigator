@@ -9,19 +9,16 @@
             style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_horSpeed"
             android:key="pref_hiking_par_horSpeed"
-            android:defaultValue="1"
             android:title="@string/pref_hiking_par_horSpeed" />
         <EditTextPreference
             style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_speedClimb"
             android:key="pref_hiking_par_speedClimb"
-            android:defaultValue="2"
             android:title="@string/pref_hiking_par_speedClimb" />
         <EditTextPreference
             style="@style/NoIconPreference"
             android:id="@+id/pref_hiking_par_speedDescent"
             android:key="pref_hiking_par_speedDescent"
-            android:defaultValue="3"
             android:title="@string/pref_hiking_par_speedDescent" />
     </PreferenceCategory>
 
@@ -34,7 +31,7 @@
             android:key="pref_hiking_par_alarm"
             android:title="@string/pref_hiking_par_alarm"
             android:summary="@string/pref_hiking_par_alarm_summary"
-            android:defaultValue="true"/>
+            android:defaultValue="false"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -56,8 +53,8 @@
             android:defaultValue="false"/>
         <SwitchPreferenceCompat
             style="@style/NoIconPreference"
-            android:id="@+id/pref_consent_swv_tourenportal"
-            android:key="pref_consent_swv_tourenportal"
+            android:id="@+id/pref_consent_swv"
+            android:key="pref_consent_swv"
             android:title="Schwarzwaldverein Tourenportal"
             android:summary="@string/consent_swv_tourenportal"
             app:isPreferenceVisible="false"
