@@ -17,9 +17,11 @@ package de.biselliw.tour_navigator;
 
     Copyright 2026 Walter Biselli (BiselliW)
 */
+import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
+// import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.List;
@@ -51,7 +53,6 @@ public class App {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-
     public static Uri gpxUri = null;
 
     private static SourceInfo _sourceInfo = null;
@@ -74,15 +75,8 @@ public class App {
         _track = new TrackDetails();
     }
 
-    /**
-     *
-     * @return
-     * @deprecated todo android.preference.PreferenceManager' is deprecated as of API 29 ("Q"; Android 10.0)
-     */
-    public SharedPreferences getDefaultSharedPreferences() {
-        if (_main != null)
-            return PreferenceManager.getDefaultSharedPreferences(_main);
-        return null;
+    public static Context getContext() {
+        return app._main.getApplicationContext();
     }
 
     /**

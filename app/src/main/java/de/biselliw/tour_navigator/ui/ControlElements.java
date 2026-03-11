@@ -21,9 +21,7 @@ package de.biselliw.tour_navigator.ui;
 */
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.text.Spanned;
@@ -54,15 +52,11 @@ import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.files.HTML_File;
 import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static android.view.View.VISIBLE;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentInternet;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentSwvTourenportal;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getProfileViewVisibility;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.setProfileViewVisibility;
 import static de.biselliw.tour_navigator.data.AppState.isGpxFileGuidePostsCached;
 import static de.biselliw.tour_navigator.data.AppState.isGpxFilePOIsCached;
 
@@ -77,8 +71,6 @@ public class ControlElements extends BaseActivity {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
-    protected SharedPreferences sharedPref = null;
-
     public ProfileAdapter profileAdapter = null;
 
     protected TourDetails tourDetails = null;
@@ -92,6 +84,7 @@ public class ControlElements extends BaseActivity {
     static boolean _updateTrackingStatus = false;
     static boolean _updateAdditionalInfo = false;
     protected static boolean raiseAlarm = true;
+    static boolean _updateAlarmPref = false;
 
     boolean _updateGpsStatus = false;
     boolean _updateExpandViewStatus = false;
@@ -112,8 +105,6 @@ public class ControlElements extends BaseActivity {
      */
     private static boolean _isTracking;
 
-    protected boolean firstStart = false;
-
     private int _place = -1;
     int _expandViewVisibility = View.GONE;
     boolean _speakEnabled = false;
@@ -128,8 +119,6 @@ public class ControlElements extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     @Override
@@ -155,6 +144,7 @@ public class ControlElements extends BaseActivity {
         if (_initUserInterface) {
             // Disable a group of navigation items
             onPrepareNavigationMenu(mNavigationView.getMenu());
+            _updateAlarmPref = true;
             _initUserInterface = false;
         }
         else
@@ -167,6 +157,10 @@ public class ControlElements extends BaseActivity {
         }
 
         onPrepareButtons();
+        if (_updateAlarmPref) {
+            onShowAlarmPreference();
+            _updateAlarmPref = false;
+        }
         onUpdateStatusIcons();
 
         if (_updateFileInfo)
@@ -238,14 +232,13 @@ public class ControlElements extends BaseActivity {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
             else if (id == R.id.itm_nav_google) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
-                        item.setVisible(getConsentGoogleMaps());
-            } else if ( // id == R.id.itm_find_nearby_wikipedia ||
-                    id == R.id.itm_find_nearby_osm) {
+                        item.setVisible(Prefs.getConsentGoogleMaps());
+            } else if ( id == R.id.itm_find_nearby_osm) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
-                        item.setVisible(getConsentInternet());
+                        item.setVisible(Prefs.getConsentInternet());
             } else if (id == R.id.itm_nav_swv_tourenportal) {
                 item.setEnabled(!_isViewExpanded && (_place >= 0));
-                item.setVisible(getConsentSwvTourenportal());
+                item.setVisible(Prefs.getConsentSwvTourenportal());
             } else if (id == R.id.itm_separator) {
                         item.setEnabled(true);
                         item.setVisible(true);
@@ -286,14 +279,14 @@ public class ControlElements extends BaseActivity {
                         mitem = subMenu.findItem(R.id.nav_osm_guideposts);
                         if (mitem != null)
                             mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
-                                    (getConsentInternet() || isGpxFileGuidePostsCached()));
+                                    (Prefs.getConsentInternet() || isGpxFileGuidePostsCached()));
                         mitem = subMenu.findItem(R.id.nav_osm_pois);
                         if (mitem != null)
                             mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
-                                    (getConsentInternet() || isGpxFilePOIsCached()));
+                                    (Prefs.getConsentInternet() || isGpxFilePOIsCached()));
                         mitem = subMenu.findItem(R.id.nav_wikipedia);
                         if (mitem != null)
-                            mitem.setVisible(!_initUserInterface && (getConsentInternet()));
+                            mitem.setVisible(!_initUserInterface && (Prefs.getConsentInternet()));
                     }
                 }
             }
@@ -472,11 +465,13 @@ public class ControlElements extends BaseActivity {
 
     public static void setAlarmPreference(boolean inRaiseAlarm) {
         raiseAlarm = inRaiseAlarm;
+        _updateAlarmPref = true;
     }
+
     /**
      * Show alarm setting (On/Off)
      */
-    public void showAlarmPreference()
+    private void onShowAlarmPreference()
     {
         if (App.getTrack().isValidRecordedTrackFile()) {
             setViewVisibility(R.id.image_alarm_off,View.GONE);
@@ -543,14 +538,6 @@ public class ControlElements extends BaseActivity {
         setTitleText(errorMessage,R.color.red);
         Log.e("Error",errorMessage);
         _updateErrorMessage = false;
-    }
-
-    /**
-     * Set the title text
-     * @param inTitle title
-     */
-    public void setTitleText (String inTitle) {
-        setTitleText (inTitle, R.color.colorText, R.color.md_theme_surface);
     }
 
     /**
@@ -666,7 +653,6 @@ public class ControlElements extends BaseActivity {
 
         activateProfile(View.GONE);
         setViewVisibility(R.id.image_expand_more, View.GONE);
-        showAlarmPreference();
         _initUserInterface = true;
     }
 
@@ -681,7 +667,7 @@ public class ControlElements extends BaseActivity {
         showAdditionalInfo(-1);
 
         // use stored state of profile view visibility
-        activateProfile(getProfileViewVisibility(sharedPref));
+        activateProfile(Prefs.getProfileViewVisibility(this));
         _setupUserInterface = true;
     }
 
@@ -868,7 +854,7 @@ public class ControlElements extends BaseActivity {
                 state = View.GONE;
             _profileViewVisibility = state;
             if (state != View.GONE)
-                setProfileViewVisibility(sharedPref, state);
+                Prefs.setProfileViewVisibility(this, state);
 
             _updateProfile = true;
         }

@@ -28,6 +28,7 @@ import de.biselliw.tour_navigator.activities.SettingsActivity;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
 import de.biselliw.tour_navigator.functions.GpxAltitudeSmoother;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 
 import static de.biselliw.tour_navigator.data.TrackSegments.PROFILE_ANALYSIS_DEFAULT;
@@ -57,7 +58,7 @@ public class TrackTiming {
     private List<RecordAdapter.Record> analysePlannedTour(TrackDetails inTrack) {
         _track = inTrack;
         TrackSegments _trackSegments = new TrackSegments();
-        SettingsActivity.getHikingParameters(_trackSegments);
+        Prefs.getHikingParameters(_trackSegments);
 
         if (USE_PROFILE_ANALYSIS_FOR_PLANNED_TOUR == PROFILE_ANALYSIS_DEFAULT) {
             _segments = _trackSegments.calcSegmentsByDefault(inTrack, false, BREAK_SEGMENTS_AT_ROUTE_POINT);

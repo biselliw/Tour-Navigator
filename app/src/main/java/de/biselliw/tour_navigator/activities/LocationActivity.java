@@ -51,6 +51,7 @@ import de.biselliw.tour_navigator.data.TourDetails;
 import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static de.biselliw.tour_navigator.Notifications.ACTION_LOCATION_UPDATE;
@@ -516,7 +517,6 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             }
             case DESTINATION_FAILED: {
                 activity = getString(R.string.dest_failed);
-                // todo check: Variable is already assigned to this value
                 bgColor = COLOR_DESTINATION_FAILED;
                 break;
             }
@@ -579,7 +579,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Notify the application of a loaded GPX file
      */
     public void notifyGpsFileLoaded() {
-        _startTime_min = SettingsActivity.getStartTime(sharedPref);
+        _startTime_min = Prefs.getStartTime(this);
         if (_startTime_min > 0) {
             recordAdapter.setStartTime(_startTime_min);
             LocationHandler.setStartTime(_startTime_min);
@@ -777,6 +777,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
         }
         else if (isTracking()) {
             switch (_locationStatus) {
+                case GPX_FILE_LOADED:
+                    break;
                 case WAIT_USER_START: {
                     // show first place
                     int startPlace = recordAdapter.getInitialPlace();
@@ -788,6 +790,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     setLocationStatus(GOTO_START_POS);
                     break;
                 }
+                case GOTO_START_POS:
+                    break;
                 case BREAK:
                 case TRACKING: { /*
                     } */

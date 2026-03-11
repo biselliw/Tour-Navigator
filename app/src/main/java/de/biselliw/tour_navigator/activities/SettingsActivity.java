@@ -22,30 +22,30 @@ package de.biselliw.tour_navigator.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.view.MenuItem;
-import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
-import java.util.ArrayList;
-
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
-import de.biselliw.tour_navigator.data.TrackSegments;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.AcceptSwvTourenportalPolicyDialog;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 
-import static de.biselliw.tour_navigator.data.Resources.resStrSetToDefault;
-import static de.biselliw.tour_navigator.ui.ControlElements.setAlarmPreference;
+import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_GOOGLE_MAPS;
+import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_INTERNET;
+import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_SWV;
+import static de.biselliw.tour_navigator.helpers.Prefs.PREF_DEBUG;
+import static de.biselliw.tour_navigator.helpers.Prefs.hikingParameters;
 
 /**
  * Application settings
@@ -56,209 +56,179 @@ public class SettingsActivity extends BaseActivity {
     // └─ activity_settings.xml
     //     └─ FrameLayout (settings_container)
     //         └─ SettingsFragment (PreferenceFragmentCompat)
-    //             └─ preferences.xml
+    //             └─ Prefs, preferences.xml
+
+    private SettingsFragment _settingsFragment = null;
+
     /**
      * hiking parameters used for walking time calculation
      */
-    public static ArrayList<Parameter> hikingParameters;
+    static boolean hikingParametersChanged = false;
 
-    private SharedPreferences _sharedPref = null;
-    private SettingsFragment _settingsFragment = null;
+    static String lang = "";
+
     /**
      * Preferences for use of Google Maps
      */
     private static boolean _consentGoogleMaps = false;
     private static boolean _updateGooglePrefs = false;
+
     /**
      * Preferences for use of Schwarzwaldverein Tourenportal
      */
     private static boolean _consentSwvTourenportal = false;
     private static boolean _updateSwvTourenportal = false;
 
-    private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
-
-    static boolean hikingParametersChanged = false;
-    static String lang = "";
-
-    /**
-     * class for hiking parameters used for walking time calculation
-     */
-    public static class Parameter {
-        /** key for preference setting */
-        public final String key;
-        /** minimum, maximum, default values [m/h] */
-        public final int minValue, mavValue, defaultValue;
-
-        public Parameter (String key, int minValue, int mavValue, int defaultValue) {
-            this.key = key;
-            this.minValue = minValue;
-            this.mavValue = mavValue;
-            this.defaultValue = defaultValue;
-        }
-    }
-
-    /**
-     * Define hiking parameters for walking time calculation
-     */
-    public static void defineHikingParameters () {
-        hikingParameters = new ArrayList<>();
-        hikingParameters.add(new Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4200));
-        hikingParameters.add(new Parameter("pref_hiking_par_speedClimb", 100, 1000, 350));
-        hikingParameters.add(new Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
-    }
-
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
-        SettingsActivity activity;
-        SwitchPreferenceCompat pref_consent_google_maps = null;
-        SwitchPreferenceCompat pref_consent_swv_tourenportal = null;
-
-        private class IntPreference {
-            EditTextPreference textPref;
-            public String key;
-            public int defaultValue, minValue, maxValue;
-
-            public IntPreference(Parameter inParameter) {
-                this.key = inParameter.key;
-                this.defaultValue = inParameter.defaultValue;
-                this.minValue = inParameter.minValue;
-                this.maxValue = inParameter.mavValue;
-                intPreference();
-            }
-
-            public void intPreference() {
-                textPref = findPreference(key);
-                if (textPref != null) {
-                    textPref.setOnBindEditTextListener(editText -> {
-                        editText.setInputType(
-                                InputType.TYPE_CLASS_NUMBER
-                        );
-                        editText.setSingleLine(true);
-                    });
-
-                    textPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                        String stringValue = (String) newValue;
-
-                        int value = 0;
-                        try {
-                            assert stringValue != null;
-                            value = Integer.parseInt(stringValue);
-                        } catch (Exception ignored) {
-                        }
-                        hikingParametersChanged = true;
-                        if ((value < minValue) || (value > maxValue)) {
-                            /* Apply default value */
-                            stringValue = String.valueOf(defaultValue);
-                            textPref.setText(stringValue);
-                            return false; // Reject empty input
-                        }
-                        return true; // Accept and persist value
-                    });
-
-                    textPref.setSummaryProvider(preference -> {
-                        String stringValue = ((EditTextPreference) preference).getText();
-                        int value = 0;
-                        try {
-                            assert stringValue != null;
-                            value = Integer.parseInt(stringValue);
-                        } catch (Exception ignored) {
-                        }
-                        //preference.setDefaultValue(defValue);
-                        if (value == defaultValue)
-                            /* Apply default value */
-                            stringValue = resStrSetToDefault + ": " + defaultValue;
-                        return stringValue;
-                    });
-                }
-            }
-        }
+        SwitchPreferenceCompat prefConsentGoogleMaps = null;
+        SwitchPreferenceCompat prefConsentSwv = null;
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences, rootKey);
 
-            // hide Debug setting in releases
-            if (BuildConfig.DEBUG) {
-                SwitchPreferenceCompat switchPref = findPreference("pref_debug");
-                if (switchPref != null)
-                    switchPref.setVisible(true);
+            SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
+
+            setupInternetPreferences(prefs);
+
+            for (Prefs.Parameter parameter : hikingParameters) {
+                setupNumericPreference(parameter.key, parameter.minValue, parameter.mavValue,
+                        parameter.defaultValue);
             }
 
-            // Bind the summaries of EditText preferences to their values. When their values change,
-            // their summaries are updated to reflect the new value, per the Android Design guidelines.
-            if (hikingParameters != null)
-                for (int i = 0; i < hikingParameters.size(); i++)
-                    new IntPreference(hikingParameters.get(i));
+            setupDebugPreference();
+        }
 
-            SwitchPreferenceCompat pref_consent_internet = findPreference("pref_consent_internet");
-            pref_consent_google_maps = findPreference("pref_consent_google_maps");
-            if (pref_consent_internet != null) {
-                boolean consent_internet = pref_consent_internet.isChecked();
-                /* Accept Google Maps Policy
-                *  ---------------------------------------------------------------------------------*/
-                if (pref_consent_google_maps != null) {
-                    pref_consent_google_maps.setVisible(consent_internet);
-                    pref_consent_google_maps.setOnPreferenceChangeListener((preference, newValue) -> {
-                        boolean enabled = (Boolean) newValue;
-                        if (enabled) {
-                            if (pref_consent_internet.isChecked()) {
-                                AcceptGoogleMapsPolicyDialog acceptDialog = new AcceptGoogleMapsPolicyDialog(activity);
-                                acceptDialog.show();
+        private void setupInternetPreferences(SharedPreferences prefs) {
+
+            SwitchPreferenceCompat prefInternet = findPreference(PREF_CONSENT_INTERNET);
+            prefConsentGoogleMaps = findPreference(PREF_CONSENT_GOOGLE_MAPS);
+            prefConsentSwv = findPreference(PREF_CONSENT_SWV);
+
+            if (prefInternet == null)
+                return;
+            boolean enableInternet = prefInternet.isChecked();
+
+            // Accept Google Maps Policy
+            if (prefConsentGoogleMaps != null) {
+                prefConsentGoogleMaps.setVisible(enableInternet);
+                prefConsentGoogleMaps.setOnPreferenceChangeListener(
+                        (preference,newValue)->{
+                            boolean value = (Boolean)newValue;
+                            if(value){
+                                new AcceptGoogleMapsPolicyDialog((AppCompatActivity) requireContext()).show();
+                                // refuse the new value - must be confirmed in dialog
+                                return false;
                             }
-                            // refuse the new value
-                            return false;
-                        }
-                        // Handle change (e.g., enable/disable notifications)
-                        return true; // true = save the new value
-                    });
-                }
-                /* Accept Schwarzwaldverein Tourenportal Policy
-                 *  ---------------------------------------------------------------------------------*/
+                            return true;
+                        });
+            }
+
+            // Accept Schwarzwaldverein Tourenportal Policy
+            if (prefConsentSwv != null) {
                 // Das Schwarzwaldverein Tourenportal gibt es nur in deutscher Sprache!
-                if (lang.equals("de"))
-                    pref_consent_swv_tourenportal = findPreference("pref_consent_swv_tourenportal");
-                if (pref_consent_swv_tourenportal != null) {
-                    pref_consent_swv_tourenportal.setVisible(consent_internet);
-                    pref_consent_swv_tourenportal.setOnPreferenceChangeListener((preference, newValue) -> {
-                        boolean enabled = (Boolean) newValue;
-                        if (enabled) {
-                            if (pref_consent_internet.isChecked()) {
-                                AcceptSwvTourenportalPolicyDialog acceptDialog = new AcceptSwvTourenportalPolicyDialog(activity);
-                                acceptDialog.show();
+                prefConsentSwv.setVisible(enableInternet && lang.equals("de"));
+                prefConsentSwv.setOnPreferenceChangeListener(
+                        (preference,newValue)->{
+                            boolean value = (Boolean)newValue;
+                            if(value){
+                                new AcceptSwvTourenportalPolicyDialog((AppCompatActivity) requireContext()).show();
+                                // refuse the new value - must be confirmed in dialog
+                                return false;
                             }
-                            // refuse the new value
+                            return true;
+                        });
+            }
+
+            prefInternet.setOnPreferenceChangeListener(
+                    (preference,newValue)->{
+                        boolean value = (Boolean)newValue;
+
+                        if(prefConsentGoogleMaps!=null){
+                            prefConsentGoogleMaps.setVisible(value);
+                            if(!value)
+                                prefConsentGoogleMaps.setChecked(false);
+                        }
+
+                        if(prefConsentSwv!=null){
+                            prefConsentSwv.setVisible(value);
+                            if(!value)
+                                prefConsentSwv.setChecked(false);
+                        }
+                        return true;
+                    });
+        }
+
+        private void setupNumericPreference(
+                String key,
+                int min,
+                int max,
+                int defaultValue) {
+
+            EditTextPreference pref = findPreference(key);
+
+            if(pref==null)
+                return;
+
+            pref.setOnBindEditTextListener(editText->{
+
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                editText.setSingleLine(true);
+            });
+
+            pref.setOnPreferenceChangeListener(
+                    (preference,newValue)->{
+                        int value;
+
+                        try{
+                            hikingParametersChanged = true;
+                            value=Integer.parseInt((String)newValue);
+                        }
+                        catch(Exception e){
                             return false;
                         }
-                        // Handle change (e.g., enable/disable notifications)
-                        return true; // true = save the new value
-                    });
-                }
 
-                pref_consent_internet.setOnPreferenceChangeListener((preference, newValue) -> {
-                    boolean enabled = (Boolean) newValue;
-                    pref_consent_google_maps.setVisible(enabled);
-                    if (!enabled)
-                        pref_consent_google_maps.setChecked(false);
-                    if (pref_consent_swv_tourenportal != null) {
-                        pref_consent_swv_tourenportal.setVisible(enabled);
-                        if (!enabled)
-                            pref_consent_swv_tourenportal.setChecked(false);
-                    }
-                    // save the new value
-                    return true;
-                });
-            }
+                        if(value<min || value>max){
+                            pref.setText(String.valueOf(defaultValue));
+                            return false;
+                        }
+                        return true;
+                    });
+
+            pref.setSummaryProvider(preference->{
+                String text = ((EditTextPreference)preference).getText();
+
+                if(text==null)
+                    return "";
+
+                try{
+                    int value=Integer.parseInt(text);
+                    if(value==defaultValue)
+                        return "Default: "+defaultValue;
+                }catch(Exception ignored){}
+
+                return text;
+            });
+        }
+
+        private void setupDebugPreference() {
+            SwitchPreferenceCompat debugPref = findPreference(PREF_DEBUG);
+            if (debugPref != null)
+                debugPref.setVisible(BuildConfig.DEBUG);
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
         if (savedInstanceState == null) {
             _settingsFragment = new SettingsFragment();
-            _settingsFragment.activity = this;
+
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.settings_container, _settingsFragment)
@@ -266,30 +236,6 @@ public class SettingsActivity extends BaseActivity {
         }
 
         lang = getString(R.string.lang);
-
-        // set default value on first time launch
-        // FIXME android.preference.PreferenceManager' is deprecated as of API 29 ("Q"; Android 10.0)
-        _sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        if (_sharedPref != null) {
-            defineHikingParameters();
-            if (hikingParameters != null) {
-                String def = _sharedPref.getString(hikingParameters.get(0).key, "");
-                if (def.isEmpty()) {
-                    // set default preferences for hiking times calculation
-                    SharedPreferences.Editor editor = _sharedPref.edit();
-                    for (int i = 0; i < hikingParameters.size(); i++) {
-                        editor.putString(hikingParameters.get(i).key,
-                                String.valueOf(hikingParameters.get(i).defaultValue));
-                    }
-                    editor.apply();
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
     }
 
     public void onStart() {
@@ -305,20 +251,13 @@ public class SettingsActivity extends BaseActivity {
         if (_updateGooglePrefs) {
             _updateGooglePrefs = false;
             if (_settingsFragment != null)
-                _settingsFragment.pref_consent_google_maps.setChecked(_consentGoogleMaps);
+                _settingsFragment.prefConsentGoogleMaps.setChecked(_consentGoogleMaps);
         }
         if (_updateSwvTourenportal) {
             _updateSwvTourenportal = false;
             if (_settingsFragment != null)
-                _settingsFragment.pref_consent_swv_tourenportal.setChecked(_consentSwvTourenportal);
+                _settingsFragment.prefConsentSwv.setChecked(_consentSwvTourenportal);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        _settingsFragment = null;
-        _sharedPref = null;
-        super.onDestroy();
     }
 
     @Override
@@ -340,106 +279,24 @@ public class SettingsActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Respond to the action bar's Up/Home button
         if (item.getItemId() == android.R.id.home) {
-            updatePreferences(_sharedPref);
+            if (_settingsFragment != null)
+                updatePreferences(_settingsFragment.getPreferenceManager().getSharedPreferences());
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Get a boolean value from settings
-     * @param inKey key name
-     * @param inDefault default value
+    /*
+     * --------------------------------------------------------------------------------------------
+     * Public methods
+     * --------------------------------------------------------------------------------------------
      */
-     public static boolean getBooleanPref(String inKey, boolean inDefault) {
-         SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
-
-         if (sharedPref != null)
-            return sharedPref.getBoolean(inKey,inDefault);
-        else
-            return inDefault;
-    }
-
-/*
- * --------------------------------------------------------------------------------------------
- * Public methods
- * --------------------------------------------------------------------------------------------
- */
-    /**
-     * get preferences
-     */
-    public static void getPreferences(SharedPreferences sharedPref)
-    {
-        if (sharedPref != null) {
-            setWritingEnabled(sharedPref.getBoolean("pref_debug", false));
-            setAlarmPreference(sharedPref.getBoolean("pref_hiking_par_alarm", true));
-        }
-    }
-
-    /**
-     * get preferences for hiking times calculation
-     * @param inSegments target for parameters
-     */
-    public static void getHikingParameters(TrackSegments inSegments)
-    {
-        SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
-        if (hikingParameters != null && sharedPref != null) {
-            /* hiking speed parameters */
-            // horizontal part in [km/h]
-            int horSpeed = getIntFromPref(sharedPref, hikingParameters.get(0).key, hikingParameters.get(0).defaultValue);
-            // ascending part in [km/h]
-            int vertSpeedClimb = getIntFromPref(sharedPref, hikingParameters.get(1).key, hikingParameters.get(1).defaultValue);
-            // descending part in [km/h]
-            int vertSpeedDescent = getIntFromPref(sharedPref, hikingParameters.get(2).key, hikingParameters.get(2).defaultValue);
-
-            // set hiking parameters
-            inSegments.setHikingParameters(horSpeed / 1000.0, vertSpeedClimb / 1000.0,
-                    vertSpeedDescent / 1000.0);
-        }
-    }
-
-    public static boolean isFirstTimeLaunch() {
-        return getBooleanPref(IS_FIRST_TIME_LAUNCH, true);
-    }
-
-    public static void setFirstTimeLaunch(boolean isFirstTime) {
-        setBooleanPref(App.app.getDefaultSharedPreferences(), IS_FIRST_TIME_LAUNCH, isFirstTime);
-    }
-
-    /**
-     * Get the persisted start time of the tour
-     * @return start time in [min] since midnight
-     */
-    public static int getStartTime(SharedPreferences sharedPref) {
-        return sharedPref.getInt("StartTime", -1);
-    }
-
-    /**
-     * Persist the start time of the tour
-     * @param inValue start time in [min] since midnight
-     */
-    public static void setStartTime(int inValue) {
-        SharedPreferences sharedPref = App.app.getDefaultSharedPreferences();
-        if (sharedPref != null) {
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt("StartTime", inValue);
-            editor.apply(); // editor.commit();
-        }
-    }
-
-    /**
-     * Preferences for use of Internet
-     */
-    public static boolean getConsentInternet() {
-        return getBooleanPref("pref_consent_internet", false);
-    }
-
     /**
      * Preferences for use of Google Maps
      */
     public static boolean getConsentGoogleMaps() {
-        return getBooleanPref("pref_consent_google_maps", false);
+        return _consentGoogleMaps;
     }
 
     public static void consentGoogleMaps(boolean inValue) {
@@ -451,30 +308,11 @@ public class SettingsActivity extends BaseActivity {
      * Preferences for use of Schwarzwaldverein Tourenportal
      */
     public static boolean getConsentSwvTourenportal() {
-        return getBooleanPref("pref_consent_swv_tourenportal", false);
+        return _consentSwvTourenportal;
     }
     public static void consentSwvTourenportal(boolean inValue) {
         _consentSwvTourenportal = inValue;
         _updateSwvTourenportal = true;
-    }
-    /**
-     * Preferences for writing Debug infos to Download dir
-     */
-    public static boolean getConsentDebug(SharedPreferences sharedPref) {
-        return sharedPref.getBoolean("pref_debug", false);
-    }
-
-    /**
-     * Shared Preferences to restore application after shut down
-     */
-    public static int getProfileViewVisibility(SharedPreferences sharedPref) {
-        int value = sharedPref.getInt("ProfileViewVisibility", View.VISIBLE);
-        if (value == View.GONE) value = View.VISIBLE;
-        return value;
-    }
-
-    public static void setProfileViewVisibility(SharedPreferences sharedPref, int inValue) {
-        setIntPref(sharedPref,"ProfileViewVisibility", inValue);
     }
 
     /*
@@ -486,55 +324,15 @@ public class SettingsActivity extends BaseActivity {
     /**
      * update preferences for hiking times calculation if they were changed
      */
-    static private void updatePreferences(SharedPreferences sharedPref) {
-        getPreferences(sharedPref);
+    static private void updatePreferences(SharedPreferences inPref) {
+        Prefs.getPreferences(inPref);
         if (hikingParametersChanged) {
             hikingParametersChanged = false;
             // FIXME create intent
             App.app.Update();
         }
-        if (!getConsentDebug(sharedPref))
-            Log.clearDebugHTML();
-    }
-
-    /**
-     * store a boolean value in the settings
-     * @param inKey key name
-     * @param inValue value
-     */
-    private static void setBooleanPref(SharedPreferences sharedPref, String inKey, boolean inValue) {
-        if (sharedPref != null) {
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putBoolean(inKey, inValue);
-            editor.apply();
-        }
-    }
-
-    private static int getIntFromPref(SharedPreferences sharedPref, String inKey, int inDefault) {
-        int value = inDefault;
-        if (sharedPref != null) {
-            try {
-                value = Integer.parseInt(sharedPref.getString(inKey, ""));
-            } catch (Exception ignored) {
-            }
-        }
-        return value;
-    }
-
-    /**
-     * store an integer value in the settings
-     * @param inKey key name
-     * @param inValue value
-     */
-    private static void setIntPref(SharedPreferences sharedPref, String inKey, int inValue) {
-        if (sharedPref != null) {
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putInt(inKey, inValue);
-            editor.apply();
-        }
-    }
-
-    private static void setWritingEnabled (boolean isEnabled) {
-        Log.setWritingEnabled (isEnabled, "Tour Navigator ");
+        if (BuildConfig.DEBUG)
+            if (!Prefs.getConsentDebug(inPref))
+                Log.clearDebugHTML();
     }
 }
