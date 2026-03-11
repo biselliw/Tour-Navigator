@@ -91,7 +91,7 @@ public class ProfileAdapter {
     }
 
     final static int SERIES_ALTITUDES = 0, SERIES_CURSOR = 1, SERIES_SEGMENTS = 2;
-    public void createPlot(MainActivity inActivity) {
+    private void createPlot(MainActivity inActivity) {
         /*
          * @todo Material3 conform:
          * val surface = MaterialColors.getColor(plot, R.attr.plotSurfaceColor)
