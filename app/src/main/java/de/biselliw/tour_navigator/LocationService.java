@@ -26,31 +26,27 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.location.Location;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.text.format.Time;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresPermission;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.SettingsClient;
 
+import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.Log;
 
 import static de.biselliw.tour_navigator.Notifications.ACTION_LOCATION_UPDATE;
+import static de.biselliw.tour_navigator.data.AppState.gpsSimulation;
 
 /**
  * service class for Fused Location Provider running in background
@@ -84,33 +80,37 @@ public class LocationService extends Service {
             return;
         }
 
-        createNotificationChannel();
-        startForeground(1, buildNotification());
-        Log.i(TAG,"foreground service started for Fused Location Provider");
+        try {
+            createNotificationChannel();
+            startForeground(1, buildNotification());
+            Log.i(TAG, "foreground service started for Fused Location Provider");
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Create a LocationRequest
-        LocationRequest locationRequest = new LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                1000
-        ).setMinUpdateDistanceMeters(0)
-         .build();
+            // Create a LocationRequest
+            LocationRequest locationRequest = new LocationRequest.Builder(
+                    Priority.PRIORITY_HIGH_ACCURACY,
+                    1000
+            ).setMinUpdateDistanceMeters(0)
+                    .build();
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult result) {
-                for (Location location : result.getLocations()) {
-                    handleLocation(location);
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(@NonNull LocationResult result) {
+                    for (Location location : result.getLocations()) {
+                        handleLocation(location);
+                    }
                 }
-            }
-        };
+            };
 
-        fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-        );
+            fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+            );
+        } catch (Exception e) {
+            Log.e(TAG,"error: ",e);
+        }
     }
 
     /**
@@ -119,10 +119,17 @@ public class LocationService extends Service {
      */
     private void handleLocation(Location location) {
         if (DEBUG) Log.d(TAG, location.getLatitude() + ", " + location.getLongitude() + " acc: " + location.getAccuracy());
-        // use system clock instead of GPS device time
-        Intent intent = new Intent(ACTION_LOCATION_UPDATE);
-        intent.putExtra("location", location);
-        sendBroadcast(intent);
+
+        // handle the location
+        if (gpsSimulation == null) {
+            LocationHandler.handleLocation(location);
+
+            /* inform the main activity of the received location after processing it */
+            Intent intent = new Intent(ACTION_LOCATION_UPDATE);
+            intent.setPackage(getPackageName());   // important for implicit broadcasts
+            intent.putExtra("location", location);
+            sendBroadcast(intent);
+        }
     }
 
     /**
@@ -133,22 +140,20 @@ public class LocationService extends Service {
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(getString(R.string.notify_gps_active))
                 .setContentText(getString(R.string.notify_gps_reason))
-                .setSmallIcon(R.drawable.location_on) // R.id.image_location_on) //
+                .setSmallIcon(R.drawable.hiking) // R.id.image_location_on) //
                 .setOngoing(true)
                 .build();
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Location Tracking",
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            NotificationManager manager =
-                    getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
-        }
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Location Tracking",
+                NotificationManager.IMPORTANCE_LOW
+        );
+        NotificationManager manager =
+                getSystemService(NotificationManager.class);
+        manager.createNotificationChannel(channel);
     }
 
     @Override
@@ -156,9 +161,7 @@ public class LocationService extends Service {
         if (fusedLocationClient != null && locationCallback != null) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_REMOVE);
-        }
+        stopForeground(STOP_FOREGROUND_REMOVE);
         super.onDestroy();
     }
 

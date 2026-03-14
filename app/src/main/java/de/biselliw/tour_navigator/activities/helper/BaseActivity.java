@@ -19,7 +19,9 @@
 
 package de.biselliw.tour_navigator.activities.helper;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,6 +56,7 @@ public class BaseActivity extends AppCompatActivity {
     private static final boolean _DEBUG = true; // Set to true to enable logging
     private static final boolean DEBUG = _DEBUG && BuildConfig.DEBUG;
 
+
     public final int NAVDRAWER_LAUNCH_DELAY = 250;
     public final int MAIN_CONTENT_FADEOUT_DURATION = 150;
     public static final int MAIN_CONTENT_FADEIN_DURATION = 250;
@@ -74,6 +77,7 @@ public class BaseActivity extends AppCompatActivity {
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> timerFuture;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

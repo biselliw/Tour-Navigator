@@ -123,7 +123,7 @@ public class TrackDetails extends Track {
      * a distance B - C
      * b distance A - C
      * c distance A - B
-     */
+     */ // todo return class
     public int getNearestTrackpointIndex(int inStart, int inEnd, double inLatitude, double inLongitude, double inMaxDist) {
         // init index of the nearest track point to the specified Latitude and Longitude coordinates
         int nearestIndex = INVALID_INDEX, index_min_h2 = INVALID_INDEX;

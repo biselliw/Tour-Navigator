@@ -3,7 +3,11 @@ package de.biselliw.tour_navigator.data;
 import android.net.Uri;
 
 import de.biselliw.tour_navigator.activities.LocationActivity;
+import de.biselliw.tour_navigator.functions.LocationHandler;
 import de.biselliw.tour_navigator.helpers.GpsSimulator;
+
+import static de.biselliw.tour_navigator.activities.LocationActivity.locationStatus.INITIAL;
+
 
 /**
  * important app data for saving/restoring the application state after relaunching the app on
@@ -63,7 +67,7 @@ public abstract class AppState {
 
         _StartGpsIndex = 0;
         _GpsStatus = LocationActivity.gpsStatus.NOT_REGISTERED;
-        _LocationStatus = LocationActivity.locationStatus.INITIAL;
+        _LocationStatus = INITIAL;
         _valid = false;
     }
 

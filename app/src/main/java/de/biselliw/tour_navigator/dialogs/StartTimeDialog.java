@@ -22,20 +22,20 @@ package de.biselliw.tour_navigator.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.MainActivity;
+import de.biselliw.tour_navigator.activities.SettingsActivity;
+import de.biselliw.tour_navigator.helpers.Prefs;
 
 /**
  * Class to set the start time of the tour
  * @author BiselliW
  */
 public class StartTimeDialog extends Dialog {
+
     /**
      * Constructor
      *
@@ -45,11 +45,7 @@ public class StartTimeDialog extends Dialog {
         super(context);
         setContentView(R.layout.dialog_starttime);
 
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
-        int time = 0;
-        if (sharedPref != null) {
-            time = sharedPref.getInt("StartTime", 0);
-        }
+        int time = Prefs.getStartTime(context);
 
         /* load time picker with current start time */
         TimePicker timePicker = findViewById(R.id.timePickerStart);
@@ -59,29 +55,19 @@ public class StartTimeDialog extends Dialog {
 
         /* define OnClick event for changing the start time */
         Button buttonOkay = findViewById(R.id.bt_start_ok);
-        buttonOkay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /* load current start time from time picker */
-                TimePicker timePicker = findViewById(R.id.timePickerStart);
+        buttonOkay.setOnClickListener(v -> {
+            /* load current start time from time picker */
+            TimePicker timePicker1 = findViewById(R.id.timePickerStart);
 
-                int time = timePicker.getHour() * 60 + timePicker.getMinute();
+            int time1 = timePicker1.getHour() * 60 + timePicker1.getMinute();
+            Prefs.setStartTime(((MainActivity)context), time1);
 
-                if (sharedPref != null) {
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putInt("StartTime", time);
-                    editor.apply(); // editor.commit();
-                }
-
-                ((MainActivity)context).notifyStartTimeChanged(time);
-                dismiss();
-            }
+            ((MainActivity)context).notifyStartTimeChanged(time1);
+            dismiss();
         });
 
         /* define OnClick event to cancel the dialog */
         Button cancelButton = findViewById(R.id.btn_cancel);
-        cancelButton.setOnClickListener(v -> {
-            dismiss();
-        });
+        cancelButton.setOnClickListener(v -> dismiss());
     }
 }

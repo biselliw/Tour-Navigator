@@ -53,8 +53,6 @@ public class SearchResult implements Comparable<SearchResult> {
      */
     private String _ref = null;
 
-    // todo public boolean isGuidePost;
-
     public SearchResult() {
 
     }

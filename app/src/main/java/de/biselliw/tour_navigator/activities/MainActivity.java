@@ -27,7 +27,6 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +70,7 @@ import de.biselliw.tour_navigator.fragments.WaypointsDialogFragment;
 import de.biselliw.tour_navigator.fragments.WikipediaDialogFragment;
 import de.biselliw.tour_navigator.helpers.GlobalExceptionHandler;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 import de.biselliw.tour_navigator.helpers.ProfileAdapter;
 import de.biselliw.tour_navigator.tim_prune.data.Track;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
@@ -78,7 +78,8 @@ import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
-import static de.biselliw.tour_navigator.activities.SettingsActivity.getConsentGoogleMaps;
+import static de.biselliw.tour_navigator.functions.PublicStopsHandler.getUriPublicStops;
+import static de.biselliw.tour_navigator.helpers.Prefs.defineHikingParameters;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 
 /**
@@ -124,7 +125,6 @@ public class MainActivity extends LocationActivity  implements
         if (DEBUG)
             AppState.MainActivityInstanceCount++;
 
-        Resources.activity = this;
         Resources.resources = getResources();
         Resources.getResources();
 
@@ -145,13 +145,7 @@ public class MainActivity extends LocationActivity  implements
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        // todo check day/night mode
-//        AppCompatDelegate.setDefaultNightMode( AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM  );
-
         app = new App(this);
-
-        // Load preferences
-        firstStart = SettingsActivity.isFirstTimeLaunch();
 
         Thread.setDefaultUncaughtExceptionHandler(new GlobalExceptionHandler());
 
@@ -159,8 +153,11 @@ public class MainActivity extends LocationActivity  implements
         /* create a table of route points */
         recordAdapter = new RecordAdapter(this, profileAdapter, new ArrayList<>());
 
-        // FIXME getDefaultSharedPreferences(android.content.Context)' is deprecated
-        SettingsActivity.getPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        // Load preferences
+        Prefs.getPreferences(Prefs.get(this));
+
+        defineHikingParameters();
+        Prefs.setDefaultHikingParameters (Prefs.get(this));
     }
 
     @Override
@@ -199,7 +196,7 @@ public class MainActivity extends LocationActivity  implements
             onActivityResult(REQUEST_OPEN_GPX, RESULT_OK, intent);
         }
 
-        if (firstStart)
+        if (Prefs.isFirstTimeLaunch())
         {
             Intent mainIntent = new Intent(this, TutorialActivity.class);
             startActivity(mainIntent);
@@ -386,7 +383,7 @@ public class MainActivity extends LocationActivity  implements
             // find OSM guideposts along the track
             OpenStreetMapDialogFragment dialog = OpenStreetMapDialogFragment.newInstance(this);
             dialog.setTitle (getString(R.string.osm_guide_posts_title));
-            dialog.queryBoundingBox();
+            dialog.queryBoundingBox(0.01);
             dialog.findGuideposts();
             dialog.setNotification(this::updateRecords);
             dialog.show(getSupportFragmentManager(),"OpenStreetMapDialogFragment");
@@ -397,7 +394,7 @@ public class MainActivity extends LocationActivity  implements
             // find OSM POIs along the track
             OpenStreetMapDialogFragment dialog = OpenStreetMapDialogFragment.newInstance(this);
             dialog.setTitle (getString(R.string.osm_pois_title));
-            dialog.queryBoundingBox();
+            dialog.queryBoundingBox(0.01);
             dialog.findPOIs();
             dialog.setNotification(this::updateRecords);
             dialog.show(getSupportFragmentManager(),"OpenStreetMapDialogFragment");
@@ -406,7 +403,7 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.nav_wikipedia) {
             WikipediaDialogFragment dialog = WikipediaDialogFragment.newInstance(this);
             dialog.setTitle(getString(R.string.wikipedia_title));
-            dialog.queryBoundingBox(0.05);
+            dialog.queryBoundingBox(0.02);
             dialog.setNotification(this::updateRecords);
             dialog.show(getSupportFragmentManager(), "WikipediaDialogFragment");
             return true;
@@ -446,6 +443,9 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_nav_waypoint)
             /* Navigate to the waypoint */
             navigateToRoutePoint();
+        else if (id == R.id.itm_nav_public_transport)
+            /* Find nearby public traffic stops */
+            navigateToPublicStops();
         else if (id == R.id.itm_nav_swv_tourenportal)
             /* Navigate to Schwarzwaldverein Tourenportal */
             navigateToSwvTourenportal();
@@ -790,9 +790,26 @@ public class MainActivity extends LocationActivity  implements
                         point = App.getTrack().getPoint(point.getLinkIndex());
                 if (point != null) {
                     String queryParameter = "geo:" + formatLatitude(point) + "," + formatLongitude(point);
-                    /* Navigate e.g. with DB Navigator */
                     Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                             Uri.parse(queryParameter));
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
+    /**
+     * Find nearby public traffic stops
+     */
+    private void navigateToPublicStops() {
+        if (recordAdapter != null && recordAdapter.getCount() > 0) {
+            /* Get destination coordinates */
+            RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
+            if (record != null) {
+                DataPoint point = record.trackPoint;
+                if (point != null) {
+                    Uri uri = Uri.parse(getUriPublicStops(point.getLatitude().getDouble(), point.getLongitude().getDouble()));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
                 }
             }
@@ -849,7 +866,7 @@ public class MainActivity extends LocationActivity  implements
         if (recordAdapter.getCount() > 0) {
             RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
             if (record != null) {
-                if (getConsentGoogleMaps())
+                if (Prefs.getConsentGoogleMaps())
                     runGoogleMaps();
             }
         }
@@ -920,7 +937,6 @@ public class MainActivity extends LocationActivity  implements
         } else if (id == R.id.nav_settings) {
             // open settings page
             intent = new Intent(this, SettingsActivity.class);
-            // todo intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_help) {
@@ -929,7 +945,7 @@ public class MainActivity extends LocationActivity  implements
             startActivity(intent);
             overridePendingTransition(0, 0);
         } else if (id == R.id.nav_timetable) {
-            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,false);
+            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,tourDetails,false);
             // open Time Table page
             intent = new Intent(this, TimeTableActivity.class);
             intent.putExtra("contents",html.toString());
@@ -1113,7 +1129,7 @@ public class MainActivity extends LocationActivity  implements
         try {
             assert uriFile != null;
             OutputStream _xmlStream = this.getContentResolver().openOutputStream(uriFile, "w");
-            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter,true);
+            StringBuffer html = htmlFile.formatTimetableToHTML(recordAdapter, tourDetails, true);
             OutputStreamWriter writer;
             try {
                 writer = new OutputStreamWriter(_xmlStream, StandardCharsets.UTF_8);
@@ -1220,7 +1236,6 @@ public class MainActivity extends LocationActivity  implements
                 return;
             }
         }
-// todo       if (stopped)            return;
 
         if (_changeStartTime >= 0) {
             onStartTimeChanged(_changeStartTime);
@@ -1228,8 +1243,7 @@ public class MainActivity extends LocationActivity  implements
         }
 
         if (App.getTrack() != null) {
-// todo            if (!App.getTrack().isValidRecordedTrackFile())
-                super.updateUI();
+            super.updateUI();
 
             if (_updateRecords) {
                 if (App.getTrack() != null)

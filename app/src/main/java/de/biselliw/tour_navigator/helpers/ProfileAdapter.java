@@ -60,7 +60,8 @@ public class ProfileAdapter {
     DynamicXYDatasource data;
     DynamicXYDatasource bar;
 
-    int _plotX;
+    int _cursorX;
+    double _distanceX;
 
     private RectRegion profileRegion;
     private XYRegionFormatter profileRegionFormatter;
@@ -90,7 +91,7 @@ public class ProfileAdapter {
     }
 
     final static int SERIES_ALTITUDES = 0, SERIES_CURSOR = 1, SERIES_SEGMENTS = 2;
-    public void createPlot(MainActivity inActivity) {
+    private void createPlot(MainActivity inActivity) {
         /*
          * @todo Material3 conform:
          * val surface = MaterialColors.getColor(plot, R.attr.plotSurfaceColor)
@@ -252,6 +253,8 @@ public class ProfileAdapter {
                             Number distance = dist;
                             if (dist > 0) {
                                 lastDistance = distance;
+                                if (_cursorX < 0 && _distanceX <= dist)
+                                    _cursorX = index;
                                 if (dist > prevDistance)
                                     prevDistance = dist;
                             }
@@ -310,7 +313,7 @@ public class ProfileAdapter {
                     return lastAltitude;
                 case SERIES_CURSOR: {
                     // draw cursor
-                    if (index == _plotX) {
+                    if (index == _cursorX) {
                         // show current altitude
                         String title = String.valueOf(altitude);
                         dynamicPlot.setTitle(title + " m");
@@ -465,7 +468,18 @@ public class ProfileAdapter {
      * @param inIndex index of the track point
      */
     public void setCursor (int inIndex) {
-        _plotX = inIndex;
+        _cursorX = inIndex;
+        if (dynamicPlot != null)
+            dynamicPlot.redraw();
+    }
+
+    /**
+     * Show the current distance in the chart
+     * @param inDistance distance of the track point [km]
+     */
+    public void setCursor (double inDistance) {
+        _cursorX = -1;
+        _distanceX = inDistance;
         if (dynamicPlot != null)
             dynamicPlot.redraw();
     }

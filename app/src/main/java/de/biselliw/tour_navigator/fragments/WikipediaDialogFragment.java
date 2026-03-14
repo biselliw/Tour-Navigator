@@ -25,7 +25,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.R;
-import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
+import de.biselliw.tour_navigator.functions.search.GetWikipediaFunction;
 import de.biselliw.tour_navigator.ui.ControlElements;
 
 import static android.view.View.GONE;

@@ -5,12 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.biselliw.tour_navigator.BuildConfig;
-import de.biselliw.tour_navigator.function.Filters;
-import de.biselliw.tour_navigator.function.RDP;
-import de.biselliw.tour_navigator.function.SegmentedDefault;
-import de.biselliw.tour_navigator.function.SegmentedLeastSquares;
-import de.biselliw.tour_navigator.function.TrackPoint;
-import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.functions.Filters;
+import de.biselliw.tour_navigator.functions.RDP;
+import de.biselliw.tour_navigator.functions.SegmentedDefault;
+import de.biselliw.tour_navigator.functions.SegmentedLeastSquares;
+import de.biselliw.tour_navigator.functions.TrackPoint;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import tim.prune.data.Altitude;
 import tim.prune.data.Distance;

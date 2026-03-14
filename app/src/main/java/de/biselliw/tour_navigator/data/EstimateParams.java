@@ -1,8 +1,5 @@
 package de.biselliw.tour_navigator.data;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +7,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
-import de.biselliw.tour_navigator.function.LinearFit3D;
+import de.biselliw.tour_navigator.functions.LinearFit3D;
+import de.biselliw.tour_navigator.helpers.Prefs;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.helpers.Log;
 import tim.prune.data.Distance;
@@ -117,7 +115,7 @@ public class EstimateParams extends TrackSegments {
         EstimateParams.EstimationResult estimateResult = estimateGradients(_segments);
 
         addReport(getRecordedTrackFileInfo_Start());
-// todo        trackHasTimeStamps = false;
+        assert estimateResult != null;
         if (estimateResult.successful)
         {
             addReport(getRecordedTrackFileInfo_Success());
@@ -131,7 +129,7 @@ public class EstimateParams extends TrackSegments {
             addReport(getRecordedTrackFileInfo_Failed());
 
         if (DEBUG) Log.i(TAG, "recalculate(): 3. recalculate all segments using hiking parameters from app settings");
-        SettingsActivity.getHikingParameters(this);
+        Prefs.getHikingParameters(this);
         updateSegmentsValues(inTrack, true, _segments);
 
         // estimateAll(_segments);

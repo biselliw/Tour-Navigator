@@ -47,7 +47,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.adapter.TableAdapter;
-import de.biselliw.tour_navigator.function.search.GenericSearchFunction;
+import de.biselliw.tour_navigator.functions.search.GenericSearchFunction;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.Field;
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;

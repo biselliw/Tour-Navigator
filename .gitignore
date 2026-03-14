@@ -1,5 +1,6 @@
 # Built application files
 *.ap_
+*.apk
 
 # Files for the Dalvik VM
 *.dex
@@ -63,4 +64,4 @@ captures/
 .externalNativeBuild
 .cxx
 /app/src/main/res/drawable/
-/app/src/main/assets/overpass_api_around.txt
+/app/src/main/assets/*.txt

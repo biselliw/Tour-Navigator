@@ -26,29 +26,26 @@ import android.content.res.Resources;
 import de.biselliw.tour_navigator.App;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.adapter.RecordAdapter;
-import de.biselliw.tour_navigator.function.search.GetOpenStreetMapFunction;
-import de.biselliw.tour_navigator.function.search.GetWaypointsFunction;
+import de.biselliw.tour_navigator.functions.search.GetOpenStreetMapFunction;
+import de.biselliw.tour_navigator.functions.search.GetWaypointsFunction;
 import de.biselliw.tour_navigator.helpers.Log;
 import de.biselliw.tour_navigator.tim_prune.data.DataPoint;
 import de.biselliw.tour_navigator.tim_prune.data.SourceInfo;
-import de.biselliw.tour_navigator.function.search.GetWikipediaFunction;
+import de.biselliw.tour_navigator.functions.search.GetWikipediaFunction;
 import tim.prune.data.Distance;
 
 public class TourDetails {
 
-    public static TourDetails details = null;
     // FIXME potential memory leak
-    App app;
-    RecordAdapter recordAdapter;
-    // FIXME potential memory leak
-    private final Resources res;
+    private final App _app;
+    private final RecordAdapter _recordAdapter;
+    private final Resources _res;
 
     public TourDetails(Context inContext, App app, RecordAdapter recordAdapter)
     {
-        details = this;
-        this.res = inContext.getResources();
-        this.app = app;
-        this.recordAdapter = recordAdapter;
+        this._res = inContext.getResources();
+        this._app = app;
+        this._recordAdapter = recordAdapter;
     }
 
     /**
@@ -71,8 +68,8 @@ public class TourDetails {
     }
 
     public int getWptCount () {
-        if (recordAdapter != null)
-            return recordAdapter.getCount();
+        if (_recordAdapter != null)
+            return _recordAdapter.getCount();
         else
             return 0;
     }
@@ -84,20 +81,20 @@ public class TourDetails {
      */
     public String interpretWaypointSymbol(String symbol)
     {
-        if (res != null) {
+        if (_res != null) {
             switch (symbol) {
                 /* outdooractive types */
                 case "waypointDirRightComb":
-                    symbol = res.getString(R.string.waypointDirRightComb);
+                    symbol = _res.getString(R.string.waypointDirRightComb);
                     break;
                 case "waypointDirLeftComb":
-                    symbol = res.getString(R.string.waypointDirLeftComb);
+                    symbol = _res.getString(R.string.waypointDirLeftComb);
                     break;
                 case "waypointUpComb":
-                    symbol = res.getString(R.string.waypointUpComb);
+                    symbol = _res.getString(R.string.waypointUpComb);
                     break;
                 case "waypointFlagComb":
-                    symbol = res.getString(R.string.waypointFlagComb);
+                    symbol = _res.getString(R.string.waypointFlagComb);
                     break;
             }
         }
@@ -112,8 +109,8 @@ public class TourDetails {
     private String interpretWaypointType(String type)
     {
         if (type.equals(GetWikipediaFunction.WAYPOINT_TYPE)) {
-            if (res != null)
-                return res.getString(R.string.wpt_wikipedia);
+            if (_res != null)
+                return _res.getString(R.string.wpt_wikipedia);
         }
         else if (type.startsWith(GetWaypointsFunction.WAYPOINT_TYPE))
             return GetWaypointsFunction.interpretWaypointType(type);
@@ -133,7 +130,6 @@ public class TourDetails {
         info.comment = "";
         info.title = "";
         info.description = "";
-// todo        info.trackDescription = "";
         info.link = "";
         SourceInfo sourceInfo = App.getSourceInfo();
         if (sourceInfo != null) {
@@ -170,8 +166,8 @@ public class TourDetails {
         /* place given? */
         if (inPlace >= 0) {
             /* provide place info */
-            if (inPlace < recordAdapter.getCount()) {
-                RecordAdapter.Record record = recordAdapter.getItem(inPlace);
+            if (inPlace < _recordAdapter.getCount()) {
+                RecordAdapter.Record record = _recordAdapter.getItem(inPlace);
                 if (record == null) return null;
                 DataPoint point = record.trackPoint;
                 if (point == null) return null;
@@ -184,7 +180,7 @@ public class TourDetails {
 
                 if (info.description.isEmpty()) {
                     if (point.getLinkIndex() >= 0) {
-                        DataPoint linkedPoint = app.getPoint(point.getLinkIndex());
+                        DataPoint linkedPoint = _app.getPoint(point.getLinkIndex());
                         if (linkedPoint != null) {
                             info.type = linkedPoint.getWaypointType();
                             if (linkedPoint.isProtectedWayPoint()) {
@@ -195,7 +191,7 @@ public class TourDetails {
                                 double distance_km = Distance.convertRadiansToDistance(radians);
                                 // add distance to type
                                 if (distance_km > 0.1)
-                                    info.type += " (" + (int)(distance_km * 1000.0) + " m " + res.getString(R.string.distance_from_track) +")";
+                                    info.type += " (" + (int)(distance_km * 1000.0) + " m " + _res.getString(R.string.distance_from_track) +")";
                             }
                             info.description = linkedPoint.getDescription();
                             info.link = linkedPoint.getWebLink();
@@ -232,15 +228,15 @@ public class TourDetails {
      * @return the DataPoint for a selected row
      */
     public DataPoint getDataPoint(int inPlace) {
-        if (recordAdapter == null) return null;
-        RecordAdapter.Record record = recordAdapter.getItem(inPlace);
+        if (_recordAdapter == null) return null;
+        RecordAdapter.Record record = _recordAdapter.getItem(inPlace);
         if (record == null) return null;
         return record.trackPoint;
     }
 
     public String getPlannedArriveTime(int inPlace) {
-        if (recordAdapter == null) return "";
-        return recordAdapter.getPlannedArriveTime(inPlace);
+        if (_recordAdapter == null) return "";
+        return _recordAdapter.getPlannedArriveTime(inPlace);
     }
 
 
@@ -249,7 +245,6 @@ public class TourDetails {
         public String title = "";
         public String comment = "";
         public String description = "";
-// todo        public String trackDescription = "";
         public String type;
         public String author = "";
         public String symbol;

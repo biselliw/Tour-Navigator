@@ -6,9 +6,7 @@ import de.biselliw.tour_navigator.helpers.Log;
 
 
 public class Resources {
-    public static AppCompatActivity activity;
-    // FIXME potential memory leak
-    public static android.content.res.Resources resources = null; // todo make resources non static
+    public static android.content.res.Resources resources = null;
 
     public static String resStrCreator = "";
     public static String resStrSetToDefault;
@@ -21,15 +19,4 @@ public class Resources {
     public static java.lang.String getString(int id) throws android.content.res.Resources.NotFoundException {
         return Resources.resources.getString(id);
     }
-
-    public static int get_Color(int resID) {
-        int color = 0xAA000000;
-        try {
-            color = activity.getColor(resID);
-        } catch (Exception e) {
-            Log.e("Resources", "color resource not found: " + resID);
-        }
-        return color;
-    }
-
 }

@@ -56,14 +56,15 @@
     <string name="wait_gps">Warten auf GPS Position</string>
     <string name="dest_reached">Du bist am Ziel angekommen</string>
     <string name="dest_failed">Du hast das Ziel verfehlt!</string>
+    <string name="pausing">"PAUSE: Weiter in "</string>
 
     <!-- ###Menu Items###-->
-    <string name="pausing">"PAUSE: Weiter in "</string>
     <string name="pause_time">Pausenzeit</string>
     <string name="comment_waypoint">Wegpunkt kommentieren</string>
     <string name="find_nearby_wikipedia">Wikipedia-Artikel in der Nähe</string>
     <string name="find_nearby_osm">OpenStreetMap POIs in der Nähe</string>
     <string name="nav_waypoint">Zum Wegpunkt navigieren</string>
+    <string name="nav_public_transport">Haltestellen in der Nähe</string>
     <string name="nav_google">Google-Navigation</string>
     <string name="action_set_new_start">Starte von hier</string>
     <string name="delete_waypoint">Wegpunkt entfernen</string>
@@ -82,7 +83,7 @@
     <string name="title_repositoy">Quelle</string>
     <string name="source_repositoy">Der Quellcode dieser App ist unter GitHub verfügbar: \nhttps://github.com/biselliw/tour_navigator/</string>
     <string name="title_add_licenses">Genutzte Lizenzen</string>
-    <string name="used_licenses">Diese App nutzt lizensierte Inhalte folgender Entwickler:</string>
+    <string name="used_licenses">Diese App nutzt lizenzierte Inhalte folgender Entwickler:</string>
 
     <!-- ### SETTINGS ### -->
     <string name="title_activity_settings">Einstellungen</string>
@@ -98,7 +99,30 @@
     <string name="pref_header_consent_parameters">Zustimmungen</string>
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>
-    <string name="consent_internet">Zugang u.a. zu Wikipedia-Artikeln und OpenStreetMap POIs</string>
+    <string name="consent_internet">Zugang zu Internet-Diensten</string>
+    <string name="consent_open_street_maps">Zugang zu OpenStreetMaps POIs</string>
+    <string name="consent_open_street_maps_policy">Nur mit Ihrer Zustimmung können Sie auf die vom Kartendienst OpenStreetMaps zur Verfügung gestellten Daten über Datenbankabfragen zugreifen.
+        \nDie verwendeten APIs dienen ausschließlich Lesezugriffen. Sie sind Teil des OpenStreetMap-Ökosystems, jedoch nicht so zentral wie die in
+        der Datenschutzrichtlinie von OpenStreetMap beschriebene Haupt-Bearbeitungs-API, die für die Aktivitäten der OpenStreetMap Foundation (OSMF) gilt:
+        \n<a href="https://osmfoundation.org/wiki/Privacy_Policy">https://osmfoundation.org/wiki/Privacy_Policy</a>.
+        \nFür diese gelten eigene Einschränkungen und Richtlinien. Für die hier verwendeten APIs selbst gibt es keine eigene Datenschutzrichtlinie.
+        \n\n<b>Overpass API</b>
+        \nPrimär erfolgt die Datenbankabfrage mit der Overpass API: <a href="https://overpass-api.de">https://overpass-api.de</a>.
+        \n\n<b>GeoNames geographical database</b>
+        \nSollte die Overpass API nicht verfügbar sein, werden OpenStreetMap-Daten in geringem Umfang über die alternative GeoNames geographical database abgefragt:
+        \n<a href="www.geonames.org\">www.geonames.org</a>.
+    </string>
+    <string name="consent_wikipedia">Zugriff auf Wikipedia-Artikel</string>
+    <string name="consent_wikipedia_policy">Nur mit Ihrer Zustimmung können Sie auf die von Wikipedia zur Verfügung gestellten Daten über Datenbankabfragen zugreifen.
+        \nDie App Tour Navigator verwendet die <b>GeoNames geographical database</b>:
+        \n<a href="www.geonames.org\">www.geonames.org</a>.
+        \nFür diese API gibt es keine eigene Datenschutzrichtlinie. Darüber hinaus gilt jedoch die Datenschutzrichtlinie der Wikimedia Foundation:
+        \n<a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy">https://foundation.wikimedia.org/wiki/Policy:Privacy_policy</a>.</string>
+    <string name="consent_vmv">Zugriff auf Bus- und Bahnhaltestellen</string>
+    <string name="consent_vmv_policy">Tour Navigator nutzt den Fahrtenplaner der <b>VMV - Verkehrsgesellschaft Mecklenburg-Vorpommern mbH</b>, um auf Haltestellen des öffentlichen Nahverkehrs zuzugreifen und eine Fahrt zu planen:
+    \n<a href="https://www.vmv-mbh.de/en">www.vmv-mbh.de/en</a>.
+    \n\nAkzeptieren Sie die Datenschutzbestimmungen der Verkehrsgesellschaft Mecklenburg-Vorpommern mbH:
+    \n<a href="https://www.vmv-mbh.de/de/datenschutz/">https://www.vmv-mbh.de/de/datenschutz/</a>.</string>
     <string name="consent_google_maps_policy">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
         Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
         Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
@@ -127,19 +151,24 @@
         markiert sind.
     </string>
 
+    <string name="okay">OK</string>
     <string name="next">Weiter</string>
     <string name="skip">Überspringen</string>
-    <string name="okay">OK</string>
     <string name="viewhelp">Hilfe</string>
 
     <!-- ### MAIN ###-->
     <string name="distance">Distanz"</string>
     <string name="DTD">zum Ziel"</string>
 
-    <!-- ### TOUR ###-->
+    <!-- ### GPX File ###-->
+    <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
+    <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
+    <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
     <string name="gpx_error_no_waypoints">Die GPX-Datei enthält keine Wegpunkte!</string>
     <string name="gpx_error_no_altitudes">Die GPX-Datei enthält keine Höhenwerte</string>
     <string name="gpx_info_simulation">Die GPX-Datei wird zur GPS-Simulation genutzt</string>
+
+    <!-- ### TOUR ###-->
     <string name="tour_add_info">Weitere Informationen zur Tour</string>
     <string name="tour_author">Autor der Tour</string>
     <string name="tour_link">Link zur Tour</string>
@@ -172,6 +201,8 @@
 
     <string name="wpt_wikipedia">Wikipedia-Artikel</string>
 
+    <string name="profile">"Höhenprofil"</string>
+
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"rechts abbiegen"</string>
     <string name="waypointDirLeftComb">"links abbiegen"</string>
@@ -180,32 +211,34 @@
 
     <!-- Open Street Map waypoints -->
     <string name="archaeological_site">Historische Stätte</string>
-    <string name="restaurant">Restaurant</string>
+    <string name="artwork">Kunstwerk</string>
     <string name="bbq">Grillplatz</string>
     <string name="bench">Parkbank</string>
-    <string name="lounger">Liege</string>
-    <string name="guidepost">Wegweiser</string>
+    <string name="board">Infotafel</string>
     <string name="bus_stop">Bushaltestelle</string>
-    <string name="stop">Haltestelle</string>
-    <string name="station">Station</string>
-    <string name="turning_circle">Wendeplatz</string>
-    <string name="map">"Karte"</string>
     <string name="cafe">"Café"</string>
     <string name="drinking_water">Trinkwasser</string>
-    <string name="toilets">"Toiletten"</string>
-    <string name="place_of_worship">Andachtsstätte</string>
-    <string name="shelter">Schutzhütte</string>
-    <string name="office">Büro</string>
-    <string name="board">Infotafel</string>
+    <string name="guidepost">Wegweiser</string>
     <string name="ice_cream">Eisdiele</string>
-    <string name="viewpoint">Aussichtspunkt</string>
+    <string name="lounger">Liege</string>
+    <string name="map">"Karte"</string>
     <string name="museum">Museum</string>
+    <string name="office">Büro</string>
+    <string name="place_of_worship">Andachtsstätte</string>
+    <string name="restaurant">Restaurant</string>
     <string name="rock">Fels</string>
+    <string name="ruins">Ruine</string>
+    <string name="shelter">Schutzhütte</string>
+    <string name="station">Station</string>
+    <string name="stop">Haltestelle</string>
+    <string name="supermarket">supermarket</string>
+    <string name="toilets">"Toiletten"</string>
+    <string name="tower">tower</string>
+    <string name="turning_circle">Wendeplatz</string>
+    <string name="viewpoint">Aussichtspunkt</string>
+    <string name="water_well">Brunnen</string>
+    <string name="wayside_cross">Brunnen</string>
 
-    <string name="profile">"Höhenprofil"</string>
-    <string name="error_invalid_gpx_file">Dies ist keine gültige GPX-Datei</string>
-    <string name="gpx_error_no_points">Die GPX-Datei enthält keine Punkte</string>
-    <string name="gpx_error_no_trackpoints">Die GPX-Datei enthält keine Trackpunkte</string>
 
     <!-- ### Search Results ###-->
     <string name="server_not_found">Der Server ist gerade nicht erreichbar oder kann die Anfrage nicht bearbeiten!</string>
@@ -234,6 +267,7 @@
     <string name="osm_data_cache_error">OpenStreetMap Daten konnten nicht vom App cache geladen werden!</string>
     <string name="osm_data_from_cache">OpenStreetMap Daten vom App cache</string>
 
+    <!-- ### OpenStreetMap Nearby POIs ###-->
     <string name="osm_nearby_pois_title">OpenStreetMap POIs in der Nähe</string>
     <string name="osm_pois_none_found">Keine weiteren OpenStreetMap POIs in der Nähe gefunden!</string>
     <string name="osm_poi_show">POI zeigen</string>
