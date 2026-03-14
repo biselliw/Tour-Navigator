@@ -78,6 +78,7 @@ import de.biselliw.tour_navigator.tim_prune.load.xml.XmlFileLoader;
 import de.biselliw.tour_navigator.tim_prune.save.GpxExporter;
 
 import static android.os.Environment.DIRECTORY_DOWNLOADS;
+import static de.biselliw.tour_navigator.functions.PublicStopsHandler.getUriPublicStops;
 import static de.biselliw.tour_navigator.helpers.Prefs.defineHikingParameters;
 import static de.biselliw.tour_navigator.tim_prune.data.DataPoint.INVALID_INDEX;
 
@@ -442,6 +443,9 @@ public class MainActivity extends LocationActivity  implements
         else if (id == R.id.itm_nav_waypoint)
             /* Navigate to the waypoint */
             navigateToRoutePoint();
+        else if (id == R.id.itm_nav_public_transport)
+            /* Find nearby public traffic stops */
+            navigateToPublicStops();
         else if (id == R.id.itm_nav_swv_tourenportal)
             /* Navigate to Schwarzwaldverein Tourenportal */
             navigateToSwvTourenportal();
@@ -786,9 +790,26 @@ public class MainActivity extends LocationActivity  implements
                         point = App.getTrack().getPoint(point.getLinkIndex());
                 if (point != null) {
                     String queryParameter = "geo:" + formatLatitude(point) + "," + formatLongitude(point);
-                    /* Navigate e.g. with DB Navigator */
                     Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                             Uri.parse(queryParameter));
+                    startActivity(intent);
+                }
+            }
+        }
+    }
+
+    /**
+     * Find nearby public traffic stops
+     */
+    private void navigateToPublicStops() {
+        if (recordAdapter != null && recordAdapter.getCount() > 0) {
+            /* Get destination coordinates */
+            RecordAdapter.Record record = recordAdapter.getItem(recordAdapter.getPlace());
+            if (record != null) {
+                DataPoint point = record.trackPoint;
+                if (point != null) {
+                    Uri uri = Uri.parse(getUriPublicStops(point.getLatitude().getDouble(), point.getLongitude().getDouble()));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
                 }
             }

@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -230,12 +231,16 @@ public class ControlElements extends BaseActivity {
                         item.setEnabled(!_isViewExpanded && recordAdapter != null && (_place > 0) && (_place < recordAdapter.getCount()-1));
             else if (id == R.id.itm_nav_waypoint)
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
+            else if (id == R.id.itm_nav_public_transport) {
+                item.setEnabled(!_isViewExpanded && (_place >= 0));
+                item.setVisible(Prefs.getConsentVMV());
+            }
             else if (id == R.id.itm_nav_google) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
                         item.setVisible(Prefs.getConsentGoogleMaps());
             } else if ( id == R.id.itm_find_nearby_osm) {
                         item.setEnabled(!_isViewExpanded && (_place >= 0));
-                        item.setVisible(Prefs.getConsentInternet());
+                        item.setVisible(Prefs.getConsentOpenStreetMaps());
             } else if (id == R.id.itm_nav_swv_tourenportal) {
                 item.setEnabled(!_isViewExpanded && (_place >= 0));
                 item.setVisible(Prefs.getConsentSwvTourenportal());
@@ -279,14 +284,14 @@ public class ControlElements extends BaseActivity {
                         mitem = subMenu.findItem(R.id.nav_osm_guideposts);
                         if (mitem != null)
                             mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
-                                    (Prefs.getConsentInternet() || isGpxFileGuidePostsCached()));
+                                    (Prefs.getConsentOpenStreetMaps() || isGpxFileGuidePostsCached()));
                         mitem = subMenu.findItem(R.id.nav_osm_pois);
                         if (mitem != null)
                             mitem.setVisible(!_initUserInterface && App.getTrack().hasAltitudes() &&
-                                    (Prefs.getConsentInternet() || isGpxFilePOIsCached()));
+                                    (Prefs.getConsentOpenStreetMaps() || isGpxFilePOIsCached()));
                         mitem = subMenu.findItem(R.id.nav_wikipedia);
                         if (mitem != null)
-                            mitem.setVisible(!_initUserInterface && (Prefs.getConsentInternet()));
+                            mitem.setVisible(!_initUserInterface && (Prefs.getConsentWikipedia()));
                     }
                 }
             }
@@ -582,9 +587,7 @@ public class ControlElements extends BaseActivity {
     private void onShowAdditionalInfo(TourDetails.AdditionalInfo inAdditionalInfo, boolean inViewExpanded) {
         _updateExpandView = false;
 
-        if ((inAdditionalInfo != null)
-                // && (!Log.isWritingEnabled() || !isErrorMessage())
-         ){
+        if (inAdditionalInfo != null){
             if (!isErrorMessage())
                 setTitleText(inAdditionalInfo.title,R.color.md_theme_surface);
 
@@ -593,12 +596,16 @@ public class ControlElements extends BaseActivity {
 
             if (inViewExpanded) {
                 TextView descriptionView = findViewById(R.id.description_view);
+                descriptionView.setText("");
+                descriptionView.setAutoLinkMask(Prefs.getConsentInternet() ? Linkify.WEB_URLS : 0);
                 String html = inAdditionalInfo.description;
                 Spanned fromHTML = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
                 descriptionView.setText(fromHTML);
                 descriptionView.scrollTo(0, 0);
 
                 TextView linkView = findViewById(R.id.link_view);
+                linkView.setText("");
+                linkView.setAutoLinkMask(Prefs.getConsentInternet() ? Linkify.WEB_URLS : 0);
                 String link = inAdditionalInfo.link;
                 String swvLink = HTML_File.getSwvLink(link);
                 if (!swvLink.isEmpty())
@@ -617,21 +624,6 @@ public class ControlElements extends BaseActivity {
             ((LocationActivity)this).requestStatusUpdate();
     }
 
-    /**
-     * Show the distance to the next point and its waypoint type
-     * @ param inDistanceToPlace formatted distance
-     * @ param inAdditionalInfo additional information containing the waypoint type
-     * /
-    private void onShowWaypointType(String inDistanceToPlace, TourDetails.AdditionalInfo inAdditionalInfo) {
-        _updateWaypointType = false;
-        String comment = inDistanceToPlace;
-        if (inAdditionalInfo != null)
-            comment = comment + inAdditionalInfo.comment;
-
-        TextView commentView = findViewById(R.id.comment_view);
-        commentView.setText(comment);
-    }
-*/
     private int getViewWidth(int id) {
         TextView view = findViewById(id);
         return view.getWidth();

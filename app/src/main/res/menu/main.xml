@@ -26,6 +26,11 @@
             android:title="@string/nav_waypoint"
             app:showAsAction="never" />
         <item
+            android:id="@+id/itm_nav_public_transport"
+            android:orderInCategory="2"
+            android:title="@string/nav_public_transport"
+            app:showAsAction="never" />
+        <item
             android:id="@+id/itm_nav_swv_tourenportal"
             android:orderInCategory="2"
             android:title="@string/nav_swv_tourenportal"

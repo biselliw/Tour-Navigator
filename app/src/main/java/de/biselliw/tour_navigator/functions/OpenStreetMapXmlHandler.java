@@ -28,6 +28,9 @@ import java.util.Arrays;
 
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
 
+import static de.biselliw.tour_navigator.functions.PublicStopsHandler.getUriPublicStops;
+import static de.biselliw.tour_navigator.functions.PublicStopsHandler.wgs84ToMRCV;
+
 /**
  * XML handler for dealing with XML returned from the OSM Overpass api,
  * specially for the OSM Poi service
@@ -235,7 +238,7 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
         }
     }
 
-	/**
+    /**
 	 * @param inAttributes attributes to process
 	 */
 	protected void processTag(Attributes inAttributes) {
@@ -251,11 +254,24 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                     if (key.equals("ref:IFOPT") || key.equals("ref:ibnr")) {
                         if (!_currPoint.getTrackName().isEmpty()) {
                             _useCurrPoint = true;
-                            _currPoint.setPointType("Haltestelle");
                             if (key.equals("ref:ibnr")) {
+                                _currPoint.setPointType("station");
                                 value = value + "<ul><li>Bahnhofsinfos: https://www.bahnhof.de/bahnhof-de/id/" + value +
                                         "</li><li>Verbindungsanfrage: https://www.bahn.de/buchung/start?zo=" + value + "</li></ul>";
                             }
+                            else {
+                                _currPoint.setPointType("stop");
+                                value = value + "<ul><li>Fahrplanauskunft: https://www.fahrplanauskunft-mv.de/vmvsl3plus/departureMonitor?formik=origin%3D" + value +
+                                        "</li><li>Verbindungsanfrage: https://www.bahn.de/buchung/start?zo=" + _currPoint.getTrackName().replace(" ","%20") + "</li></ul>";
+                            }
+                        }
+                    }
+                    else if (key.equals("highway") && value.equals("bus_stop")) {
+                        _currPoint.setPointType("stop");
+
+                        if (_currPoint.hasCoordinates()) {
+                            String uri = getUriPublicStops(Double.parseDouble(_currPoint.getLatitude()), Double.parseDouble(_currPoint.getLongitude()));
+                            value = value + "<ul><li>Fahrplanauskunft: " + uri + "</li></ul>";
                         }
                     }
                     else {

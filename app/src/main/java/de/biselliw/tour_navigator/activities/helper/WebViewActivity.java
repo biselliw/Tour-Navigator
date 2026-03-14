@@ -30,6 +30,7 @@ import androidx.core.content.ContextCompat;
 import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.helpers.Log;
+import de.biselliw.tour_navigator.helpers.Prefs;
 
 /**
  * Show HTML contents in a WebView
@@ -100,10 +101,6 @@ public class WebViewActivity extends BaseActivity {
         if (_webView != null) {
             WebSettings settings = _webView.getSettings();
             settings.setJavaScriptEnabled(true);
-/*
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-                settings.setForceDark(WebSettings.FORCE_DARK_ON);
- */
             // load HTML file into WebView
             if (isURL)
                 _webView.loadUrl(contents);

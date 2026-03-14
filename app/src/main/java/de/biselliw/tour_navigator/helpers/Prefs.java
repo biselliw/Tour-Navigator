@@ -51,13 +51,26 @@ public class Prefs {
      * Preferences for use of Internet
      */
     public static final String PREF_CONSENT_INTERNET = "pref_consent_internet";
-    private static boolean _consentInternet = false;
+
+    /**
+     * Preference for use of OpenStreetMaps
+     */
+    public static final String PREF_CONSENT_OSM = "pref_consent_osm";
+
+    /**
+     * Preference for use of Wikipedia
+     */
+    public static final String PREF_CONSENT_WIKIPEDIA = "pref_consent_wikipedia";
+
+    /**
+     * Preferences for use of VMV public transport
+     */
+    public static final String PREF_CONSENT_VMV = "pref_consent_vmv";
 
     /**
      * Preference for use of Google Maps
      */
     public static final String PREF_CONSENT_GOOGLE_MAPS = "pref_consent_google_maps";
-
     /**
      * Preference for use of Schwarzwaldverein Tourenportal (German only)
      */
@@ -93,7 +106,10 @@ public class Prefs {
     {
         if (inPref != null) {
             _isFirstTimeLaunch = inPref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
-            _consentInternet = inPref.getBoolean(PREF_CONSENT_INTERNET, false);
+            SettingsActivity.consentInternet(inPref.getBoolean(PREF_CONSENT_INTERNET, false));
+            SettingsActivity.consentOpenStreetMaps(inPref.getBoolean(PREF_CONSENT_OSM, false));
+            SettingsActivity.consentWikipedia(inPref.getBoolean(PREF_CONSENT_WIKIPEDIA, false));
+            SettingsActivity.consentVMV(inPref.getBoolean(PREF_CONSENT_VMV, false));
             SettingsActivity.consentGoogleMaps(inPref.getBoolean(PREF_CONSENT_GOOGLE_MAPS, false));
             SettingsActivity.consentSwvTourenportal(inPref.getBoolean(PREF_CONSENT_SWV, false));
             setAlarmPreference(inPref.getBoolean(PREF_HIKING_PAR_ALARM, false));
@@ -222,7 +238,28 @@ public class Prefs {
      * Preferences for use of Internet
      */
     public static boolean getConsentInternet() {
-        return _consentInternet;
+        return SettingsActivity.getConsentInternet();
+    }
+
+    /**
+     * Preferences for use of OpenStreetMaps
+     */
+    public static boolean getConsentOpenStreetMaps() {
+        return SettingsActivity.getConsentOpenStreetMaps();
+    }
+
+    /**
+     * Preferences for use of Wikipedia
+     */
+    public static boolean getConsentWikipedia() {
+        return SettingsActivity.getConsentWikipedia();
+    }
+
+    /**
+     * Preferences for use of VMV public transport
+     */
+    public static boolean getConsentVMV() {
+        return SettingsActivity.getConsentVMV();
     }
 
     /**

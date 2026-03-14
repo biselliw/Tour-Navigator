@@ -97,15 +97,16 @@ public class GetOpenStreetMapFunction extends GenericSearchFunction {
     public boolean findPOIs = false;
 
     /** Translation table fpr OSM POIs */
-    static String[] symbols =   { "archaeological_site", "restaurant",       "bbq",        "bench", "lounger", "guidepost",
-            "bus_stop", "stop", "station", "turning_circle",
-            "map", "cafe", "drinking_water", "toilets", "place_of_worship", "shelter", "office",
-            "board", "ice_cream", "viewpoint", "museum", "rock"};
-    static int[] ids = {R.string.archaeological_site,
-            R.string.restaurant, R.string.bbq, R.string.bench,R.string.lounger, R.string.guidepost,
-            R.string.bus_stop, R.string.stop, R.string.station, R.string.turning_circle,
-            R.string.map, R.string.cafe, R.string.drinking_water, R.string.toilets, R.string.place_of_worship,
-            R.string.shelter, R.string.office, R.string.board, R.string.ice_cream, R.string.viewpoint, R.string.museum, R.string.rock};
+    static String[] symbols = {
+            "archaeological_site", "artwork", "bbq", "bench", "board", "bus_stop", "cafe", "drinking_water",
+            "guidepost", "ice_cream", "lounger", "map", "museum", "office", "place_of_worship",
+            "restaurant", "rock", "ruins", "shelter", "station", "stop", "supermarket", "toilets", "tower", "turning_circle",
+            "viewpoint", "water_well", "wayside_cross"};
+    static int[] ids = {
+            R.string.archaeological_site, R.string.artwork, R.string.bbq, R.string.bench, R.string.board, R.string.bus_stop, R.string.cafe, R.string.drinking_water,
+            R.string.guidepost, R.string.ice_cream, R.string.lounger, R.string.map, R.string.museum, R.string.office, R.string.place_of_worship,
+            R.string.restaurant, R.string.rock, R.string.ruins, R.string.shelter, R.string.station, R.string.stop, R.string.supermarket, R.string.toilets, R.string.tower, R.string.turning_circle,
+            R.string.viewpoint, R.string.water_well, R.string.wayside_cross};
 
     /**
      * Constructor
