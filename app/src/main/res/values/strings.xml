@@ -74,6 +74,7 @@
     <string name="find_nearby_wikipedia">Find nearby Wikipedia</string>
     <string name="find_nearby_osm">Find nearby OSM POIs</string>
     <string name="nav_waypoint">Navigate to waypoint</string>
+    <string name="nav_public_transport">Nearby public traffic stops</string>
     <string name="nav_swv_tourenportal" translatable="false">Zum Schwarzwaldverein Tourenportal</string>
     <string name="nav_google">Google-Navigate</string>
     <string name="action_set_new_start">Start from here</string>
@@ -160,7 +161,23 @@
     <string name="pref_header_consent_parameters">Consents</string>
     <string name="consent">Consent</string>
     <string name="decline">Decline</string>
-    <string name="consent_internet">Access to Wikipedia articles and OSM POIs</string>
+    <string name="consent_internet">Access to Internet services</string>
+    <string name="consent_open_street_maps">Access OpenStreetMaps POIs</string>
+    <string name="consent_open_street_maps_policy">Tour Navigator uses the <a href="https://overpass-api.de">Overpass API</a> to access OpenStreetMaps data.\n
+        Accept the data policy of OpenStreetMaps: <a href="https://osmfoundation.org/wiki/Privacy_Policy">https://osmfoundation.org/wiki/Privacy_Policy</a>.</string>
+    <string name="consent_wikipedia">Access Wikipedia articles</string>
+    <string name="consent_wikipedia_policy">You can only access the data provided by Wikipedia via database queries with your consent.
+    \nThe Tour Navigator app uses the <b>GeoNames geographical database</b>:
+    \n<a href="www.geonames.org\">www.geonames.org</a>.
+    \nThe APIs does not have its own privacy policy.
+        \nHowever, the Wikimedia Foundations privacy policy also applies
+    \n<a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy">https://foundation.wikimedia.org/wiki/Policy:Privacy_policy</a>.
+        </string>
+    <string name="consent_vmv">Access public transport stops</string>
+    <string name="consent_vmv_policy">Tour Navigator uses the Journey Planner of <b>VMV - Verkehrsgesellschaft Mecklenburg-Vorpommern mbH</b> to access public transport stops and plan a journey:
+    \n<a href="https://www.vmv-mbh.de/en">www.vmv-mbh.de/en</a>.
+    \n\nAccept the data protection policy of Verkehrsgesellschaft Mecklenburg-Vorpommern mbH:
+    \n<a href="https://www.vmv-mbh.de/en/datenschutz/">https://www.vmv-mbh.de/en/datenschutz/</a>.</string>
     <string name="consent_swv_tourenportal" translatable="false">Zugang zum Schwarzwaldverein Tourenportal</string>
     <string name="consent_swv_tourenportal_policy" translatable="false">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten des ausgewählten Wegpunktes an das externe Schwarzwaldverein Tourenportal.
         Dies erfolgt ausschliesslich durch das Anklicken der aktuell gesperrten Funktion <i>zum Schwarzwaldverein Tourenportal</i> navigieren.
@@ -195,9 +212,9 @@
     <string name="slide4_text">...</string>
 
     <string name="okay">Okay</string>
-    <string name="viewhelp">View Help</string>
     <string name="next">Next</string>
     <string name="skip">Skip</string>
+    <string name="viewhelp">View Help</string>
 
     <!-- ### MAIN ###-->
     <string name="distance">Distance"</string>
@@ -244,6 +261,8 @@
 
     <string name="wpt_wikipedia">Wikipedia article</string>
 
+    <string name="profile">"Profile"</string>
+
     <!-- Outdooractive waypoints -->
     <string name="waypointDirRightComb">"turn right"</string>
     <string name="waypointDirLeftComb">"turn left"</string>
@@ -253,28 +272,34 @@
     <!-- Open Street Map waypoints -->
 
     <string name="archaeological_site">archaeological site</string>
-    <string name="restaurant">restaurant</string>
+    <string name="artwork">artwork</string>
     <string name="bbq">bbq</string>
     <string name="bench">bench</string>
-    <string name="lounger">lounger</string>
-    <string name="guidepost">guidepost</string>
+    <string name="board">board</string>
     <string name="bus_stop">bus stop</string>
-    <string name="stop">stop</string>
-    <string name="station">station</string>
-    <string name="turning_circle">turning_circle</string>
-    <string name="profile">"Profile"</string>
-    <string name="map">"map"</string>
     <string name="cafe">"Cafe"</string>
     <string name="drinking_water">drinking water</string>
-    <string name="toilets">"toilets"</string>
-    <string name="place_of_worship">place of worship</string>
-    <string name="shelter">shelter</string>
-    <string name="office">office</string>
-    <string name="board">board</string>
+    <string name="guidepost">guidepost</string>
     <string name="ice_cream">ice_cream</string>
-    <string name="viewpoint">viewpoint</string>
+    <string name="lounger">lounger</string>
+    <string name="map">"map"</string>
     <string name="museum">museum</string>
+    <string name="office">office</string>
+    <string name="place_of_worship">place of worship</string>
+    <string name="restaurant">restaurant</string>
     <string name="rock">rock</string>
+    <string name="ruins">ruins</string>
+    <string name="shelter">shelter</string>
+    <string name="station">station</string>
+    <string name="stop">stop</string>
+    <string name="supermarket">supermarket</string>
+    <string name="toilets">"toilets"</string>
+    <string name="tower">tower</string>
+    <string name="turning_circle">turning_circle</string>
+    <string name="viewpoint">viewpoint</string>
+    <string name="water_well">water well</string>
+    <string name="wayside_cross">wayside cross</string>
+
 
     <!-- ### Search Results ###-->
     <string name="server_not_found">The server is currently not reachable or cannot handle your request</string>
