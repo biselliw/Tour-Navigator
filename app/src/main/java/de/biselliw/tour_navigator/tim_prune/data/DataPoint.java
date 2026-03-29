@@ -402,7 +402,15 @@ public class DataPoint
 		setFieldValue(Field.NEW_SEGMENT, inFlag ? "1" : null, false);
 	}
 
-	/** @return latitude */
+    /**
+     * @return true if the point contains coordinates
+     */
+    public boolean hasCoordinates() {
+        return _latitude != null && _longitude != null;
+    }
+
+
+    /** @return latitude */
 	public Coordinate getLatitude() {
 		return _latitude;
 	}
@@ -624,14 +632,18 @@ public class DataPoint
 	public static double calculateRadiansBetween(DataPoint inPoint1, DataPoint inPoint2)
 	{
 		if (inPoint1 == null || inPoint2 == null) {
-			return 0.0;
+			return INVALID_VALUE;
 		}
-		// Get lat and long from points, in degrees
-		double lat1 = inPoint1.getLatitude().getDouble();
-		double lat2 = inPoint2.getLatitude().getDouble();
-		double lon1 = inPoint1.getLongitude().getDouble();
-		double lon2 = inPoint2.getLongitude().getDouble();
-		return Distance.calculateRadiansBetween(lat1, lon1, lat2, lon2);
+        if (inPoint1.hasCoordinates() && inPoint2.hasCoordinates()) {
+            // Get lat and long from points, in degrees
+            double lat1 = inPoint1.getLatitude().getDouble();
+            double lat2 = inPoint2.getLatitude().getDouble();
+            double lon1 = inPoint1.getLongitude().getDouble();
+            double lon2 = inPoint2.getLongitude().getDouble();
+            return Distance.calculateRadiansBetween(lat1, lon1, lat2, lon2);
+        }
+        else
+            return INVALID_VALUE;
 	}
 
     public double distanceTo(double inLatitude, double inLongitude) {

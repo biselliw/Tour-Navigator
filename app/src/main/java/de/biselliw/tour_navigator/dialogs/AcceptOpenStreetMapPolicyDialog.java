@@ -8,12 +8,12 @@ import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.SettingsActivity;
 
 /**
- * Dialog to accept/discard OpenStreetMaps policy
+ * Dialog to accept/discard OpenStreetMap's policy
  */
-public class AcceptOpenStreetMapsPolicyDialog extends FullScreenDialog {
+public class AcceptOpenStreetMapPolicyDialog extends FullScreenDialog {
 
-    public AcceptOpenStreetMapsPolicyDialog(AppCompatActivity activity) {
-        super(activity, R.layout.dialog_consent_open_street_maps);
+    public AcceptOpenStreetMapPolicyDialog(AppCompatActivity activity) {
+        super(activity, R.layout.dialog_consent_open_street_map);
 
         /* define OnClick events for declining / accepting the policy */
         Button buttonDecline = findViewById(R.id.bt_decline);

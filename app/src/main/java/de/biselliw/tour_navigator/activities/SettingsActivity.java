@@ -37,7 +37,7 @@ import de.biselliw.tour_navigator.BuildConfig;
 import de.biselliw.tour_navigator.R;
 import de.biselliw.tour_navigator.activities.helper.BaseActivity;
 import de.biselliw.tour_navigator.dialogs.AcceptGoogleMapsPolicyDialog;
-import de.biselliw.tour_navigator.dialogs.AcceptOpenStreetMapsPolicyDialog;
+import de.biselliw.tour_navigator.dialogs.AcceptOpenStreetMapPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.AcceptSwvTourenportalPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.AcceptVmvPolicyDialog;
 import de.biselliw.tour_navigator.dialogs.AcceptWikipediaPolicyDialog;
@@ -48,6 +48,7 @@ import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_GOOGLE_MAPS;
 import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_INTERNET;
 import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_OSM;
 import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_SWV;
+import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_VMV;
 import static de.biselliw.tour_navigator.helpers.Prefs.PREF_CONSENT_WIKIPEDIA;
 import static de.biselliw.tour_navigator.helpers.Prefs.PREF_DEBUG;
 import static de.biselliw.tour_navigator.helpers.Prefs.hikingParameters;
@@ -78,7 +79,7 @@ public class SettingsActivity extends BaseActivity {
     private static boolean _consentInternet = false;
 
     /**
-     * Preference for use of OpenStreetMaps
+     * Preference for use of OpenStreetMap
      */
     private static boolean _consentOpenStreetMaps = false;
     private static boolean _updateOsmPrefs = false;
@@ -135,6 +136,7 @@ public class SettingsActivity extends BaseActivity {
             SwitchPreferenceCompat prefInternet = findPreference(PREF_CONSENT_INTERNET);
             prefConsentOSM = findPreference(PREF_CONSENT_OSM);
             prefConsentWikipedia = findPreference(PREF_CONSENT_WIKIPEDIA);
+            prefConsentVMV = findPreference(PREF_CONSENT_VMV);
             prefConsentGoogleMaps = findPreference(PREF_CONSENT_GOOGLE_MAPS);
             prefConsentSwv = findPreference(PREF_CONSENT_SWV);
 
@@ -142,14 +144,14 @@ public class SettingsActivity extends BaseActivity {
                 return;
             boolean enableInternet = prefInternet.isChecked();
 
-            // Accept OpenStreetMaps Policy
+            // Accept OpenStreetMap Policy
             if (prefConsentOSM != null) {
                 prefConsentOSM.setVisible(enableInternet);
                 prefConsentOSM.setOnPreferenceChangeListener(
                         (preference,newValue)->{
                             boolean value = (Boolean)newValue;
                             if(value){
-                                new AcceptOpenStreetMapsPolicyDialog((AppCompatActivity) requireContext()).show();
+                                new AcceptOpenStreetMapPolicyDialog((AppCompatActivity) requireContext()).show();
                                 // refuse the new value - must be confirmed in dialog
                                 return false;
                             }
@@ -222,32 +224,23 @@ public class SettingsActivity extends BaseActivity {
                     (preference,newValue)->{
                         boolean value = (Boolean)newValue;
 
-                        if(prefConsentOSM!=null){
-                            prefConsentOSM.setVisible(value);
-                            if(!value)
-                                prefConsentOSM.setChecked(false);
-                        }
-
-                        if(prefConsentWikipedia!=null){
-                            prefConsentWikipedia.setVisible(value);
-                            if(!value)
-                                prefConsentWikipedia.setChecked(false);
-                        }
-
-                        if(prefConsentGoogleMaps!=null){
-                            prefConsentGoogleMaps.setVisible(value);
-                            if(!value)
-                                prefConsentGoogleMaps.setChecked(false);
-                        }
-
-                        if(prefConsentSwv!=null){
-                            prefConsentSwv.setVisible(value);
-                            if(!value)
-                                prefConsentSwv.setChecked(false);
-                        }
+                        unCheckPreference(prefConsentOSM, value);
+                        unCheckPreference(prefConsentWikipedia, value);
+                        unCheckPreference(prefConsentVMV,value);
+                        unCheckPreference(prefConsentGoogleMaps,value);
+                        unCheckPreference(prefConsentSwv,value);
                         return true;
                     });
         }
+
+        private void unCheckPreference(SwitchPreferenceCompat inPreference, boolean inVisible) {
+            if (inPreference != null) {
+                inPreference.setVisible(inVisible);
+                if (!inVisible)
+                    inPreference.setChecked(false);
+            }
+        }
+
 
         private void setupNumericPreference(
                 String key,
@@ -408,7 +401,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     /**
-     * Preference for use of OpenStreetMaps
+     * Preference for use of OpenStreetMap
      */
      public static boolean getConsentOpenStreetMaps() {
         return _consentOpenStreetMaps;

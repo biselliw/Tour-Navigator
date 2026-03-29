@@ -851,7 +851,8 @@ public class MainActivity extends LocationActivity  implements
             /*
                 Option 3: ignore fragment
             */
-                    Uri uri = Uri.parse("https://www.schwarzwaldverein-tourenportal.de/mobile/de/touren#zc=" + zc);
+                    Uri uri = Uri.parse("https://www.schwarzwaldverein-tourenportal.de/mobile/de/touren#zc=" + zc + "&ov=hiking");
+
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
                 }

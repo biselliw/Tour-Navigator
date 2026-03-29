@@ -217,8 +217,8 @@ public class ProfileAdapter {
         int getItemCount(int series) {
             switch (series) {
                 case SERIES_ALTITUDES:
-                    if (numPoints == 0)
-                        initPlot();
+/* todo                   if (numPoints == 0)
+                        initPlot(); */
                     return numPoints;
                 case SERIES_CURSOR:
                     return numPoints;

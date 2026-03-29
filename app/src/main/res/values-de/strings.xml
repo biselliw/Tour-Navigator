@@ -100,34 +100,133 @@
     <string name="consent">Zustimmen</string>
     <string name="decline">Ablehnen</string>
     <string name="consent_internet">Zugang zu Internet-Diensten</string>
-    <string name="consent_open_street_maps">Zugang zu OpenStreetMaps POIs</string>
-    <string name="consent_open_street_maps_policy">Nur mit Ihrer Zustimmung können Sie auf die vom Kartendienst OpenStreetMaps zur Verfügung gestellten Daten über Datenbankabfragen zugreifen.
-        \nDie verwendeten APIs dienen ausschließlich Lesezugriffen. Sie sind Teil des OpenStreetMap-Ökosystems, jedoch nicht so zentral wie die in
-        der Datenschutzrichtlinie von OpenStreetMap beschriebene Haupt-Bearbeitungs-API, die für die Aktivitäten der OpenStreetMap Foundation (OSMF) gilt:
-        \n<a href="https://osmfoundation.org/wiki/Privacy_Policy">https://osmfoundation.org/wiki/Privacy_Policy</a>.
-        \nFür diese gelten eigene Einschränkungen und Richtlinien. Für die hier verwendeten APIs selbst gibt es keine eigene Datenschutzrichtlinie.
-        \n\n<b>Overpass API</b>
-        \nPrimär erfolgt die Datenbankabfrage mit der Overpass API: <a href="https://overpass-api.de">https://overpass-api.de</a>.
-        \n\n<b>GeoNames geographical database</b>
-        \nSollte die Overpass API nicht verfügbar sein, werden OpenStreetMap-Daten in geringem Umfang über die alternative GeoNames geographical database abgefragt:
+    <string name="consent_open_street_map">Zugang zu OpenStreetMap POIs</string>
+    <string name="consent_open_street_map_policy">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten
+        des ausgewählten Wegpunktes an die externen Webservices <b>overpass-api.de</b> und <b>www.geonames.org</b>, um über diese
+        auf Inhalte der freien Weltkarte <b>OpenStreetMap</b> (OSM) zuzugreifen.
+        Dies erfolgt durch das Anklicken der aktuell gesperrten Funktionen <i>Wegpunkte hinzufügen: OpenStreetMap Wegweiser</i>,
+        <i>Wegpunkte hinzufügen: OpenStreetMap POIs</i> und <i>OpenStreetMap POIs in der Nähe</i>.
+        \nDabei wird eine Liste von georeferenzierten Points of Interest (POIs) in der Umgebung angezeigt, die in der Datenbank OpenStreetMap enthalten sind.
+        \nPrimär erfolgt die Datenbankabfrage mit der <b>Overpass API</b>: <a href="https://overpass-api.de">https://overpass-api.de</a>.
+        \nSollte die Overpass API nicht verfügbar sein, werden OpenStreetMap-Daten in geringem Umfang über die alternative <b>GeoNames geographical database</b> abgefragt:
         \n<a href="www.geonames.org\">www.geonames.org</a>.
+        \nBeim Laden der Websites https://overpass-api.de bzw. www.geonames.org werden evtl. Daten an Drittanbieter weitergegeben.
+        Um die Inhalte der Anbieter zu nutzen und die Funktionen freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.\n
+        \n<b>Provider-Informationen</b>\n
+
+        \n<b>Provider-Name: </b>Dr. Roland Olbricht
+        \n<b>Beschreibung</b>
+        \nRoland Olbricht ist der Entwickler der Overpass API
+        \n
+        \n<b>Adresse: </b>k.A.
+        \n<b>Web: </b>https://overpass-api.de
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nDie Site https://overpass-api.de verfügt über keine Datenschutzerklärung!
+        \n<b>Service</b>
+        \nDie Overpass API ist ein mächtiges Web-Interface für OpenStreetMap (OSM), das speziell für das Lesen und Filtern von Geodaten optimiert ist.
+        Im Gegensatz zur Haupt-API von OpenStreetMap, die für das Editieren einzelner Objekte gedacht ist, fungiert die Overpass API als eine Art Suchmaschine für die gesamte OSM-Datenbank.
+        \n
+
+        \n<b>Provider-Name: </b>Unxos GmbH
+        \n<b>Beschreibung</b>
+        \nDie Unxos GmbH ist eine Softwareentwicklungsfirma in St. Gallen, Schweiz.
+        \n<b>Adresse: </b>Tutilostrasse 17d, 9011 St. Gallen, Schweiz.
+        \n<b>Web: </b>https://www.unxos.com/
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nDie Site www.unxos.com verfügt über keine Datenschutzerklärung!
+        \n<b>Service</b>
+        \nDie Unxos GmbH stellt den Webservice <a href="www.geonames.org\">www.geonames.org</a> zur Verfügung,
+        über den Inhalte von OpenStreetMap (OSM) in geringem Umfang abgefufen werden können.
+        \n
+
+        \n<b>Provider-Name: </b>OpenStreetMap Foundation
+        \n<b>Beschreibung</b>
+        \nOpenStreetMap (OSM) ist ein internationales Projekt mit dem Ziel, eine freie Weltkarte zu erschaffen, die kostenlos und frei zur Verfügung steht.
+
+        \n<b>Adresse: </b>FOSSGIS e.V., Bundesallee 23, 10717 Berlin
+        \n<b>Web: </b>https://osmfoundation.org/, https://www.fossgis.de/
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nhttps://osmfoundation.org/wiki/Privacy_Policy
+        \n<b>Service</b>
+        \nDie OpenStreetMap-Foundation stellt die Daten für OpenStreetMap bereit
+        \n
+        \nMit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung der OpenStreetMap Foundation.
     </string>
     <string name="consent_wikipedia">Zugriff auf Wikipedia-Artikel</string>
-    <string name="consent_wikipedia_policy">Nur mit Ihrer Zustimmung können Sie auf die von Wikipedia zur Verfügung gestellten Daten über Datenbankabfragen zugreifen.
-        \nDie App Tour Navigator verwendet die <b>GeoNames geographical database</b>:
-        \n<a href="www.geonames.org\">www.geonames.org</a>.
-        \nFür diese API gibt es keine eigene Datenschutzrichtlinie. Darüber hinaus gilt jedoch die Datenschutzrichtlinie der Wikimedia Foundation:
-        \n<a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy">https://foundation.wikimedia.org/wiki/Policy:Privacy_policy</a>.</string>
-    <string name="consent_vmv">Zugriff auf Bus- und Bahnhaltestellen</string>
-    <string name="consent_vmv_policy">Tour Navigator nutzt den Fahrtenplaner der <b>VMV - Verkehrsgesellschaft Mecklenburg-Vorpommern mbH</b>, um auf Haltestellen des öffentlichen Nahverkehrs zuzugreifen und eine Fahrt zu planen:
-    \n<a href="https://www.vmv-mbh.de/en">www.vmv-mbh.de/en</a>.
-    \n\nAkzeptieren Sie die Datenschutzbestimmungen der Verkehrsgesellschaft Mecklenburg-Vorpommern mbH:
-    \n<a href="https://www.vmv-mbh.de/de/datenschutz/">https://www.vmv-mbh.de/de/datenschutz/</a>.</string>
-    <string name="consent_google_maps_policy">Nur mit Ihrer Zustimmung können Sie den Kartendienst Google Maps in einer separaten App nutzen. Anbieter ist die Google Ireland Limited („Google“), Gordon House, Barrow Street, Dublin 4, Irland.\n
-        Zur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.\n
-        Sofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.\n
-        Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://privacy.google.com/businesses/gdprcontrollerterms/ und https://privacy.google.com/businesses/gdprcontrollerterms/sccs/.\n
-        Mehr Informationen zum Umgang mit Nutzerdaten finden Sie in der Datenschutzerklärung von Google: https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy?hl=de.\nDas Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework“ (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll.\nJedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/s/participant-search/participant-detail?contact=true&amp;id=a2zt000000001L5AAI&amp;status=Active </string>
+    <string name="consent_wikipedia_policy">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten
+        des ausgewählten Wegpunktes an die externe freie globale geographische Datenbank <b>GeoNames</b>, um über deren
+        Webservices auf Inhalte der freien Enzyklopädie <b>Wikipedia</b> zuzugreifen.
+        Dies erfolgt durch das Anklicken der aktuell gesperrten Funktion <i>Wegpunkte hinzufügen: Wikipedia</i>.
+        \nDabei wird eine Liste von georeferenzierten Wikipedia-Artikeln in der Umgebung angezeigt, die in der Datenbank GeoNames enthalten sind.
+        In der Enzyklopädie Wikipedia selbst sind evtl. mehr Artikel verfügbar.
+        \nBeim Laden der Website www.geonames.org werden evtl. Daten an Drittanbieter weitergegeben.
+        Um die Inhalte des Anbieters zu nutzen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.\n
+        \n<b>Provider-Informationen</b>\n
+        \n<b>Provider-Name: </b>Unxos GmbH
+        \n<b>Beschreibung</b>
+        \nDie Unxos GmbH ist eine Softwareentwicklungsfirma in St. Gallen, Schweiz.
+        \n<b>Adresse: </b>Tutilostrasse 17d, 9011 St. Gallen, Schweiz.
+        \n<b>Web: </b>https://www.unxos.com/
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nDie Site www.unxos.com verfügt über keine Datenschutzerklärung!
+        \n<b>Service</b>
+        \nDie Unxos GmbH stellt den Webservice <a href="www.geonames.org\">www.geonames.org</a> zur Verfügung,
+        über den Informationen der freien Enzyklopädie <b>Wikipedia</b> abgefufen werden können.
+        \n
+        \n<b>Provider-Name: </b>Wikimedia Foundation Inc.
+        \n<b>Beschreibung</b>
+        \nDie Wikimedia Foundation, Inc. ist eine gemeinnützige Wohltätigkeitsorganisation, die sich der Förderung des Wachstums,
+        der Entwicklung und der Verbreitung freier, mehrsprachiger Inhalte sowie der kostenlosen Bereitstellung
+        des vollständigen Inhalts dieser Wiki-basierten Projekte für die Öffentlichkeit widmet.
+        \n<b>Adresse: </b>1 Sansome Street, Suite 1895, San Francisco, California 94104, USA
+        \n<b>Web: </b>https://wikimediafoundation.org
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nhttps://foundation.wikimedia.org/wiki/Policy:Privacy_policy
+        \n<b>Service</b>
+        \nDie Wikimedia Foundation betreibt u.a. die freie Enzyklopädie Wikipedia.
+        \n
+        \nMit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung der Wikimedia Foundation.
+    </string>
+    <string name="consent_vmv">Zugriff auf alle Bus- und Bahnhaltestellen</string>
+    <string name="consent_vmv_policy">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten
+        des ausgewählten Wegpunktes an den externen Fahrtenplaner der <b>Verkehrsgesellschaft Mecklenburg-Vorpommern mbH</b> (VMV),
+        um auf Bus- und Bahnhaltestellen des öffentlichen Verkehrs bundesweit zuzugreifen und eine Fahrt zu planen.
+        Dies erfolgt durch das Anklicken der aktuell gesperrten Funktion <i>Haltestellen in der Nähe</i>.
+        \nDabei wird eine Karte mit Haltestellen in der Umgebung angezeigt.
+        \nBeim Laden der Website www.fahrplanauskunft-mv.de werden keine Daten an Drittanbieter weitergegeben. Um die Inhalte des Portals anzusehen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.\n
+        \n<b>Provider-Informationen</b>\n
+        \n<b>Provider-Name: </b>VMV – Verkehrsgesellschaft Mecklenburg-Vorpommern mbH
+        \n<b>Beschreibung</b>
+        \nDie VMV ist die Landesgesellschaft für den Schienenpersonennahverkehr (SPNV) in Mecklenburg-Vorpommern. Sie ist im Besitz des Landes Mecklenburg-Vorpommern.
+        \n<b>Adresse: </b>Schloßstraße 37, 19053 Schwerin
+        \n<b>Web: </b>https://www.vmv-mbh.de/
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nhttps://www.vmv-mbh.de/datenschutz/
+        \n<b>Service</b>
+        \nDie VMV betreibt und pflegt die Fahrplanauskunft „MV FÄHRT GUT“. Darin bilden die jeweils
+        aktuellen Fahrplandaten aller im Land Mecklenburg-Vorpommern - und darüber hinaus - im ÖPNV und SPNV tätigen Verkehrsunternehmen die Basis der Auskunftserteilung.\n
+        \nMit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung der Verkehrsgesellschaft Mecklenburg-Vorpommern mbH.\n
+    </string>
+    <string name="consent_google_maps_policy">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten
+        des ausgewählten Wegpunktes an den Kartendienst <b>Google Maps</b> in einer separaten App.
+
+        \nZur Nutzung der Funktionen von Google Maps ist es notwendig, Ihre IP-Adresse zu speichern. Diese Informationen werden in der Regel an einen Server von Google in den USA übertragen und dort gespeichert.
+        \nSofern eine entsprechende Einwilligung abgefragt wurde, erfolgt die Verarbeitung ausschließlich auf Grundlage von Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TTDSG, soweit die Einwilligung die Speicherung von Cookies oder den Zugriff auf Informationen im Endgerät des Nutzers (z. B. Device-Fingerprinting) im Sinne des TTDSG umfasst. Die Einwilligung ist jederzeit in den Einstellungen widerrufbar.
+        \nDie Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie hier: https://privacy.google.com/businesses/gdprcontrollerterms/ und https://privacy.google.com/businesses/gdprcontrollerterms/sccs/.\n
+        \n<b>Provider-Informationen</b>\n
+        \n<b>Provider-Name: </b>Google Ireland Limited
+        \n<b>Beschreibung</b>
+        \nDas Unternehmen verfügt über eine Zertifizierung nach dem „EU-US Data Privacy Framework“ (DPF). Der DPF ist ein Übereinkommen zwischen der Europäischen Union und den USA, der die Einhaltung europäischer Datenschutzstandards bei Datenverarbeitungen in den USA gewährleisten soll.
+        \nJedes nach dem DPF zertifizierte Unternehmen verpflichtet sich, diese Datenschutzstandards einzuhalten. Weitere Informationen hierzu erhalten Sie vom Anbieter unter folgendem Link: https://www.dataprivacyframework.gov/s/participant-search/participant-detail?contact=true&amp;id=a2zt000000001L5AAI&amp;status=Active
+        \n<b>Adresse: </b>Gordon House, Barrow Street, Dublin 4, Irland.
+        \n<b>Web: </b>
+        \n<b>URL der Datenschutzerklärung:</b>
+        \nhttps://policies.google.com/privacy?hl=de
+        \n<b>Service</b>
+        \nDer Kartendienst Google Maps ermöglicht u.a. die Navigation mit dem Auto vom Heimatort zum Ausgangspunkt der Tour\n
+        \nMit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung von Google.\n
+    </string>
+
     <string name="set_to_default">Auf Standardwert gesetzt</string>
 
     <!-- ### TUTORIAL DIALOG ### -->
@@ -215,13 +314,20 @@
     <string name="bbq">Grillplatz</string>
     <string name="bench">Parkbank</string>
     <string name="board">Infotafel</string>
+    <string name="boundary_stone">Grenzstein</string>
     <string name="bus_stop">Bushaltestelle</string>
     <string name="cafe">"Café"</string>
+    <string name="city_gate">city_gate</string>
+    <string name="citywalls">Stadtmauer</string>
     <string name="drinking_water">Trinkwasser</string>
+    <string name="fountain">Springbrunnen</string>
     <string name="guidepost">Wegweiser</string>
     <string name="ice_cream">Eisdiele</string>
     <string name="lounger">Liege</string>
     <string name="map">"Karte"</string>
+    <string name="memorial">Denkmal</string>
+    <string name="monastery">Kloster</string>
+    <string name="monument">Monument</string>
     <string name="museum">Museum</string>
     <string name="office">Büro</string>
     <string name="place_of_worship">Andachtsstätte</string>
@@ -229,15 +335,17 @@
     <string name="rock">Fels</string>
     <string name="ruins">Ruine</string>
     <string name="shelter">Schutzhütte</string>
+    <string name="spring">Quelle</string>
     <string name="station">Station</string>
     <string name="stop">Haltestelle</string>
     <string name="supermarket">supermarket</string>
     <string name="toilets">"Toiletten"</string>
-    <string name="tower">tower</string>
+    <string name="tower">Turm</string>
     <string name="turning_circle">Wendeplatz</string>
     <string name="viewpoint">Aussichtspunkt</string>
     <string name="water_well">Brunnen</string>
-    <string name="wayside_cross">Brunnen</string>
+    <string name="wayside_cross">Wegkreuz</string>
+    <string name="wayside_shrine">Bildstock</string>
 
 
     <!-- ### Search Results ###-->

@@ -574,9 +574,10 @@ public class TrackDetails extends Track {
                     mDist = yDist + getMinXDist(_xValues[_trackIndex] - x_wpt);
                     if (mDist < nearestDist || nearestDist == INVALID_VALUE) {
                         // is the corresponding trackpoint not yet linked?
-                        if (_dataPoints[_trackIndex].getLinkIndex() <= 0)
+                        if (_dataPoints[_trackIndex].getLinkIndex() <= 0) {
                             linkedIndexFirst = _trackIndex;
-                        nearestDist = mDist;
+                            nearestDist = mDist;
+                        }
                     }
                 }
             } catch (ArrayIndexOutOfBoundsException obe) {
