@@ -14,7 +14,7 @@ package de.biselliw.tour_navigator.stubs;
 
 	/**
 	 * Send a message to all subscribers that
-	 * the data has been updated
+	 * the data has been updated // todo
 	 */
 	public static void informSubscribers() {};
 

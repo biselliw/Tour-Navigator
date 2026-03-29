@@ -162,9 +162,9 @@
     <string name="consent">Consent</string>
     <string name="decline">Decline</string>
     <string name="consent_internet">Access to Internet services</string>
-    <string name="consent_open_street_maps">Access OpenStreetMaps POIs</string>
-    <string name="consent_open_street_maps_policy">Tour Navigator uses the <a href="https://overpass-api.de">Overpass API</a> to access OpenStreetMaps data.\n
-        Accept the data policy of OpenStreetMaps: <a href="https://osmfoundation.org/wiki/Privacy_Policy">https://osmfoundation.org/wiki/Privacy_Policy</a>.</string>
+    <string name="consent_open_street_map">Access OpenStreetMap POIs</string>
+    <string name="consent_open_street_map_policy">Tour Navigator uses the <a href="https://overpass-api.de">Overpass API</a> to access OpenStreetMap data.\n
+        Accept the data policy of OpenStreetMap: <a href="https://osmfoundation.org/wiki/Privacy_Policy">https://osmfoundation.org/wiki/Privacy_Policy</a>.</string>
     <string name="consent_wikipedia">Access Wikipedia articles</string>
     <string name="consent_wikipedia_policy">You can only access the data provided by Wikipedia via database queries with your consent.
     \nThe Tour Navigator app uses the <b>GeoNames geographical database</b>:
@@ -182,8 +182,7 @@
     <string name="consent_swv_tourenportal_policy" translatable="false">Die App Tour Navigator ermöglicht die Übertragung der Geokoordinaten des ausgewählten Wegpunktes an das externe Schwarzwaldverein Tourenportal.
         Dies erfolgt ausschliesslich durch das Anklicken der aktuell gesperrten Funktion <i>zum Schwarzwaldverein Tourenportal</i> navigieren.
         \nDabei wird eine Karte mit Tourenvorschlägen in der Umgebung angezeigt.
-        \nBeim Laden der Website www.schwarzwaldverein-tourenportal.de werden Daten an Drittanbieter weitergegeben. Um die Inhalte des Portals anzusehen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.
-        Mit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung von Schwarzwaldverein Tourenportal.\n
+        \nBeim Laden der Website www.schwarzwaldverein-tourenportal.de werden Daten an Drittanbieter weitergegeben. Um die Inhalte des Portals anzusehen und die Funktion freizuschalten, können Sie Ihre Einwilligung über den Button erteilen.\n
         \n<b>Provider-Informationen</b>\n
         \n<b>Provider-Name: </b>Schwarzwaldverein e.V.
         \n<b>Beschreibung</b>
@@ -193,7 +192,8 @@
         \n<b>URL der Datenschutzerklärung:</b>
         \nhttps://www.schwarzwaldverein-tourenportal.de/de/datenschutz.html
         \n<b>Service</b>
-        \nDas Schwarzwaldverein Tourenportal bietet redaktionell geprüfte Wander‑ und Radtouren inklusive detaillierter Infos, Kartenausgabe und Track‑Downloads, sowie eigenem Tourenplaner zur Offline‑Navigation
+        \nDas Schwarzwaldverein Tourenportal bietet redaktionell geprüfte Wander‑ und Radtouren inklusive detaillierter Infos, Kartenausgabe und Track‑Downloads, sowie eigenem Tourenplaner zur Offline‑Navigation\n
+        \nMit Ihrer Einwilligung akzeptieren Sie die Datenschutzerklärung von Schwarzwaldverein Tourenportal.\n
     </string>
     <string name="consent_google_maps_policy">Accept the data policy of Google: <a href="https://policies.google.com/privacy?hl=de">https://policies.google.com/privacy</a>.</string>
     <string name="set_to_default">Set to default</string>
@@ -276,13 +276,20 @@
     <string name="bbq">bbq</string>
     <string name="bench">bench</string>
     <string name="board">board</string>
+    <string name="boundary_stone">boundary stone</string>
     <string name="bus_stop">bus stop</string>
     <string name="cafe">"Cafe"</string>
+    <string name="city_gate">city_gate</string>
+    <string name="citywalls">citywalls</string>
     <string name="drinking_water">drinking water</string>
+    <string name="fountain">fountain</string>
     <string name="guidepost">guidepost</string>
     <string name="ice_cream">ice_cream</string>
     <string name="lounger">lounger</string>
     <string name="map">"map"</string>
+    <string name="monastery">monastery</string>
+    <string name="memorial">memorial</string>
+    <string name="monument">monument</string>
     <string name="museum">museum</string>
     <string name="office">office</string>
     <string name="place_of_worship">place of worship</string>
@@ -290,6 +297,7 @@
     <string name="rock">rock</string>
     <string name="ruins">ruins</string>
     <string name="shelter">shelter</string>
+    <string name="spring">spring</string>
     <string name="station">station</string>
     <string name="stop">stop</string>
     <string name="supermarket">supermarket</string>
@@ -299,6 +307,7 @@
     <string name="viewpoint">viewpoint</string>
     <string name="water_well">water well</string>
     <string name="wayside_cross">wayside cross</string>
+    <string name="wayside_shrine">wayside shrine</string>
 
 
     <!-- ### Search Results ###-->

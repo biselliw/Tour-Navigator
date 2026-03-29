@@ -469,11 +469,15 @@ public class TrackSegments {
                 // Calculate the distance to the previous trackpoint
                 if (previousPoint != null) {
                     double radians = DataPoint.calculateRadiansBetween(previousPoint, currPoint);
-                    double distance_km = Distance.convertRadiansToDistance(radians);
-                    // summarize distances in current segment - only temporary!
-                    totalDistance_km += distance_km;
-                    // calc distance since start for each data point
-                    currPoint.setDistance(totalDistance_km);
+                    if (radians >= 0) {
+                        double distance_km = Distance.convertRadiansToDistance(radians);
+                        // summarize distances in current segment - only temporary!
+                        totalDistance_km += distance_km;
+                        // calc distance since start for each data point
+                        currPoint.setDistance(totalDistance_km);
+                    }
+                    else
+                        currPoint.setDistance(0.0);
                 } else
                     currPoint.setDistance(0.0);
                 previousPoint = currPoint;

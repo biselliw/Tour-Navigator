@@ -425,88 +425,92 @@ public class EstimateParams extends TrackSegments {
         // calculate the distance between start and end point to determine whether the tour ends at its start
         DataPoint start = _track.getPoint(0), end = _track.getPoint(_track.getNumPoints() - 1);
         double radians = DataPoint.calculateRadiansBetween(start, end);
-        double dist = Distance.convertRadiansToDistance(radians);
-        String tourType = dist < 1.0 ? "Rundtour" : "Streckentour";
+        if (radians >= 0) {
+            double dist = Distance.convertRadiansToDistance(radians);
+            String tourType = dist < 1.0 ? "Rundtour" : "Streckentour";
 
-        String warnTrackHasAltitudeJumps = ""; // todo trackHasAltitudeJumps ? "<br><b>Der Track weist Sprünge im Höhenprofil auf!</b>" : "";
+            String warnTrackHasAltitudeJumps = ""; // todo trackHasAltitudeJumps ? "<br><b>Der Track weist Sprünge im Höhenprofil auf!</b>" : "";
 
-        String description = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
-                "\n" +
-                "<head>\n" +
-                "<meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-Type\" />\n" +
-                "<title>Ohne_Titel_1</title>\n" +
-                "</head><body>\n" +
-                "<table style=\"width: 100%; border=\"0\" cellpadding=\"0\" cellspacing=\"5\" summary=\"\">\n\n" +
-                "\t<tr>\n" +
-                "\t\t<td colspan=\"5\"><b>Informationen</b></td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Startzeit: </td>\n" +
-                "\t\t<td align=\"right\">" + _track.getPoint(0).getTimestamp().getText(LOCALE, getSelectedTimezone()) + "</td>\n" +
-                "\t\t<td>&nbsp;&nbsp;</td>\n" +
-                "\t\t<td>Ende:</td>\n" +
-                "\t\t<td align=\"right\">" + _track.getPoint(_track.getNumPoints() - 1).getTimestamp().getText(LOCALE, getSelectedTimezone()) + "</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Trackzeit:</td>\n" +
-                "\t\t<td align=\"right\">" + formatIntToTime((int) (getTotalSeconds() / 60L)) + "</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Strecke: </td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistance_km) + " km</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td colspan=\"2\" align=\"right\">" + tourType + "</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td colspan=\"4\"><b>Statistiken</b></td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Dauer in Bewegung:</td>\n" +
-                "\t\t<td align=\"right\">" + formatIntToTime((int) (getTotalSeconds() / 60 - summary.totalBreakTime_min)) + "</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>Pausen:</td>\n" +
-                "\t\t<td align=\"right\">" + formatIntToTime((int) (summary.totalBreakTime_min)) + "</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td colspan=\"4\"><b>Höhenmeter</b>\n" +
-                warnTrackHasAltitudeJumps + " </td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Aufstieg: </td>\n" +
-                "\t\t<td align=\"right\">" + (int) (summary.sum_climb_m) + " hm </td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>Abstieg:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (-summary.sum_descent_m) + " hm</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Distanz eben:</td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistance_km - summary.totalDistanceClimb_km - summary.totalDistanceDescent_km) + " km</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Distanz bergauf:</td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistanceClimb_km) + " km</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>Distanz bergab:</td>\n" +
-                "\t\t<td align=\"right\">" + formatDouble(summary.totalDistanceDescent_km) + " km</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td>Höchster Punkt: </td>\n" +
-                "\t\t<td align=\"right\">" + (int) (TrackSegments.getMaxAltitude()) + " m</td>\n" +
-                "\t\t<td>&nbsp;</td>\n" +
-                "\t\t<td>Tiefster Punkt:</td>\n" +
-                "\t\t<td align=\"right\">" + (int) (TrackSegments.getMinAltitude()) + " m</td>\n" +
-                "\t</tr>\n" +
-                "\t<tr>\n" +
-                "\t\t<td colspan=\"5\"><b>Ermittelte Parameter zur Gehzeitberechnung</b><br>" +
-                "Zuverlässigkeit</td>\n";
-        return description;
+            String description = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+                    "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
+                    "\n" +
+                    "<head>\n" +
+                    "<meta content=\"text/html; charset=utf-8\" http-equiv=\"Content-Type\" />\n" +
+                    "<title>Ohne_Titel_1</title>\n" +
+                    "</head><body>\n" +
+                    "<table style=\"width: 100%; border=\"0\" cellpadding=\"0\" cellspacing=\"5\" summary=\"\">\n\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td colspan=\"5\"><b>Informationen</b></td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Startzeit: </td>\n" +
+                    "\t\t<td align=\"right\">" + _track.getPoint(0).getTimestamp().getText(LOCALE, getSelectedTimezone()) + "</td>\n" +
+                    "\t\t<td>&nbsp;&nbsp;</td>\n" +
+                    "\t\t<td>Ende:</td>\n" +
+                    "\t\t<td align=\"right\">" + _track.getPoint(_track.getNumPoints() - 1).getTimestamp().getText(LOCALE, getSelectedTimezone()) + "</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Trackzeit:</td>\n" +
+                    "\t\t<td align=\"right\">" + formatIntToTime((int) (getTotalSeconds() / 60L)) + "</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Strecke: </td>\n" +
+                    "\t\t<td align=\"right\">" + formatDouble(summary.totalDistance_km) + " km</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td colspan=\"2\" align=\"right\">" + tourType + "</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td colspan=\"4\"><b>Statistiken</b></td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Dauer in Bewegung:</td>\n" +
+                    "\t\t<td align=\"right\">" + formatIntToTime((int) (getTotalSeconds() / 60 - summary.totalBreakTime_min)) + "</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>Pausen:</td>\n" +
+                    "\t\t<td align=\"right\">" + formatIntToTime((int) (summary.totalBreakTime_min)) + "</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td colspan=\"4\"><b>Höhenmeter</b>\n" +
+                    warnTrackHasAltitudeJumps + " </td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Aufstieg: </td>\n" +
+                    "\t\t<td align=\"right\">" + (int) (summary.sum_climb_m) + " hm </td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>Abstieg:</td>\n" +
+                    "\t\t<td align=\"right\">" + (int) (-summary.sum_descent_m) + " hm</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Distanz eben:</td>\n" +
+                    "\t\t<td align=\"right\">" + formatDouble(summary.totalDistance_km - summary.totalDistanceClimb_km - summary.totalDistanceDescent_km) + " km</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Distanz bergauf:</td>\n" +
+                    "\t\t<td align=\"right\">" + formatDouble(summary.totalDistanceClimb_km) + " km</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>Distanz bergab:</td>\n" +
+                    "\t\t<td align=\"right\">" + formatDouble(summary.totalDistanceDescent_km) + " km</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td>Höchster Punkt: </td>\n" +
+                    "\t\t<td align=\"right\">" + (int) (TrackSegments.getMaxAltitude()) + " m</td>\n" +
+                    "\t\t<td>&nbsp;</td>\n" +
+                    "\t\t<td>Tiefster Punkt:</td>\n" +
+                    "\t\t<td align=\"right\">" + (int) (TrackSegments.getMinAltitude()) + " m</td>\n" +
+                    "\t</tr>\n" +
+                    "\t<tr>\n" +
+                    "\t\t<td colspan=\"5\"><b>Ermittelte Parameter zur Gehzeitberechnung</b><br>" +
+                    "Zuverlässigkeit</td>\n";
+            return description;
+        }
+        else
+            return "";
     }
 
     public String getRecordedTrackFileInfo_Success() {

@@ -188,10 +188,12 @@ public class TourDetails {
                                 info.type = interpretWaypointType(info.type);
                                 // calculate distance between track and waypoint
                                 double radians = DataPoint.calculateRadiansBetween(point,linkedPoint);
-                                double distance_km = Distance.convertRadiansToDistance(radians);
-                                // add distance to type
-                                if (distance_km > 0.1)
-                                    info.type += " (" + (int)(distance_km * 1000.0) + " m " + _res.getString(R.string.distance_from_track) +")";
+                                if (radians >= 0) {
+                                    double distance_km = Distance.convertRadiansToDistance(radians);
+                                    // add distance to type
+                                    if (distance_km > 0.1)
+                                        info.type += " (" + (int) (distance_km * 1000.0) + " m " + _res.getString(R.string.distance_from_track) + ")";
+                                }
                             }
                             info.description = linkedPoint.getDescription();
                             info.link = linkedPoint.getWebLink();

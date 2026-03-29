@@ -523,12 +523,15 @@ public class ControlElements extends BaseActivity {
                 break;
             case WAIT_FOR_GPS_FIX:
                 image_location_wait.setVisibility(VISIBLE);
+                image_location_wait.setColorFilter(getColor(R.color.yellow));
                 break;
             case GPS_FIX:
                 image_location_on.setVisibility(VISIBLE);
+                image_location_on.setColorFilter(getColor(R.color.green));
                 break;
             case GPS_TIMEOUT:
                 image_location_off.setVisibility(VISIBLE);
+                image_location_off.setColorFilter(getColor(R.color.red));
                 break;
             default:
         }
@@ -672,10 +675,19 @@ public class ControlElements extends BaseActivity {
         if (DEBUG)
             Log.i(TAG,"setTrackingStatus("+ inTracking + ")");
 // todo setTrackingStatus
+        // todo android.app.RemoteServiceException$ForegroundServiceDidNotStartInTimeException: Context.startForegroundService() did not then call Service.startForeground(): ServiceRecord{e695d7f u0 de.biselliw.tour_navigator/.LocationService c:de.biselliw.tour_navigator}
         ((LocationActivity)this).startForegroundLocationService(inTracking);
         _isTracking = inTracking;
         setExpandViewStatus(false);
+        if (!inTracking)
+            setGpsStatus(LocationActivity.gpsStatus.PROVIDER_ENABLED);
+        else
+            setGpsStatus(LocationActivity.gpsStatus.GPS_TIMEOUT);
         updateTrackingStatus();
+    }
+
+    protected void setGpsStatus(LocationActivity.gpsStatus inGpsStatus) {
+        _updateGpsStatus = true;
     }
 
     /**

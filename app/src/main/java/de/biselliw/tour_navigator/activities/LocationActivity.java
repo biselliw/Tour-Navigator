@@ -365,13 +365,13 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
 
     /**
      * Handle received GPS location data
-     * @param inAccuracy horizonal accuracy of the location provider
+     * @param inAccuracy horizonal accuracy of the location provider [m]
      */
     public void handleGpsData(float inAccuracy) {
         int locStatus = LocationHandler.getStatus();
 
         recordAdapter.setRealtime(true);
-        if (inAccuracy < maxOffsetPOI_km)
+        if (inAccuracy < maxOffsetPOI_km * 1000.0)
             setGpsStatus(gpsStatus.GPS_FIX);
         else
             setGpsStatus(gpsStatus.WAIT_FOR_GPS_FIX);
@@ -757,7 +757,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                         _initialLocationStatus = INITIAL;
                         if (_initialTrackingStatus) {
                             if (DEBUG) Log.d(TAG, " set initial tracking status: active");
-                            setTrackingStatus(true);
+// todo                            setTrackingStatus(true);
                             _initialTrackingStatus = false;
                         }
                     }
@@ -837,7 +837,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
      * Set the status of the GPS location provider
      * @param inGpsStatus status of the GPS location provider
      */
-    public void setGpsStatus(gpsStatus inGpsStatus) {
+    @Override
+    protected void setGpsStatus(gpsStatus inGpsStatus) {
         if (inGpsStatus != _GpsStatus) {
             switch (inGpsStatus) {
                 case PERMISSION_DENIED:
@@ -846,6 +847,8 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                 case PROVIDER_ENABLED:
                 case WAIT_FOR_GPS_FIX:
                 case GPS_FIX:
+
+                case GPS_TIMEOUT:
                     _newGpsStatus = inGpsStatus;
                     _updateGpsStatus = true;
                     break;
@@ -861,6 +864,7 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
                     }
             }
             requestStatusUpdate();
+            super.setGpsStatus(inGpsStatus);
         }
     }
 

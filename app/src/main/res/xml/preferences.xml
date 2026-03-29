@@ -39,8 +39,8 @@
             <SwitchPreferenceCompat
                 android:id="@+id/pref_consent_osm"
                 android:key="pref_consent_osm"
-                android:title="OpenStreetMaps"
-                android:summary="@string/consent_open_street_maps"
+                android:title="OpenStreetMap"
+                android:summary="@string/consent_open_street_map"
                 app:isPreferenceVisible="true"
                 android:defaultValue="false"/>
             <SwitchPreferenceCompat
@@ -53,7 +53,7 @@
             <SwitchPreferenceCompat
                 android:id="@+id/pref_consent_vmv"
                 android:key="pref_consent_vmv"
-                android:title="Wikipedia"
+                android:title="Verkehrsgesellschaft Mecklenburg-Vorpommern mbH"
                 android:summary="@string/consent_vmv"
                 app:isPreferenceVisible="true"
                 android:defaultValue="false"/>

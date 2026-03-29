@@ -75,12 +75,14 @@ public class GetWaypointsFunction extends GenericSearchFunction
                         DataPoint trackPoint = track.getPoint(i);
                         if (trackPoint != null && !trackPoint.isWaypoint()) {
                             double dist = DataPoint.calculateRadiansBetween(searchPoint, trackPoint);
-                            double distance = Distance.convertRadiansToDistance(dist, distUnit);
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                foundDistance = trackPoint.getDistance();
-                                if (distance < 0.01)
-                                    break;
+                            if (dist >= 0) {
+                                double distance = Distance.convertRadiansToDistance(dist, distUnit);
+                                if (distance < minDistance) {
+                                    minDistance = distance;
+                                    foundDistance = trackPoint.getDistance();
+                                    if (distance < 0.01)
+                                        break;
+                                }
                             }
                         }
                     }

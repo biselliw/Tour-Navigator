@@ -53,7 +53,7 @@ public class Prefs {
     public static final String PREF_CONSENT_INTERNET = "pref_consent_internet";
 
     /**
-     * Preference for use of OpenStreetMaps
+     * Preference for use of OpenStreetMap
      */
     public static final String PREF_CONSENT_OSM = "pref_consent_osm";
 
@@ -154,8 +154,8 @@ public class Prefs {
      */
     public static void defineHikingParameters () {
         hikingParameters = new ArrayList<>();
-        hikingParameters.add(new Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4200));
-        hikingParameters.add(new Parameter("pref_hiking_par_speedClimb", 100, 1000, 350));
+        hikingParameters.add(new Parameter("pref_hiking_par_horSpeed", 1000, 10000, 4000));
+        hikingParameters.add(new Parameter("pref_hiking_par_speedClimb", 100, 1000, 300));
         hikingParameters.add(new Parameter("pref_hiking_par_speedDescent", 100, 2000, 500));
     }
 
@@ -242,7 +242,7 @@ public class Prefs {
     }
 
     /**
-     * Preferences for use of OpenStreetMaps
+     * Preferences for use of OpenStreetMap
      */
     public static boolean getConsentOpenStreetMaps() {
         return SettingsActivity.getConsentOpenStreetMaps();

@@ -25,11 +25,9 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HexFormat;
 
 import de.biselliw.tour_navigator.tim_prune.function.search.SearchResult;
-
-import static de.biselliw.tour_navigator.functions.PublicStopsHandler.getUriPublicStops;
-import static de.biselliw.tour_navigator.functions.PublicStopsHandler.wgs84ToMRCV;
 
 /**
  * XML handler for dealing with XML returned from the OSM Overpass api,
@@ -44,11 +42,10 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
 
     /** set to true if parser passed the filtered items */
     private boolean _useCurrPoint = true;
+    private boolean _isRailwayStop = false,  _isStop = false, _queryStation;
 
     /** set to true if parser detected to ignore items */
     private boolean _ignoreCurrPoint = false;
-
-    private boolean _matchAll = false;
 
     private String _value = null;
     private String _typeClass = "";
@@ -75,9 +72,8 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
     final static String[] values_amenity = new String[]{"bbq", "bench", "biergarten", "cafe", "drinking_water",
             "fountain", "ice_cream", "lounger", "place_of_worship", "restaurant", "shelter", "toilets", "water_point"};
     final static String[] values_information = new String[]{"board", "guidepost", "map"};
-    final static String[] values_man_made = new String[]{"bridge", "cairn", "cross", "obelisk", "reservoir_covered", "street_cabinet", "tower", "water_well", "watermill", "webcam", "wildlife_crossing", "windmill"};
+    final static String[] values_man_made = new String[]{"bridge", "cairn", "cross", "obelisk", "reservoir_covered", "tower", "water_well", "watermill", "webcam", "wildlife_crossing", "windmill"};
     final static String[] values_natural = new String[]{"rock", "spring"};
-    final static String[] values_railway = new String[]{"crossing", "level_crossing"};
     final static String[] values_shop = new String[]{"general", "supermarket"};
     final static String[] values_tourism = new String[]{"museum","viewpoint",
             "artwork" // todo translate
@@ -86,9 +82,9 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
 
 
     /* list of keys */
-    final static String[] keys = new String[]{"amenity", "information", "man_made", "natural", "railway", "shop", "tourism"};
+    final static String[] keys = new String[]{"amenity", "information", "man_made", "natural", "shop", "tourism"};
     /* list of value lists */
-    final static String[][] values = new String[][]{values_amenity, values_information, values_man_made, values_natural, values_railway, values_shop, values_tourism};
+    final static String[][] values = new String[][]{values_amenity, values_information, values_man_made, values_natural, values_shop, values_tourism};
 
     /**
      * Check if key / value match
@@ -132,9 +128,10 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
         return false;
     }
 
-    final static String[] _keys = new String[]{"highway", // todo reduce, remove street_lamp
+    final static String[] _keys = new String[]{ "highway",
             "hiking",
-            "historic", // todo translate "historic", "monument", "memorial", "wayside_shrine", "wayside_cross"
+            "historic",
+            "railway",
             "ref:IFOPT", "ref:ibnr"
             };
 
@@ -151,7 +148,7 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
     }
 
     final static String[] ignoreValues = new String[]{"route_marker", // todo use way mark sign?
-            "street_lamp"};
+            "street_cabinet", "street_lamp"};
 
     /**
      * Check if not wanted value matches
@@ -163,13 +160,6 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
             if (inValue.equals(s))
                 return true;
         return false;
-    }
-
-    /**
-     * Option to ignore ell filters
-     */
-    public void matchAll () {
-        _matchAll = true;
     }
 
     /**
@@ -203,6 +193,9 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                 _currPoint.setWebUrl(link);
                 _useCurrPoint = false;
                 _ignoreCurrPoint = false;
+                _isRailwayStop = false;
+                _isStop = false;
+                _queryStation = false;
                 _hasTags = false;
                 if (inTagName.equals("node")) {
                     _currPoint.setID(inAttributes.getValue("id"));
@@ -248,43 +241,19 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
             _hasTags = true;
 
             if (!ignoreValue(value)) {
-                if (_matchAll)
-                    _useCurrPoint = true;
                 if (match_key(key)) {
-                    if (key.equals("ref:IFOPT") || key.equals("ref:ibnr")) {
-                        if (!_currPoint.getTrackName().isEmpty()) {
-                            _useCurrPoint = true;
-                            if (key.equals("ref:ibnr")) {
-                                _currPoint.setPointType("station");
-                                value = value + "<ul><li>Bahnhofsinfos: https://www.bahnhof.de/bahnhof-de/id/" + value +
-                                        "</li><li>Verbindungsanfrage: https://www.bahn.de/buchung/start?zo=" + value + "</li></ul>";
-                            }
-                            else {
-                                _currPoint.setPointType("stop");
-                                value = value + "<ul><li>Fahrplanauskunft: https://www.fahrplanauskunft-mv.de/vmvsl3plus/departureMonitor?formik=origin%3D" + value +
-                                        "</li><li>Verbindungsanfrage: https://www.bahn.de/buchung/start?zo=" + _currPoint.getTrackName().replace(" ","%20") + "</li></ul>";
-                            }
-                        }
-                    }
-                    else if (key.equals("highway") && value.equals("bus_stop")) {
-                        _currPoint.setPointType("stop");
-
-                        if (_currPoint.hasCoordinates()) {
-                            String uri = getUriPublicStops(Double.parseDouble(_currPoint.getLatitude()), Double.parseDouble(_currPoint.getLongitude()));
-                            value = value + "<ul><li>Fahrplanauskunft: " + uri + "</li></ul>";
-                        }
-                    }
-                    else {
-                        _useCurrPoint = true;
-                        _currPoint.setPointType(value);
-                    }
+                    value = checkStation(key, value);
                 } else if (match(key, value)) {
                     _useCurrPoint = true;
                     _currPoint.setPointType(value);
+                } else if (key.equals("operator") && value.equals("Schwarzwaldverein")) {
+                    value = value + ": https://www.schwarzwaldverein.de/schwarzwald/wanderwege";
+                } else if (key.contains("wikidata")) {
+                    value = "https://www.wikidata.org/wiki/" + value;
                 } else if (key.equals("wikimedia_commons")) {
-                    value = "https://commons.wikimedia.org/wiki/" + value.replace(" ", "_");
+                    value = makeWebLink("https://commons.wikimedia.org/wiki/" + value.replace(":","%3A"));
                 } else if (key.startsWith("wikipedia")) {
-                    value = "https://de.wikipedia.org/wiki/" + value.replace(" ", "_");
+                    value = makeWebLink("https://de.wikipedia.org/wiki/" + value);
                 } else if (key.equals("website")) {
                     _currPoint.setDownloadLink(value);
                 } else if (key.equals("ref")) {
@@ -303,6 +272,95 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                 _useCurrPoint = false;
             }
         }
+    }
+
+    /**
+     * check key / value for public transport stations
+     * @param inKey key
+     * @param inValue value
+     */
+    private String checkStation (String inKey, String inValue) {
+        String value = inValue;
+        if (inKey.equals("ref:ibnr")) {
+            _useCurrPoint = true;
+            _isRailwayStop = true;
+            _currPoint.setPointType("station");
+            value = value
+                + "<ul><li>Bahnhofsinfos: https://www.bahnhof.de/bahnhof-de/id/" + inValue + "</li>"
+                + addQueryStation(inValue)
+                + "</ul>";
+        }
+        else if (inKey.equals("ref:IFOPT")) {
+            if (!_currPoint.getTrackName().isEmpty()) {
+                if (_isRailwayStop) {
+                    _currPoint.setPointType("station");
+                    _isStop = false;
+                }
+                else {
+                    _isStop = true;
+                    _currPoint.setPointType("stop");
+                }
+                if (value.length() > 15)
+                    value = value.substring(0,14);
+                value = value + "<ul><li>Fahrplanauskunft: https://www.fahrplanauskunft-mv.de/vmvsl3plus/departureMonitor?formik=origin%3D" + value + "</li>"
+                        + addQueryStation(_currPoint.getTrackName())
+                        + "</ul>";
+            }
+        }
+        else if (inKey.equals("highway") && value.equals("bus_stop")) {
+            _isStop = true;
+            _isRailwayStop = false;
+            _currPoint.setPointType("stop");
+/*
+            if (_currPoint.hasCoordinates()) {
+                String uri = getUriPublicStops(Double.parseDouble(_currPoint.getLatitude()), Double.parseDouble(_currPoint.getLongitude()));
+                value = value + "<ul><li>Fahrplanauskunft: " + uri + "</li></ul>";
+            }
+ */
+        }
+        else if (inKey.equals("railway")) {
+            if (inValue.equals("station") || inValue.equals("stop")) {
+                _isRailwayStop = true;
+                _isStop = false;
+                _currPoint.setPointType("station");
+                if (!_currPoint.getTrackName().isEmpty()) {
+                    _useCurrPoint = true;
+                    if (!_queryStation) {
+                        value = value + "<ul>"
+                            + addQueryStation(_currPoint.getTrackName())
+                            + "</ul>";
+                    }
+                }
+            }
+        }
+        else {
+            _useCurrPoint = true;
+            if (!value.equals("yes") && !value.equals("no"))
+                _currPoint.setPointType(value);
+        }
+        return value;
+    }
+
+    /**
+     * Create a web link
+     */
+    private String makeWebLink (String inUri) {
+        return inUri.replace(" ", "%20").replace(")", "%29");
+    }
+
+    /**
+     * add travel query
+     * @param inStation IFOPT id or station name
+     */
+    private String addQueryStation(String inStation) {
+        String value = "";
+        if (!_queryStation) {
+            value = "<li>Verbindungsanfrage: "
+                    + makeWebLink("https://www.bahn.de/buchung/start?zo=" + inStation)
+                    + "</li>";
+            _queryStation = true;
+        }
+        return value;
     }
 
     /**
@@ -335,11 +393,6 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
                 _typeClass = _value;
             }
             else if (inTagName.equals("typeName")) {
-/*
-                if (!_typeClass.isEmpty())
-                    _typeClass = _typeClass + "/";
-                _currPoint.setPointType(_typeClass + _value);
- */
                 _currPoint.setPointType(_value);
             }
             else if (inTagName.equals("lat")) {
@@ -360,7 +413,8 @@ public class OpenStreetMapXmlHandler extends DefaultHandler
             {
                 if (_useCurrPoint) {
                     // end of the entry
-                    _pointList.add(_currPoint);
+                    if (!_currPoint.getTrackName().isEmpty())
+                        _pointList.add(_currPoint);
                 }
                 else {
                     if (!_hasTags && _currPoint.hasCoordinates()) {
