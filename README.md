@@ -4,10 +4,10 @@
 
 
 Tour Navigator is a Privacy Friendly Android App which presents hikers a timetable of a planned 
-tour based on a GPX route containing wayponts.
+tour based on a GPX route containing waypoints.
 
 It's development is primary based on GpsPrune - a map-based Java application for viewing, editing and 
-converting coordinate data from GPS systems. Further information and Java runnables can be found on
+converting coordinate data from GPS systems. Further information and Java runnable can be found on
 https://gpsprune.activityworkshop.net.
 
 ## Motivation
@@ -27,9 +27,7 @@ Further development requires Android Studio
  
 ### API Reference
 
-Mininum supported SDK Version: API level 33 (year: 2022, Codename: Tiramisu, Android 13)
-
-Target SDK Version: API level 34 
+Minimum supported SDK Version: API level 33 (year: 2022, Codename: Tiramisu, Android 13)
 
 ## License
 
