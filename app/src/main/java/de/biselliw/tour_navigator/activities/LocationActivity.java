@@ -622,29 +622,12 @@ public class LocationActivity extends ControlElements implements ActivityCompat.
             if (DEBUG) _updateLogTimerGPS = true;
             onUpdateGpsStatus();
         }
-/*
-        if (LocationHandler.resultsUpdated()) {
-            updateLocationResults();
-        }
-        gpsStatus prevGpsStatus = _GpsStatus;
-*/
         if (isTracking()) {
             if (gpsSimulation != null) {
                 /** Handle GPS simulation */
                 LocationHandler.handleLocation(gpsSimulation.getLocation());
                 handleGpsData(15.0F);
             }
-
-/*
-            long now = 0;
-            if (_location != null) {
-                now = _location.getTime();
-                handleGpsData(now, _location.getLatitude(), _location.getLongitude(), _location.getAccuracy());
-                requestStatusUpdate();
-                _location = null;
-            }
-*/
-
         }
 
         switch (_GpsStatus) {
